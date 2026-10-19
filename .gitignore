@@ -1,0 +1,35 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# Next.js / build output
+.next/
+out/
+dist/
+*.tsbuildinfo
+next-env.d.ts
+
+# local data (embedded Postgres, local uploads)
+.data/
+
+# tests
+coverage/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# env files (secrets never go to git) — only the example is tracked
+.env
+.env.*
+!.env.example
+
+# logs and OS/editor noise
+*.log
+npm-debug.log*
+pnpm-debug.log*
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/

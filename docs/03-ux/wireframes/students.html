@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>هنرجوها — دفتر مربی (وایرفریم 0.1)</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">پرش به محتوا</a>
+<div class="wf-banner">
+  <span>وایرفریم 0.1 · <strong>M2 هنرجوها — فهرست</strong> · نقش: مدیر (مشاور: فقط هنرجوهای خودش، بدون ستون و فیلتر «مشاور»)</span>
+  <a href="index.html">→ فهرست وایرفریم‌ها</a>
+</div>
+
+<div class="app">
+  <aside class="sidebar" aria-label="ناوبری اصلی">
+    <div class="brand">UpworkCoach<small>دفتر مربی</small></div>
+    <nav class="nav">
+      <a href="today.html">امروز <span class="count">۱۸</span></a>
+      <a href="students.html" aria-current="page">هنرجوها</a>
+      <a href="kanban.html">مراحل</a>
+      <a href="tasks.html">کارها</a>
+      <a href="#">سؤال‌ها <span class="count alert">۳</span></a>
+      <div class="nav-sep" role="separator"></div>
+      <a href="#">نتایج <small class="faint">مدیر</small></a>
+      <a href="#">تنظیمات <small class="faint">مدیر</small></a>
+    </nav>
+    <div class="nav-foot">مربی · مدیر<br><a href="#">حساب من</a></div>
+  </aside>
+
+  <header class="topbar">
+    <a class="icon-btn" href="today.html#menu" aria-label="منو">☰</a>
+    <span class="t-title">هنرجوها (۴۲)</span>
+    <a class="icon-btn" href="#new-student" aria-label="هنرجوی جدید">+</a>
+  </header>
+
+  <main class="main" id="main">
+    <div class="main-inner">
+      <div class="page-head">
+        <div>
+          <h1>هنرجوها <span class="faint">(۴۲ فعال)</span></h1>
+          <div class="sub">۳ قرمز · ۵ زرد · ۳۱ سبز · ۳ متوقف</div>
+        </div>
+        <div class="page-actions">
+          <nav class="seg" aria-label="نوع نما"><a href="students.html" aria-current="page">فهرست</a><a href="kanban.html">مراحل</a></nav>
+          <a class="btn desk-only" href="#">ورود از اکسل</a>
+          <a class="btn btn-primary desk-only" href="#new-student">+ هنرجوی جدید</a>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <label class="visually-hidden" for="q">جستجو</label>
+        <input id="q" class="search" type="search" placeholder="جستجوی نام، موبایل یا برچسب…">
+        <a class="btn filter-toggle" href="#filters">فیلتر (۱)</a>
+        <div class="filters-desk filter-chips" role="group" aria-label="وضعیت">
+          <span class="fchip" aria-pressed="true">همه</span>
+          <span class="fchip"><span class="health h-red" style="padding:2px 6px">گیرکرده</span> ۳</span>
+          <span class="fchip"><span class="health h-yellow" style="padding:2px 6px">نیاز به توجه</span> ۵</span>
+          <span class="fchip"><span class="health h-green" style="padding:2px 6px">روبه‌راه</span> ۳۱</span>
+          <span class="fchip"><span class="health h-paused" style="padding:2px 6px">متوقف</span> ۳</span>
+        </div>
+      </div>
+      <div class="toolbar filters-desk">
+        <select class="select" aria-label="مرحله"><option>همه‌ی مراحل</option></select>
+        <select class="select" aria-label="مشاور"><option>همه‌ی مشاورها</option></select>
+        <select class="select" aria-label="پلتفرم"><option>همه‌ی پلتفرم‌ها</option></select>
+        <select class="select" aria-label="برچسب"><option>همه‌ی برچسب‌ها</option></select>
+        <select class="select" aria-label="مرتب‌سازی"><option>مرتب‌سازی: نیاز به رسیدگی</option><option>آخرین فعالیت</option><option>روز در مرحله</option><option>نام</option></select>
+      </div>
+
+      <div class="table-wrap">
+        <table class="rtable">
+          <caption class="visually-hidden">فهرست هنرجوها، مرتب بر اساس نیاز به رسیدگی</caption>
+          <thead>
+            <tr>
+              <th scope="col">هنرجو</th>
+              <th scope="col">وضعیت و دلیل</th>
+              <th scope="col">مرحله</th>
+              <th scope="col">کار بعدی</th>
+              <th scope="col" class="hide-md">آخرین فعالیت</th>
+              <th scope="col">مشاور</th>
+              <th scope="col" class="hide-md">ویترین‌ها</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="cell-primary"><a class="name" href="student-profile.html">زهرا کریمی</a><div class="tags"><span class="tag">طراحی UI</span><span class="tag">کوهورت پاییز</span></div></td>
+              <td data-label="وضعیت"><div><span class="health h-churn">گیرکرده · خطر ریزش</span><div class="reason">۱۵ روز بی‌فعالیت · check-in نداده</div></div></td>
+              <td data-label="مرحله">۲ ویترین · <span class="overtime r">۲۴ روز</span></td>
+              <td data-label="کار بعدی"><div>ارسال متن ویترین <span class="tag tag-overdue">معوق · ۶ روز</span></div></td>
+              <td data-label="آخرین فعالیت" class="hide-md">۱۵ روز پیش</td>
+              <td data-label="مشاور">خودم</td>
+              <td data-label="ویترین‌ها" class="hide-md"><bdi class="en">Fiverr</bdi></td>
+            </tr>
+            <tr>
+              <td class="cell-primary"><a class="name" href="student-profile.html">حسین نوری</a><div class="tags"><span class="tag">وردپرس</span></div></td>
+              <td data-label="وضعیت"><div><span class="health h-red">گیرکرده</span><div class="reason">۲ کار معوق</div></div></td>
+              <td data-label="مرحله">۳ نمونه‌کار · ۱۲ روز</td>
+              <td data-label="کار بعدی"><div>نمونه‌کار ۲ <span class="tag tag-overdue">معوق · ۹ روز</span></div></td>
+              <td data-label="آخرین فعالیت" class="hide-md">۵ روز پیش</td>
+              <td data-label="مشاور">رضا</td>
+              <td data-label="ویترین‌ها" class="hide-md"><bdi class="en">Upwork</bdi></td>
+            </tr>
+            <tr>
+              <td class="cell-primary"><a class="name" href="student-profile.html">امیر رستمی</a><div class="tags"><span class="tag">React</span><span class="tag">ممیزی سه‌لایه</span></div></td>
+              <td data-label="وضعیت"><div><span class="health h-red">گیرکرده</span><div class="reason">۴ دور اصلاح یک کار</div></div></td>
+              <td data-label="مرحله">۵ پروپوزال · ۲۶ روز</td>
+              <td data-label="کار بعدی"><div>پروپوزال برای بررسی <span class="chip st-submitted">منتظر بازبینی</span></div></td>
+              <td data-label="آخرین فعالیت" class="hide-md">دیروز</td>
+              <td data-label="مشاور">رضا</td>
+              <td data-label="ویترین‌ها" class="hide-md"><bdi class="en">Upwork</bdi>، <bdi class="en">LinkedIn</bdi></td>
+            </tr>
+            <tr>
+              <td class="cell-primary"><a class="name" href="student-profile.html">نگار صادقی</a></td>
+              <td data-label="وضعیت"><div><span class="health h-yellow">نیاز به توجه</span><div class="reason">۲ برابر زمان معمول در مرحله</div></div></td>
+              <td data-label="مرحله">۱ نیچ · <span class="overtime r">۲۱ روز</span></td>
+              <td data-label="کار بعدی"><div>سند نیچ · تا ۲ آبان</div></td>
+              <td data-label="آخرین فعالیت" class="hide-md">امروز</td>
+              <td data-label="مشاور">لیلا</td>
+              <td data-label="ویترین‌ها" class="hide-md">—</td>
+            </tr>
+            <tr>
+              <td class="cell-primary"><a class="name" href="student-profile.html">پریسا امینی</a></td>
+              <td data-label="وضعیت"><div><span class="health h-yellow">نیاز به توجه</span><div class="reason">۴ روز بدون کار باز</div></div></td>
+              <td data-label="مرحله">۳ نمونه‌کار · ۸ روز</td>
+              <td data-label="کار بعدی"><div class="faint">کار بازی ندارد</div></td>
+              <td data-label="آخرین فعالیت" class="hide-md">دیروز</td>
+              <td data-label="مشاور">لیلا</td>
+              <td data-label="ویترین‌ها" class="hide-md"><bdi class="en">Behance</bdi></td>
+            </tr>
+            <tr>
+              <td class="cell-primary"><a class="name" href="student-profile.html">مهدی جعفری</a></td>
+              <td data-label="وضعیت"><div><span class="health h-yellow">نیاز به توجه</span><div class="reason">سومین تمدید مهلت</div></div></td>
+              <td data-label="مرحله">۲ ویترین · ۹ روز</td>
+              <td data-label="کار بعدی"><div>بازنویسی <bdi class="en">Overview</bdi> <span class="chip st-submitted">منتظر بازبینی</span></div></td>
+              <td data-label="آخرین فعالیت" class="hide-md">دیروز</td>
+              <td data-label="مشاور">خودم</td>
+              <td data-label="ویترین‌ها" class="hide-md"><bdi class="en">Upwork</bdi></td>
+            </tr>
+            <tr>
+              <td class="cell-primary"><a class="name" href="student-profile.html">سارا محمدی</a><div class="tags"><span class="tag">تولید محتوا</span></div></td>
+              <td data-label="وضعیت"><div><span class="health h-green">روبه‌راه</span></div></td>
+              <td data-label="مرحله">۱ نیچ · ۶ روز</td>
+              <td data-label="کار بعدی"><div>سند نیچ <span class="chip st-submitted">منتظر بازبینی</span></div></td>
+              <td data-label="آخرین فعالیت" class="hide-md">امروز</td>
+              <td data-label="مشاور">خودم</td>
+              <td data-label="ویترین‌ها" class="hide-md">—</td>
+            </tr>
+            <tr>
+              <td class="cell-primary"><a class="name" href="student-profile.html">علی موسوی</a></td>
+              <td data-label="وضعیت"><div><span class="health h-green">روبه‌راه</span></div></td>
+              <td data-label="مرحله">۵ پروپوزال · ۱۰ روز</td>
+              <td data-label="کار بعدی"><div>۳ پروپوزال کالیبره · تا ۱ آبان</div></td>
+              <td data-label="آخرین فعالیت" class="hide-md">امروز</td>
+              <td data-label="مشاور">رضا</td>
+              <td data-label="ویترین‌ها" class="hide-md"><bdi class="en">Upwork</bdi></td>
+            </tr>
+            <tr>
+              <td class="cell-primary"><a class="name" href="student-profile.html">نیلوفر حسینی</a></td>
+              <td data-label="وضعیت"><div><span class="health h-green">روبه‌راه</span></div></td>
+              <td data-label="مرحله">۸ رشد · ۴۰ روز</td>
+              <td data-label="کار بعدی"><div>مرور ماهانه‌ی رشد · تا ۱۰ آبان</div></td>
+              <td data-label="آخرین فعالیت" class="hide-md">۳ روز پیش</td>
+              <td data-label="مشاور">خودم</td>
+              <td data-label="ویترین‌ها" class="hide-md"><bdi class="en">Upwork</bdi>، <bdi class="en">Contra</bdi></td>
+            </tr>
+            <tr>
+              <td class="cell-primary"><a class="name" href="student-profile.html">کیان رحیمی</a></td>
+              <td data-label="وضعیت"><div><span class="health h-paused">متوقف تا ۶ آبان</span></div></td>
+              <td data-label="مرحله">۴ فرصت · —</td>
+              <td data-label="کار بعدی"><div class="faint">—</div></td>
+              <td data-label="آخرین فعالیت" class="hide-md">۱۲ روز پیش</td>
+              <td data-label="مشاور">لیلا</td>
+              <td data-label="ویترین‌ها" class="hide-md"><bdi class="en">Upwork</bdi></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="note">ستون‌ها از <span class="ref">progress-tracking.md §8</span> «فهرست هنرجوهای من / همه»؛ بدون «عددهای قیف ۴ هفته» چون ثبت اپلای در 0.1 نیست (فرض U2). مرتب‌سازی پیش‌فرض: قرمز ← زرد ← دارای تحویل منتظر ← سبز ← متوقف. کل نام لینک به پرونده است. روی تبلت «آخرین فعالیت» و «ویترین‌ها» پنهان می‌شوند؛ روی موبایل هر ردیف کارت می‌شود و فیلترها به دکمه‌ی «فیلتر (۱)» می‌روند. F2: فیلتر نام، مرحله، مشاور، برچسب، پلتفرم، وضعیت.</p>
+      <p class="note">«روز در مرحله» با رنگ و وزن متن وقتی از زمان معمول گذشته (۲۴ روز، پررنگ قرمز)؛ معنی آن در ستون وضعیت با متن هم آمده است.</p>
+    </div>
+  </main>
+
+  <nav class="tabbar" aria-label="ناوبری پایین">
+    <a href="today.html"><span class="ti" aria-hidden="true">◔</span>امروز<span class="count">۱۸</span></a>
+    <a href="students.html" aria-current="page"><span class="ti" aria-hidden="true">▤</span>هنرجوها</a>
+    <a href="today.html#quick" class="plus" aria-label="افزودن سریع"><span class="ti" aria-hidden="true">+</span></a>
+    <a href="tasks.html"><span class="ti" aria-hidden="true">✓</span>کارها</a>
+    <a href="#"><span class="ti" aria-hidden="true">؟</span>سؤال‌ها<span class="count alert">۳</span></a>
+  </nav>
+</div>
+
+<!-- فیلترها روی موبایل -->
+<div class="sheet" id="filters" role="dialog" aria-modal="true" aria-labelledby="h-f">
+  <div class="sheet-panel">
+    <div class="sheet-head"><h2 id="h-f">فیلتر</h2><a class="sheet-close" href="#" aria-label="بستن">×</a></div>
+    <div class="field"><span class="label">وضعیت</span>
+      <div class="filter-chips"><span class="fchip" aria-pressed="true">همه</span><span class="fchip">گیرکرده</span><span class="fchip">نیاز به توجه</span><span class="fchip">روبه‌راه</span><span class="fchip">متوقف</span></div></div>
+    <div class="field"><label for="f1">مرحله</label><select id="f1"><option>همه</option></select></div>
+    <div class="field"><label for="f2">مشاور</label><select id="f2"><option>همه</option></select></div>
+    <div class="field"><label for="f3">پلتفرم</label><select id="f3"><option>همه</option></select></div>
+    <div class="field"><label for="f4">مرتب‌سازی</label><select id="f4"><option>نیاز به رسیدگی</option></select></div>
+    <div class="form-actions"><a class="btn" href="#">پاک کردن</a><a class="btn btn-primary" href="#">نمایش ۴۲ هنرجو</a></div>
+  </div>
+</div>
+
+<!-- M2a: هنرجوی جدید -->
+<div class="sheet" id="new-student" role="dialog" aria-modal="true" aria-labelledby="h-ns">
+  <div class="sheet-panel">
+    <div class="sheet-head"><h2 id="h-ns">هنرجوی جدید</h2><a class="sheet-close" href="#" aria-label="بستن">×</a></div>
+    <div class="field"><label for="ns-name">نام و نام خانوادگی</label><input id="ns-name" class="input" value="کیمیا شریفی"></div>
+    <div class="field"><label for="ns-m">موبایل</label><input id="ns-m" class="input" dir="ltr" inputmode="numeric" value="0912 345 6789">
+      <div class="hint">رقم فارسی یا انگلیسی فرقی ندارد.</div></div>
+    <div class="field"><label for="ns-mentor">مشاور</label><select id="ns-mentor"><option>خودم</option><option>رضا (۱۸ هنرجو)</option><option>لیلا (۱۴ هنرجو)</option></select></div>
+    <details>
+      <summary class="btn btn-ghost">جزئیات بیشتر (اختیاری)</summary>
+      <div class="field"><label for="ns-st">مرحله‌ی فعلی (تخمین تو)</label><select id="ns-st"><option>۰ — شروع و تعیین سطح</option></select>
+        <div class="hint">مرحله‌های قبلی «عبورکرده با ارزیابی» ثبت می‌شوند.</div></div>
+      <div class="field"><label for="ns-p">پلتفرم اصلی</label><select id="ns-p"><option>Upwork</option><option>Fiverr</option><option>LinkedIn / مستقیم</option></select></div>
+      <div class="field"><label for="ns-l">لینک ویترین (اگر دارد)</label><input id="ns-l" class="input" dir="ltr" inputmode="url" placeholder="https://"></div>
+      <div class="field"><label for="ns-n">یادداشت آزاد</label><textarea id="ns-n" class="textarea" dir="auto" placeholder="هر چیزی که الان در ذهنت است…"></textarea></div>
+    </details>
+    <div class="form-actions"><a class="btn" href="#">انصراف</a><a class="btn btn-primary" href="#invite-ready">ساخت و گرفتن لینک دعوت</a></div>
+    <p class="note">F1/F2: فقط نام و موبایل اجباری؛ هدف زیر ۱ دقیقه. فیلدهای «جزئیات بیشتر» همان حداقل مهاجرت <span class="ref">progress-tracking §2-9</span> است.</p>
+  </div>
+</div>
+
+<div class="sheet" id="invite-ready" role="dialog" aria-modal="true" aria-labelledby="h-ir">
+  <div class="sheet-panel">
+    <div class="sheet-head"><h2 id="h-ir">پرونده‌ی کیمیا ساخته شد</h2><a class="sheet-close" href="#" aria-label="بستن">×</a></div>
+    <p>این لینک را خودت برایش بفرست. یک‌بارمصرف است و تا <strong>۶ آبان</strong> (۷ روز) معتبر است.</p>
+    <div class="ltr-block">https://app.example.ir/invite#7Kq2-xZ9p</div>
+    <div class="ltr-label">متن آماده برای تلگرام</div>
+    <div class="card" style="font-size:14px">سلام کیمیا، این لینک ورود تو به دفتر کار ماست. یک رمز بگذار و اولین کارت را ببین: <span class="link-ltr">https://app.example.ir/invite#7Kq2-xZ9p</span> (تا ۷ روز معتبر)</div>
+    <div class="form-actions" style="margin-top:16px"><a class="btn" href="student-profile.html">رفتن به پرونده</a><a class="btn btn-primary" href="#">کپی متن و لینک</a></div>
+    <p class="note">0.1 پیامک ندارد؛ ارسال با خود مربی است (mvp-scope F1). پس از کپی، پیام موقت «کپی شد».</p>
+  </div>
+</div>
+</body>
+</html>

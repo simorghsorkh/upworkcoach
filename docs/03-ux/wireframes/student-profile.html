@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>پرونده‌ی امیر رستمی — دفتر مربی (وایرفریم 0.1)</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="has-action-bar">
+<a class="skip-link" href="#main">پرش به محتوا</a>
+<div class="wf-banner">
+  <span>وایرفریم 0.1 · <strong>M3 پرونده‌ی هنرجو</strong> · نقش: مدیر یا مشاور مسئول</span>
+  <a href="index.html">→ فهرست وایرفریم‌ها</a>
+</div>
+
+<div class="app">
+  <aside class="sidebar" aria-label="ناوبری اصلی">
+    <div class="brand">UpworkCoach<small>دفتر مربی</small></div>
+    <nav class="nav">
+      <a href="today.html">امروز <span class="count">۱۸</span></a>
+      <a href="students.html" aria-current="page">هنرجوها</a>
+      <a href="kanban.html">مراحل</a>
+      <a href="tasks.html">کارها</a>
+      <a href="#">سؤال‌ها <span class="count alert">۳</span></a>
+      <div class="nav-sep" role="separator"></div>
+      <a href="#">نتایج <small class="faint">مدیر</small></a>
+      <a href="#">تنظیمات <small class="faint">مدیر</small></a>
+    </nav>
+    <div class="nav-foot">مربی · مدیر<br><a href="#">حساب من</a></div>
+  </aside>
+
+  <header class="topbar">
+    <a class="icon-btn" href="students.html" aria-label="بازگشت به هنرجوها">→</a>
+    <span class="t-title">امیر رستمی</span>
+    <a class="icon-btn" href="#more" aria-label="اقدام‌های بیشتر">⋯</a>
+  </header>
+
+  <main class="main" id="main">
+    <div class="main-inner">
+      <nav class="breadcrumb desk-only" aria-label="مسیر"><a href="students.html">هنرجوها</a> ← امیر رستمی · <a href="today.html">بازگشت به امروز</a></nav>
+
+      <!-- سربرگ: سه سؤال همیشه جواب دارند -->
+      <section class="card" aria-labelledby="h-name">
+        <div class="profile-head">
+          <div>
+            <div class="who">
+              <span class="avatar" aria-hidden="true">ام</span>
+              <h1 id="h-name">امیر رستمی</h1>
+              <span class="health h-red">گیرکرده</span>
+              <span class="ball">توپ: هر دو</span>
+            </div>
+            <ul class="reasons" aria-label="دلیل وضعیت">
+              <li>۴ دور اصلاح روی «پروپوزال برای بررسی: Shopify speed» <span class="rule">R-LOOP</span></li>
+            </ul>
+            <div class="item-meta" style="margin-top:8px">
+              <span>مشاور: <strong>رضا</strong></span>
+              <span>سطح: در حال اپلای</span>
+              <span>آخرین فعالیت: دیروز</span>
+              <span>۳ کار باز · ۰ معوق</span>
+              <span class="tags"><span class="tag">React</span><span class="tag">کوهورت تابستان</span><span class="tag">ممیزی سه‌لایه</span></span>
+            </div>
+            <div class="small muted" style="margin-top:4px">نیچ: <bdi class="en" dir="ltr">Shopify speed optimization for DTC stores</bdi></div>
+          </div>
+          <div class="page-actions" style="align-self:start">
+            <a class="btn btn-primary" href="#note">+ یادداشت</a>
+            <a class="btn" href="tasks.html#new-task">+ کار</a>
+            <a class="btn" href="today.html#reminder">یادآور</a>
+            <a class="btn" href="#more">بیشتر</a>
+          </div>
+        </div>
+
+        <div class="three">
+          <div>
+            <span class="q">چه ویترینی دارد؟</span>
+            <span class="a"><bdi class="en">Upwork</bdi> · فعال · ۲۵ دلار/ساعت</span>
+            <a class="link-ltr" href="#" title="https://www.upwork.com/freelancers/~01abc123def456">upwork.com/freelancers/~01ab…</a>
+          </div>
+          <div>
+            <span class="q">آخرین کار خواسته‌شده</span>
+            <a class="a" href="task-detail.html">پروپوزال برای بررسی (دور ۴)</a>
+            <span class="chip st-submitted">منتظر بازبینی</span> <span class="tag tag-late">دیر · ۵۲ ساعت</span>
+          </div>
+          <div>
+            <span class="q">کجای مسیر است؟</span>
+            <span class="a">۵ پروپوزال و ارسال · ۲۶ روز</span>
+            <span class="xs muted">معمول: ۱۴ تا ۴۲ روز</span> · <a class="small" href="#stage">تغییر مرحله</a>
+          </div>
+        </div>
+      </section>
+
+      <nav class="tabs" aria-label="بخش‌های پرونده">
+        <a href="#tasks" aria-current="true">کارها (۳)</a>
+        <a href="#timeline">تایم‌لاین</a>
+        <a href="#profiles">ویترین‌ها (۲)</a>
+        <a href="#questions">سؤال‌ها (۱)</a>
+        <a href="#milestones">نقاط عطف</a>
+        <a href="#info">اطلاعات</a>
+        <!-- slot: tools (1.0) — زبانه‌ی «خروجی ابزارها» این‌جا اضافه می‌شود؛ در 0.1 وجود ندارد -->
+      </nav>
+
+      <div class="cols">
+        <!-- ستون اصلی -->
+        <div class="stack">
+          <section class="card" id="tasks" aria-labelledby="h-tasks">
+            <div class="card-head">
+              <h2 id="h-tasks">کارها</h2>
+              <a class="btn btn-sm" href="tasks.html#new-task">+ کار</a>
+            </div>
+            <ul class="plain list">
+              <li class="item is-late">
+                <div class="item-main">
+                  <a class="item-title" href="task-detail.html">پروپوزال برای بررسی: جاب <bdi class="en">Shopify speed</bdi></a>
+                  <div class="item-meta"><span class="chip st-submitted">منتظر بازبینی · نسخه‌ی ۴</span><span class="tag tag-late">دیر · ۵۲ ساعت</span><span>مرحله‌ی ۵</span></div>
+                </div>
+                <div class="item-actions"><a class="btn btn-sm btn-primary" href="task-detail.html">بازبینی</a></div>
+              </li>
+              <li class="item">
+                <div class="item-main">
+                  <a class="item-title" href="task-detail.html">سهمیه‌ی ارسال این هفته: ۱۰</a>
+                  <div class="item-meta"><span class="chip st-progress">در حال انجام</span><span>تا پنجشنبه ۳۰ مهر (۳ روز مانده)</span></div>
+                </div>
+              </li>
+              <li class="item">
+                <div class="item-main">
+                  <a class="item-title" href="task-detail.html">برگه‌ی آمادگی مصاحبه</a>
+                  <div class="item-meta"><span class="chip st-open">باز</span><span>تا ۵ آبان</span></div>
+                </div>
+              </li>
+            </ul>
+            <details><summary class="btn btn-ghost btn-sm">پذیرفته و لغوشده (۱۲)</summary><p class="small muted">…</p></details>
+          </section>
+
+          <section class="card" id="timeline" aria-labelledby="h-tl">
+            <div class="card-head"><h2 id="h-tl">تایم‌لاین</h2></div>
+            <form class="composer desk-only" aria-label="یادداشت تازه">
+              <label class="visually-hidden" for="cmp">متن یادداشت</label>
+              <textarea id="cmp" dir="auto" placeholder="یادداشت تازه… (کلید N)"></textarea>
+              <div class="composer-bar">
+                <select class="select" aria-label="نوع"><option>یادداشت</option><option>جلسه</option><option>تماس</option><option>پیام بیرونی</option></select>
+                <span class="vis" role="radiogroup" aria-label="چه کسی می‌بیند"><span class="on" role="radio" aria-checked="true">داخلی</span><span role="radio" aria-checked="false">اشتراکی</span></span>
+                <span class="spacer"></span>
+                <a class="btn btn-ghost btn-sm" href="today.html#reminder">+ یادآور</a>
+                <button class="btn btn-primary btn-sm" type="button">ثبت</button>
+              </div>
+            </form>
+            <div class="filter-chips" style="margin-top:12px" role="group" aria-label="فیلتر تایم‌لاین">
+              <span class="fchip" aria-pressed="true">همه</span><span class="fchip">یادداشت و جلسه</span><span class="fchip">کارها</span><span class="fchip">مرحله</span><span class="fchip">سؤال</span><span class="fchip">نقطه‌ی عطف</span>
+            </div>
+            <ol class="timeline">
+              <li class="tl-item tl-auto">
+                <div class="tl-head"><span>امروز ۰۸:۰۰ · سیستم</span></div>
+                <div class="tl-body">وضعیت: نیاز به توجه ← <strong>گیرکرده</strong> <span class="rule">R-LOOP</span></div>
+              </li>
+              <li class="tl-item tl-internal">
+                <div class="tl-head"><strong>رضا</strong><span>· تماس · دیروز ۱۹:۳۰</span><span class="vis-tag vis-internal">داخلی — هنرجو نمی‌بیند</span></div>
+                <div class="tl-body">پروپوزال‌ها را با ChatGPT می‌نویسد و بعد ویرایش می‌کند؛ دو خط اول هنوز کلی است. پیشنهاد: جلسه‌ی ۱۵ دقیقه‌ای روی <bdi class="en">Hook</bdi> به‌جای دور پنجم بازخورد.</div>
+              </li>
+              <li class="tl-item tl-auto">
+                <div class="tl-head"><span>دیروز ۱۷:۱۰ · امیر</span></div>
+                <div class="tl-body">تحویل نسخه‌ی ۴: «پروپوزال برای بررسی: <bdi class="en">Shopify speed</bdi>»</div>
+              </li>
+              <li class="tl-item tl-shared">
+                <div class="tl-head"><strong>رضا</strong><span>· جلسه · ۲۵ مهر</span><span class="vis-tag vis-shared">اشتراکی — هنرجو می‌بیند</span></div>
+                <div class="tl-body">خلاصه: نرخ پاسخ پایین است. تصمیم: فقط روی جاب‌های با کارفرمای تأییدشده اپلای کن. کار بعدی: ۱۰ ارسال تا پنجشنبه.</div>
+              </li>
+              <li class="tl-item tl-auto">
+                <div class="tl-head"><span>۲۴ مهر · رضا</span></div>
+                <div class="tl-body">بازبینی: <span class="chip st-changes">نیاز به اصلاح · دور ۳</span></div>
+              </li>
+              <li class="tl-item tl-auto">
+                <div class="tl-head"><span>۲ مهر · رضا</span></div>
+                <div class="tl-body">مرحله: ۴ فرصت ← <strong>۵ پروپوزال و ارسال</strong></div>
+              </li>
+            </ol>
+            <a class="btn btn-ghost btn-sm" href="#">موارد قدیمی‌تر</a>
+            <p class="note">F5: کادر یادداشت روی دسکتاپ همیشه باز است (۱ کلیک + تایپ + ثبت). روی موبایل دکمه‌ی ثابت پایین «+ یادداشت» برگه‌ی پایین‌صفحه باز می‌کند. یادداشت داخلی: کادر خط‌چین + برچسب سیاه «داخلی — هنرجو نمی‌بیند»؛ اشتراکی: برچسب آبی. حالت پیش‌فرض همیشه «داخلی» است.</p>
+          </section>
+        </div>
+
+        <!-- ستون کناری -->
+        <div class="stack aside-sticky">
+          <section class="card" id="profiles" aria-labelledby="h-pr">
+            <div class="card-head"><h2 id="h-pr">ویترین‌ها</h2><a class="btn btn-sm" href="#">+ افزودن</a></div>
+            <ul class="plain list">
+              <li class="item">
+                <div class="item-main">
+                  <span class="item-title"><bdi class="en">Upwork</bdi> · پروفایل <span class="chip st-accepted">فعال</span></span>
+                  <div class="ltr-block" style="margin:6px 0;padding:6px 10px">Shopify Speed Expert | Core Web Vitals</div>
+                  <div class="item-meta"><a class="link-ltr" href="#" title="https://www.upwork.com/freelancers/~01abc123def456">upwork.com/freelancers/~01ab…</a></div>
+                  <div class="item-meta"><span>۲۵ دلار/ساعت</span><span>تأیید مشاور: ۱۸ شهریور</span><span>ویرایش: امیر، ۳ مهر</span></div>
+                </div>
+              </li>
+              <li class="item">
+                <div class="item-main">
+                  <span class="item-title"><bdi class="en">LinkedIn</bdi> · پروفایل <span class="chip st-open">در حال ساخت</span></span>
+                  <div class="item-meta"><a class="link-ltr" href="#">linkedin.com/in/amir-r…</a></div>
+                </div>
+              </li>
+            </ul>
+            <p class="note">F2: پلتفرم از فهرست قابل‌ویرایش مدیر. سیستم لینک را باز نمی‌کند و هیچ فیلد رمز ندارد.</p>
+          </section>
+
+          <section class="card" id="questions" aria-labelledby="h-qs">
+            <div class="card-head"><h2 id="h-qs">سؤال‌ها</h2><a class="small" href="#">همه (۷)</a></div>
+            <ul class="plain list">
+              <li class="item"><div class="item-main"><a class="item-title" href="#">کارفرما می‌خواهد در تلگرام ادامه بدهیم؛ چه کنم؟</a><div class="item-meta"><span class="tag tag-urgent">فوری</span><span>باز · ۳ ساعت پیش</span></div></div></li>
+            </ul>
+          </section>
+
+          <section class="card" id="milestones" aria-labelledby="h-ms">
+            <div class="card-head"><h2 id="h-ms">نقاط عطف</h2><a class="btn btn-sm" href="#">+ ثبت</a></div>
+            <ul class="plain list">
+              <li class="item"><div class="item-main"><span class="item-title">✓ پروفایل آماده</span><div class="item-meta"><span>۱۸ شهریور · تأیید: رضا</span></div></div></li>
+              <li class="item"><div class="item-main"><span class="item-title">✓ اولین اپلای</span><div class="item-meta"><span>۲ مهر · تأیید: رضا</span></div></div></li>
+              <li class="item"><div class="item-main"><span class="item-title">اولین پاسخ/مصاحبه</span><div class="item-meta"><span class="tag tag-new">پیشنهاد هنرجو</span><span>۲۷ مهر · با تصویر</span></div></div>
+                <div class="item-actions"><button class="btn btn-sm btn-primary">تأیید</button><button class="btn btn-sm">رد</button></div></li>
+            </ul>
+            <p class="note">F9: فقط موارد تأییدشده در North Star شمرده می‌شوند. مبلغ و ارز اختیاری.</p>
+          </section>
+
+          <section class="card" id="info" aria-labelledby="h-info">
+            <div class="card-head"><h2 id="h-info">اطلاعات</h2><a class="btn btn-sm" href="#">ویرایش</a></div>
+            <dl class="kv">
+              <dt>موبایل</dt><dd><span class="link-ltr">0912 xxx 4521</span></dd>
+              <dt>تلگرام</dt><dd><span class="link-ltr">@amir_r</span></dd>
+              <dt>شاخه</dt><dd>B مناقصه‌ای · <bdi class="en">Upwork</bdi></dd>
+              <dt>مهارت اصلی</dt><dd>برنامه‌نویسی فرانت‌اند · ۴ از ۵</dd>
+              <dt>انگلیسی</dt><dd>نوشتاری ۳ · گفتاری ۲</dd>
+              <dt>وقت در هفته</dt><dd>۱۵ ساعت</dd>
+              <dt>هدف درآمد</dt><dd>۸۰۰ دلار در ماه</dd>
+              <dt>هدف ۹۰ روزه</dt><dd>تا ۳۰ آذر: ۶۰ ارسال، ۳ مصاحبه، اولین قرارداد</dd>
+              <dt>مانع اصلی</dt><dd>«نمی‌دانم ایراد از کجاست»</dd>
+              <dt>عضویت</dt><dd>۱۲ شهریور ۱۴۰۵</dd>
+            </dl>
+          </section>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="action-bar" role="toolbar" aria-label="اقدام سریع">
+    <a class="btn btn-primary" href="#note">+ یادداشت</a>
+    <a class="btn" href="tasks.html#new-task">+ کار</a>
+    <a class="btn" href="#stage">مرحله</a>
+  </div>
+
+  <nav class="tabbar" aria-label="ناوبری پایین">
+    <a href="today.html"><span class="ti" aria-hidden="true">◔</span>امروز<span class="count">۱۸</span></a>
+    <a href="students.html" aria-current="page"><span class="ti" aria-hidden="true">▤</span>هنرجوها</a>
+    <a href="#quick" class="plus" aria-label="افزودن سریع"><span class="ti" aria-hidden="true">+</span></a>
+    <a href="tasks.html"><span class="ti" aria-hidden="true">✓</span>کارها</a>
+    <a href="#"><span class="ti" aria-hidden="true">؟</span>سؤال‌ها<span class="count alert">۳</span></a>
+  </nav>
+</div>
+
+<div class="sheet" id="quick" role="dialog" aria-modal="true" aria-labelledby="h-quick">
+  <div class="sheet-panel">
+    <div class="sheet-head"><h2 id="h-quick">افزودن برای امیر رستمی</h2><a class="sheet-close" href="#" aria-label="بستن">×</a></div>
+    <div class="stack">
+      <a class="btn btn-block btn-primary" href="#note">یادداشت</a>
+      <a class="btn btn-block" href="tasks.html#new-task">کار</a>
+      <a class="btn btn-block" href="today.html#reminder">یادآور</a>
+    </div>
+    <p class="note">از داخل پرونده، هنرجو از پیش انتخاب شده است.</p>
+  </div>
+</div>
+
+<div class="sheet" id="note" role="dialog" aria-modal="true" aria-labelledby="h-note">
+  <div class="sheet-panel">
+    <div class="sheet-head"><h2 id="h-note">یادداشت برای امیر رستمی</h2><a class="sheet-close" href="#" aria-label="بستن">×</a></div>
+    <div class="field"><span class="label">نوع</span>
+      <div class="radio-row"><span class="radio-card">یادداشت</span><span class="radio-card sel">جلسه</span><span class="radio-card">تماس</span><span class="radio-card">پیام بیرونی</span></div></div>
+    <div class="field"><label for="nt">متن</label>
+      <textarea id="nt" class="textarea" dir="auto">خلاصه:
+تصمیم‌ها:
+کارهای بعدی: </textarea>
+      <div class="hint">برای «جلسه» قالب کوتاه پیش‌فرض باز می‌شود؛ پاک‌کردنی است.</div></div>
+    <div class="field"><span class="label">چه کسی می‌بیند؟</span>
+      <div class="radio-row"><span class="radio-card sel">داخلی — فقط تیم</span><span class="radio-card">اشتراکی — امیر هم می‌بیند</span></div></div>
+    <div class="field"><span class="label">قدم بعدی (اختیاری)</span>
+      <div class="quick"><span class="fchip">+ کار از این یادداشت</span><span class="fchip">یادآور فردا</span><span class="fchip">۳ روز</span><span class="fchip">۱ هفته</span></div></div>
+    <div class="form-actions"><a class="btn" href="#">انصراف</a><a class="btn btn-primary" href="#">ثبت یادداشت</a></div>
+    <p class="note">جریان ۵: اگر هنرجو قرمز است، این یادداشت «اقدام ثبت‌شده» حساب می‌شود.</p>
+  </div>
+</div>
+
+<div class="sheet" id="stage" role="dialog" aria-modal="true" aria-labelledby="h-stage">
+  <div class="sheet-panel">
+    <div class="sheet-head"><h2 id="h-stage">تغییر مرحله‌ی امیر</h2><a class="sheet-close" href="#" aria-label="بستن">×</a></div>
+    <fieldset class="field" style="border:0;padding:0;margin:0 0 16px">
+      <legend class="label">مرحله‌ی جدید</legend>
+      <div class="stack" style="--gap:4px">
+        <label class="radio-card"><input type="radio" name="s"> ۴ — پیدا کردن فرصت <span class="faint xs">(برگشت؛ دلیل لازم است)</span></label>
+        <label class="radio-card"><input type="radio" name="s" disabled> ۵ — پروپوزال و ارسال <span class="tag">فعلی · ۲۶ روز</span></label>
+        <label class="radio-card sel"><input type="radio" name="s" checked> ۶ — مصاحبه و اولین قرارداد</label>
+        <label class="radio-card"><input type="radio" name="s"> مرحله‌ی دیگر…</label>
+      </div>
+    </fieldset>
+    <div class="field"><label for="sn">یادداشت (اختیاری)</label><textarea id="sn" class="textarea" dir="auto" style="min-height:72px">اولین دعوت به مصاحبه از کارفرمای Shopify.</textarea></div>
+    <div class="field"><span class="label">کارهای پیش‌فرض مرحله‌ی ۶ (Should)</span>
+      <label class="check"><input type="checkbox" checked> برگه‌ی آمادگی مصاحبه — مهلت ۳ روز</label>
+      <label class="check"><input type="checkbox" checked> مصاحبه‌ی تمرینی — مهلت ۷ روز</label></div>
+    <div class="alert alert-info"><strong>توجه:</strong> ۱ کار باز مرحله‌ی ۵ دارد («سهمیه‌ی ارسال این هفته»). <label><input type="radio" name="k" checked> باز بماند</label> <label><input type="radio" name="k"> لغو شود</label></div>
+    <div class="form-actions"><a class="btn" href="#">انصراف</a><a class="btn btn-primary" href="#">ثبت مرحله‌ی ۶</a></div>
+    <p class="note">F3: یک انتخاب + ثبت؛ مرحله‌ی بعدی از پیش انتخاب شده. پس از ثبت، پیام موقت «امیر به مرحله‌ی ۶ رفت · برگرداندن».</p>
+  </div>
+</div>
+
+<div class="sheet" id="more" role="dialog" aria-modal="true" aria-labelledby="h-more">
+  <div class="sheet-panel">
+    <div class="sheet-head"><h2 id="h-more">اقدام‌های دیگر</h2><a class="sheet-close" href="#" aria-label="بستن">×</a></div>
+    <nav class="nav">
+      <a href="#stage">تغییر مرحله</a>
+      <a href="#mute">خاموش کردن هشدار تا تاریخ…</a>
+      <a href="#">توقف موقت (با تاریخ بازگشت)</a>
+      <a href="#">پرچم دستی (مالی، شخصی، دسترسی به پلتفرم…)</a>
+      <a href="#">ثبت نقطه‌ی عطف</a>
+      <a href="#">تغییر مشاور <small class="faint">مدیر</small></a>
+      <a href="#">ارسال دوباره‌ی لینک دعوت</a>
+    </nav>
+  </div>
+</div>
+
+<div class="sheet" id="mute" role="dialog" aria-modal="true" aria-labelledby="h-mute">
+  <div class="sheet-panel">
+    <div class="sheet-head"><h2 id="h-mute">خاموش کردن هشدار</h2><a class="sheet-close" href="#" aria-label="بستن">×</a></div>
+    <p class="small">هشدارهای امیر تا این تاریخ در «امروز» و فهرست گیرکرده‌ها نمی‌آیند. وضعیت با کادر خط‌چین و متن «هشدار خاموش تا …» نشان داده می‌شود.</p>
+    <div class="field"><label for="mu-d">تا تاریخ</label><input id="mu-d" class="input" value="۱۴۰۵/۰۸/۰۵"><div class="quick"><span class="fchip">۳ روز</span><span class="fchip">۱ هفته</span><span class="fchip">۲ هفته</span></div></div>
+    <div class="field"><label for="mu-r">دلیل</label><input id="mu-r" class="input" value="در سفر است"></div>
+    <div class="form-actions"><a class="btn" href="#">انصراف</a><a class="btn btn-primary" href="#">خاموش کن</a></div>
+  </div>
+</div>
+</body>
+</html>

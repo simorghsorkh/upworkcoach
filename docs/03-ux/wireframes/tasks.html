@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>کارها — دفتر مربی (وایرفریم 0.1)</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">پرش به محتوا</a>
+<div class="wf-banner">
+  <span>وایرفریم 0.1 · <strong>M5 کارها — فهرست</strong> + <strong>M5a کار جدید</strong> · نقش: مدیر/مشاور</span>
+  <a href="index.html">→ فهرست وایرفریم‌ها</a>
+</div>
+
+<div class="app">
+  <aside class="sidebar" aria-label="ناوبری اصلی">
+    <div class="brand">UpworkCoach<small>دفتر مربی</small></div>
+    <nav class="nav">
+      <a href="today.html">امروز <span class="count">۱۸</span></a>
+      <a href="students.html">هنرجوها</a>
+      <a href="kanban.html">مراحل</a>
+      <a href="tasks.html" aria-current="page">کارها</a>
+      <a href="#">سؤال‌ها <span class="count alert">۳</span></a>
+      <div class="nav-sep" role="separator"></div>
+      <a href="#">نتایج <small class="faint">مدیر</small></a>
+      <a href="#">تنظیمات <small class="faint">مدیر</small></a>
+    </nav>
+    <div class="nav-foot">مربی · مدیر<br><a href="#">حساب من</a></div>
+  </aside>
+
+  <header class="topbar">
+    <a class="icon-btn" href="today.html#menu" aria-label="منو">☰</a>
+    <span class="t-title">کارها</span>
+    <a class="icon-btn" href="#new-task" aria-label="کار جدید">+</a>
+  </header>
+
+  <main class="main" id="main">
+    <div class="main-inner">
+      <div class="page-head">
+        <h1>کارها</h1>
+        <div class="page-actions">
+          <a class="btn desk-only" href="#">قالب‌های کار</a>
+          <a class="btn btn-primary desk-only" href="#new-task">+ کار جدید</a>
+        </div>
+      </div>
+
+      <nav class="tabs" aria-label="دسته‌ی کارها" style="margin-top:0">
+        <a href="#" aria-current="true">منتظر بازبینی (۵)</a>
+        <a href="#">معوق (۷)</a>
+        <a href="#">باز و در حال انجام (۳۱)</a>
+        <a href="#">نیاز به اصلاح (۴)</a>
+        <a href="#">همه</a>
+      </nav>
+
+      <div class="toolbar">
+        <input class="search" type="search" placeholder="جستجوی عنوان کار یا نام هنرجو…" aria-label="جستجو">
+        <a class="btn filter-toggle" href="#">فیلتر</a>
+        <div class="filters-desk toolbar" style="margin:0">
+          <select class="select" aria-label="نوع"><option>همه‌ی انواع</option><option>پروپوزال برای بررسی</option><option>پروفایل برای بررسی</option><option>لینک/فایل</option><option>عمومی</option></select>
+          <select class="select" aria-label="مشاور"><option>مشاور: همه</option></select>
+          <select class="select" aria-label="مرحله"><option>همه‌ی مراحل</option></select>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="rtable">
+          <caption class="visually-hidden">کارهای منتظر بازبینی</caption>
+          <thead>
+            <tr>
+              <th scope="col">کار</th>
+              <th scope="col">هنرجو</th>
+              <th scope="col">وضعیت</th>
+              <th scope="col">تحویل</th>
+              <th scope="col" class="hide-md">نوع</th>
+              <th scope="col" class="hide-md">مهلت</th>
+              <th scope="col"><span class="visually-hidden">اقدام</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="cell-primary"><a class="name" href="task-detail.html">پروپوزال برای بررسی: جاب <bdi class="en">Shopify speed</bdi></a></td>
+              <td data-label="هنرجو"><a href="student-profile.html">امیر رستمی</a></td>
+              <td data-label="وضعیت"><span class="chip st-submitted">منتظر بازبینی · نسخه‌ی ۴</span></td>
+              <td data-label="تحویل"><span class="tag tag-late">دیر · ۵۲ ساعت</span></td>
+              <td data-label="نوع" class="hide-md">پروپوزال برای بررسی</td>
+              <td data-label="مهلت" class="hide-md">۲۶ مهر</td>
+              <td><a class="btn btn-sm btn-primary" href="task-detail.html">بازبینی</a></td>
+            </tr>
+            <tr>
+              <td class="cell-primary"><a class="name" href="task-detail.html">۳ پروپوزال کالیبره (۱ از ۳)</a> <span class="tag tag-urgent">فوری</span></td>
+              <td data-label="هنرجو"><a href="student-profile.html">علی موسوی</a></td>
+              <td data-label="وضعیت"><span class="chip st-submitted">منتظر بازبینی</span></td>
+              <td data-label="تحویل">۶ ساعت پیش</td>
+              <td data-label="نوع" class="hide-md">پروپوزال برای بررسی</td>
+              <td data-label="مهلت" class="hide-md">۱ آبان</td>
+              <td><a class="btn btn-sm btn-primary" href="task-detail.html">بازبینی</a></td>
+            </tr>
+            <tr>
+              <td class="cell-primary"><a class="name" href="task-detail.html">سند نیچ</a> <span class="tag">اجباری برای عبور</span></td>
+              <td data-label="هنرجو"><a href="student-profile.html">سارا محمدی</a></td>
+              <td data-label="وضعیت"><span class="chip st-submitted">منتظر بازبینی</span></td>
+              <td data-label="تحویل">۲۰ ساعت پیش</td>
+              <td data-label="نوع" class="hide-md">لینک/فایل</td>
+              <td data-label="مهلت" class="hide-md">۳۰ مهر</td>
+              <td><a class="btn btn-sm btn-primary" href="task-detail.html">بازبینی</a></td>
+            </tr>
+            <tr>
+              <td class="cell-primary"><a class="name" href="task-detail.html">بازنویسی <bdi class="en">Overview</bdi> با تمرکز روی مشکل کارفرما</a></td>
+              <td data-label="هنرجو"><a href="student-profile.html">مهدی جعفری</a></td>
+              <td data-label="وضعیت"><span class="chip st-submitted">منتظر بازبینی · نسخه‌ی ۲</span></td>
+              <td data-label="تحویل">۱ روز پیش</td>
+              <td data-label="نوع" class="hide-md">پروفایل برای بررسی</td>
+              <td data-label="مهلت" class="hide-md">۲۸ مهر · ۳ بار تمدید</td>
+              <td><a class="btn btn-sm btn-primary" href="task-detail.html">بازبینی</a></td>
+            </tr>
+            <tr>
+              <td class="cell-primary"><a class="name" href="task-detail.html">نمونه‌کار ۱</a></td>
+              <td data-label="هنرجو"><a href="student-profile.html">پریسا امینی</a></td>
+              <td data-label="وضعیت"><span class="chip st-submitted">منتظر بازبینی</span></td>
+              <td data-label="تحویل">۱ روز پیش</td>
+              <td data-label="نوع" class="hide-md">لینک/فایل</td>
+              <td data-label="مهلت" class="hide-md">۲۹ مهر</td>
+              <td><a class="btn btn-sm btn-primary" href="task-detail.html">بازبینی</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="note">زبانه‌ها نماهای آماده‌اند: «منتظر بازبینی» (پیش‌فرض، هم‌ترتیب با «امروز»)، «معوق» (مهلت گذشته و تأییدنشده؛ برچسب، نه وضعیت — F4)، «باز و در حال انجام»، «نیاز به اصلاح»، «همه». ستون «تحویل» در زبانه‌ی معوق به «معوق · N روز» تبدیل می‌شود. روی موبایل هر ردیف کارت است و دکمه‌ی «بازبینی» تمام‌عرض.</p>
+      <p class="note">نمونه‌ی ردیف زبانه‌ی «معوق»: «نمونه‌کار ۲ · حسین نوری · باز · <span class="tag tag-overdue">معوق · ۹ روز</span> · [تمدید مهلت] [یادآور]».</p>
+    </div>
+  </main>
+
+  <nav class="tabbar" aria-label="ناوبری پایین">
+    <a href="today.html"><span class="ti" aria-hidden="true">◔</span>امروز<span class="count">۱۸</span></a>
+    <a href="students.html"><span class="ti" aria-hidden="true">▤</span>هنرجوها</a>
+    <a href="today.html#quick" class="plus" aria-label="افزودن سریع"><span class="ti" aria-hidden="true">+</span></a>
+    <a href="tasks.html" aria-current="page"><span class="ti" aria-hidden="true">✓</span>کارها</a>
+    <a href="#"><span class="ti" aria-hidden="true">؟</span>سؤال‌ها<span class="count alert">۳</span></a>
+  </nav>
+</div>
+
+<!-- M5a: کار جدید -->
+<div class="sheet" id="new-task" role="dialog" aria-modal="true" aria-labelledby="h-nt">
+  <div class="sheet-panel">
+    <div class="sheet-head"><h2 id="h-nt">کار جدید</h2><a class="sheet-close" href="#" aria-label="بستن">×</a></div>
+    <div class="field"><label for="t-st">برای</label><input id="t-st" class="input" value="امیر رستمی">
+      <div class="hint">(Should) چند هنرجو را هم می‌توانی انتخاب کنی؛ برای هر نفر یک کار جدا ساخته می‌شود.</div></div>
+    <div class="field"><label for="t-tpl">از قالب (اختیاری)</label><select id="t-tpl"><option>— بدون قالب —</option><option>پروپوزال برای بررسی</option><option>سهمیه‌ی ارسال هفتگی</option><option>بازنویسی تیتر</option></select></div>
+    <div class="field"><label for="t-ti">عنوان</label><input id="t-ti" class="input" value="پروپوزال برای بررسی: یک جاب Shopify این هفته">
+      <div class="hint">با فعل شروع کن: «بازنویسی…»، «ارسال…»، «تکمیل…»</div></div>
+    <div class="field"><label for="t-d">شرح و معیار پذیرش</label>
+      <textarea id="t-d" class="textarea" dir="auto">یک جاب واقعی که می‌خواهی اپلای کنی انتخاب کن و قبل از ارسال، متن آگهی و پروپوزالت را این‌جا بگذار.
+وقتی قبول است که: دو خط اول به مشکل همین کارفرما اشاره کند.</textarea></div>
+    <div class="field"><span class="label">نوع</span>
+      <div class="radio-row">
+        <span class="radio-card">عمومی</span><span class="radio-card">لینک/فایل</span><span class="radio-card sel">پروپوزال برای بررسی</span><span class="radio-card">پروفایل برای بررسی</span><span class="radio-card">فقط تیک</span>
+      </div>
+      <div class="hint">«پروپوزال برای بررسی»: هنرجو پلتفرم، متن آگهی و متن پروپوزال را جدا می‌فرستد و رضایت استفاده‌ی بی‌نام را انتخاب می‌کند.</div></div>
+    <div class="field"><label for="t-due">مهلت</label><input id="t-due" class="input" value="پنجشنبه ۱۴۰۵/۰۷/۳۰">
+      <div class="quick"><span class="fchip" aria-pressed="true">۳ روز</span><span class="fchip">۱ هفته</span><span class="fchip">۲ هفته</span><span class="fchip">انتخاب از تقویم</span></div></div>
+    <details>
+      <summary class="btn btn-ghost">بیشتر (اختیاری)</summary>
+      <div class="field"><label for="t-stg">مرحله‌ی مرتبط</label><select id="t-stg"><option>۵ — پروپوزال و ارسال (فعلی)</option><option>هیچ</option></select></div>
+      <label class="check"><input type="checkbox"> اجباری برای عبور از مرحله</label>
+      <label class="check"><input type="checkbox"> فوری (به جاب یا پیشنهاد زنده وابسته است)</label>
+      <div class="field" style="margin-top:12px"><label for="t-rv">بازبین</label><select id="t-rv"><option>رضا (مشاور مسئول)</option></select></div>
+    </details>
+    <div class="form-actions"><a class="btn" href="#">انصراف</a><a class="btn btn-primary" href="#">ثبت کار</a></div>
+    <p class="note">F4: عنوان، شرح، نوع، مهلت شمسی، مرحله‌ی مرتبط. پس از ثبت، هنرجو نشان «جدید» روی «کارها» می‌گیرد. اگر این اولین کار باز هنرجو باشد، هشدار R-NOTASK همان لحظه پاک می‌شود.</p>
+  </div>
+</div>
+</body>
+</html>

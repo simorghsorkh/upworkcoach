@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>حالت‌ها و کامپوننت‌ها — وایرفریم 0.1</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">پرش به محتوا</a>
+<div class="wf-banner">
+  <span>وایرفریم 0.1 · <strong>حالت‌ها و کامپوننت‌های پایه</strong> (مرجع design-system.md بخش ۲، ۴ و ۵)</span>
+  <a href="index.html">→ فهرست وایرفریم‌ها</a>
+</div>
+
+<main class="s-main" id="main" style="max-width:960px">
+  <h1 style="margin-bottom:16px">حالت‌ها و کامپوننت‌ها</h1>
+
+  <section class="card" aria-labelledby="h-h">
+    <h2 id="h-h">وضعیت هنرجو (فقط مربی و مشاور)</h2>
+    <p class="small muted">رنگ + شکل + متن. در سیاه‌وسفید هم از هم جدا هستند: دایره، مثلث، مربع، دو خط.</p>
+    <div class="tags" style="gap:8px;margin:8px 0">
+      <span class="health h-green">روبه‌راه</span>
+      <span class="health h-yellow">نیاز به توجه</span>
+      <span class="health h-red">گیرکرده</span>
+      <span class="health h-churn">گیرکرده · خطر ریزش</span>
+      <span class="health h-paused">متوقف تا ۶ آبان</span>
+      <span class="health h-red h-muted">هشدار خاموش تا ۵ آبان</span>
+    </div>
+    <p class="small">همیشه با دلیل: <span class="health h-red">گیرکرده</span> <span class="reason">۲ کار معوق · ۹ روز بی‌فعالیت</span> <span class="rule">R-OVERDUE, R-INACT</span> <span class="ball">توپ: هنرجو</span></p>
+  </section>
+
+  <section class="card" aria-labelledby="h-t">
+    <h2 id="h-t">وضعیت کار و برچسب‌ها</h2>
+    <div class="tags" style="gap:8px;margin:8px 0">
+      <span class="chip st-open">باز</span>
+      <span class="chip st-progress">در حال انجام</span>
+      <span class="chip st-submitted">منتظر بازبینی</span>
+      <span class="chip st-changes">نیاز به اصلاح · دور ۲</span>
+      <span class="chip st-accepted">پذیرفته</span>
+      <span class="chip st-cancelled">لغوشده</span>
+    </div>
+    <div class="tags" style="gap:8px">
+      <span class="tag tag-overdue">معوق · ۴ روز</span>
+      <span class="tag tag-late">دیر · ۵۲ ساعت</span>
+      <span class="tag tag-urgent">فوری</span>
+      <span class="tag tag-new">جدید</span>
+      <span class="tag">برچسب آزاد</span>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="h-b">
+    <h2 id="h-b">دکمه‌ها</h2>
+    <div class="btn-group" style="margin-top:8px">
+      <button class="btn btn-primary">اقدام اصلی</button>
+      <button class="btn">ثانویه</button>
+      <button class="btn btn-ghost">متنی</button>
+      <button class="btn btn-danger">مخرب</button>
+      <button class="btn btn-primary" aria-disabled="true">در حال ثبت…</button>
+    </div>
+  </section>
+
+  <div class="grid-2" style="margin-top:16px">
+    <section class="card" aria-labelledby="h-e1">
+      <h2 id="h-e1">خالی — موفقیت</h2>
+      <div class="empty"><span class="icon" aria-hidden="true">✓</span>امروز کار عقب‌مانده‌ای نیست.<br><span class="small">مرور هفتگی: ۱۲ هنرجو تا شنبه</span></div>
+    </section>
+    <section class="card" aria-labelledby="h-e2">
+      <h2 id="h-e2">خالی — شروع</h2>
+      <div class="empty">هنوز هنرجویی نساخته‌ای. اولین نفر را اضافه کن و لینک دعوتش را در تلگرام بفرست.<br><a class="btn btn-primary" style="margin-top:12px" href="students.html#new-student">+ هنرجوی جدید</a></div>
+    </section>
+    <section class="card" aria-labelledby="h-e3">
+      <h2 id="h-e3">خالی — فیلتر</h2>
+      <div class="empty">هنرجویی با این فیلترها نیست.<br><a class="btn btn-ghost" href="#">پاک کردن فیلترها</a></div>
+    </section>
+    <section class="card" aria-labelledby="h-e4">
+      <h2 id="h-e4">خالی — هنرجو</h2>
+      <div class="empty">فعلاً کاری نداری. مشاورت به‌زودی کار بعدی را می‌گذارد؛ اگر سؤالی داری بپرس.<br><a class="btn" style="margin-top:12px" href="#">سؤال بپرس</a></div>
+    </section>
+    <section class="card" aria-labelledby="h-l">
+      <h2 id="h-l">بارگذاری (اسکلت)</h2>
+      <div aria-busy="true" aria-label="در حال بارگذاری">
+        <div class="skel w60"></div><div class="skel w40"></div><div class="skel w80"></div><div class="skel w60"></div>
+      </div>
+      <p class="xs faint">بعد از ۱۰ ثانیه: «اتصال کند است…»</p>
+    </section>
+    <section class="card" aria-labelledby="h-er">
+      <h2 id="h-er">خطای بارگذاری بخش</h2>
+      <div class="alert alert-error" role="alert"><strong>خطا:</strong> این بخش بار نشد. اتصال اینترنت را بررسی کن.</div>
+      <button class="btn btn-sm">تلاش دوباره</button>
+    </section>
+  </div>
+
+  <section class="card" aria-labelledby="h-f" style="margin-top:16px">
+    <h2 id="h-f">فرم: خطا و هشدار</h2>
+    <div class="field" style="margin-top:12px">
+      <label for="m">موبایل</label>
+      <input id="m" class="input" dir="ltr" value="912345" aria-invalid="true" aria-describedby="m-err" style="border-color:var(--h-red-fg)">
+      <div class="error-text" id="m-err" role="alert">شماره‌ی موبایل باید ۱۱ رقم باشد و با ۰۹ شروع شود.</div>
+    </div>
+    <div class="field">
+      <label for="u">لینک پروفایل</label>
+      <input id="u" class="input" dir="ltr" inputmode="url" value="https://www.upwork.com/freelancers/~01ab">
+      <div class="alert alert-warn" style="margin-top:8px"><strong>توجه:</strong> رمز یا کد ورود هیچ حسابی را این‌جا ننویس.</div>
+    </div>
+    <div class="alert alert-error"><strong>ذخیره نشد.</strong> متنت سر جایش است؛ دوباره بزن.</div>
+    <div class="alert alert-info"><strong>اتصال قطع است.</strong> آخرین اطلاعات را می‌بینی؛ ثبت‌ها بعد از وصل شدن ارسال می‌شوند.</div>
+  </section>
+
+  <section class="card" aria-labelledby="h-to">
+    <h2 id="h-to">پیام موقت (toast)</h2>
+    <div class="toast" role="status" style="margin-top:8px"><span>امیر به مرحله‌ی ۶ رفت</span><a href="#">برگرداندن</a></div>
+  </section>
+
+  <section class="card" aria-labelledby="h-rtl">
+    <h2 id="h-rtl">RTL: متن انگلیسی، اعداد، جهت آیکن</h2>
+    <p class="small">کلمه‌ی انگلیسی وسط جمله: پروفایل <bdi class="en">Upwork</bdi> تو ۲۵ دلار/ساعت است و <bdi class="en">JSS</bdi> ندارد.</p>
+    <div class="ltr-label">متن پروپوزال — انگلیسی</div>
+    <div class="ltr-block" lang="en">Hi Sarah, your store scores 38 on mobile. I took a similar store from 41 to 86 in 2 weeks.</div>
+    <p class="small" style="margin-top:12px">بازگشت: <span class="strong">→</span> · بعدی/ادامه: <span class="strong">←</span> · مسیر: هنرجوها ← امیر</p>
+    <p class="small">اعداد رابط فارسی (۳ کار معوق)؛ اعداد داخل متن انگلیسی لاتین (<bdi class="en">Connects: 16</bdi>)؛ کد قاعده <span class="rule">R-LOOP</span>.</p>
+  </section>
+</main>
+</body>
+</html>

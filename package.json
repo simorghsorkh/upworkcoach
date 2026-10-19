@@ -1,0 +1,27 @@
+{
+  "name": "upworkcoach",
+  "private": true,
+  "description": "UpworkCoach — freelancing coaching platform (monorepo root)",
+  "packageManager": "pnpm@12.14.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @upworkcoach/web dev",
+    "build": "pnpm --filter @upworkcoach/web build",
+    "start": "pnpm --filter @upworkcoach/web start",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "typecheck": "pnpm --filter @upworkcoach/web typecheck",
+    "test": "pnpm --filter @upworkcoach/web test",
+    "test:e2e": "pnpm --filter @upworkcoach/web test:e2e",
+    "db:start": "pnpm --filter @upworkcoach/web db:start",
+    "db:stop": "pnpm --filter @upworkcoach/web db:stop",
+    "db:migrate": "pnpm --filter @upworkcoach/web db:migrate",
+    "db:generate": "pnpm --filter @upworkcoach/web db:generate"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.15",
+    "@upworkcoach/config": "workspace:*"
+  }
+}

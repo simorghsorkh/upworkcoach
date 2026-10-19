@@ -1,0 +1,75 @@
+# UpworkCoach — single-server deployment (Iranian VPS / migration target, ADR-0002)
+# and a full-stack smoke test. NOT used for local development (ADR-0009: no Docker
+# on the dev machine; use `pnpm db:start` + `pnpm dev`).
+#
+# NOTE: not yet run — Docker is not installed on the founder's dev machine.
+#
+#   cp .env.example .env      # then set POSTGRES_PASSWORD, DEVICE_COOKIE_SECRET,
+#                             # APP_BASE_URL (POSTGRES_PASSWORD: URL-safe chars only, e.g. hex)
+#   docker compose up -d --build
+#
+# Secrets come from .env (git-ignored) — nothing secret is written in this file.
+
+name: upworkcoach
+
+x-db-url: &db-url postgres://upworkcoach:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@db:5432/upworkcoach
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: upworkcoach
+      POSTGRES_DB: upworkcoach
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      TZ: UTC
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U upworkcoach -d upworkcoach"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  migrate:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      target: migrator
+    environment:
+      DATABASE_URL: *db-url
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      target: runner
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: *db-url
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:3000}
+      SESSION_COOKIE_NAME: ${SESSION_COOKIE_NAME:-__Host-uc_session}
+      DEVICE_COOKIE_SECRET: ${DEVICE_COOKIE_SECRET:?set DEVICE_COOKIE_SECRET in .env}
+      # One TLS reverse proxy (Caddy/nginx) in front of the container on a real server.
+      TRUSTED_PROXY_HOPS: ${TRUSTED_PROXY_HOPS:-1}
+      STORAGE_DRIVER: local
+      LOCAL_STORAGE_DIR: /data/uploads
+      JOBS_MODE: in-process
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      MAX_UPLOAD_BYTES: ${MAX_UPLOAD_BYTES:-5242880}
+    volumes:
+      - uploads:/data/uploads
+    ports:
+      # Bind to localhost only; put a TLS reverse proxy (Caddy/nginx) in front on a real server.
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  pgdata:
+  uploads:

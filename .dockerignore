@@ -1,0 +1,22 @@
+# Never send secrets or local data into the build context
+.env
+.env.*
+!.env.example
+.data
+**/.data
+
+# Rebuilt inside the image
+**/node_modules
+**/.next
+**/*.tsbuildinfo
+**/next-env.d.ts
+
+# Not needed for the image
+.git
+.github
+.claude
+docs
+**/test-results
+**/playwright-report
+**/coverage
+*.log

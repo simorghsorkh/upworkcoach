@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>خانه — سارا (وایرفریم 0.1)</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">پرش به محتوا</a>
+<div class="wf-banner">
+  <span>وایرفریم 0.1 · <strong>S1 خانه‌ی هنرجو</strong> · نقش: هنرجو (سارا، مرحله‌ی ۱). هنرجو وضعیت سلامت، کد قاعده و یادداشت داخلی را هیچ‌جا نمی‌بیند.</span>
+  <a href="index.html">→ فهرست وایرفریم‌ها</a>
+</div>
+
+<div class="s-app">
+  <header class="s-top">
+    <div class="s-top-inner">
+      <span class="brand">UpworkCoach</span>
+      <nav class="s-nav" aria-label="ناوبری اصلی">
+        <a href="student-home.html" aria-current="page">خانه</a>
+        <a href="student-task.html">کارها <span class="count">۱</span></a>
+        <a href="#">سؤال‌ها <span class="count">۱</span></a>
+        <a href="#">مسیر</a>
+        <a href="#">من</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="s-main" id="main">
+    <div class="page-head" style="margin-bottom:12px">
+      <div>
+        <h1>سلام سارا</h1>
+        <div class="sub">پنجشنبه ۳۰ مهر</div>
+      </div>
+    </div>
+
+    <!-- check-in هفتگی (Should): فقط پنجشنبه تا جمعه، تا وقتی پر نشده -->
+    <section class="card" style="border-color:var(--c-primary);background:var(--c-primary-weak)" aria-labelledby="h-ci">
+      <div class="card-head" style="margin:0">
+        <div>
+          <h2 id="h-ci">check-in این هفته</h2>
+          <div class="small muted">۳ دقیقه · مشاورت شنبه می‌خواندش</div>
+        </div>
+        <a class="btn btn-primary" href="#">شروع</a>
+      </div>
+    </section>
+
+    <!-- مسیر -->
+    <section class="card" aria-labelledby="h-path">
+      <div class="card-head">
+        <h2 id="h-path">مرحله‌ی ۱ از ۸: انتخاب نیچ</h2>
+        <a class="small" href="#">کل مسیر</a>
+      </div>
+      <ol class="stepper" aria-label="مراحل مسیر">
+        <li class="done"><span class="n">۰</span>شروع</li>
+        <li class="current" aria-current="step"><span class="n">۱</span>نیچ<br><span class="xs">اینجایی</span></li>
+        <li><span class="n">۲</span>ویترین</li>
+        <li><span class="n">۳</span>نمونه‌کار</li>
+        <li><span class="n">۴</span>فرصت</li>
+        <li><span class="n">۵</span>پروپوزال</li>
+        <li><span class="n">۶</span>مصاحبه</li>
+        <li><span class="n">۷</span>تحویل</li>
+        <li><span class="n">۸</span>رشد</li>
+      </ol>
+      <p class="small"><strong>خروجی این مرحله:</strong> سند نیچ (یک جمله + ۱۰ شاهد تقاضا + ۳ رقیب). <strong>بعدی:</strong> ساخت ویترین.</p>
+      <ul class="plain small">
+        <li><a href="#">ویدئو: نیچ چیست و چرا همه‌کاره بودن ضرر دارد</a> <span class="faint xs">(در صفحه‌ی جدید باز می‌شود)</span></li>
+        <li><a href="#">چک‌لیست معیارهای نیچ خوب</a> <span class="faint xs">(در صفحه‌ی جدید باز می‌شود)</span></li>
+      </ul>
+      <p class="note">F3/F10: مرحله‌ی فعلی، بعدی و لینک محتوا (محتوا جای دیگری میزبانی می‌شود، فرض A5). Stepper روی موبایل افقی اسکرول می‌شود و مرحله‌ی فعلی در دید است. شماره‌گذاری «۱ از ۸» چون مرحله‌ی ۰ آغاز است.</p>
+    </section>
+
+    <!-- کارهای من -->
+    <section class="card" aria-labelledby="h-my">
+      <div class="card-head">
+        <h2 id="h-my">کارهای من <span class="count" aria-label="۳ کار باز">۳</span></h2>
+        <a class="small" href="student-task.html">همه</a>
+      </div>
+      <ul class="plain list">
+        <li class="item">
+          <div class="item-main">
+            <a class="item-title" href="student-task.html">تحلیل ۳ رقیب</a>
+            <div class="item-meta"><span class="chip st-changes">نیاز به اصلاح</span><span class="tag tag-new">بازخورد جدید</span><span>تا شنبه ۲ آبان (۲ روز مانده)</span></div>
+          </div>
+          <div class="item-actions"><a class="btn btn-sm btn-primary" href="student-task.html">دیدن بازخورد</a></div>
+        </li>
+        <li class="item">
+          <div class="item-main">
+            <a class="item-title" href="student-task.html">۱۰ شاهد تقاضا از آگهی‌های ۳۰ روز اخیر</a>
+            <div class="item-meta"><span class="chip st-progress">در حال انجام</span><span>تا ۵ آبان (۵ روز مانده)</span></div>
+          </div>
+        </li>
+        <li class="item">
+          <div class="item-main">
+            <a class="item-title" href="student-task.html">جمله‌ی نیچ</a>
+            <div class="item-meta"><span class="chip st-submitted">تحویل دادی</span><span>بازبینی مشاور تا فردا ظهر</span></div>
+          </div>
+        </li>
+      </ul>
+      <p class="note">F4/F10: به ترتیب مهلت؛ کارهای معوق بالای فهرست با برچسب قرمز «معوق · N روز» (این‌جا معوقی نیست). لحن برای هنرجو بدون سرزنش است.</p>
+    </section>
+
+    <!-- slot: tools (1.0) — کارت ابزارها (بررسی پروپوزال/جاب) این‌جا اضافه می‌شود؛ در 0.1 نه نمایش، نه «به‌زودی» -->
+
+    <!-- سؤال‌ها -->
+    <section class="card" aria-labelledby="h-q">
+      <div class="card-head">
+        <h2 id="h-q">سؤال‌های من</h2>
+        <a class="btn btn-sm" href="#">+ سؤال جدید</a>
+      </div>
+      <ul class="plain list">
+        <li class="item">
+          <div class="item-main">
+            <a class="item-title" href="#">بین محتوای <bdi class="en">SaaS</bdi> و حوزه‌ی سلامت کدام را انتخاب کنم؟</a>
+            <div class="item-meta"><span class="tag tag-new">پاسخ جدید</span><span>مربی · ۲ ساعت پیش</span></div>
+          </div>
+        </li>
+        <li class="item">
+          <div class="item-main">
+            <a class="item-title" href="#">شاهدها را باید فقط از <bdi class="en">Upwork</bdi> جمع کنم؟</a>
+            <div class="item-meta"><span class="chip st-open">منتظر پاسخ</span><span>پاسخ مشاور تا فردا ظهر</span></div>
+          </div>
+        </li>
+      </ul>
+      <p class="note">F8: هنرجو زمان تقریبی پاسخ را می‌بیند («تا فردا ظهر»)، نه وعده‌ی مبهم.</p>
+    </section>
+
+    <!-- یادداشت‌های اشتراکی -->
+    <section class="card" aria-labelledby="h-n">
+      <div class="card-head"><h2 id="h-n">از مشاورت</h2></div>
+      <ol class="timeline">
+        <li class="tl-item tl-shared">
+          <div class="tl-head"><strong>مربی</strong><span>· جلسه‌ی آشنایی · ۲۲ مهر</span></div>
+          <div class="tl-body">نقطه‌ی شروع: مرحله‌ی ۱. هدف ۹۰ روزه‌ات خوب و عددی است. این هفته فقط روی جمع کردن شاهد تمرکز کن.</div>
+        </li>
+      </ol>
+      <p class="note">F10: فقط یادداشت‌های «اشتراکی». یادداشت داخلی در هیچ صفحه و API به هنرجو نمی‌رسد (F5).</p>
+    </section>
+
+    <section class="card" aria-labelledby="h-ms">
+      <div class="card-head"><h2 id="h-ms">نقاط عطف</h2></div>
+      <p class="small muted" style="margin:0">هنوز نقطه‌ی عطفی ثبت نشده. اولین پاسخ کارفرما یا اولین قرارداد را این‌جا ثبت کن تا مشاورت تأیید کند.</p>
+      <a class="btn btn-sm" href="#" style="margin-top:8px">ثبت خبر خوب</a>
+    </section>
+
+    <hr style="margin:32px 0;border:0;border-top:2px dashed var(--c-border)">
+
+    <!-- حالت جایگزین: اولین ورود -->
+    <section aria-labelledby="h-welcome">
+      <p class="note">حالت جایگزین — <strong>اولین ورود</strong> (جریان ۱): کارت زیر جای کارت check-in را می‌گیرد تا اولین کار انجام شود. هدف: «برد کوچک» در کمتر از ۵ دقیقه.</p>
+      <div class="card" style="border:2px solid var(--c-primary)">
+        <h2 id="h-welcome">خوش آمدی سارا</h2>
+        <p class="small">این‌جا دفتر کار تو با مشاورت است: کارهایت، بازخوردها و جواب سؤال‌هایت. برای شروع سه قدم کوتاه:</p>
+        <ol class="small" style="padding-inline-start:20px;margin:0 0 12px">
+          <li><strong>فرم آشنایی را پر کن</strong> — ۲ دقیقه</li>
+          <li>اگر پروفایلی در <bdi class="en">Upwork</bdi>، <bdi class="en">Fiverr</bdi> یا <bdi class="en">LinkedIn</bdi> داری، لینکش را بگذار — ۱ دقیقه</li>
+          <li>هدف ۹۰ روزه‌ات را بنویس</li>
+        </ol>
+        <a class="btn btn-primary btn-block" href="student-task.html">شروع قدم اول</a>
+      </div>
+    </section>
+  </main>
+
+  <nav class="tabbar" aria-label="ناوبری پایین">
+    <a href="student-home.html" aria-current="page"><span class="ti" aria-hidden="true">⌂</span>خانه</a>
+    <a href="student-task.html"><span class="ti" aria-hidden="true">✓</span>کارها<span class="count">۱</span></a>
+    <a href="#"><span class="ti" aria-hidden="true">؟</span>سؤال‌ها<span class="count">۱</span></a>
+    <a href="#"><span class="ti" aria-hidden="true">⋮</span>مسیر</a>
+    <a href="#"><span class="ti" aria-hidden="true">○</span>من</a>
+  </nav>
+</div>
+</body>
+</html>

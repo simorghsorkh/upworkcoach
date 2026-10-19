@@ -1,0 +1,17 @@
+packages:
+  - apps/*
+  - packages/*
+
+# Dependency install scripts are blocked unless reviewed and allowed here
+# (strictDepBuilds is on by default: an unreviewed script fails the install).
+allowBuilds:
+  "@biomejs/biome": true
+  esbuild: true
+  sharp: true
+  # embedded-postgres platform packages: postinstall only restores symlinks
+  # inside the bundled Postgres binaries (scripts/hydrate-symlinks.js).
+  "@embedded-postgres/windows-x64": true
+  "@embedded-postgres/linux-x64": true
+  "@embedded-postgres/linux-arm64": true
+  "@embedded-postgres/darwin-x64": true
+  "@embedded-postgres/darwin-arm64": true

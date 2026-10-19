@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>بازبینی کار — دفتر مربی (وایرفریم 0.1)</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="has-action-bar">
+<a class="skip-link" href="#main">پرش به محتوا</a>
+<div class="wf-banner">
+  <span>وایرفریم 0.1 · <strong>M6 جزئیات کار: تحویل و بازبینی</strong> · نقش: مشاور مسئول / مدیر · نمای هنرجو: <a href="student-task.html">student-task.html</a></span>
+  <a href="index.html">→ فهرست وایرفریم‌ها</a>
+</div>
+
+<div class="app">
+  <aside class="sidebar" aria-label="ناوبری اصلی">
+    <div class="brand">UpworkCoach<small>دفتر مربی</small></div>
+    <nav class="nav">
+      <a href="today.html">امروز <span class="count">۱۸</span></a>
+      <a href="students.html">هنرجوها</a>
+      <a href="kanban.html">مراحل</a>
+      <a href="tasks.html" aria-current="page">کارها</a>
+      <a href="#">سؤال‌ها <span class="count alert">۳</span></a>
+      <div class="nav-sep" role="separator"></div>
+      <a href="#">نتایج <small class="faint">مدیر</small></a>
+      <a href="#">تنظیمات <small class="faint">مدیر</small></a>
+    </nav>
+    <div class="nav-foot">مربی · مدیر<br><a href="#">حساب من</a></div>
+  </aside>
+
+  <header class="topbar">
+    <a class="icon-btn" href="today.html#reviews" aria-label="بازگشت">→</a>
+    <span class="t-title">بازبینی · امیر رستمی</span>
+    <a class="icon-btn" href="#task-more" aria-label="اقدام‌های بیشتر">⋯</a>
+  </header>
+
+  <main class="main" id="main">
+    <div class="main-inner">
+      <nav class="breadcrumb desk-only" aria-label="مسیر"><a href="today.html">امروز</a> ← <a href="student-profile.html">امیر رستمی</a> ← کار</nav>
+
+      <div class="page-head">
+        <div>
+          <h1>پروپوزال برای بررسی: جاب <bdi class="en">Shopify speed</bdi></h1>
+          <div class="item-meta">
+            <span class="chip st-submitted">منتظر بازبینی شما · نسخه‌ی ۴</span>
+            <span class="tag tag-late">دیر · ۵۲ ساعت</span>
+            <span>مهلت: ۲۶ مهر (۱ بار تمدید)</span>
+            <span>مرحله‌ی ۵</span>
+            <span class="health h-red">گیرکرده · <bdi>R-LOOP</bdi></span>
+          </div>
+        </div>
+        <div class="page-actions desk-only">
+          <a class="btn" href="#extend">تمدید مهلت</a>
+          <a class="btn btn-danger" href="#cancel">لغو کار</a>
+        </div>
+      </div>
+
+      <div class="alert alert-warn"><strong>دور چهارم اصلاح:</strong> بازخورد مکتوب کافی نبوده است. پیشنهاد: به‌جای دور پنجم، یک تماس ۱۵ دقیقه‌ای. <a href="student-profile.html#note">ثبت تماس</a></div>
+
+      <div class="cols">
+        <!-- ستون اصلی: تحویل + فرم بازبینی -->
+        <div class="stack">
+          <section class="card" aria-labelledby="h-sub">
+            <div class="card-head">
+              <h2 id="h-sub">تحویل امیر</h2>
+              <nav class="seg" aria-label="نسخه‌ها"><a href="#">۱</a><a href="#">۲</a><a href="#">۳</a><a href="#" aria-current="page">۴ (آخرین)</a></nav>
+            </div>
+            <div class="item-meta"><span>دیروز ۱۷:۱۰</span><span>پلتفرم: <bdi class="en">Upwork</bdi></span><span class="tag">رضایت برای استفاده‌ی بی‌نام: بله</span></div>
+
+            <div class="ltr-label">متن آگهی — انگلیسی</div>
+            <div class="ltr-block" lang="en">Shopify store speed optimization needed
+Our Shopify Plus store (fashion, ~2k products) scores 38 on mobile PageSpeed. We need someone to improve Core Web Vitals without breaking our theme customizations. Please share a similar store you have optimized and your approach.
+Budget: $500 fixed</div>
+
+            <div class="ltr-label">متن پروپوزال — انگلیسی</div>
+            <div class="ltr-block" lang="en">Hi, I saw your store scores 38 on mobile. I am a Shopify speed expert with 4 years of experience in React and web performance.
+
+Last month I took a DTC skincare store from 41 to 86 on mobile by deferring third-party apps and lazy-loading collection images — without touching their custom sections.
+
+My approach for you: ...</div>
+
+            <div class="ltr-label">لینک‌ها</div>
+            <a class="link-ltr" href="#">loom.com/share/3f9a…</a>
+
+            <details style="margin-top:12px">
+              <summary class="btn btn-ghost btn-sm">بازخورد دور ۳ (رضا، ۲۴ مهر)</summary>
+              <div class="tl-body" style="margin-top:8px">حکم: اصلاح اساسی … مهم‌ترین اصلاح: جمله‌ی اول درباره‌ی خودت است؛ با مشکل کارفرما شروع کن …</div>
+            </details>
+            <!-- slot: ai-feedback (1.0) — بلوک «بازخورد AI» این‌جا بالای فرم بازبینی می‌آید؛ در 0.1 وجود ندارد -->
+          </section>
+
+          <section class="card" id="review" aria-labelledby="h-rv">
+            <div class="card-head"><h2 id="h-rv">بازبینی شما</h2><span class="small muted">قالب بازخورد مشاور</span></div>
+            <fieldset class="field" style="border:0;padding:0">
+              <legend class="label">نتیجه</legend>
+              <div class="radio-row">
+                <label class="radio-card"><input type="radio" name="o"> پذیرفته</label>
+                <label class="radio-card sel"><input type="radio" name="o" checked> نیاز به اصلاح</label>
+              </div>
+            </fieldset>
+            <div class="field">
+              <label for="fb">بازخورد (فارسی؛ جمله‌ی نمونه به انگلیسی)</label>
+              <textarea id="fb" class="textarea" dir="auto" style="min-height:220px">حکم: اصلاح جزئی
+
+نقطه‌ی قوت:
+- پاراگراف دوم با عدد (۴۱ به ۸۶) اثبات خوبی است.
+
+مهم‌ترین اصلاح‌ها:
+1. دو خط اول هنوز درباره‌ی توست («I am a Shopify speed expert…»). با مشکل کارفرما و سفارشی‌سازی تم شروع کن.
+   نمونه: "Keeping your theme customizations intact is the hard part — here is how I did it for a similar store."
+
+قدم بعدی: نسخه‌ی ۵ — تا پنجشنبه ۳۰ مهر</textarea>
+              <div class="hint">حداکثر ۳ اصلاح؛ کل متن را بازنویسی نکن (mentor-workflow §6).</div>
+            </div>
+            <div class="field">
+              <span class="label">امتیاز این پروپوزال (اختیاری)</span>
+              <div class="radio-row" role="radiogroup" aria-label="امتیاز ۱ تا ۵">
+                <span class="radio-card">۱ ضعیف</span><span class="radio-card">۲</span><span class="radio-card sel">۳ متوسط</span><span class="radio-card">۴</span><span class="radio-card">۵ عالی</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="nd">مهلت نسخه‌ی بعد</label>
+              <input id="nd" class="input" value="پنجشنبه ۱۴۰۵/۰۷/۳۰">
+              <div class="quick"><span class="fchip" aria-pressed="true">۳ روز</span><span class="fchip">۱ هفته</span><span class="fchip">بدون تغییر</span></div>
+            </div>
+            <div class="form-actions desk-only">
+              <a class="btn" href="#">ذخیره‌ی پیش‌نویس</a>
+              <a class="btn btn-primary" href="today.html#reviews">ثبت بازبینی و رفتن به بعدی</a>
+            </div>
+            <p class="note">F4: بازخورد فارسی + امتیاز ۱ تا ۵ اختیاری؛ این جفت «ورودی + نقد مربی» با رضایت هنرجو داده‌ی ارزیابی AI در 1.0 است (G4). «ثبت و رفتن به بعدی» مربی را به مورد بعدی صف بازبینی می‌برد (جریان ۶). با «پذیرفته»، فیلد مهلت پنهان می‌شود و اگر کار باز دیگری نماند، پیشنهاد «+ کار بعدی» می‌آید.</p>
+          </section>
+        </div>
+
+        <!-- ستون کناری: شرح کار + خلاصه‌ی پرونده + تاریخچه -->
+        <div class="stack aside-sticky">
+          <section class="card" aria-labelledby="h-desc">
+            <h2 id="h-desc">شرح کار</h2>
+            <p class="small">یک جاب واقعی که می‌خواهی اپلای کنی انتخاب کن و قبل از ارسال، متن آگهی و پروپوزالت را این‌جا بگذار.</p>
+            <p class="small"><strong>وقتی قبول است که:</strong> دو خط اول به مشکل همین کارفرما اشاره کند.</p>
+            <div class="item-meta"><span>ساخته‌شده: رضا، ۱۵ مهر</span><span>بازبین: رضا</span></div>
+          </section>
+
+          <section class="card" aria-labelledby="h-sum">
+            <div class="card-head"><h2 id="h-sum">امیر در یک نگاه</h2><a class="small" href="student-profile.html">پرونده</a></div>
+            <dl class="kv">
+              <dt>مرحله</dt><dd>۵ پروپوزال · ۲۶ روز</dd>
+              <dt>ویترین</dt><dd><bdi class="en">Upwork</bdi> · <span class="link-ltr">Shopify Speed Expert…</span></dd>
+              <dt>نیچ</dt><dd><bdi class="en" dir="ltr">Shopify speed for DTC</bdi></dd>
+              <dt>کارهای باز</dt><dd>۳ · ۰ معوق</dd>
+              <dt>انگلیسی</dt><dd>نوشتاری ۳ از ۵</dd>
+            </dl>
+          </section>
+
+          <section class="card" aria-labelledby="h-hist">
+            <h2 id="h-hist">تاریخچه</h2>
+            <ol class="timeline">
+              <li class="tl-item tl-auto"><div class="tl-head">دیروز · امیر</div><div class="tl-body">تحویل نسخه‌ی ۴</div></li>
+              <li class="tl-item tl-auto"><div class="tl-head">۲۴ مهر · رضا</div><div class="tl-body">نیاز به اصلاح (دور ۳)</div></li>
+              <li class="tl-item tl-auto"><div class="tl-head">۲۲ مهر · رضا</div><div class="tl-body">تمدید مهلت ۲۲ ← ۲۶ مهر · «منتظر جاب مناسب بود»</div></li>
+              <li class="tl-item tl-auto"><div class="tl-head">۱۵ مهر · رضا</div><div class="tl-body">کار ساخته شد</div></li>
+            </ol>
+          </section>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="action-bar" role="toolbar" aria-label="ثبت بازبینی">
+    <a class="btn" href="#review">نوشتن بازخورد</a>
+    <a class="btn btn-primary" href="today.html#reviews">ثبت بازبینی</a>
+  </div>
+
+  <nav class="tabbar" aria-label="ناوبری پایین">
+    <a href="today.html"><span class="ti" aria-hidden="true">◔</span>امروز<span class="count">۱۸</span></a>
+    <a href="students.html"><span class="ti" aria-hidden="true">▤</span>هنرجوها</a>
+    <a href="today.html#quick" class="plus" aria-label="افزودن سریع"><span class="ti" aria-hidden="true">+</span></a>
+    <a href="tasks.html" aria-current="page"><span class="ti" aria-hidden="true">✓</span>کارها</a>
+    <a href="#"><span class="ti" aria-hidden="true">؟</span>سؤال‌ها<span class="count alert">۳</span></a>
+  </nav>
+</div>
+
+<div class="sheet" id="task-more" role="dialog" aria-modal="true" aria-labelledby="h-tm">
+  <div class="sheet-panel">
+    <div class="sheet-head"><h2 id="h-tm">این کار</h2><a class="sheet-close" href="#" aria-label="بستن">×</a></div>
+    <nav class="nav"><a href="#extend">تمدید مهلت</a><a href="#">ویرایش شرح</a><a href="#cancel">لغو کار</a></nav>
+  </div>
+</div>
+
+<div class="sheet" id="extend" role="dialog" aria-modal="true" aria-labelledby="h-ex">
+  <div class="sheet-panel">
+    <div class="sheet-head"><h2 id="h-ex">تمدید مهلت</h2><a class="sheet-close" href="#" aria-label="بستن">×</a></div>
+    <p class="small muted">مهلت فعلی: ۲۶ مهر · تاکنون ۱ بار تمدید شده. سومین تمدید هشدار «نیاز به توجه» می‌دهد.</p>
+    <div class="field"><label for="ex-d">مهلت جدید</label><input id="ex-d" class="input" value="۱۴۰۵/۰۸/۰۱"></div>
+    <div class="field"><label for="ex-r">دلیل</label><input id="ex-r" class="input" placeholder="مثلاً: کار بزرگ‌تر از انتظار بود"></div>
+    <div class="form-actions"><a class="btn" href="#">انصراف</a><a class="btn btn-primary" href="#">تمدید</a></div>
+  </div>
+</div>
+
+<div class="sheet" id="cancel" role="dialog" aria-modal="true" aria-labelledby="h-cn">
+  <div class="sheet-panel">
+    <div class="sheet-head"><h2 id="h-cn">لغو کار «پروپوزال برای بررسی: Shopify speed»؟</h2><a class="sheet-close" href="#" aria-label="بستن">×</a></div>
+    <div class="field"><label for="cn-r">دلیل (اجباری)</label><input id="cn-r" class="input"></div>
+    <div class="form-actions"><a class="btn" href="#">منصرف شدم</a><a class="btn btn-danger" href="#">لغو کار</a></div>
+  </div>
+</div>
+</body>
+</html>

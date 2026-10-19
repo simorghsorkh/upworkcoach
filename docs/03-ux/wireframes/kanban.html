@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مراحل مسیر — دفتر مربی (وایرفریم 0.1)</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">پرش به محتوا</a>
+<div class="wf-banner">
+  <span>وایرفریم 0.1 · <strong>M4 مراحل (کانبان)</strong> · نقش: مدیر</span>
+  <a href="index.html">→ فهرست وایرفریم‌ها</a>
+</div>
+
+<div class="app">
+  <aside class="sidebar" aria-label="ناوبری اصلی">
+    <div class="brand">UpworkCoach<small>دفتر مربی</small></div>
+    <nav class="nav">
+      <a href="today.html">امروز <span class="count">۱۸</span></a>
+      <a href="students.html">هنرجوها</a>
+      <a href="kanban.html" aria-current="page">مراحل</a>
+      <a href="tasks.html">کارها</a>
+      <a href="#">سؤال‌ها <span class="count alert">۳</span></a>
+      <div class="nav-sep" role="separator"></div>
+      <a href="#">نتایج <small class="faint">مدیر</small></a>
+      <a href="#">تنظیمات <small class="faint">مدیر</small></a>
+    </nav>
+    <div class="nav-foot">مربی · مدیر<br><a href="#">حساب من</a></div>
+  </aside>
+
+  <header class="topbar">
+    <a class="icon-btn" href="today.html#menu" aria-label="منو">☰</a>
+    <span class="t-title">مراحل مسیر</span>
+    <a class="icon-btn" href="students.html#filters" aria-label="فیلتر"><small>فیلتر</small></a>
+  </header>
+
+  <main class="main" id="main">
+    <div class="main-inner">
+      <div class="page-head">
+        <div>
+          <h1>مراحل مسیر</h1>
+          <div class="sub">۴۲ هنرجوی فعال · ۳ متوقف (پنهان)</div>
+        </div>
+        <div class="page-actions">
+          <nav class="seg" aria-label="نوع نما"><a href="students.html">فهرست</a><a href="kanban.html" aria-current="page">مراحل</a></nav>
+          <select class="select desk-only" aria-label="مشاور"><option>مشاور: همه</option></select>
+          <select class="select desk-only" aria-label="وضعیت"><option>وضعیت: همه</option><option>فقط گیرکرده و نیاز به توجه</option></select>
+        </div>
+      </div>
+
+      <nav class="stage-chips" aria-label="پرش به مرحله">
+        <a href="#s0">۰ · ۲</a><a href="#s1">۱ · ۶</a><a href="#s2">۲ · ۸</a><a href="#s3">۳ · ۵</a><a href="#s4">۴ · ۳</a><a href="#s5">۵ · ۱۰</a><a href="#s6">۶ · ۳</a><a href="#s7">۷ · ۲</a><a href="#s8">۸ · ۳</a>
+      </nav>
+
+      <div class="kanban" role="list" aria-label="ستون‌های مراحل">
+        <section class="kcol" id="s0" role="listitem" aria-labelledby="k0">
+          <div class="kcol-head"><h2 id="k0">۰ شروع <span class="count">۲</span></h2><span class="exp">معمول: ۲ تا ۴ روز</span></div>
+          <a class="kcard" href="student-profile.html"><span class="kname">کیمیا شریفی <span class="health h-green">روبه‌راه</span></span><span class="kmeta"><span>۱ روز</span><span>هنوز وارد نشده</span></span></a>
+          <a class="kcard over" href="student-profile.html"><span class="kname">بهار نادری <span class="health h-yellow">نیاز به توجه</span></span><span class="kmeta"><span class="overtime">۷ روز · بیش از معمول</span></span></a>
+        </section>
+
+        <section class="kcol" id="s1" role="listitem" aria-labelledby="k1">
+          <div class="kcol-head"><h2 id="k1">۱ نیچ <span class="count">۶</span></h2><span class="exp">معمول: ۵ تا ۱۰ روز</span></div>
+          <a class="kcard over2" href="student-profile.html"><span class="kname">نگار صادقی <span class="health h-yellow">نیاز به توجه</span></span><span class="kmeta"><span class="overtime r">۲۱ روز · ۲ برابر معمول</span></span></a>
+          <a class="kcard" href="student-profile.html"><span class="kname">سارا محمدی <span class="health h-green">روبه‌راه</span></span><span class="kmeta"><span>۶ روز</span><span class="chip st-submitted">۱ منتظر بازبینی</span></span></a>
+          <a class="kcard" href="student-profile.html"><span class="kname">رها توکلی <span class="health h-green">روبه‌راه</span></span><span class="kmeta"><span>۳ روز</span></span></a>
+          <a class="btn btn-ghost btn-sm" href="#">+ ۳ نفر دیگر</a>
+        </section>
+
+        <section class="kcol" id="s2" role="listitem" aria-labelledby="k2">
+          <div class="kcol-head"><h2 id="k2">۲ ویترین <span class="count">۸</span></h2><span class="exp">معمول: ۵ تا ۱۰ روز</span></div>
+          <div class="kcard over2">
+            <a class="kname" href="student-profile.html">زهرا کریمی <span class="health h-churn">خطر ریزش</span></a>
+            <span class="kmeta"><span class="overtime r">۲۴ روز</span><span class="tag tag-overdue">۱ معوق</span></span>
+            <div class="kact"><a class="btn btn-sm" href="#move">انتقال به…</a></div>
+          </div>
+          <a class="kcard" href="student-profile.html"><span class="kname">مهدی جعفری <span class="health h-yellow">نیاز به توجه</span></span><span class="kmeta"><span>۹ روز</span><span class="chip st-submitted">۱ منتظر بازبینی</span></span></a>
+          <a class="kcard" href="student-profile.html"><span class="kname">پویا شکوهی <span class="health h-green">روبه‌راه</span></span><span class="kmeta"><span>۴ روز</span><span class="tag">+۳ نمونه‌کار</span></span></a>
+          <a class="btn btn-ghost btn-sm" href="#">+ ۵ نفر دیگر</a>
+        </section>
+
+        <section class="kcol" id="s3" role="listitem" aria-labelledby="k3">
+          <div class="kcol-head"><h2 id="k3">۳ نمونه‌کار <span class="count">۵</span></h2><span class="exp">معمول: ۷ تا ۱۴ روز</span></div>
+          <a class="kcard" href="student-profile.html"><span class="kname">حسین نوری <span class="health h-red">گیرکرده</span></span><span class="kmeta"><span>۱۲ روز</span><span class="tag tag-overdue">۲ معوق</span></span></a>
+          <a class="kcard" href="student-profile.html"><span class="kname">پریسا امینی <span class="health h-yellow">نیاز به توجه</span></span><span class="kmeta"><span>۸ روز</span><span>بدون کار باز</span></span></a>
+          <a class="btn btn-ghost btn-sm" href="#">+ ۳ نفر دیگر</a>
+        </section>
+
+        <section class="kcol" id="s4" role="listitem" aria-labelledby="k4">
+          <div class="kcol-head"><h2 id="k4">۴ فرصت <span class="count">۳</span></h2><span class="exp">معمول: ۳ تا ۵ روز</span></div>
+          <a class="kcard" href="student-profile.html"><span class="kname">آرش ملکی <span class="health h-green">روبه‌راه</span></span><span class="kmeta"><span>۲ روز</span></span></a>
+          <a class="btn btn-ghost btn-sm" href="#">+ ۲ نفر دیگر</a>
+        </section>
+
+        <section class="kcol" id="s5" role="listitem" aria-labelledby="k5">
+          <div class="kcol-head"><h2 id="k5">۵ پروپوزال <span class="count">۱۰</span></h2><span class="exp">معمول: ۲ تا ۶ هفته</span></div>
+          <a class="kcard" href="student-profile.html"><span class="kname">امیر رستمی <span class="health h-red">گیرکرده</span></span><span class="kmeta"><span>۲۶ روز</span><span>۴ دور اصلاح</span></span></a>
+          <a class="kcard" href="student-profile.html"><span class="kname">علی موسوی <span class="health h-green">روبه‌راه</span></span><span class="kmeta"><span>۱۰ روز</span><span class="chip st-submitted">۱ منتظر بازبینی</span></span></a>
+          <a class="btn btn-ghost btn-sm" href="#">+ ۸ نفر دیگر</a>
+        </section>
+
+        <section class="kcol" id="s6" role="listitem" aria-labelledby="k6">
+          <div class="kcol-head"><h2 id="k6">۶ مصاحبه <span class="count">۳</span></h2><span class="exp">معمول: متغیر</span></div>
+          <a class="kcard" href="student-profile.html"><span class="kname">دلارام فرهادی <span class="health h-green">روبه‌راه</span></span><span class="kmeta"><span>۵ روز</span></span></a>
+          <a class="btn btn-ghost btn-sm" href="#">+ ۲ نفر دیگر</a>
+        </section>
+
+        <section class="kcol" id="s7" role="listitem" aria-labelledby="k7">
+          <div class="kcol-head"><h2 id="k7">۷ تحویل <span class="count">۲</span></h2><span class="exp">به اندازه‌ی پروژه</span></div>
+          <a class="kcard" href="student-profile.html"><span class="kname">سینا اکبری <span class="health h-green">روبه‌راه</span></span><span class="kmeta"><span>۱۴ روز</span></span></a>
+        </section>
+
+        <section class="kcol" id="s8" role="listitem" aria-labelledby="k8">
+          <div class="kcol-head"><h2 id="k8">۸ رشد <span class="count">۳</span></h2><span class="exp">پیوسته</span></div>
+          <a class="kcard" href="student-profile.html"><span class="kname">نیلوفر حسینی <span class="health h-green">روبه‌راه</span></span><span class="kmeta"><span>۴۰ روز</span></span></a>
+        </section>
+      </div>
+
+      <p class="note">F3: ستون به ازای هر مرحله، کارت با روزهای ماندن در مرحله؛ هشدار وقتی از مدت معمول گذشت = نوار رنگی سمت راست کارت + متن «بیش از معمول / ۲ برابر معمول» (نه فقط رنگ). در هر ستون مرتب‌سازی: گیرکرده ← نیاز به توجه ← بیشترین روز. حداکثر ۳ کارت دیده می‌شود و بقیه با «+ N نفر دیگر» باز می‌شوند تا ستون مرحله‌ی ۵ صفحه را نبلعد.</p>
+      <p class="note">جابه‌جایی: روی دسکتاپ کشیدن و رها کردن کارت (میان‌بُر) + دکمه‌ی «انتقال به…» روی هر کارت با فوکوس/hover (الزامی برای کیبورد و موبایل). هر دو همان پنجره‌ی «تغییر مرحله» پرونده را باز می‌کنند (یادداشت اختیاری، کارهای قالب). مرحله‌های هم‌زمان ۲ و ۳: کارت در ستون ۲ با برچسب «+۳ نمونه‌کار».</p>
+      <p class="note">موبایل: هر ستون ۸۵٪ عرض با اسکرول افقی چسبنده؛ ردیف چیپ «شماره‌ی مرحله · تعداد» بالای صفحه برای پرش به ستون. «قیف کوهورت» بنیان‌گذار در 0.1 همین تعدادهای سربرگ ستون‌هاست (فرض U5).</p>
+    </div>
+  </main>
+
+  <nav class="tabbar" aria-label="ناوبری پایین">
+    <a href="today.html"><span class="ti" aria-hidden="true">◔</span>امروز<span class="count">۱۸</span></a>
+    <a href="students.html" aria-current="page"><span class="ti" aria-hidden="true">▤</span>هنرجوها</a>
+    <a href="today.html#quick" class="plus" aria-label="افزودن سریع"><span class="ti" aria-hidden="true">+</span></a>
+    <a href="tasks.html"><span class="ti" aria-hidden="true">✓</span>کارها</a>
+    <a href="#"><span class="ti" aria-hidden="true">؟</span>سؤال‌ها<span class="count alert">۳</span></a>
+  </nav>
+</div>
+
+<div class="sheet" id="move" role="dialog" aria-modal="true" aria-labelledby="h-move">
+  <div class="sheet-panel">
+    <div class="sheet-head"><h2 id="h-move">انتقال زهرا کریمی</h2><a class="sheet-close" href="#" aria-label="بستن">×</a></div>
+    <div class="field"><label for="mv">به مرحله‌ی</label><select id="mv"><option>۳ — نمونه‌کار (بعدی)</option><option>۱ — نیچ (برگشت)</option></select></div>
+    <div class="field"><label for="mvn">یادداشت (اختیاری؛ برای برگشت لازم)</label><textarea id="mvn" class="textarea" dir="auto" style="min-height:72px"></textarea></div>
+    <div class="form-actions"><a class="btn" href="#">انصراف</a><a class="btn btn-primary" href="#">انتقال</a></div>
+    <p class="note">نسخه‌ی کوتاه پنجره‌ی «تغییر مرحله» (student-profile.html#stage).</p>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens (colors, radii, dark mode) come from docs/03-ux and are added
+ * by frontend-engineer. The skeleton only wires the Persian font.
+ */
+@theme inline {
+  --font-sans: var(--font-vazirmatn), Tahoma, system-ui, sans-serif;
+}

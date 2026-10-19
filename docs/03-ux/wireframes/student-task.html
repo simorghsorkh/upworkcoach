@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>کار: پروپوزال برای بررسی — هنرجو (وایرفریم 0.1)</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">پرش به محتوا</a>
+<div class="wf-banner">
+  <span>وایرفریم 0.1 · <strong>S3 جزئیات کار + تحویل</strong> · نقش: هنرجو (امیر، کار نوع «پروپوزال برای بررسی»، در وضعیت «نیاز به اصلاح») · نمای مربی: <a href="task-detail.html">task-detail.html</a></span>
+  <a href="index.html">→ فهرست وایرفریم‌ها</a>
+</div>
+
+<div class="s-app has-action-bar">
+  <header class="s-top">
+    <div class="s-top-inner">
+      <a class="icon-btn" href="student-home.html" aria-label="بازگشت">→</a>
+      <span class="brand">کار من</span>
+      <nav class="s-nav" aria-label="ناوبری اصلی">
+        <a href="student-home.html">خانه</a>
+        <a href="student-task.html" aria-current="page">کارها</a>
+        <a href="#">سؤال‌ها</a>
+        <a href="#">مسیر</a>
+        <a href="#">من</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="s-main" id="main">
+    <nav class="breadcrumb desk-only" aria-label="مسیر"><a href="#">کارهای من</a> ← این کار</nav>
+    <h1>پروپوزال برای بررسی: یک جاب <bdi class="en">Shopify</bdi></h1>
+    <div class="item-meta" style="margin:6px 0 16px">
+      <span class="chip st-changes">نیاز به اصلاح · دور ۳</span>
+      <span>تا <strong>۳۰ مهر</strong> (۳ روز مانده)</span>
+      <span>از طرف رضا</span>
+    </div>
+
+    <section class="card" aria-labelledby="h-fb" style="border-color:var(--h-yellow-bd)">
+      <div class="card-head"><h2 id="h-fb">بازخورد رضا <span class="tag tag-new">جدید</span></h2><span class="small muted">۲۴ مهر</span></div>
+      <p class="small"><strong>حکم:</strong> اصلاح اساسی</p>
+      <p class="small"><strong>نقطه‌ی قوت:</strong> عدد ۴۱ به ۸۶ اثبات خوبی است.</p>
+      <p class="small"><strong>مهم‌ترین اصلاح:</strong> جمله‌ی اول درباره‌ی خودت است؛ با مشکل کارفرما شروع کن (معیار «قلاب دو خط اول»).</p>
+      <div class="ltr-block" lang="en">"Keeping your theme customizations intact is the hard part — here is how I did it for a similar store."</div>
+      <p class="small" style="margin-top:8px"><strong>قدم بعدی:</strong> نسخه‌ی ۴ را تا ۳۰ مهر بفرست.</p>
+    </section>
+
+    <section class="card" aria-labelledby="h-d">
+      <h2 id="h-d">چه کاری باید بکنی</h2>
+      <p class="small">یک جاب واقعی که می‌خواهی اپلای کنی انتخاب کن و قبل از ارسال، متن آگهی و پروپوزالت را این‌جا بگذار.</p>
+      <p class="small"><strong>وقتی قبول است که:</strong> دو خط اول به مشکل همین کارفرما اشاره کند.</p>
+    </section>
+
+    <!-- slot: ai-check (1.0) — «بررسی سریع با AI قبل از تحویل» این‌جا می‌آید؛ در 0.1 وجود ندارد -->
+
+    <form class="card" id="submit" aria-labelledby="h-s">
+      <h2 id="h-s" style="margin-bottom:12px">تحویل نسخه‌ی ۴</h2>
+      <div class="field">
+        <label for="pf">پلتفرم</label>
+        <select id="pf"><option>Upwork</option><option>Fiverr</option><option>LinkedIn / مستقیم</option><option>سایر</option></select>
+      </div>
+      <div class="field">
+        <label for="job">متن آگهی (انگلیسی)</label>
+        <textarea id="job" class="textarea" dir="ltr" lang="en">Shopify store speed optimization needed
+Our Shopify Plus store (fashion, ~2k products) scores 38 on mobile PageSpeed…</textarea>
+        <div class="hint">کپی از صفحه‌ی آگهی. نام شرکت یا اطلاعات تماس کارفرما را پاک کن.</div>
+      </div>
+      <div class="field">
+        <label for="prop">متن پروپوزال (انگلیسی)</label>
+        <textarea id="prop" class="textarea" dir="ltr" lang="en" style="min-height:180px">Keeping your theme customizations intact is the hard part — last month I took a DTC skincare store from 41 to 86 on mobile without touching their custom sections…</textarea>
+      </div>
+      <div class="field">
+        <label for="lnk">لینک (اختیاری)</label>
+        <input id="lnk" class="input" dir="ltr" inputmode="url" placeholder="https://">
+      </div>
+      <label class="check" style="margin-bottom:16px">
+        <input type="checkbox" checked>
+        <span>اجازه می‌دهم این آگهی و پروپوزال <strong>بدون نام من</strong> برای بهتر کردن آموزش و ابزارهای UpworkCoach استفاده شود. <a href="#">بیشتر بدان</a></span>
+      </label>
+      <div class="form-actions desk-only">
+        <a class="btn" href="#">ذخیره‌ی پیش‌نویس</a>
+        <a class="btn btn-primary" href="#done">تحویل</a>
+      </div>
+      <p class="note">F4: نوع «پروپوزال برای بررسی» = فیلدهای جدا برای پلتفرم، متن آگهی و متن پروپوزال (هر دو <span class="ref">dir="ltr"</span>، فونت لاتین) + چک‌باکس رضایت (D6). متن تا ارسال در مرورگر نگه داشته می‌شود تا با قطع اینترنت گم نشود. پیش‌نویس با نسخه‌ی قبلی پر می‌شود تا هنرجو فقط اصلاح کند.</p>
+    </form>
+
+    <div class="alert alert-ok" id="done" role="status"><strong>تحویل شد.</strong> رضا معمولاً تا ۴۸ ساعت نگاه می‌کند؛ وقتی بازخورد آمد، روی «کارها» نشان می‌بینی. <span class="faint xs">(نمونه‌ی پیام بعد از تحویل)</span></div>
+
+    <details class="card">
+      <summary class="btn btn-ghost btn-sm">نسخه‌های قبلی و بازخوردها (۳)</summary>
+      <p class="small muted">نسخه‌ی ۳ · ۲۳ مهر — نیاز به اصلاح<br>نسخه‌ی ۲ · ۱۹ مهر — نیاز به اصلاح<br>نسخه‌ی ۱ · ۱۶ مهر — نیاز به اصلاح</p>
+    </details>
+
+    <section class="card" aria-labelledby="h-help">
+      <h2 id="h-help">گیر کردی؟</h2>
+      <div class="btn-group" style="margin-top:8px">
+        <a class="btn" href="#">سؤال درباره‌ی این کار</a>
+        <a class="btn" href="#">وقت بیشتری لازم دارم</a>
+      </div>
+      <p class="note">«وقت بیشتری لازم دارم» یک درخواست تمدید با دلیل در صف مشاور می‌سازد؛ هنرجو خودش مهلت را عوض نمی‌کند (فرض U10). «شروع کردم» (وضعیت اختیاری «در حال انجام») فقط در وضعیت «باز» دیده می‌شود.</p>
+    </section>
+  </main>
+
+  <div class="action-bar" role="toolbar" aria-label="تحویل">
+    <a class="btn" href="#">پیش‌نویس</a>
+    <a class="btn btn-primary" href="#done">تحویل نسخه‌ی ۴</a>
+  </div>
+
+  <nav class="tabbar" aria-label="ناوبری پایین">
+    <a href="student-home.html"><span class="ti" aria-hidden="true">⌂</span>خانه</a>
+    <a href="student-task.html" aria-current="page"><span class="ti" aria-hidden="true">✓</span>کارها</a>
+    <a href="#"><span class="ti" aria-hidden="true">؟</span>سؤال‌ها</a>
+    <a href="#"><span class="ti" aria-hidden="true">⋮</span>مسیر</a>
+    <a href="#"><span class="ti" aria-hidden="true">○</span>من</a>
+  </nav>
+</div>
+</body>
+</html>

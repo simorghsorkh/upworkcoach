@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>حالت‌ها و کامپوننت‌ها — سیستم طراحی · UpworkCoach</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<symbol id="i-today" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4M9 14.8l2 2 4-4.1"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.3-5.5 6.5-5.5s5.9 1.9 6.5 5.5M15.5 4.8a3.5 3.5 0 0 1 0 6.4M17.5 14.8c2.2.6 3.6 2.4 4 5.2"/></symbol>
+<symbol id="i-board" viewBox="0 0 24 24"><rect x="3.5" y="4" width="5" height="16" rx="1.5"/><rect x="10" y="4" width="4.5" height="11" rx="1.5"/><rect x="16" y="4" width="4.5" height="13.5" rx="1.5"/></symbol>
+<symbol id="i-tasks" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="m8 12.2 2.8 2.8 5.2-5.5"/></symbol>
+<symbol id="i-chat" viewBox="0 0 24 24"><path d="M20.5 11.5a8 8 0 0 1-11.7 7.1L3.5 20l1.4-4.6A8 8 0 1 1 20.5 11.5Z"/><path d="M8.5 10h7M8.5 13.5h4.5"/></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20h16"/><rect x="5.5" y="11" width="3" height="6" rx="1"/><rect x="10.5" y="6" width="3" height="11" rx="1"/><rect x="15.5" y="13" width="3" height="4" rx="1"/></symbol>
+<symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="17" r="2.2"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+<symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+<symbol id="i-next" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+<symbol id="i-chev-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+<symbol id="i-chev-next" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+<symbol id="i-more" viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="18.5" cy="12" r="1.5" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+<symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="m8.2 12.3 2.6 2.6 5-5.2"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+<symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></symbol>
+<symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
+<symbol id="i-external" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-8.5 8.5M18 14v4.5a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 4 18.5v-11A1.5 1.5 0 0 1 5.5 6H10"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 4.2 2.9 17.5a2 2 0 0 0 1.7 3h14.8a2 2 0 0 0 1.7-3L13.7 4.2a2 2 0 0 0-3.4 0Z"/><path d="M12 9.5v4M12 17h.01"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8h.01"/></symbol>
+<symbol id="i-filter" viewBox="0 0 24 24"><path d="M4 6.5h16M7 12h10M10 17.5h4"/></symbol>
+<symbol id="i-phone" viewBox="0 0 24 24"><path d="M5.2 4h3.3l1.6 4-2.1 1.4a11 11 0 0 0 6.6 6.6l1.4-2.1 4 1.6v3.3a1.6 1.6 0 0 1-1.7 1.6A16 16 0 0 1 3.6 5.7 1.6 1.6 0 0 1 5.2 4Z"/></symbol>
+<symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4ZM13.5 6.5l4 4"/></symbol>
+<symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></symbol>
+<symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 15V4.5M7.5 9 12 4.5 16.5 9M4.5 15v3.5A1.5 1.5 0 0 0 6 20h12a1.5 1.5 0 0 0 1.5-1.5V15"/></symbol>
+<symbol id="i-flag" viewBox="0 0 24 24"><path d="M5.5 21V4.5M5.5 4.5h11l-2 4 2 4h-11"/></symbol>
+<symbol id="i-pause" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M10 9v6M14 9v6"/></symbol>
+<symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5v-3a4 4 0 0 1 8 0v3"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15ZM10 20.5a2 2 0 0 0 4 0"/></symbol>
+<symbol id="i-bell-off" viewBox="0 0 24 24"><path d="M3 3l18 18M8.5 5.6A6 6 0 0 1 18 11v4M6 11v5.5l-1.5 2h12.5M10 20.5a2 2 0 0 0 4 0"/></symbol>
+<symbol id="i-route" viewBox="0 0 24 24"><circle cx="18" cy="18" r="2.5"/><circle cx="6" cy="6" r="2.5"/><path d="M15.5 18H8a3.5 3.5 0 0 1 0-7h8a3.5 3.5 0 0 0 0-7H8.5"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5c.8-4 3.8-6 7.5-6s6.7 2 7.5 6"/></symbol>
+<symbol id="i-home" viewBox="0 0 24 24"><path d="M3.5 10.5 12 3.5l8.5 7M5.5 9v10.5a1 1 0 0 0 1 1H10v-6h4v6h3.5a1 1 0 0 0 1-1V9"/></symbol>
+<symbol id="i-copy" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="12" height="12" rx="2"/><path d="M15.5 8.5V5A1.5 1.5 0 0 0 14 3.5H5A1.5 1.5 0 0 0 3.5 5v9A1.5 1.5 0 0 0 5 15.5h3.5"/></symbol>
+<symbol id="i-wifi-off" viewBox="0 0 24 24"><path d="M3 3l18 18M8.5 16.5a5 5 0 0 1 7 0M5 13a10 10 0 0 1 5-2.7M19 13a10 10 0 0 0-2.3-1.7M2 9.5a15 15 0 0 1 4.5-2.8M22 9.5A15 15 0 0 0 11 5.6M12 20h.01"/></symbol>
+<symbol id="i-inbox" viewBox="0 0 24 24"><path d="M3.5 13.5 6 5.5h12l2.5 8V19a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 19Z"/><path d="M3.5 13.5H8l1.5 2.5h5l1.5-2.5h4.5"/></symbol>
+<symbol id="i-award" viewBox="0 0 24 24"><circle cx="12" cy="9" r="5.5"/><path d="m8.7 13.4-1.2 7.1 4.5-2.5 4.5 2.5-1.2-7.1"/></symbol>
+<symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.6-4.5M4.5 3.5V7H8M4 13a8 8 0 0 0 14.6 4.5M19.5 20.5V17H16"/></symbol>
+<symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3.5H7A1.5 1.5 0 0 0 5.5 5v14A1.5 1.5 0 0 0 7 20.5h10a1.5 1.5 0 0 0 1.5-1.5V8ZM14 3.5V8h4.5M9 13h6M9 16.5h4"/></symbol>
+<symbol id="i-video" viewBox="0 0 24 24"><rect x="3" y="6" width="12.5" height="12" rx="2.5"/><path d="m15.5 10.5 5.5-3v9l-5.5-3"/></symbol>
+<symbol id="i-checklist" viewBox="0 0 24 24"><path d="M11 6.5h9M11 12h9M11 17.5h9M3.5 6.5 5 8l2.5-2.5M3.5 12 5 13.5 7.5 11"/><circle cx="5.5" cy="17.5" r="1.5"/></symbol>
+<symbol id="i-briefcase" viewBox="0 0 24 24"><rect x="3.5" y="7" width="17" height="13" rx="2.5"/><path d="M8.5 7V5.5A1.5 1.5 0 0 1 10 4h4a1.5 1.5 0 0 1 1.5 1.5V7M3.5 12.5h17"/></symbol>
+<symbol id="i-zap" viewBox="0 0 24 24"><path d="M13 3 5 13.5h6L10 21l9-11h-6l1-7Z"/></symbol>
+<symbol id="i-ball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.4 3.5 5.3 3.5 8.5s-1.1 6.1-3.5 8.5M12 3.5C9.6 5.9 8.5 8.8 8.5 12s1.1 6.1 3.5 8.5"/></symbol>
+<symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></symbol>
+<symbol id="i-hourglass" viewBox="0 0 24 24"><path d="M6.5 3.5h11M6.5 20.5h11M7.5 3.5c0 4.5 4.5 5.5 4.5 8.5s-4.5 4-4.5 8.5M16.5 3.5c0 4.5-4.5 5.5-4.5 8.5s4.5 4 4.5 8.5"/></symbol>
+<symbol id="i-st-open" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.5"/></symbol>
+<symbol id="i-st-progress" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.5"/><path d="M12 4.5a7.5 7.5 0 0 1 0 15Z" fill="currentColor"/></symbol>
+<symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6.5h11M9 12h11M9 17.5h11M4.5 6.5h.01M4.5 12h.01M4.5 17.5h.01"/></symbol>
+<symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></symbol>
+<symbol id="i-checkin" viewBox="0 0 24 24"><rect x="4.5" y="4" width="15" height="17" rx="2.5"/><path d="M9 4V3h6v1M8.5 11l2 2 4-4M8.5 16.5h7"/></symbol>
+</defs></svg>
+
+<a class="skip-link" href="#main">پرش به محتوا</a>
+<div class="mock-bar">
+  <span>ماکاپ 0.1</span><span class="sep">|</span><strong>حالت‌ها و کامپوننت‌ها</strong><span class="sep">|</span><span>مرجع زنده‌ی design-system.md</span>
+  <a href="index.html"><svg class="i i-14 i-dir" aria-hidden="true"><use href="#i-back"/></svg>فهرست ماکاپ‌ها</a>
+</div>
+
+<main class="page-wide" id="main">
+  <header class="page-head">
+    <div>
+      <p class="eyebrow">سیستم طراحی «دفتر مربی» · نسخه‌ی 0.1</p>
+      <h1>حالت‌ها و کامپوننت‌ها</h1>
+      <div class="sub">نسخه‌ی تاریک با تنظیم سیستم‌عامل خودکار فعال می‌شود (<bdi>prefers-color-scheme</bdi>).</div>
+    </div>
+  </header>
+
+  <div class="stack">
+    <!-- رنگ -->
+    <section class="card" aria-labelledby="h-c">
+      <div class="card-head"><h2 id="h-c">رنگ و کنتراست</h2><span class="head-sub">نسبت‌ها در حالت روشن، روی سفید یا پس‌زمینه‌ی خودشان</span></div>
+      <p class="demo-label">برند — نیلی جوهری</p>
+      <div class="swatches">
+        <div class="swatch"><div class="sw" style="background:var(--brand-50);color:var(--brand-700)">Aa ۹٫۳</div><div class="sw-info">brand-50<br><code>#F3F2FC</code></div></div>
+        <div class="swatch"><div class="sw" style="background:var(--brand-100);color:var(--brand-700)">Aa ۸٫۰</div><div class="sw-info">brand-100<br><code>#E6E4F8</code></div></div>
+        <div class="swatch"><div class="sw" style="background:var(--brand-300);color:var(--brand-900)">Aa</div><div class="sw-info">brand-300 · تزئینی<br><code>#A9A3E4</code></div></div>
+        <div class="swatch"><div class="sw" style="background:var(--brand-500);color:#fff">Aa ۶٫۲</div><div class="sw-info">brand-500 · فوکوس<br><code>#5B52BD</code></div></div>
+        <div class="swatch"><div class="sw" style="background:var(--brand-600);color:#fff">Aa ۸٫۱</div><div class="sw-info">brand-600 · اصلی<br><code>#4A40A8</code></div></div>
+        <div class="swatch"><div class="sw" style="background:var(--brand-700);color:#fff">Aa ۱۰٫۳</div><div class="sw-info">brand-700 · hover<br><code>#3C3489</code></div></div>
+        <div class="swatch"><div class="sw" style="background:var(--brand-900);color:#CFCBE6">Aa ۱۰٫۵</div><div class="sw-info">brand-900 · نوار کناری<br><code>#1D1B36</code></div></div>
+      </div>
+      <p class="demo-label">خنثی‌های گرم (کاغذی)</p>
+      <div class="swatches">
+        <div class="swatch"><div class="sw" style="background:#F7F6F3;color:#1F1D1A;border-bottom:1px solid var(--c-border)">Aa ۱۵٫۶</div><div class="sw-info">bg<br><code>#F7F6F3</code></div></div>
+        <div class="swatch"><div class="sw" style="background:#F2F0EB;color:#57524A">Aa ۶٫۸</div><div class="sw-info">surface-2<br><code>#F2F0EB</code></div></div>
+        <div class="swatch"><div class="sw" style="background:#E6E2DA;color:#1F1D1A">—</div><div class="sw-info">border · تزئینی<br><code>#E6E2DA</code></div></div>
+        <div class="swatch"><div class="sw" style="background:#8E877B;color:#fff">۳٫۶</div><div class="sw-info">border-strong · مرز فیلد<br><code>#8E877B</code></div></div>
+        <div class="swatch"><div class="sw" style="background:#6F695F;color:#fff">۵٫۴</div><div class="sw-info">text-3 · کم‌اهمیت<br><code>#6F695F</code></div></div>
+        <div class="swatch"><div class="sw" style="background:#57524A;color:#fff">۷٫۸</div><div class="sw-info">text-2 · فرعی<br><code>#57524A</code></div></div>
+        <div class="swatch"><div class="sw" style="background:#1F1D1A;color:#fff">۱۶٫۸</div><div class="sw-info">text · اصلی<br><code>#1F1D1A</code></div></div>
+      </div>
+    </section>
+
+    <!-- تایپوگرافی -->
+    <section class="card" aria-labelledby="h-ty">
+      <div class="card-head"><h2 id="h-ty">تایپوگرافی — <bdi>Vazirmatn</bdi> متغیر</h2><span class="head-sub">یک فونت، سلسله‌مراتب با وزن</span></div>
+      <div class="type-row"><span class="t-meta">kpi · 34/40 · 800</span><span style="font-size:34px;line-height:40px;font-weight:800">۱۸ <span style="font-size:15px;font-weight:500;color:var(--c-text-2)">مورد برای رسیدگی</span></span></div>
+      <div class="type-row"><span class="t-meta">2xl · 26/38 · 700</span><span style="font-size:26px;line-height:38px;font-weight:700">عنوان صفحه: امروز</span></div>
+      <div class="type-row"><span class="t-meta">xl · 20/30 · 700</span><span style="font-size:20px;line-height:30px;font-weight:700">عنوان پنجره: تغییر مرحله‌ی امیر</span></div>
+      <div class="type-row"><span class="t-meta">h2 · 16/26 · 700</span><span style="font-size:16px;font-weight:700">عنوان کارت: تحویل‌های منتظر بازبینی</span></div>
+      <div class="type-row"><span class="t-meta">md · 15/26 · 600</span><span style="font-weight:600">عنوان ردیف: پروپوزال برای بررسی: جاب <bdi>Shopify speed</bdi></span></div>
+      <div class="type-row"><span class="t-meta">md · 15/26 · 400</span><span>متن بدنه: دو خط اول به مشکل همین کارفرما اشاره کند.</span></div>
+      <div class="type-row"><span class="t-meta">label · 14/20 · 500–600</span><span style="font-size:14px;font-weight:500;color:var(--c-text-2)">برچسب فیلد و ناوبری</span></div>
+      <div class="type-row"><span class="t-meta">sm · 13/21 · 400</span><span class="sm muted">متا: امیر رستمی · مشاور: رضا · ۶ ساعت پیش</span></div>
+      <div class="type-row"><span class="t-meta">xs · 12/18 · 500–700</span><span class="xs">نشان و شمارنده: <span class="health h-red">گیرکرده</span></span></div>
+    </section>
+
+    <!-- نشان‌ها -->
+    <section class="card" aria-labelledby="h-h">
+      <div class="card-head"><h2 id="h-h">وضعیت هنرجو</h2><span class="head-sub">فقط مربی و مشاور · رنگ + شکل + متن</span></div>
+      <div class="gallery-row">
+        <span class="health h-green">روبه‌راه</span>
+        <span class="health h-yellow">نیاز به توجه</span>
+        <span class="health h-red">گیرکرده</span>
+        <span class="health h-churn">گیرکرده · خطر ریزش</span>
+        <span class="health h-paused">متوقف تا ۶ آبان</span>
+        <span class="health h-red h-muted">هشدار خاموش تا ۵ آبان</span>
+      </div>
+      <p class="demo-label">همیشه با دلیل انسانی، کد قاعده و «توپ در زمین»</p>
+      <div class="gallery-row"><span class="health h-red">گیرکرده</span><span class="reason">۲ کار معوق · ۹ روز بی‌فعالیت</span><span class="rule">R-OVERDUE, R-INACT</span><span class="ball"><svg class="i i-14" aria-hidden="true"><use href="#i-ball"/></svg>توپ: هنرجو</span></div>
+      <p class="demo-label">نوار مسیر ۹ مرحله‌ای (۰ تا ۸) و آواتار حرف اول با رنگ ثابت</p>
+      <div class="gallery-row">
+        <span class="path" role="img" aria-label="مرحله‌ی ۰"><i class="c"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+        <span class="path" role="img" aria-label="مرحله‌ی ۳"><i class="d"></i><i class="d"></i><i class="d"></i><i class="c"></i><i></i><i></i><i></i><i></i><i></i></span>
+        <span class="path" role="img" aria-label="مرحله‌ی ۸"><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="c"></i></span>
+      </div>
+      <div class="gallery-row" style="margin-top:12px">
+        <span class="avatar av-1">ا</span><span class="avatar av-2">ن</span><span class="avatar av-3">ز</span><span class="avatar av-4">س</span><span class="avatar av-5">م</span><span class="avatar av-6">ح</span><span class="avatar av-7">پ</span><span class="avatar av-8">ع</span>
+        <span class="avatar av-lg av-1">ا</span><span class="avatar av-xl av-4">س</span>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="h-t">
+      <div class="card-head"><h2 id="h-t">وضعیت کار و برچسب‌ها</h2></div>
+      <div class="gallery-row">
+        <span class="chip st-open"><svg class="i i-14" aria-hidden="true"><use href="#i-st-open"/></svg>باز</span>
+        <span class="chip st-progress"><svg class="i i-14" aria-hidden="true"><use href="#i-st-progress"/></svg>در حال انجام</span>
+        <span class="chip st-submitted"><svg class="i i-14" aria-hidden="true"><use href="#i-hourglass"/></svg>منتظر بازبینی</span>
+        <span class="chip st-changes"><svg class="i i-14 i-dir" aria-hidden="true"><use href="#i-undo"/></svg>نیاز به اصلاح · دور ۲</span>
+        <span class="chip st-accepted"><svg class="i i-14" aria-hidden="true"><use href="#i-check"/></svg>پذیرفته</span>
+        <span class="chip st-cancelled">لغوشده</span>
+      </div>
+      <div class="gallery-row">
+        <span class="tag tag-overdue">معوق · ۴ روز</span>
+        <span class="tag tag-late"><svg class="i i-14" aria-hidden="true"><use href="#i-clock"/></svg>دیر · ۵۲ ساعت</span>
+        <span class="tag tag-urgent"><svg class="i i-14" aria-hidden="true"><use href="#i-zap"/></svg>فوری</span>
+        <span class="tag tag-new">جدید</span>
+        <span class="tag tag-gate">اجباری برای عبور</span>
+        <span class="tag">برچسب آزاد</span>
+        <span class="platform" data-m="U">Upwork</span>
+        <span class="count">۱۲</span><span class="count count-brand">۵</span><span class="count count-alert">۳</span>
+      </div>
+    </section>
+
+    <!-- دکمه‌ها -->
+    <section class="card" aria-labelledby="h-b">
+      <div class="card-head"><h2 id="h-b">دکمه‌ها و کنترل‌ها</h2><span class="head-sub">در هر صفحه حداکثر یک دکمه‌ی اصلی پررنگ</span></div>
+      <div class="gallery-row">
+        <button class="btn btn-primary" type="button">اقدام اصلی</button>
+        <button class="btn btn-soft" type="button">اقدام ردیف</button>
+        <button class="btn" type="button">ثانویه</button>
+        <button class="btn btn-ghost" type="button">متنی</button>
+        <button class="btn btn-danger" type="button">مخرب</button>
+        <button class="btn btn-primary is-loading" type="button" aria-disabled="true">در حال ثبت…</button>
+        <button class="btn" type="button" aria-disabled="true">غیرفعال</button>
+      </div>
+      <div class="gallery-row">
+        <button class="btn btn-sm" type="button"><svg class="i i-16" aria-hidden="true"><use href="#i-check"/></svg>کوچک</button>
+        <button class="btn btn-lg btn-primary" type="button">بزرگ (هنرجو)<svg class="i i-16 i-dir" aria-hidden="true"><use href="#i-next"/></svg></button>
+        <a class="icon-btn" href="#" aria-label="بیشتر"><svg class="i" aria-hidden="true"><use href="#i-more"/></svg></a>
+        <nav class="seg" aria-label="نمونه‌ی سوییچ"><a href="#" aria-current="page">فهرست</a><a href="#">مراحل</a></nav>
+        <button class="fchip" type="button" aria-pressed="true">همه <span class="n">۴۲</span></button>
+        <button class="fchip" type="button"><span class="health h-red">گیرکرده</span><span class="n">۳</span></button>
+      </div>
+      <p class="demo-label">فوکوس کیبورد (حلقه‌ی ۲px با فاصله‌ی ۲px) — با Tab روی دکمه‌ها ببینید</p>
+      <div class="gallery-row">
+        <span class="btn" style="outline:2px solid var(--c-focus);outline-offset:2px">فوکوس‌شده</span>
+        <span class="search-wrap" style="flex:0 1 280px"><svg class="i" aria-hidden="true"><use href="#i-search"/></svg><input class="search" style="border-color:var(--c-focus);box-shadow:var(--ring)" value="امیر" aria-label="نمونه‌ی جستجو"></span>
+      </div>
+    </section>
+
+    <!-- KPI -->
+    <section class="card" aria-labelledby="h-k">
+      <div class="card-head"><h2 id="h-k">کارت عددی (KPI) و ردیف فهرست</h2></div>
+      <div class="kpis" style="margin-bottom:16px">
+        <a class="kpi k-brand" href="#"><span class="kpi-icon" aria-hidden="true"><svg class="i"><use href="#i-inbox"/></svg></span><span class="kpi-num">۵ <span class="kpi-sub">۱ دیر</span></span><span class="kpi-label">تحویل منتظر بازبینی</span></a>
+        <a class="kpi k-red" href="#"><span class="kpi-icon" aria-hidden="true"><svg class="i"><use href="#i-alert"/></svg></span><span class="kpi-num">۶ <span class="kpi-sub">۳ قرمز</span></span><span class="kpi-label">هنرجوی گیرکرده</span></a>
+      </div>
+      <ul class="plain list" style="border:1px solid var(--c-border);border-radius:var(--r-md);margin:0">
+        <li class="item is-late">
+          <span class="avatar av-1" aria-hidden="true">ا</span>
+          <div class="item-main"><a class="item-title" href="#">پروپوزال برای بررسی: جاب <bdi>Shopify speed</bdi></a><div class="item-meta"><span class="who">امیر رستمی</span><span class="tag tag-late">دیر · ۵۲ ساعت</span></div></div>
+          <div class="item-actions"><a class="btn btn-sm btn-soft" href="#">بازبینی</a></div>
+        </li>
+      </ul>
+    </section>
+
+    <!-- حالت‌های خالی -->
+    <div class="grid-2">
+      <section class="card" aria-labelledby="h-e1">
+        <h2 id="h-e1">خالی — موفقیت</h2>
+        <div class="empty"><span class="empty-icon ok" aria-hidden="true"><svg class="i"><use href="#i-check-circle"/></svg></span><h3>امروز کار عقب‌مانده‌ای نیست.</h3><p>مرور هفتگی: ۱۲ هنرجو تا شنبه</p></div>
+      </section>
+      <section class="card" aria-labelledby="h-e2">
+        <h2 id="h-e2">خالی — شروع</h2>
+        <div class="empty"><span class="empty-icon brand" aria-hidden="true"><svg class="i"><use href="#i-users"/></svg></span><h3>هنوز هنرجویی نساخته‌ای</h3><p>اولین نفر را اضافه کن و لینک دعوتش را در تلگرام بفرست.</p><a class="btn btn-primary" href="students.html#new-student"><svg class="i i-16" aria-hidden="true"><use href="#i-plus"/></svg>هنرجوی جدید</a></div>
+      </section>
+      <section class="card" aria-labelledby="h-e3">
+        <h2 id="h-e3">خالی — فیلتر</h2>
+        <div class="empty"><span class="empty-icon" aria-hidden="true"><svg class="i"><use href="#i-filter"/></svg></span><h3>هنرجویی با این فیلترها نیست</h3><a class="btn btn-ghost" href="#">پاک کردن فیلترها</a></div>
+      </section>
+      <section class="card" aria-labelledby="h-e4">
+        <h2 id="h-e4">خالی — هنرجو</h2>
+        <div class="empty"><span class="empty-icon brand" aria-hidden="true"><svg class="i"><use href="#i-tasks"/></svg></span><h3>فعلاً کاری نداری</h3><p>مشاورت به‌زودی کار بعدی را می‌گذارد؛ اگر سؤالی داری بپرس.</p><a class="btn" href="#"><svg class="i i-16" aria-hidden="true"><use href="#i-chat"/></svg>سؤال بپرس</a></div>
+      </section>
+      <section class="card" aria-labelledby="h-l">
+        <h2 id="h-l">بارگذاری (اسکلت)</h2>
+        <div aria-busy="true" aria-label="در حال بارگذاری" style="margin-top:12px">
+          <div class="skel-row"><div class="skel circle"></div><div><div class="skel w60"></div><div class="skel w40"></div></div></div>
+          <div class="skel-row"><div class="skel circle"></div><div><div class="skel w80"></div><div class="skel w30"></div></div></div>
+          <div class="skel-row"><div class="skel circle"></div><div><div class="skel w60"></div><div class="skel w40"></div></div></div>
+        </div>
+        <p class="xs faint" style="margin-top:8px">بعد از ۱۰ ثانیه: «اتصال کند است…»</p>
+      </section>
+      <section class="card" aria-labelledby="h-er">
+        <h2 id="h-er">خطای بارگذاری بخش</h2>
+        <div class="empty" style="padding-bottom:8px"><span class="empty-icon" style="background:var(--h-red-bg);color:var(--h-red-fg)" aria-hidden="true"><svg class="i"><use href="#i-alert"/></svg></span><h3>این بخش بار نشد</h3><p>اتصال اینترنت را بررسی کن.</p><button class="btn btn-sm" type="button"><svg class="i i-16" aria-hidden="true"><use href="#i-refresh"/></svg>تلاش دوباره</button></div>
+      </section>
+    </div>
+
+    <!-- فرم -->
+    <section class="card" aria-labelledby="h-f">
+      <div class="card-head"><h2 id="h-f">فرم: خطا، هشدار و پیام‌ها</h2></div>
+      <div class="grid-2">
+        <div>
+          <div class="field">
+            <label for="m">موبایل</label>
+            <input id="m" class="input" dir="ltr" value="912345" aria-invalid="true" aria-describedby="m-err">
+            <div class="error-text" id="m-err" role="alert"><svg class="i i-16" aria-hidden="true"><use href="#i-alert"/></svg>شماره‌ی موبایل باید ۱۱ رقم باشد و با ۰۹ شروع شود.</div>
+          </div>
+          <div class="field">
+            <label for="u">لینک پروفایل</label>
+            <div class="input-icon"><svg class="i" aria-hidden="true"><use href="#i-link"/></svg><input id="u" class="input" dir="ltr" inputmode="url" value="https://www.upwork.com/freelancers/~01ab"></div>
+            <div class="alert alert-warn" style="margin:8px 0 0"><svg class="i" aria-hidden="true"><use href="#i-lock"/></svg><div class="a-body"><strong>توجه:</strong> رمز یا کد ورود هیچ حسابی را این‌جا ننویس.</div></div>
+          </div>
+        </div>
+        <div>
+          <div class="alert alert-error"><svg class="i" aria-hidden="true"><use href="#i-alert"/></svg><div class="a-body"><strong>ذخیره نشد.</strong> متنت سر جایش است؛ دوباره بزن.</div></div>
+          <div class="alert alert-neutral"><svg class="i" aria-hidden="true"><use href="#i-wifi-off"/></svg><div class="a-body"><strong>اتصال قطع است.</strong> آخرین اطلاعات را می‌بینی؛ ثبت‌ها بعد از وصل شدن ارسال می‌شوند.</div></div>
+          <div class="alert alert-info"><svg class="i" aria-hidden="true"><use href="#i-info"/></svg><div class="a-body"><strong>توجه:</strong> ۱ کار باز مرحله‌ی ۵ دارد.</div></div>
+          <div class="alert alert-ok"><svg class="i" aria-hidden="true"><use href="#i-check-circle"/></svg><div class="a-body"><strong>تحویل شد.</strong> رضا معمولاً تا ۴۸ ساعت نگاه می‌کند.</div></div>
+        </div>
+      </div>
+      <p class="demo-label">پیام موقت (toast) با «برگرداندن»</p>
+      <div class="toast" role="status"><svg class="i" aria-hidden="true"><use href="#i-check-circle"/></svg><span>امیر به مرحله‌ی ۶ رفت</span><a href="#"><svg class="i i-16 i-dir" aria-hidden="true"><use href="#i-undo"/></svg>برگرداندن</a><span class="t-time">۱۰ ثانیه</span></div>
+    </section>
+
+    <!-- RTL -->
+    <section class="card" aria-labelledby="h-rtl">
+      <div class="card-head"><h2 id="h-rtl">RTL: متن انگلیسی، اعداد، جهت آیکن</h2></div>
+      <p>کلمه‌ی انگلیسی وسط جمله: پروفایل <bdi>Upwork</bdi> تو ۲۵ دلار/ساعت است و <bdi>JSS</bdi> ندارد.</p>
+      <div class="ltr-label">متن پروپوزال <span class="lang">EN</span></div>
+      <div class="ltr-block" lang="en">Hi Sarah, your store scores 38 on mobile. I took a similar store from 41 to 86 in 2 weeks. Connects: 16 · $25/hr</div>
+      <div class="gallery-row" style="margin-top:16px">
+        <span class="tag tag-outline"><svg class="i i-16 i-dir" aria-hidden="true"><use href="#i-back"/></svg>بازگشت (به راست)</span>
+        <span class="tag tag-outline">بعدی/ادامه (به چپ)<svg class="i i-16 i-dir" aria-hidden="true"><use href="#i-next"/></svg></span>
+        <span class="tag tag-outline">مسیر: هنرجوها<svg class="i i-14 i-dir" aria-hidden="true"><use href="#i-chev-next"/></svg>امیر</span>
+        <span class="tag tag-outline"><svg class="i i-16 i-dir" aria-hidden="true"><use href="#i-undo"/></svg>برگرداندن</span>
+        <span class="tag tag-outline"><svg class="i i-16" aria-hidden="true"><use href="#i-search"/></svg>جستجو (آینه نمی‌شود)</span>
+        <span class="tag tag-outline"><svg class="i i-16" aria-hidden="true"><use href="#i-clock"/></svg>ساعت (آینه نمی‌شود)</span>
+      </div>
+      <p class="sm muted" style="margin-top:12px">اعداد رابط فارسی (۳ کار معوق)؛ اعداد داخل متن انگلیسی لاتین (<bdi>Connects: 16</bdi>)؛ کد قاعده <span class="rule">R-LOOP</span>.</p>
+    </section>
+
+    <!-- آیکن‌ها -->
+    <section class="card" aria-labelledby="h-ic">
+      <div class="card-head"><h2 id="h-ic">آیکن‌ها</h2><span class="head-sub">خطی، ۲۰px، ضخامت ۱٫۷۵px، گوشه‌ی گرد · ستاره‌دار = جهت‌دار (در RTL آینه)</span></div>
+      <div class="icon-grid">
+        <div><svg class="i"><use href="#i-today"/></svg>today</div>
+        <div><svg class="i"><use href="#i-users"/></svg>users</div>
+        <div><svg class="i"><use href="#i-board"/></svg>board</div>
+        <div><svg class="i"><use href="#i-tasks"/></svg>tasks</div>
+        <div><svg class="i"><use href="#i-chat"/></svg>chat</div>
+        <div><svg class="i"><use href="#i-chart"/></svg>chart</div>
+        <div><svg class="i"><use href="#i-sliders"/></svg>sliders</div>
+        <div><svg class="i"><use href="#i-search"/></svg>search</div>
+        <div><svg class="i"><use href="#i-plus"/></svg>plus</div>
+        <div><svg class="i"><use href="#i-menu"/></svg>menu</div>
+        <div><svg class="i i-dir"><use href="#i-back"/></svg>back *</div>
+        <div><svg class="i i-dir"><use href="#i-next"/></svg>next *</div>
+        <div><svg class="i i-dir"><use href="#i-chev-next"/></svg>chev-next *</div>
+        <div><svg class="i"><use href="#i-chev-down"/></svg>chev-down</div>
+        <div><svg class="i"><use href="#i-more"/></svg>more</div>
+        <div><svg class="i"><use href="#i-x"/></svg>x</div>
+        <div><svg class="i"><use href="#i-check"/></svg>check</div>
+        <div><svg class="i"><use href="#i-check-circle"/></svg>check-circle</div>
+        <div><svg class="i"><use href="#i-clock"/></svg>clock</div>
+        <div><svg class="i"><use href="#i-calendar"/></svg>calendar</div>
+        <div><svg class="i"><use href="#i-link"/></svg>link</div>
+        <div><svg class="i i-dir"><use href="#i-external"/></svg>external *</div>
+        <div><svg class="i"><use href="#i-alert"/></svg>alert</div>
+        <div><svg class="i"><use href="#i-info"/></svg>info</div>
+        <div><svg class="i"><use href="#i-filter"/></svg>filter</div>
+        <div><svg class="i"><use href="#i-phone"/></svg>phone</div>
+        <div><svg class="i"><use href="#i-pen"/></svg>pen</div>
+        <div><svg class="i i-dir"><use href="#i-undo"/></svg>undo *</div>
+        <div><svg class="i"><use href="#i-upload"/></svg>upload</div>
+        <div><svg class="i"><use href="#i-flag"/></svg>flag</div>
+        <div><svg class="i"><use href="#i-pause"/></svg>pause</div>
+        <div><svg class="i"><use href="#i-eye"/></svg>eye</div>
+        <div><svg class="i"><use href="#i-lock"/></svg>lock</div>
+        <div><svg class="i"><use href="#i-bell"/></svg>bell</div>
+        <div><svg class="i"><use href="#i-bell-off"/></svg>bell-off</div>
+        <div><svg class="i"><use href="#i-route"/></svg>route</div>
+        <div><svg class="i"><use href="#i-user"/></svg>user</div>
+        <div><svg class="i"><use href="#i-home"/></svg>home</div>
+        <div><svg class="i"><use href="#i-copy"/></svg>copy</div>
+        <div><svg class="i"><use href="#i-wifi-off"/></svg>wifi-off</div>
+        <div><svg class="i"><use href="#i-inbox"/></svg>inbox</div>
+        <div><svg class="i"><use href="#i-award"/></svg>award</div>
+        <div><svg class="i"><use href="#i-refresh"/></svg>refresh</div>
+        <div><svg class="i"><use href="#i-file"/></svg>file</div>
+        <div><svg class="i"><use href="#i-video"/></svg>video</div>
+        <div><svg class="i i-dir"><use href="#i-checklist"/></svg>checklist *</div>
+        <div><svg class="i"><use href="#i-briefcase"/></svg>briefcase</div>
+        <div><svg class="i"><use href="#i-zap"/></svg>zap</div>
+        <div><svg class="i"><use href="#i-ball"/></svg>ball</div>
+        <div><svg class="i"><use href="#i-target"/></svg>target</div>
+        <div><svg class="i"><use href="#i-hourglass"/></svg>hourglass</div>
+        <div><svg class="i"><use href="#i-st-open"/></svg>st-open</div>
+        <div><svg class="i"><use href="#i-st-progress"/></svg>st-progress</div>
+        <div><svg class="i"><use href="#i-checkin"/></svg>checkin</div>
+        <div><svg class="i"><use href="#i-list"/></svg>list</div>
+        <div><svg class="i"><use href="#i-grid"/></svg>grid</div>
+      </div>
+    </section>
+  </div>
+</main>
+</body>
+</html>

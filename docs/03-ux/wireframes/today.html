@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>امروز — دفتر مربی (وایرفریم 0.1)</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">پرش به محتوا</a>
+<div class="wf-banner">
+  <span>وایرفریم 0.1 · <strong>M1 امروز</strong> · نقش: مدیر (مشاور همین صفحه را فقط برای هنرجوهای خودش و بدون فیلتر مشاور می‌بیند)</span>
+  <a href="index.html">→ فهرست وایرفریم‌ها</a>
+</div>
+
+<div class="app">
+  <aside class="sidebar" aria-label="ناوبری اصلی">
+    <div class="brand">UpworkCoach<small>دفتر مربی</small></div>
+    <nav class="nav">
+      <a href="today.html" aria-current="page">امروز <span class="count" aria-label="۱۸ مورد">۱۸</span></a>
+      <a href="students.html">هنرجوها</a>
+      <a href="kanban.html">مراحل</a>
+      <a href="tasks.html">کارها</a>
+      <a href="#">سؤال‌ها <span class="count alert" aria-label="۳ سؤال بی‌پاسخ">۳</span></a>
+      <div class="nav-sep" role="separator"></div>
+      <a href="#">نتایج <small class="faint">مدیر</small></a>
+      <a href="#">تنظیمات <small class="faint">مدیر</small></a>
+    </nav>
+    <div class="nav-foot">مربی · مدیر<br><a href="#">حساب من</a></div>
+  </aside>
+
+  <header class="topbar">
+    <a class="icon-btn" href="#menu" aria-label="منو">☰</a>
+    <span class="t-title">امروز · ۲۷ مهر</span>
+    <a class="icon-btn" href="students.html" aria-label="جستجوی هنرجو"><small>جستجو</small></a>
+  </header>
+
+  <main class="main" id="main">
+    <div class="main-inner">
+      <div class="page-head">
+        <div>
+          <h1>امروز</h1>
+          <div class="sub">دوشنبه ۲۷ مهر ۱۴۰۵</div>
+        </div>
+        <div class="page-actions">
+          <label class="visually-hidden" for="mentor-filter">مشاور</label>
+          <select id="mentor-filter" class="select" aria-label="فیلتر مشاور">
+            <option>مشاور: همه</option><option>فقط هنرجوهای خودم</option><option>رضا</option><option>لیلا</option>
+          </select>
+          <a class="btn desk-only" href="#quick">+ افزودن</a>
+        </div>
+      </div>
+
+      <div class="alert alert-error" role="status">
+        <strong>از زمان پاسخ گذشته:</strong>
+        ۱ تحویل منتظر بازبینی (۵۲ ساعت) · ۱ هنرجوی قرمز بدون اقدام ثبت‌شده (۳ روز).
+        <a href="#reviews">دیدن</a>
+      </div>
+
+      <nav class="summary" aria-label="خلاصه‌ی امروز">
+        <a href="#reminders"><span class="num">۴</span><span class="lbl">یادآور</span></a>
+        <a href="#reviews"><span class="num">۵</span><span class="lbl">تحویل منتظر</span><span class="late">۱ دیر</span></a>
+        <a href="#questions"><span class="num">۳</span><span class="lbl">سؤال بی‌پاسخ</span><span class="late">۱ فوری</span></a>
+        <a href="#stuck"><span class="num">۶</span><span class="lbl">گیرکرده</span><span class="late">۳ قرمز</span></a>
+      </nav>
+
+      <div class="grid-2">
+        <!-- ستون اول (راست): یادآورها + تحویل‌ها -->
+        <div class="stack">
+          <section class="card" id="reminders" aria-labelledby="h-rem">
+            <div class="card-head">
+              <h2 id="h-rem">یادآورها <span class="faint small">امروز و گذشته</span></h2>
+              <a class="small" href="#">همه‌ی یادآورها</a>
+            </div>
+            <ul class="plain list">
+              <li class="item is-late">
+                <div class="item-main">
+                  <a class="item-title" href="student-profile.html">بپرس مصاحبه‌ی دیروز چه شد</a>
+                  <div class="item-meta"><span class="strong">امیر رستمی</span><span class="tag-late tag">از دیروز</span><span>مشاور: رضا</span></div>
+                </div>
+                <div class="item-actions">
+                  <button class="btn btn-sm">انجام شد</button>
+                  <details><summary class="btn btn-sm">تعویق</summary>
+                    <div class="btn-group" style="margin-top:4px"><button class="btn btn-sm">۱ روز</button><button class="btn btn-sm">۳ روز</button><button class="btn btn-sm">۱ هفته</button></div>
+                  </details>
+                </div>
+              </li>
+              <li class="item">
+                <div class="item-main">
+                  <a class="item-title" href="student-profile.html">پیگیری گیگ <bdi class="en">Fiverr</bdi></a>
+                  <div class="item-meta"><span class="strong">زهرا کریمی</span><span>امروز ۱۰:۰۰</span><span>مشاور: خودم</span></div>
+                </div>
+                <div class="item-actions"><button class="btn btn-sm">انجام شد</button><details><summary class="btn btn-sm">تعویق</summary></details></div>
+              </li>
+              <li class="item">
+                <div class="item-main">
+                  <a class="item-title" href="student-profile.html">تماس ۱۵ دقیقه‌ای درباره‌ی نیچ</a>
+                  <div class="item-meta"><span class="strong">نگار صادقی</span><span>امروز ۱۶:۰۰</span><span>مشاور: لیلا</span></div>
+                </div>
+                <div class="item-actions"><button class="btn btn-sm">انجام شد</button><details><summary class="btn btn-sm">تعویق</summary></details></div>
+              </li>
+              <li class="item">
+                <div class="item-main">
+                  <a class="item-title" href="student-profile.html">هنوز وارد نشده؛ لینک دعوت تازه بفرست</a>
+                  <div class="item-meta"><span class="strong">حسین نوری</span><span class="tag-late tag">۲ روز گذشته</span></div>
+                </div>
+                <div class="item-actions"><button class="btn btn-sm">انجام شد</button><details><summary class="btn btn-sm">تعویق</summary></details></div>
+              </li>
+            </ul>
+            <p class="note">F6: «انجام شد» یا «تعویق» (۱ روز، ۳ روز، ۱ هفته). بعد از «انجام شد» پیام موقت «برگرداندن» ۱۰ ثانیه می‌ماند. کل عنوان لینک به پرونده است.</p>
+          </section>
+
+          <section class="card" id="reviews" aria-labelledby="h-rev">
+            <div class="card-head">
+              <h2 id="h-rev">تحویل‌های منتظر بازبینی <span class="count">۵</span></h2>
+              <a class="small" href="tasks.html">همه</a>
+            </div>
+            <ul class="plain list">
+              <li class="item is-late">
+                <div class="item-main">
+                  <a class="item-title" href="task-detail.html">پروپوزال برای بررسی: جاب <bdi class="en">Shopify speed</bdi></a>
+                  <div class="item-meta"><span class="strong">امیر رستمی</span><span class="tag tag-late">دیر · ۵۲ ساعت</span><span class="chip st-changes">دور ۴</span><span>مشاور: رضا</span></div>
+                </div>
+                <div class="item-actions"><a class="btn btn-sm btn-primary" href="task-detail.html">بازبینی</a></div>
+              </li>
+              <li class="item">
+                <div class="item-main">
+                  <a class="item-title" href="task-detail.html">۳ پروپوزال کالیبره (۱ از ۳)</a>
+                  <div class="item-meta"><span class="strong">علی موسوی</span><span class="tag tag-urgent">فوری</span><span>۶ ساعت پیش</span></div>
+                </div>
+                <div class="item-actions"><a class="btn btn-sm btn-primary" href="task-detail.html">بازبینی</a></div>
+              </li>
+              <li class="item">
+                <div class="item-main">
+                  <a class="item-title" href="task-detail.html">سند نیچ</a>
+                  <div class="item-meta"><span class="strong">سارا محمدی</span><span class="tag">اجباری برای عبور از مرحله‌ی ۱</span><span>۲۰ ساعت پیش</span></div>
+                </div>
+                <div class="item-actions"><a class="btn btn-sm btn-primary" href="task-detail.html">بازبینی</a></div>
+              </li>
+              <li class="item">
+                <div class="item-main">
+                  <a class="item-title" href="task-detail.html">بازنویسی <bdi class="en">Overview</bdi> با تمرکز روی مشکل کارفرما</a>
+                  <div class="item-meta"><span class="strong">مهدی جعفری</span><span>۱ روز پیش</span></div>
+                </div>
+                <div class="item-actions"><a class="btn btn-sm btn-primary" href="task-detail.html">بازبینی</a></div>
+              </li>
+              <li class="item">
+                <div class="item-main">
+                  <a class="item-title" href="task-detail.html">نمونه‌کار ۱</a>
+                  <div class="item-meta"><span class="strong">پریسا امینی</span><span>۱ روز پیش</span></div>
+                </div>
+                <div class="item-actions"><a class="btn btn-sm btn-primary" href="task-detail.html">بازبینی</a></div>
+              </li>
+            </ul>
+            <p class="note">ترتیب: «دیر» (از ۴۸ ساعت گذشته، PRD F7)، بعد «فوری»، بعد کارهای اجباری عبور از مرحله، بعد قدیمی‌ترین. بعد از ثبت بازبینی، مربی به همین‌جا برمی‌گردد و مورد بعدی در دید است (جریان ۶).</p>
+          </section>
+        </div>
+
+        <!-- ستون دوم (چپ): سؤال‌ها + گیرکرده‌ها -->
+        <div class="stack">
+          <section class="card" id="questions" aria-labelledby="h-q">
+            <div class="card-head">
+              <h2 id="h-q">سؤال‌های بی‌پاسخ <span class="count alert">۳</span></h2>
+              <a class="small" href="#">همه</a>
+            </div>
+            <ul class="plain list">
+              <li class="item">
+                <div class="item-main">
+                  <a class="item-title" href="#">کارفرما می‌خواهد در تلگرام ادامه بدهیم؛ چه کنم؟</a>
+                  <div class="item-meta"><span class="strong">امیر رستمی</span><span class="tag tag-urgent">فوری</span><span>۳ ساعت پیش · ۱ ساعت تا موعد</span></div>
+                </div>
+                <div class="item-actions"><a class="btn btn-sm btn-primary" href="#">پاسخ</a></div>
+              </li>
+              <li class="item">
+                <div class="item-main">
+                  <a class="item-title" href="#">نرخ اولیه‌ی ۱۵ دلار برای شروع کم نیست؟</a>
+                  <div class="item-meta"><span class="strong">مهدی جعفری</span><span>۱۸ ساعت پیش · ۶ ساعت تا موعد</span></div>
+                </div>
+                <div class="item-actions"><a class="btn btn-sm btn-primary" href="#">پاسخ</a></div>
+              </li>
+              <li class="item">
+                <div class="item-main">
+                  <a class="item-title" href="#">از check-in: «برای انتخاب بین دو نیچ کمک می‌خواهم»</a>
+                  <div class="item-meta"><span class="strong">نگار صادقی</span><span>۴ ساعت پیش</span></div>
+                </div>
+                <div class="item-actions"><a class="btn btn-sm btn-primary" href="#">پاسخ</a></div>
+              </li>
+            </ul>
+            <p class="note">F8: «موعد» = ۲۴ ساعت کاری (PRD) یا ۴ ساعت برای «فوری» (mentor-workflow؛ فرض U4). سؤال‌های ساخته‌شده از check-in («به کمک نیاز دارم») هم این‌جا می‌آیند.</p>
+          </section>
+
+          <section class="card" id="stuck" aria-labelledby="h-s">
+            <div class="card-head">
+              <h2 id="h-s">هنرجوهای گیرکرده <span class="count alert">۶</span></h2>
+              <a class="small" href="students.html">همه‌ی هنرجوها ←</a>
+            </div>
+            <ul class="plain list">
+              <li class="item is-late">
+                <div class="item-main">
+                  <div class="item-meta" style="margin:0 0 4px"><span class="health h-churn">گیرکرده · خطر ریزش</span><span class="ball">توپ: هنرجو</span></div>
+                  <a class="item-title" href="student-profile.html">زهرا کریمی <span class="faint small">· مرحله‌ی ۲ · مشاور: خودم</span></a>
+                  <div class="reason">۱۵ روز بی‌فعالیت · ۲ هفته check-in نداده <span class="rule">R-INACT, R-CHECKIN</span></div>
+                  <div class="item-meta"><span class="tag tag-late">قرمز از ۳ روز پیش · بدون اقدام</span></div>
+                </div>
+                <div class="item-actions"><a class="btn btn-sm btn-primary" href="student-profile.html#note">ثبت اقدام</a><a class="btn btn-sm" href="student-profile.html">پرونده</a></div>
+              </li>
+              <li class="item">
+                <div class="item-main">
+                  <div class="item-meta" style="margin:0 0 4px"><span class="health h-red">گیرکرده</span><span class="ball">توپ: هنرجو</span></div>
+                  <a class="item-title" href="student-profile.html">حسین نوری <span class="faint small">· مرحله‌ی ۳ · مشاور: رضا</span></a>
+                  <div class="reason">۲ کار معوق (بیشترین: ۹ روز) <span class="rule">R-OVERDUE</span></div>
+                  <div class="item-meta"><span>آخرین اقدام: تماس، دیروز</span></div>
+                </div>
+                <div class="item-actions"><a class="btn btn-sm" href="student-profile.html">پرونده</a></div>
+              </li>
+              <li class="item">
+                <div class="item-main">
+                  <div class="item-meta" style="margin:0 0 4px"><span class="health h-red">گیرکرده</span><span class="ball">توپ: هر دو</span></div>
+                  <a class="item-title" href="student-profile.html">امیر رستمی <span class="faint small">· مرحله‌ی ۵ · مشاور: رضا</span></a>
+                  <div class="reason">۴ دور اصلاح روی یک پروپوزال <span class="rule">R-LOOP</span></div>
+                  <div class="item-meta"><span>پیشنهاد: تماس ۱۵ دقیقه‌ای به‌جای بازخورد مکتوب</span></div>
+                </div>
+                <div class="item-actions"><a class="btn btn-sm" href="student-profile.html">پرونده</a></div>
+              </li>
+              <li class="item">
+                <div class="item-main">
+                  <div class="item-meta" style="margin:0 0 4px"><span class="health h-yellow">نیاز به توجه</span><span class="ball">توپ: ما</span></div>
+                  <a class="item-title" href="student-profile.html">پریسا امینی <span class="faint small">· مرحله‌ی ۳ · مشاور: لیلا</span></a>
+                  <div class="reason">۴ روز بدون هیچ کار باز <span class="rule">R-NOTASK</span></div>
+                </div>
+                <div class="item-actions"><a class="btn btn-sm" href="tasks.html#new-task">+ کار</a></div>
+              </li>
+              <li class="item">
+                <div class="item-main">
+                  <div class="item-meta" style="margin:0 0 4px"><span class="health h-yellow">نیاز به توجه</span><span class="ball">توپ: هر دو</span></div>
+                  <a class="item-title" href="student-profile.html">نگار صادقی <span class="faint small">· مرحله‌ی ۱ · مشاور: لیلا</span></a>
+                  <div class="reason">۲۱ روز در مرحله‌ی نیچ (معمول: ۵ تا ۱۰) <span class="rule">R-STALL</span></div>
+                </div>
+                <div class="item-actions"><a class="btn btn-sm" href="student-profile.html">پرونده</a></div>
+              </li>
+              <li class="item">
+                <div class="item-main">
+                  <div class="item-meta" style="margin:0 0 4px"><span class="health h-yellow">نیاز به توجه</span><span class="ball">توپ: هنرجو</span></div>
+                  <a class="item-title" href="student-profile.html">مهدی جعفری <span class="faint small">· مرحله‌ی ۲ · مشاور: خودم</span></a>
+                  <div class="reason">سومین تمدید مهلت یک کار <span class="rule">R-EXTEND</span></div>
+                </div>
+                <div class="item-actions"><a class="btn btn-sm" href="student-profile.html">پرونده</a></div>
+              </li>
+            </ul>
+            <p class="note">F7: ترتیب = شدت (خطر ریزش، قرمز، زرد)، بعد قدیمی‌بودن. هر ردیف دلیل انسانی + کد قاعده + «توپ در زمین» را نشان می‌دهد. وضعیت با رنگ + شکل (■ ▲) + متن؛ بدون اتکای صرف به رنگ. «ثبت اقدام» = پنجره‌ی یادداشت در پرونده (جریان ۷). هنرجوهای «متوقف» این‌جا نمی‌آیند.</p>
+          </section>
+        </div>
+      </div>
+
+      <p class="note">دسکتاپ: دو ستون؛ ستون راست «کارهایی که امروز باید انجام دهم» (یادآور، بازبینی)، ستون چپ «چیزهایی که منتظرند یا گیرکرده‌اند». تبلت و موبایل: بخش‌ها زیر هم به ترتیب PRD F6؛ نوار خلاصه (۴ عدد) لینک پرش به هر بخش است. حالت خالی کل صفحه: «امروز کار عقب‌مانده‌ای نیست» (states.html).</p>
+    </div>
+  </main>
+
+  <nav class="tabbar" aria-label="ناوبری پایین">
+    <a href="today.html" aria-current="page"><span class="ti" aria-hidden="true">◔</span>امروز<span class="count">۱۸</span></a>
+    <a href="students.html"><span class="ti" aria-hidden="true">▤</span>هنرجوها</a>
+    <a href="#quick" class="plus" aria-label="افزودن سریع"><span class="ti" aria-hidden="true">+</span></a>
+    <a href="tasks.html"><span class="ti" aria-hidden="true">✓</span>کارها</a>
+    <a href="#"><span class="ti" aria-hidden="true">؟</span>سؤال‌ها<span class="count alert">۳</span></a>
+  </nav>
+</div>
+
+<!-- افزودن سریع (موبایل: دکمه‌ی + وسط نوار پایین؛ دسکتاپ: دکمه‌ی «+ افزودن») -->
+<div class="sheet" id="quick" role="dialog" aria-modal="true" aria-labelledby="h-quick">
+  <div class="sheet-panel">
+    <div class="sheet-head"><h2 id="h-quick">افزودن سریع</h2><a class="sheet-close" href="#" aria-label="بستن">×</a></div>
+    <div class="stack">
+      <a class="btn btn-block btn-primary" href="#note">یادداشت درباره‌ی یک هنرجو</a>
+      <a class="btn btn-block" href="tasks.html#new-task">کار جدید</a>
+      <a class="btn btn-block" href="#reminder">یادآور</a>
+      <a class="btn btn-block" href="students.html#new-student">هنرجوی جدید + لینک دعوت</a>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="note" role="dialog" aria-modal="true" aria-labelledby="h-note">
+  <div class="sheet-panel">
+    <div class="sheet-head"><h2 id="h-note">یادداشت تازه</h2><a class="sheet-close" href="#" aria-label="بستن">×</a></div>
+    <div class="field">
+      <label for="n-st">هنرجو</label>
+      <input id="n-st" class="input" value="زه" autocomplete="off">
+      <ul class="plain list card" style="margin-top:4px;padding:0 12px">
+        <li class="item"><span><strong>زه</strong>را کریمی · مرحله‌ی ۲</span><span class="health h-churn">خطر ریزش</span></li>
+      </ul>
+    </div>
+    <div class="field">
+      <span class="label">نوع</span>
+      <div class="radio-row"><span class="radio-card">یادداشت</span><span class="radio-card sel">تماس</span><span class="radio-card">جلسه</span><span class="radio-card">پیام بیرونی</span></div>
+    </div>
+    <div class="field">
+      <label for="n-txt">متن</label>
+      <textarea id="n-txt" class="textarea" dir="auto">تماس گرفتم. مشکل خانوادگی داشته؛ گفت از هفته‌ی بعد برمی‌گردد. پیشنهاد توقف موقت تا ۶ آبان.</textarea>
+    </div>
+    <div class="field">
+      <span class="label">چه کسی می‌بیند؟</span>
+      <div class="radio-row"><span class="radio-card sel">داخلی — فقط تیم</span><span class="radio-card">اشتراکی — هنرجو هم می‌بیند</span></div>
+    </div>
+    <div class="form-actions"><a class="btn" href="#">انصراف</a><a class="btn btn-primary" href="#">ثبت یادداشت</a></div>
+  </div>
+</div>
+
+<div class="sheet" id="reminder" role="dialog" aria-modal="true" aria-labelledby="h-rem2">
+  <div class="sheet-panel">
+    <div class="sheet-head"><h2 id="h-rem2">یادآور</h2><a class="sheet-close" href="#" aria-label="بستن">×</a></div>
+    <div class="field"><label for="r-st">هنرجو</label><input id="r-st" class="input" placeholder="نام هنرجو"></div>
+    <div class="field"><label for="r-txt">چه چیزی؟</label><input id="r-txt" class="input" value="پیگیری پروفایل Fiverr"></div>
+    <div class="field"><label for="r-d">کی؟</label><input id="r-d" class="input" value="۱۴۰۵/۰۸/۰۴ — ۱۰:۰۰" inputmode="numeric">
+      <div class="quick"><span class="fchip">فردا</span><span class="fchip" aria-pressed="true">پنجشنبه‌ی آینده</span><span class="fchip">۳ روز</span><span class="fchip">۱ هفته</span></div></div>
+    <div class="field"><label for="r-for">برای</label><select id="r-for"><option>خودم</option><option>رضا</option><option>لیلا</option></select><div class="hint">فقط مدیر می‌تواند برای مشاور دیگری یادآور بگذارد.</div></div>
+    <div class="form-actions"><a class="btn" href="#">انصراف</a><a class="btn btn-primary" href="#">ثبت</a></div>
+  </div>
+</div>
+
+<div class="sheet" id="menu" role="dialog" aria-modal="true" aria-labelledby="h-menu">
+  <div class="sheet-panel">
+    <div class="sheet-head"><h2 id="h-menu">منو</h2><a class="sheet-close" href="#" aria-label="بستن">×</a></div>
+    <nav class="nav">
+      <a href="kanban.html">مراحل (کانبان)</a><a href="#">یادآورهای من</a><a href="#">نتایج <small class="faint">مدیر</small></a><a href="#">تنظیمات <small class="faint">مدیر</small></a><a href="#">حساب من</a><a href="#">خروج</a>
+    </nav>
+  </div>
+</div>
+</body>
+</html>
