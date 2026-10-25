@@ -8,7 +8,7 @@ import { logger } from '../logger';
  * JOBS_MODE:
  *   in-process   — start pg-boss inside the web server (Azure / Iranian VPS default)
  *   http-trigger — no worker; an external scheduler calls POST /api/internal/jobs/:name
- *                  (route is added together with the first job)
+ *                  (src/app/api/internal/jobs/[name]/route.ts; SEC-J1..J3)
  *   off          — nothing runs (tests, e2e)
  */
 export type JobDefinition = {
@@ -21,12 +21,51 @@ export type JobDefinition = {
 };
 
 /**
- * Registered jobs. Empty in the skeleton — 0.1 adds `health.sweep`, `auth.cleanup`
- * and `files.cleanup` here (ADR-0007 table).
+ * Registered jobs (ADR-0007 table). The names are also the whitelist of the internal
+ * trigger endpoint (SEC-J3).
  */
-export const jobs: JobDefinition[] = [];
+export const jobs: JobDefinition[] = [
+  {
+    // Every hour at minute 5 (Tehran): health of all active and paused students, and the
+    // automatic return of expired pauses (ADR-0005).
+    name: 'health.sweep',
+    cron: '5 * * * *',
+    handler: async () => {
+      const { sweepAllHealth } = await import('../../modules/health/recompute');
+      await sweepAllHealth();
+    },
+  },
+  {
+    // Sessions/tokens expired for 7+ days, stale throttle rows, audit_log retention
+    // (data-model.md 6-1, ADR-0010).
+    name: 'auth.cleanup',
+    cron: '30 3 * * *',
+    handler: async () => {
+      const { cleanupAuthData } = await import('../../modules/identity/service');
+      await cleanupAuthData();
+    },
+  },
+  {
+    // Pending (never linked) attachments older than 24 hours: object, then row
+    // (data-model.md 2-5 and 6-1). Also retries files left behind by account erasure.
+    name: 'files.cleanup',
+    cron: '45 3 * * *',
+    handler: async () => {
+      const { cleanupPendingAttachments } = await import('../../modules/files/service');
+      await cleanupPendingAttachments();
+    },
+  },
+];
 
 const globalForJobs = globalThis as typeof globalThis & { __ucBoss?: PgBoss };
+
+/** Runs one registered job by name (http-trigger mode); false for an unknown name. */
+export async function runJobByName(name: string): Promise<boolean> {
+  const job = jobs.find((j) => j.name === name);
+  if (!job) return false;
+  await job.handler();
+  return true;
+}
 
 export async function startJobs(): Promise<void> {
   const env = getEnv();

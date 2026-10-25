@@ -1,5 +1,9 @@
-/** pnpm db:migrate — applies SQL migrations from apps/web/drizzle to DATABASE_URL. */
+/**
+ * pnpm db:migrate — applies SQL migrations from apps/web/drizzle to DATABASE_URL, then the
+ * idempotent default data (stages, platforms, tracks; never overwrites admin edits).
+ */
 import { runMigrations } from '../src/server/db/migrate';
+import { runSeed } from '../src/server/db/seed';
 import { loadRootEnv } from './lib/env';
 
 loadRootEnv();
@@ -10,4 +14,5 @@ if (!url) {
 }
 
 await runMigrations(url);
-console.info('[migrate] database is up to date');
+const seeded = await runSeed(url);
+console.info(`[migrate] database is up to date; seed added ${JSON.stringify(seeded)}`);

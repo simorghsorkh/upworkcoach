@@ -8,6 +8,41 @@
       "when": 1792442852552,
       "tag": "0000_init_health",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792450108105,
+      "tag": "0001_identity_auth",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792452433927,
+      "tag": "0002_students_path",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792468544948,
+      "tag": "0003_tasks_timeline_reminders",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792487006615,
+      "tag": "0004_health_questions_checkins_milestones",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792607771502,
+      "tag": "0005_invite_accepted_session_reauth",
+      "breakpoints": true
     }
   ]
 }

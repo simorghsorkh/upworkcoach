@@ -65,6 +65,15 @@ modules/health/
 ### گسترش در 1.0
 قواعد R-LOWVOL، R-NOREPLY، R-BADJOBS، R-SKIPREVIEW، R-INTERVIEW و R-POSTCONTRACT فقط با این‌ها اضافه می‌شوند: (۱) فیلدهای تازه در ورودی (از `opportunities`)؛ (۲) شاخه‌ی تازه در `evaluateHealth`؛ (۳) کلید تازه در `health.rules`. ساختار ذخیره و فراخوانی تغییر نمی‌کند. R-LOWVOL به مجموعه‌ی «خطر ریزش» اضافه می‌شود.
 
+### تطبیق با پیاده‌سازی (هماهنگ با کد، اسپرینت ۴؛ ۳۰ مهر ۱۴۰۵)
+- **ساختار واقعی:** `rules.ts` (خالص: `evaluateHealth`، `overallBall`، `missedCheckinWeeks`، `lowMoodStreak`)، `input-repo.ts` (۶ پرس‌وجوی تجمیعی)، `recompute.ts` (`recomputeHealthSafe` پس از commit با `pg_advisory_xact_lock`، `sweepAllHealth`، `getLastHealthSweepAt`)، `summary.ts`، `service.ts`. قواعد «منتظر ما» در `modules/today` است، نه `team-queue.ts`.
+- **sweep فوری** (تغییر `health.rules`، `checkin`، یا `expectedDays`/`isOpenEnded` مرحله) **صف نمی‌شود**؛ داخل همان درخواست پس از commit و best-effort اجرا می‌شود. برای ۸۰ هنرجو کمتر از یک ثانیه است و یک مسیر کمتر (job) دارد. اگر sweep از ۲ ثانیه گذشت، به `boss.send('health.sweep')` تبدیل شود.
+- **sweep ساعتی** پیش از محاسبه، توقف‌های تمام‌شده را به `active` برمی‌گرداند (`students/lifecycle-auto.ts`) و `graduated`/`dropped` را نمی‌خواند (با تغییر وضعیت `untracked` ذخیره می‌شوند).
+- **تفسیرها:** R-OVERDUE کار `submitted` را نمی‌شمرد (توپ با بازبین)، R-NOTASK آن را باز می‌شمرد؛ R-CHECKIN فقط هفته‌هایی که پنجره‌شان پس از شروع دوره‌ی فعال باز شده (حداکثر ۱۲)؛ R-MOOD بر اساس check-in این هفته یا هفته‌ی قبل و `redConsecutiveWeeks`؛ اولین محاسبه رویداد `health.changed` نمی‌سازد. جزئیات: `data-model.md` ۴-۱ تا ۴-۳.
+- **«قرمز بدون اقدام»:** هر یادداشت حذف‌نشده‌ی کارکنان پس از `red_since` اقدام است؛ پس از `redEscalateDays` با `escalated` برای مدیر با هر فیلتر هم دیده می‌شود.
+- **«مهلت نسخه‌ی بعد» تمدید نیست (تصمیم اسپرینت ۴، تأیید معماری):** `nextDueDate` در بازبینی `changes_requested` مهلت را عوض می‌کند ولی `extension_count` را بالا نمی‌برد. دلیل: R-EXTEND تمدیدهای پیاپی را نشانه‌ی گیر کردن هنرجو می‌شمرد؛ مهلت دور اصلاح بخش عادی چرخه‌ی بازبینی است و تکرار آن را R-LOOP (`revision_count`) از قبل می‌سنجد. اگر تمدید حساب می‌شد، هر هنرجویی که دو بار اصلاح بگیرد به‌اشتباه زرد می‌شد. ردپا در `review.created` (`previousDueAt`، `nextDueAt`) می‌ماند.
+- **هشدار کهنگی** («`computed_at` قدیمی‌تر از ۳ ساعت» در UI مدیر و `/healthz`): `lastHealthSweepAt` در `/healthz` هست، ولی پرچم کهنگی و هشدار UI هنوز نیستند (F-08، F-14).
+
 ## پیامدها
 - **مثبت:** قواعد در یک فایل خالص با تست جدولی؛ نتیجه سریع و قابل‌فیلتر؛ تاریخچه در تایم‌لاین.
 - **منفی:** بیشترین تأخیر برای قواعد زمانی ۱ ساعت است (مثلاً کاری که ساعت ۰۰:۰۱ معوق می‌شود، تا ۰۱:۰۵ در وضعیت دیده نمی‌شود). برای کاربرد مربی کافی است.

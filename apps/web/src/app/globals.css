@@ -1,9 +1,498 @@
 @import "tailwindcss";
 
 /*
- * Design tokens (colors, radii, dark mode) come from docs/03-ux and are added
- * by frontend-engineer. The skeleton only wires the Persian font.
+ * UpworkCoach design tokens — source of truth: docs/03-ux/design-system.md and
+ * docs/03-ux/mockups/styles.css (approved by the founder). Raw tokens keep the
+ * mockup names (--c-*, --h-*, --st-*, --av-*, --side-*, --brand-*) so the two can be
+ * compared line by line; @theme below maps them to Tailwind utilities
+ * (bg-surface, text-fg-2, border-line-strong, bg-h-red-bg, …).
+ *
+ * Dark mode: automatic via prefers-color-scheme; only tokens change.
  */
+
+/* ---------------------------------------------------------------------------
+   1. Raw tokens — light
+   --------------------------------------------------------------------------- */
+:root {
+  color-scheme: light;
+
+  /* Brand: ink indigo */
+  --brand-50: #f3f2fc;
+  --brand-100: #e6e4f8;
+  --brand-200: #ccc8f0;
+  --brand-300: #a9a3e4;
+  --brand-400: #8178d2;
+  --brand-500: #5b52bd;
+  --brand-600: #4a40a8;
+  --brand-700: #3c3489;
+  --brand-800: #2d2766;
+  --brand-900: #1d1b36;
+
+  /* Warm neutrals (paper) */
+  --c-bg: #f7f6f3;
+  --c-surface: #ffffff;
+  --c-surface-2: #f2f0eb;
+  --c-surface-3: #eae7e0;
+  --c-hover: #faf9f6;
+  --c-border: #e6e2da;
+  --c-border-2: #d6d1c7;
+  --c-border-strong: #8e877b; /* form controls: 3.6:1 on white */
+  --c-text: #1f1d1a;
+  --c-text-2: #57524a;
+  --c-text-3: #6f695f;
+  --c-on-brand: #ffffff;
+
+  /* Semantic brand roles */
+  --c-primary: var(--brand-600);
+  --c-primary-hover: var(--brand-700);
+  --c-primary-weak: var(--brand-50);
+  --c-primary-weak-2: var(--brand-100);
+  --c-primary-text: var(--brand-700);
+  --c-primary-line: var(--brand-200);
+  --c-link: var(--brand-600);
+  --c-focus: var(--brand-500);
+
+  /* Sidebar (ink) */
+  --side-bg: #1d1b36;
+  --side-bg-2: #26234a;
+  --side-active: #34305f;
+  --side-fg: #cfcbe6;
+  --side-fg-2: #9c97bf;
+  --side-strong: #ffffff;
+  --side-border: #2f2c55;
+  --side-count: #3e3a70;
+  --side-accent: #a9a3e4;
+
+  /* Health — colour + shape + text */
+  --h-green-bg: #e6f4ea;
+  --h-green-fg: #16653a;
+  --h-green-bd: #a7d7b5;
+  --h-yellow-bg: #fdf1d6;
+  --h-yellow-fg: #7a4b00;
+  --h-yellow-bd: #ebc46f;
+  --h-red-bg: #fce9e7;
+  --h-red-fg: #a8221c;
+  --h-red-bd: #f0afa9;
+  --h-paused-bg: #eeece8;
+  --h-paused-fg: #4a463f;
+  --h-paused-bd: #c9c4ba;
+  --h-solid: #b3261e;
+  --h-solid-hover: #941c16;
+
+  /* Task status */
+  --st-open-bg: #eeece8;
+  --st-open-fg: #4a463f;
+  --st-progress-bg: #e3f0f8;
+  --st-progress-fg: #0f5a80;
+  --st-submitted-bg: var(--brand-100);
+  --st-submitted-fg: var(--brand-700);
+
+  /* Avatars (fixed per person: hash(id) % 8) */
+  --av-1-bg: #e6e4f8;
+  --av-1-fg: #3c3489;
+  --av-2-bg: #f4e2ef;
+  --av-2-fg: #7a2e68;
+  --av-3-bg: #f8e3d7;
+  --av-3-fg: #8a3b17;
+  --av-4-bg: #f5eacb;
+  --av-4-fg: #6b4e00;
+  --av-5-bg: #dcefec;
+  --av-5-fg: #1d5c55;
+  --av-6-bg: #dfedf7;
+  --av-6-fg: #1e5276;
+  --av-7-bg: #f9e1e4;
+  --av-7-fg: #8c2639;
+  --av-8-bg: #e7edd5;
+  --av-8-fg: #4a5a1a;
+
+  /* Toast (always ink, both schemes) */
+  --toast-bg: #23211e;
+  --toast-fg: #f3f0ea;
+  --toast-icon: #86d7a1;
+  --toast-link: #cfcbf5;
+  --toast-meta: #a8a296;
+
+  /* Overlay behind dialogs */
+  --scrim: rgb(23 21 18 / 0.52);
+
+  /* Elevation (warm-tinted) */
+  --elev-xs: 0 1px 2px rgb(31 27 20 / 0.05);
+  --elev-sm: 0 1px 2px rgb(31 27 20 / 0.06), 0 1px 3px rgb(31 27 20 / 0.05);
+  --elev-md: 0 2px 4px rgb(31 27 20 / 0.04), 0 8px 20px -6px rgb(31 27 20 / 0.14);
+  --elev-lg: 0 24px 56px -12px rgb(31 27 20 / 0.3), 0 4px 12px rgb(31 27 20 / 0.08);
+  --elev-avatar: inset 0 0 0 1px rgb(31 27 20 / 0.06);
+  --elev-brand: inset 0 0 0 1px rgb(255 255 255 / 0.14), 0 2px 6px rgb(0 0 0 / 0.25);
+  --elev-primary: 0 1px 2px rgb(45 39 102 / 0.25), inset 0 1px 0 rgb(255 255 255 / 0.12);
+  --elev-fab: 0 8px 20px -4px rgb(45 39 102 / 0.55), 0 0 0 4px var(--c-bg);
+  --focus-ring: 0 0 0 3px rgb(91 82 189 / 0.22);
+  --error-ring: 0 0 0 3px rgb(168 34 28 / 0.14);
+
+  /* Spacing (4px scale; identical to Tailwind's default --spacing) */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-7: 32px;
+  --sp-8: 40px;
+  --sp-9: 48px;
+  --sp-10: 64px;
+
+  /* Layout */
+  --sidebar-w: 256px;
+  --topbar-h: 56px;
+  --tabbar-h: 64px;
+  --tap: 44px;
+  --content-max: 1360px;
+  --student-max: 760px;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* ---------------------------------------------------------------------------
+   1b. Raw tokens — dark (automatic)
+   --------------------------------------------------------------------------- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --c-bg: #141311;
+    --c-surface: #1c1b18;
+    --c-surface-2: #24221f;
+    --c-surface-3: #2e2b27;
+    --c-hover: #211f1c;
+    --c-border: #312e29;
+    --c-border-2: #3f3b35;
+    --c-border-strong: #7a746a;
+    --c-text: #edeae4;
+    --c-text-2: #b8b2a7;
+    --c-text-3: #989186;
+
+    --c-primary: #5b52bd;
+    --c-primary-hover: #6a61cc;
+    --c-primary-weak: #211e44;
+    --c-primary-weak-2: #2b2759;
+    --c-primary-text: #b9b3f2;
+    --c-primary-line: #443e86;
+    --c-link: #a9a3f0;
+    --c-focus: #a9a3f0;
+
+    --side-bg: #0f0e1c;
+    --side-bg-2: #1a1833;
+    --side-active: #262350;
+    --side-border: #22203d;
+    --side-count: #2e2a5c;
+
+    --h-green-bg: #132b1c;
+    --h-green-fg: #86d7a1;
+    --h-green-bd: #2c5a3c;
+    --h-yellow-bg: #33270c;
+    --h-yellow-fg: #f0c26a;
+    --h-yellow-bd: #6a5220;
+    --h-red-bg: #3a1714;
+    --h-red-fg: #ffa49b;
+    --h-red-bd: #6e2a24;
+    --h-paused-bg: #2a2824;
+    --h-paused-fg: #cec8bd;
+    --h-paused-bd: #4d4943;
+
+    --st-open-bg: #2a2824;
+    --st-open-fg: #cec8bd;
+    --st-progress-bg: #102a3a;
+    --st-progress-fg: #8fc8ea;
+    --st-submitted-bg: #26224f;
+    --st-submitted-fg: #c4bff5;
+
+    --av-1-bg: #2d2960;
+    --av-1-fg: #c9c4f6;
+    --av-2-bg: #3d2238;
+    --av-2-fg: #edb9e0;
+    --av-3-bg: #42261a;
+    --av-3-fg: #f2b99a;
+    --av-4-bg: #3a3012;
+    --av-4-fg: #e9cf7e;
+    --av-5-bg: #183a36;
+    --av-5-fg: #8fd6ca;
+    --av-6-bg: #16324a;
+    --av-6-fg: #9dcbee;
+    --av-7-bg: #45202a;
+    --av-7-fg: #f3aebb;
+    --av-8-bg: #2e3714;
+    --av-8-fg: #c3d68a;
+
+    --elev-xs: 0 1px 2px rgb(0 0 0 / 0.4);
+    --elev-sm: 0 1px 2px rgb(0 0 0 / 0.35), 0 1px 3px rgb(0 0 0 / 0.3);
+    --elev-md: 0 2px 4px rgb(0 0 0 / 0.3), 0 10px 24px -6px rgb(0 0 0 / 0.55);
+    --elev-lg: 0 24px 56px -12px rgb(0 0 0 / 0.7);
+    --focus-ring: 0 0 0 3px rgb(169 163 240 / 0.28);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   2. Tailwind theme (utilities reference the raw tokens, so dark mode follows)
+   --------------------------------------------------------------------------- */
 @theme inline {
-  --font-sans: var(--font-vazirmatn), Tahoma, system-ui, sans-serif;
+  --font-sans: var(--font-vazirmatn), Tahoma, "Segoe UI", system-ui, sans-serif;
+
+  /* Only our palette: no default Tailwind colours, so nothing off-system sneaks in. */
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-white: #ffffff;
+
+  --color-brand-50: var(--brand-50);
+  --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200);
+  --color-brand-300: var(--brand-300);
+  --color-brand-400: var(--brand-400);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+  --color-brand-800: var(--brand-800);
+  --color-brand-900: var(--brand-900);
+
+  --color-bg: var(--c-bg);
+  --color-surface: var(--c-surface);
+  --color-surface-2: var(--c-surface-2);
+  --color-surface-3: var(--c-surface-3);
+  --color-hover: var(--c-hover);
+  --color-line: var(--c-border);
+  --color-line-2: var(--c-border-2);
+  --color-line-strong: var(--c-border-strong);
+  --color-fg: var(--c-text);
+  --color-fg-2: var(--c-text-2);
+  --color-fg-3: var(--c-text-3);
+  --color-on-brand: var(--c-on-brand);
+
+  --color-primary: var(--c-primary);
+  --color-primary-hover: var(--c-primary-hover);
+  --color-primary-weak: var(--c-primary-weak);
+  --color-primary-weak-2: var(--c-primary-weak-2);
+  --color-primary-text: var(--c-primary-text);
+  --color-primary-line: var(--c-primary-line);
+  --color-link: var(--c-link);
+  --color-focus: var(--c-focus);
+
+  --color-side-bg: var(--side-bg);
+  --color-side-bg-2: var(--side-bg-2);
+  --color-side-active: var(--side-active);
+  --color-side-fg: var(--side-fg);
+  --color-side-fg-2: var(--side-fg-2);
+  --color-side-strong: var(--side-strong);
+  --color-side-border: var(--side-border);
+  --color-side-count: var(--side-count);
+  --color-side-accent: var(--side-accent);
+
+  --color-h-green-bg: var(--h-green-bg);
+  --color-h-green-fg: var(--h-green-fg);
+  --color-h-green-bd: var(--h-green-bd);
+  --color-h-yellow-bg: var(--h-yellow-bg);
+  --color-h-yellow-fg: var(--h-yellow-fg);
+  --color-h-yellow-bd: var(--h-yellow-bd);
+  --color-h-red-bg: var(--h-red-bg);
+  --color-h-red-fg: var(--h-red-fg);
+  --color-h-red-bd: var(--h-red-bd);
+  --color-h-paused-bg: var(--h-paused-bg);
+  --color-h-paused-fg: var(--h-paused-fg);
+  --color-h-paused-bd: var(--h-paused-bd);
+  --color-h-solid: var(--h-solid);
+  --color-h-solid-hover: var(--h-solid-hover);
+
+  --color-st-open-bg: var(--st-open-bg);
+  --color-st-open-fg: var(--st-open-fg);
+  --color-st-progress-bg: var(--st-progress-bg);
+  --color-st-progress-fg: var(--st-progress-fg);
+  --color-st-submitted-bg: var(--st-submitted-bg);
+  --color-st-submitted-fg: var(--st-submitted-fg);
+
+  --color-av-1-bg: var(--av-1-bg);
+  --color-av-1-fg: var(--av-1-fg);
+  --color-av-2-bg: var(--av-2-bg);
+  --color-av-2-fg: var(--av-2-fg);
+  --color-av-3-bg: var(--av-3-bg);
+  --color-av-3-fg: var(--av-3-fg);
+  --color-av-4-bg: var(--av-4-bg);
+  --color-av-4-fg: var(--av-4-fg);
+  --color-av-5-bg: var(--av-5-bg);
+  --color-av-5-fg: var(--av-5-fg);
+  --color-av-6-bg: var(--av-6-bg);
+  --color-av-6-fg: var(--av-6-fg);
+  --color-av-7-bg: var(--av-7-bg);
+  --color-av-7-fg: var(--av-7-fg);
+  --color-av-8-bg: var(--av-8-bg);
+  --color-av-8-fg: var(--av-8-fg);
+
+  --color-toast-bg: var(--toast-bg);
+  --color-toast-fg: var(--toast-fg);
+  --color-toast-icon: var(--toast-icon);
+  --color-toast-link: var(--toast-link);
+  --color-toast-meta: var(--toast-meta);
+  --color-scrim: var(--scrim);
+
+  /* Type scale (size / line-height). Persian line-height never below 1.5. */
+  --text-2xs: 11px;
+  --text-2xs--line-height: 16px;
+  --text-xs: 12px;
+  --text-xs--line-height: 18px;
+  --text-sm: 13px;
+  --text-sm--line-height: 21px;
+  --text-ui: 14px;
+  --text-ui--line-height: 20px;
+  --text-md: 15px;
+  --text-md--line-height: 26px;
+  --text-h2: 16px;
+  --text-h2--line-height: 26px;
+  --text-input: 16px;
+  --text-input--line-height: 24px;
+  --text-lg: 17px;
+  --text-lg--line-height: 28px;
+  --text-dlg: 18px;
+  --text-dlg--line-height: 28px;
+  --text-xl: 20px;
+  --text-xl--line-height: 30px;
+  --text-mob-h1: 21px;
+  --text-mob-h1--line-height: 32px;
+  --text-2xl: 26px;
+  --text-2xl--line-height: 38px;
+  --text-kpi-mob: 26px;
+  --text-kpi-mob--line-height: 32px;
+  --text-kpi: 34px;
+  --text-kpi--line-height: 40px;
+
+  /* Radius */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-btn-sm: 7px;
+
+  /* Elevation */
+  --shadow-xs: var(--elev-xs);
+  --shadow-sm: var(--elev-sm);
+  --shadow-md: var(--elev-md);
+  --shadow-lg: var(--elev-lg);
+  --shadow-primary: var(--elev-primary);
+  --shadow-avatar: var(--elev-avatar);
+  --shadow-brand: var(--elev-brand);
+  --shadow-fab: var(--elev-fab);
+  --shadow-ring: var(--focus-ring);
+  --shadow-ring-error: var(--error-ring);
+
+  /* Breakpoints: mobile < 768 · tablet 768–1199 · desktop ≥ 1200 · wide ≥ 1280 */
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 75rem;
+  --breakpoint-xl: 80rem;
+
+  /* Layout sizes */
+  --spacing-sidebar: var(--sidebar-w);
+  --spacing-topbar: var(--topbar-h);
+  --spacing-tabbar: var(--tabbar-h);
+  --spacing-tap: var(--tap);
+  --spacing-btn: 38px;
+  --container-content: var(--content-max);
+  --container-student: var(--student-max);
+  --container-student-bar: 1040px;
+  --container-dialog: 560px;
+  --container-auth: 420px;
+
+  --ease-out: var(--ease);
+
+  --animate-skel: skel 1.4s ease infinite;
+  --animate-fade: fade 0.16s var(--ease);
+  --animate-rise: rise 0.2s var(--ease);
+
+  @keyframes skel {
+    0% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0 50%;
+    }
+  }
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes rise {
+    from {
+      transform: translateY(8px) scale(0.99);
+      opacity: 0;
+    }
+  }
+}
+
+@media (max-width: 1199px) {
+  :root {
+    --sidebar-w: 224px;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   3. Base
+   --------------------------------------------------------------------------- */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    scroll-padding-top: 72px;
+  }
+  body {
+    font-family: var(--font-sans);
+    font-size: var(--text-md);
+    line-height: var(--text-md--line-height);
+    color: var(--c-text);
+    background: var(--c-bg);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-weight: 700;
+    color: var(--c-text);
+    letter-spacing: 0;
+  }
+  :focus-visible {
+    outline: 2px solid var(--c-focus);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: var(--brand-200);
+    color: var(--brand-900);
+  }
+  kbd {
+    font-family: inherit;
+    font-size: var(--text-2xs);
+    font-weight: 600;
+    line-height: 1;
+    padding: 3px 6px;
+    border-radius: 5px;
+    border: 1px solid currentColor;
+    opacity: 0.75;
+  }
+  /* Native <dialog>: our own scrim instead of the UA default. */
+  dialog::backdrop {
+    background: var(--scrim);
+    backdrop-filter: blur(2px);
+  }
+}
+
+/* Directional icons are drawn LTR and mirrored in RTL (design-system §5). */
+[dir="rtl"] .i-dir {
+  transform: scaleX(-1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    /* biome-ignore lint/complexity/noImportantStyles: reduced motion must beat every component rule */
+    animation: none !important;
+    /* biome-ignore lint/complexity/noImportantStyles: same */
+    transition: none !important;
+    /* biome-ignore lint/complexity/noImportantStyles: same */
+    scroll-behavior: auto !important;
+  }
 }

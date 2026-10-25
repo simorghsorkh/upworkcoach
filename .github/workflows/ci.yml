@@ -4,17 +4,26 @@ on:
   push:
     branches: [main]
   pull_request:
+  # Weekly re-check without code changes: new advisories (pnpm audit) and a
+  # full-history secret scan (gitleaks scans all commits on schedule).
+  schedule:
+    - cron: "30 2 * * 6" # Saturday 06:00 Asia/Tehran
+  workflow_dispatch:
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
+# Least privilege by default; jobs widen only what they need.
 permissions:
   contents: read
 
+# Third-party actions are pinned to full commit SHAs (tag in the comment).
+# Dependabot (github-actions ecosystem) updates both together.
 jobs:
   check:
     name: lint, typecheck, test, build
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -40,12 +49,14 @@ jobs:
       TEST_DATABASE_URL: postgres://ci:ci@localhost:5432/upworkcoach_test
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       # Reads the pnpm version from "packageManager" in package.json.
-      - uses: pnpm/action-setup@v6
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           cache: pnpm
@@ -64,3 +75,58 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+  security:
+    name: dependency audit, no Server Actions
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # SEC-A10: Server Actions are forbidden (no "use server" in apps/ or packages/).
+      - name: No "use server"
+        run: bash scripts/ci-no-server-actions.sh
+
+      # pnpm audit reads pnpm-lock.yaml only; no install needed.
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+
+      # SEC-D2: runtime deps, fail on high or critical. Exceptions (dated):
+      # .github/audit-exceptions.txt. Fails closed if the registry errors.
+      - name: Audit runtime dependencies (high+)
+        run: node scripts/ci-audit.mjs --prod --level high
+
+      # Dev/build tooling runs in CI and on laptops: fail on critical only.
+      - name: Audit all dependencies (critical)
+        run: node scripts/ci-audit.mjs --level critical
+
+  secrets:
+    name: secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: read # the action lists PR commits to scan only the PR range
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0 # full history: needed for PR/push ranges and the scheduled full scan
+          persist-credentials: false
+
+      # SEC-K1. push/pull_request: scans the new commits; schedule/workflow_dispatch:
+      # scans the whole history. Personal-account repo: no GITLEAKS_LICENSE needed
+      # (an organization repo would need it as a secret).
+      - uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_VERSION: 8.30.1
+          GITLEAKS_CONFIG: .github/gitleaks.toml
+          # No PR comments (would need write access) and no SARIF artifact
+          # (a report of findings should not be downloadable from CI).
+          GITLEAKS_ENABLE_COMMENTS: false
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: false

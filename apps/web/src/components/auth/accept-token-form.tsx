@@ -1,0 +1,300 @@
+'use client';
+
+import { type FormEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { apiGet, apiPost } from '@/components/api/client';
+import { faDayMonth, faDuration } from '@/components/format/fa';
+import { Button, ButtonLink } from '@/components/ui/button';
+import { TextField } from '@/components/ui/field';
+import { Alert, EmptyState, ErrorState, SkeletonRows } from '@/components/ui/states';
+import type { MeDTO } from '@/server/auth/current-user';
+import { PasswordField } from './password-field';
+import { cleanPhoneInput, phoneError } from './phone';
+import { homeFor } from './redirects';
+import { useCountdown } from './use-countdown';
+
+/**
+ * G2 / G3 — accept an invitation or a password-reset link (security C1, ADR-0003 §2).
+ * The token lives only in the URL fragment (`/invite#t=…`, `/reset#t=…`): it is read
+ * once, removed from the address bar with history.replaceState, kept in memory, and
+ * sent in the POST body. The user types their full mobile number as a second factor.
+ */
+
+export const PASSWORD_MIN = 8;
+export const PASSWORD_MAX = 128;
+
+type Lookup = { purpose: 'invite' | 'password_reset'; displayName: string; expiresAt: string };
+
+type Phase =
+  | { kind: 'checking' }
+  | { kind: 'invalid' }
+  | { kind: 'lookup-failed'; message: string }
+  | { kind: 'ready'; info: Lookup }
+  | { kind: 'done' };
+
+type Errors = { phone?: string; password?: string; confirm?: string };
+
+/** Reads `t` from the fragment and strips the fragment from the URL and history entry. */
+export function takeTokenFromLocation(): string | null {
+  const hash = window.location.hash.replace(/^#/, '');
+  if (hash) {
+    window.history.replaceState(
+      window.history.state,
+      '',
+      window.location.pathname + window.location.search,
+    );
+  }
+  const token = new URLSearchParams(hash).get('t');
+  return token?.trim() ? token.trim() : null;
+}
+
+export function validateNewPassword(password: string, confirm: string, min = PASSWORD_MIN) {
+  const errors: { password?: string; confirm?: string } = {};
+  if (!password) errors.password = 'یک رمز بگذار.';
+  else if (Array.from(password).length < min)
+    errors.password = `رمز باید دست‌کم ${min.toLocaleString('fa-IR')} نویسه باشد.`;
+  else if (Array.from(password).length > PASSWORD_MAX) errors.password = 'رمز خیلی بلند است.';
+  if (!errors.password && password !== confirm) errors.confirm = 'تکرار رمز با خود رمز یکی نیست.';
+  return errors;
+}
+
+export function AcceptTokenForm({
+  onAccepted = (path) => window.location.assign(path),
+}: {
+  /** Navigation after success; injectable for tests. */
+  onAccepted?: (path: string) => void;
+}) {
+  const tokenRef = useRef<string | null | undefined>(undefined);
+  const [phase, setPhase] = useState<Phase>({ kind: 'checking' });
+  const [signedInAs, setSignedInAs] = useState<string | null>(null);
+
+  const lookup = useCallback(async () => {
+    const token = tokenRef.current;
+    if (!token) {
+      setPhase({ kind: 'invalid' });
+      return;
+    }
+    setPhase({ kind: 'checking' });
+    const result = await apiPost<Lookup>('/api/v1/auth/tokens/lookup', { token });
+    if (result.ok) setPhase({ kind: 'ready', info: result.data });
+    else if (result.error.status === 410 || result.error.status === 404)
+      setPhase({ kind: 'invalid' });
+    else if (result.error.status === 429)
+      setPhase({
+        kind: 'lookup-failed',
+        message: `تلاش‌ها زیاد بود. ${faDuration(result.error.retryAfterSeconds ?? 15 * 60)} دیگر دوباره باز کن.`,
+      });
+    else setPhase({ kind: 'lookup-failed', message: result.error.message });
+  }, []);
+
+  useEffect(() => {
+    // Read once (StrictMode runs effects twice; the hash is already gone the second time).
+    if (tokenRef.current === undefined) tokenRef.current = takeTokenFromLocation();
+    void lookup();
+    void apiGet<MeDTO>('/api/v1/auth/me').then((me) => {
+      if (me.ok && me.data?.displayName) setSignedInAs(me.data.displayName);
+    });
+  }, [lookup]);
+
+  if (phase.kind === 'checking' || phase.kind === 'done') {
+    return (
+      <div>
+        <h1 className="sr-only">بررسی لینک</h1>
+        <SkeletonRows
+          rows={2}
+          label={phase.kind === 'done' ? 'در حال ورود…' : 'در حال بررسی لینک…'}
+        />
+      </div>
+    );
+  }
+
+  if (phase.kind === 'invalid') return <InvalidLink />;
+
+  if (phase.kind === 'lookup-failed') {
+    return (
+      <>
+        <h1 className="sr-only">بررسی لینک</h1>
+        <ErrorState title="لینک بررسی نشد" onRetry={() => void lookup()}>
+          {phase.message}
+        </ErrorState>
+      </>
+    );
+  }
+
+  return (
+    <AcceptForm
+      info={phase.info}
+      token={tokenRef.current ?? ''}
+      signedInAs={signedInAs}
+      onInvalid={() => setPhase({ kind: 'invalid' })}
+      onAccepted={(path) => {
+        setPhase({ kind: 'done' });
+        onAccepted(path);
+      }}
+    />
+  );
+}
+
+export function InvalidLink() {
+  return (
+    <EmptyState
+      icon="link"
+      tone="error"
+      headingLevel={1}
+      title="این لینک دیگر کار نمی‌کند"
+      action={
+        <ButtonLink href="/login" variant="ghost">
+          ورود با رمز
+        </ButtonLink>
+      }
+      className="py-4"
+    >
+      ممکن است منقضی شده یا قبلاً استفاده شده باشد. از مربی‌ات یک لینک تازه بخواه.
+    </EmptyState>
+  );
+}
+
+function AcceptForm({
+  info,
+  token,
+  signedInAs,
+  onInvalid,
+  onAccepted,
+}: {
+  info: Lookup;
+  token: string;
+  signedInAs: string | null;
+  onInvalid: () => void;
+  onAccepted: (path: string) => void;
+}) {
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [errors, setErrors] = useState<Errors>({});
+  const [formError, setFormError] = useState<string | null>(null);
+  const [lock, setLock] = useState<number | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const waitSeconds = useCountdown(lock);
+  const phoneRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const confirmRef = useRef<HTMLInputElement>(null);
+  const isInvite = info.purpose === 'invite';
+
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (submitting || waitSeconds > 0) return;
+
+    const found: Errors = { ...validateNewPassword(password, confirm) };
+    const pErr = phoneError(phone);
+    if (pErr) found.phone = pErr;
+    setErrors(found);
+    setFormError(null);
+    if (found.phone) return phoneRef.current?.focus();
+    if (found.password) return passwordRef.current?.focus();
+    if (found.confirm) return confirmRef.current?.focus();
+
+    setSubmitting(true);
+    const result = await apiPost<{ user: MeDTO }>('/api/v1/auth/tokens/accept', {
+      token,
+      phone: cleanPhoneInput(phone),
+      password,
+    });
+    setSubmitting(false);
+
+    if (result.ok) {
+      onAccepted(homeFor(result.data.user.role));
+      return;
+    }
+    const { error } = result;
+    if (error.status === 410 || error.status === 404) return onInvalid();
+    if (error.status === 422) {
+      setErrors({ phone: error.fields.phone, password: error.fields.password });
+      if (error.fields.phone) phoneRef.current?.focus();
+      else if (error.fields.password) passwordRef.current?.focus();
+      else setFormError(error.message);
+      return;
+    }
+    if (error.status === 429 || error.status === 503) {
+      setLock(Date.now() + (error.retryAfterSeconds ?? (error.status === 429 ? 900 : 10)) * 1000);
+      setFormError(
+        error.status === 429 ? 'تلاش‌ها زیاد بود و این لینک موقتاً بسته شد.' : 'سرور الان شلوغ است.',
+      );
+      return;
+    }
+    setFormError(error.message);
+  }
+
+  return (
+    <form noValidate onSubmit={onSubmit} aria-labelledby="accept-title">
+      <h1 id="accept-title" className="mb-1 text-xl">
+        {isInvite ? `سلام ${info.displayName}` : 'رمز تازه بگذار'}
+      </h1>
+      <p className="mb-6 text-ui text-fg-2">
+        {isInvite
+          ? 'برای ورود به دفتر کار، شماره‌ی موبایلت را بنویس و یک رمز بگذار.'
+          : `${info.displayName}، شماره‌ی موبایلت را بنویس و رمز تازه‌ات را تعیین کن.`}
+        <span className="mt-1 block text-sm text-fg-3">
+          این لینک تا {faDayMonth(new Date(info.expiresAt))} معتبر است.
+        </span>
+      </p>
+
+      {signedInAs ? (
+        <Alert tone="warn" title="الان با حساب دیگری وارد شده‌ای.">
+          {`(${signedInAs}) با ادامه، از آن حساب خارج می‌شوی.`}
+        </Alert>
+      ) : null}
+
+      {formError ? (
+        <Alert tone="error" role="alert" title={formError}>
+          {waitSeconds > 0 ? `${faDuration(waitSeconds)} دیگر دوباره امتحان کن.` : null}
+        </Alert>
+      ) : null}
+
+      <TextField
+        ref={phoneRef}
+        label="شماره‌ی موبایلت"
+        name="phone"
+        type="tel"
+        inputMode="tel"
+        autoComplete="username"
+        dir="ltr"
+        placeholder="09123456789"
+        value={phone}
+        onChange={(e) => setPhone(e.target.value)}
+        error={errors.phone}
+        hint="همان شماره‌ای که به مربی داده‌ای."
+      />
+      <PasswordField
+        ref={passwordRef}
+        label={isInvite ? 'رمز' : 'رمز تازه'}
+        name="password"
+        autoComplete="new-password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        error={errors.password}
+        hint="دست‌کم ۸ نویسه (برای مربی و مشاور ۱۲). یک جمله‌ی کوتاه که یادت بماند کافی است."
+      />
+      <PasswordField
+        ref={confirmRef}
+        label="تکرار رمز"
+        name="confirm"
+        autoComplete="new-password"
+        value={confirm}
+        onChange={(e) => setConfirm(e.target.value)}
+        error={errors.confirm}
+      />
+
+      <Button
+        type="submit"
+        variant="primary"
+        size="lg"
+        block
+        loading={submitting}
+        disabled={waitSeconds > 0}
+      >
+        {submitting ? 'در حال ثبت…' : isInvite ? 'ثبت رمز و ورود' : 'ثبت رمز تازه و ورود'}
+      </Button>
+
+      <p className="mt-5 text-center text-sm text-fg-3">اطلاعاتت را فقط مربی و مشاورت می‌بینند.</p>
+    </form>
+  );
+}

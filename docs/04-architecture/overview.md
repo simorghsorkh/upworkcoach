@@ -96,7 +96,7 @@ flowchart TB
 | ماژول | صاحب جدول‌ها | به چه کسی وابسته است (فقط از service) | چه کسی از آن استفاده می‌کند |
 |---|---|---|---|
 | `identity` | `users`، `sessions`، `auth_tokens`، `auth_throttle` | `catalog` (تنظیمات) | همه (`actor`) |
-| `access` | — | `catalog` (`access.mentorScope`) | همه‌ی ماژول‌هایی که داده‌ی هنرجو دارند |
+| `access` | — | `catalog` (`access.mentorScope`)، `identity` (`isActiveStaffUser`)؛ (هماهنگ با کد، اسپرینت ۲ تا ۴) خواندنی SQL روی جدول‌های والد برای `loadInScope` و `assertRefs` (read-model؛ ADR-0004 بند 6-1) | همه‌ی ماژول‌هایی که داده‌ی هنرجو دارند |
 | `catalog` | `tracks`، `platforms`، `milestone_types`، `canned_responses`، `settings`، `learning_paths`، `stages`، `task_templates` | — | همه |
 | `students` | `students`، `mentor_assignments`، `platform_profiles`، `profile_snapshots` | `identity`، `access`، `catalog`، `timeline` | `path`، `tasks`، `today`، `health` |
 | `path` | `stage_transitions` (+ نوشتن `students.current_stage_id` از طریق `students.service`) | `students`، `catalog`، `timeline` | `today`، `health` |
@@ -113,7 +113,7 @@ flowchart TB
 
 **قواعد مرز** (جزئیات در `tech-stack.md` بخش ۳):
 1. ماژول جدول ماژول دیگر را **نمی‌نویسد**. استثنا ندارد.
-2. خواندن مستقیم SQL از جدول دیگران فقط برای read-modelهای `health` و `today` مجاز است، آن هم فقط خواندنی.
+2. خواندن مستقیم SQL از جدول دیگران فقط برای read-modelهای `health`، `today` و (هماهنگ با کد، اسپرینت ۲) `access` مجاز است، آن هم فقط خواندنی. JOINهای نمایشی فقط‌خواندنی repo یک ماژول با جدول‌های فهرستی (`users`، `stages`، `tracks`، `platforms`) هم مجازند (ADR-0004 بند 6-2). برای شکستن چرخه‌ی import، هر ماژول کدی را که فقط schema خودش را لازم دارد در فایل جدا نگه می‌دارد (`students/activity.ts`، `*/erasure.ts`، `path/transitions.ts`، `tasks/counts.ts`، `questions/transfer.ts`).
 3. رویداد تایم‌لاین را هر ماژول با `timeline.record(tx, event)` **در همان تراکنش** خودش می‌نویسد.
 4. بازمحاسبه‌ی سلامت پس از commit با `health.recomputeForStudent(id)` صدا زده می‌شود (best-effort؛ ADR-0005).
 5. ماژول‌های 1.0 (`ai`، `opportunities`، `notifications`) به هسته وابسته‌اند، **هرگز برعکس**.

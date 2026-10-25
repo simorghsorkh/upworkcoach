@@ -1,5 +1,19 @@
 import { integer, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 
+export * from '../../modules/admin/schema';
+export * from '../../modules/catalog/schema';
+export * from '../../modules/checkins/schema';
+export * from '../../modules/files/schema';
+export * from '../../modules/health/schema';
+export * from '../../modules/identity/schema';
+export * from '../../modules/milestones/schema';
+export * from '../../modules/path/schema';
+export * from '../../modules/questions/schema';
+export * from '../../modules/reminders/schema';
+export * from '../../modules/students/schema';
+export * from '../../modules/tasks/schema';
+export * from '../../modules/timeline/schema';
+
 /**
  * Database schema entry point.
  *

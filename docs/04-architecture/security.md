@@ -41,9 +41,14 @@
 | C3 | **اعمال شد** | ADR-0004 بخش ۱-۱ (قاعده‌ی شناسه‌های ارجاعی و `assertRefs`؛ خطای یکسان `422`)، بخش ۲ (`invite-link` فقط `role='student'`، نویسنده/بازبین **و** دامنه، summary فقط با رشته‌ی باز، نشست‌ها)، بخش ۴ (نقش‌های M-سابق، M-assignee، غیرفعال، invited؛ T-REF و T-ESC)؛ `api.md` بخش ۱، ۳، ۴، ۶، ۷، ۸، ۱۰، ۱۲. **تفاوت با پیشنهاد:** همه‌ی شناسه‌های ارجاعی رد‌شده، از جمله `studentIds` کار گروهی، `422` می‌گیرند (نه `404`)؛ `404` فقط برای شناسه‌ی مسیر |
 | C4 | **اعمال شد** | `data-model.md` ۲-۵ (`attachments`: پردازش، سقف پیکسل، چرخش و حذف متادیتا، سهمیه، UPDATE اتمی)؛ `api.md` بخش ۱۴ و ورودی‌های `attachmentIds` در بخش ۶، ۱۰، ۱۲ |
 | C5 | **اعمال شد** | ADR-0010 (تازه)؛ `data-model.md` ۲-۱ (`users.erased_at`، CHECK موبایل) و بخش ۶ (نگه‌داری و نگاشت ناشناس‌سازی)؛ `api.md` بخش ۳؛ `overview.md` بخش ۵؛ ADR-0007 (`auth.cleanup` گسترش‌یافته). **تصمیم S10:** دکمه‌ی «درخواست حذف حساب» در 0.1 برداشته و با متن راهنما جایگزین شود (دلیل در ADR-0010 بند ۶)؛ ویرایش ردیف S10 در `sitemap.md` با ux-designer |
-| C6 | **اعمال نشد — باید پیش از ساخت ورود گروهی و در هر حال پیش از استقرار انجام شود** | `api.md` بخش ۱۳ (مالک: software-architect) |
-| C7 | **اعمال نشد — باید پیش از استقرار انجام شود** | ADR-0002 بخش ۶، `tech-stack.md` بخش ۴–۵، `.env.example`. متغیرهای تازه‌ی C2: `DEVICE_COOKIE_SECRET` (جایگزین `SESSION_SECRET`) و `TRUSTED_PROXY_HOPS` (مالک: software-architect با devops-engineer) |
+| C6 | **اعمال شد** (به‌روزرسانی software-architect، ۳۰ مهر ۱۴۰۵؛ هماهنگ با کد، اسپرینت ۳) | کد: `POST /imports/students` فقط CSV UTF-8، ۱ مگابایت، ۵۰۰ ردیف، `dryRun` پیش‌فرض. سند: `api.md` بخش ۱۳ |
+| C7 | **اعمال شد** (به‌روزرسانی software-architect، ۳۰ مهر ۱۴۰۵؛ هماهنگ با کد، اسپرینت ۱) | `tech-stack.md` بخش ۵ و `.env.example` (`DEVICE_COOKIE_SECRET`، `TRUSTED_PROXY_HOPS`، `JOB_TRIGGER_SECRET`)؛ ADR-0002 بخش ۶ (`SESSION_SECRET` حذف شد). اجرای تست‌های امنیتی در CI روی Postgres واقعی با devops-engineer |
+
 | C8 | **اعمال نشد — باید پیش از استقرار انجام شود** | ADR-0002 بخش ۶–۷ (مالک: devops-engineer) |
+
+> **انحراف‌های پیاده‌سازی از این سند** (software-architect، ۳۰ مهر ۱۴۰۵): کد در چند جا با متن الزامات این سند فرق دارد. حکم معماری در ADR-0003 بخش ۹ و ADR-0004 بخش ۶ آمده است و تأیید یا رد security-reviewer در `docs/05-delivery/followups.md` (F-07 و موارد «بالا») پیگیری می‌شود. متن الزامات این سند را software-architect تغییر نداده است.
+>
+> **حکم security-reviewer (F-07، ۲۹ مهر ۱۴۰۵):** همه‌ی انحراف‌ها قابل‌قبول‌اند و دو مورد شرط دارند. جزئیات در `docs/06-quality/security-review-2026-10-21.md`. متن SEC-S1، SEC-C3، SEC-R6 و SEC-U6 در بخش ۵ مطابق کد اصلاح شد. یافته‌های تازه‌ی بازبینی کد: F-17، F-18 و F-19.
 
 ---
 
@@ -292,9 +297,9 @@
 - [ ] **SEC-R1** کلید `login:pi:<phone>:<ip>`: ۵ شکست در ۱۵ دقیقه ← قفل ۱۵ دقیقه.
 - [ ] **SEC-R2** کلید `login:p:<phone>`: ۲۰ شکست در ۱ ساعت ← قفل ۱ ساعت، **مگر** درخواست کوکی دستگاه معتبرِ همان کاربر را داشته باشد. کوکی `__Host-uc_dev` = `base64url(userId + '.' + HMAC-SHA256(DEVICE_COOKIE_SECRET, userId))` است، با `HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=31536000`، و با هر ورود موفق ست می‌شود. پس مهاجم بیرونی حساب را قفل می‌کند ولی صاحب حساب از گوشی خودش همچنان وارد می‌شود.
 - [ ] **SEC-R3** کلید `login:ip:<ip>` (برای IPv6 پیشوند `/64`): ۳۰ شکست در ۱۵ دقیقه ← قفل ۱۵ دقیقه. همین کلید روی `POST /auth/tokens/lookup` و `accept` (۳۰ در ۱۵ دقیقه) و روی `change-password` (به ازای `userId`، ۵ در ۱۵ دقیقه) هم اعمال شود.
-- [ ] **SEC-R4** IP کاربر: فقط از `X-Forwarded-For`، و **راست‌ترین** مقداری که پراکسی مورد اعتماد اضافه کرده (`TRUSTED_PROXY_HOPS=1` روی App Service). پورت حذف شود (App Service ممکن است `ip:port` بفرستد؛ **تأیید نشد** و باید روی staging دیده شود). در محیط local بدون پراکسی، `TRUSTED_PROXY_HOPS=0`. هیچ‌جا اولین مقدار `X-Forwarded-For` یا `X-Real-IP` بدون این قاعده خوانده نشود. یک تابع `getClientIp(req)` در `server/http`.
+- [ ] **SEC-R4** IP کاربر: فقط از `X-Forwarded-For`، و **راست‌ترین** مقداری که پراکسی مورد اعتماد اضافه کرده (`TRUSTED_PROXY_HOPS=1` روی App Service). پورت حذف شود (App Service ممکن است `ip:port` بفرستد؛ **تأیید نشد** و باید روی staging دیده شود). در محیط local بدون پراکسی، `TRUSTED_PROXY_HOPS=0`. (افزوده‌ی بازبینی ۲۹ مهر، F-18:) در `NODE_ENV=production` این مقدار باید صریح باشد، وگرنه برنامه بالا نیاید، چون مقدار `0` پشت پراکسی به همه‌ی کاربران یک IP می‌دهد و قفل IP به قفل سراسری تبدیل می‌شود. هیچ‌جا اولین مقدار `X-Forwarded-For` یا `X-Real-IP` بدون این قاعده خوانده نشود. یک تابع `getClientIp(req)` در `server/http`.
 - [ ] **SEC-R5** شمارش «شکست» در یک تراکنش با `INSERT … ON CONFLICT DO UPDATE` (اتمی، بدون race بین چند نمونه). ورود موفق کلید `pi` را پاک می‌کند. بازنشانی رمز با لینک مدیر کلید `p` آن موبایل را پاک می‌کند.
-- [ ] **SEC-R6** قفل و شمارش برای موبایل‌های **ناموجود** هم دقیقاً همان‌طور اجرا شود تا `429` وجود حساب را لو ندهد. پاسخ `429` فقط `retryAfterSeconds` دارد.
+- [ ] **SEC-R6** قفل و شمارش برای موبایل‌های **ناموجود** هم دقیقاً همان‌طور اجرا شود تا `429` وجود حساب را لو ندهد. پاسخ `429` فقط `code`، `retryAfterSeconds` و یک پیام فارسی ثابت با دقیقه‌ی مانده (ساخته‌شده از همان `retryAfterSeconds`) دارد. هیچ چیزی درباره‌ی لایه‌ی قفل یا وجود حساب نمی‌گوید (اصلاح F-07).
 - [ ] **SEC-R7** نرمال‌سازی موبایل قبل از ساخت کلید (همان تابع `lib/phone`)، تا `0912…` و `+98912…` دو شمارنده‌ی جدا نسازند.
 
 ### ۵-۳. توکن دعوت و بازنشانی (BE، FE)
@@ -308,7 +313,7 @@
 - [ ] **SEC-T8** انقضا: دعوت ۷ روز (F1)، بازنشانی ۲۴ ساعت. ساخت توکن تازه توکن‌های باز قبلی را باطل می‌کند (طبق طراحی). `inviteUrl` و `resetUrl` در پاسخ `Cache-Control: no-store` دارند و هرگز در `audit_log.data` نمی‌آیند.
 
 ### ۵-۴. نشست و کوکی (BE)
-- [ ] **SEC-S1** کوکی نشست در تولید: `__Host-uc_session=<token>; Path=/; Secure; HttpOnly; SameSite=Lax; Max-Age=<ثانیه تا expires_at>`. بدون `Domain`. با هر تمدید لغزنده (حداکثر هر ۱۵ دقیقه) `Max-Age` دوباره ست شود.
+- [ ] **SEC-S1** کوکی نشست در تولید: `__Host-uc_session=<token>; Path=/; Secure; HttpOnly; SameSite=Lax; Max-Age=<ثانیه تا سقف مطلق نشست>`. بدون `Domain`. (اصلاح F-07:) `Max-Age` برابر **سقف مطلق** است، چون RSC نمی‌تواند کوکی بنویسد. انقضای لغزنده **فقط در سرور** (`sessions.expires_at`) در هر درخواست API و RSC سنجیده و حداکثر هر ۱۵ دقیقه تمدید می‌شود. کوکی کهنه هیچ دسترسی‌ای نمی‌دهد. شرط: هیچ مسیری نشست را بدون همان بررسی SEC-S3 نپذیرد.
 - [ ] **SEC-S2** عمر: هنرجو لغزنده‌ی ۳۰ روز و سقف مطلق ۹۰ روز؛ **مدیر و مشاور لغزنده‌ی ۷ روز و سقف مطلق ۳۰ روز** (C2).
 - [ ] **SEC-S3** اعتبارسنجی در **هر** درخواست (API و RSC): نشست باطل یا منقضی نباشد؛ `users.status = 'active'`؛ `sessions.created_at >= users.password_changed_at`؛ **نقش از `users` خوانده شود**، نه از cache نشست.
 - [ ] **SEC-S4** نشست تازه با ورود و پذیرش توکن. با `change-password`، نشست‌های دیگر باطل **و نشست جاری هم چرخانده شود** (توکن تازه، ردیف تازه). ابطال همه‌ی نشست‌ها با: تغییر یا بازنشانی رمز، غیرفعال‌سازی، تغییر نقش، تغییر موبایل توسط مدیر، و حذف حساب.
@@ -320,7 +325,7 @@
 ### ۵-۵. CSRF (BE)
 - [ ] **SEC-C1** برای همه‌ی متدهای `POST`، `PUT`، `PATCH` و `DELETE` زیر `/api/v1` (از جمله `/auth/login` و `/auth/tokens/*`): `Origin` **باید وجود داشته باشد** و دقیقاً برابر `new URL(APP_BASE_URL).origin` باشد. نبودن `Origin` ← `403 BAD_ORIGIN`. مقایسه‌ی رشته‌ای کامل، نه `includes` یا `startsWith`.
 - [ ] **SEC-C2** (لایه‌ی دوم) اگر `Sec-Fetch-Site` وجود دارد و مقدارش `same-origin` نیست ← `403`.
-- [ ] **SEC-C3** `Content-Type`: فقط `application/json` (با charset اختیاری). `multipart/form-data` فقط روی `/attachments` و `/imports/students`. غیر از این ← `415`.
+- [ ] **SEC-C3** `Content-Type`: فقط `application/json` (با charset اختیاری). `multipart/form-data` فقط روی `/attachments` و `/imports/students`. غیر از این ← `415`. (اصلاح F-07:) POST **بی‌بدنه** (بدون `Content-Length` مثبت و بدون `Transfer-Encoding`) می‌تواند `Content-Type` نداشته باشد. هر بدنه‌ی غیرخالی بدون `Content-Type` ← `415`، و مسیرِ بی‌بدنه هر بدنه‌ای جز خالی یا `{}` را رد می‌کند. دفاع اصلی SEC-C1 است.
 - [ ] **SEC-C4** هیچ GETی اثر جانبی نداشته باشد (نوشتن `last_seen_at` و `audit_log` خروجی مستثنا هستند).
 - [ ] **SEC-C5** هیچ سرآیند `Access-Control-Allow-*` در هیچ پاسخی نباشد. اگر روزی اپ موبایل یا ربات آمد، با توکن جدا و ADR جدا.
 
@@ -388,7 +393,7 @@
 - [ ] **SEC-U3** هم‌زمانی پردازش تصویر حداکثر ۲ (`sharp.concurrency(1)` و یک صف ساده).
 - [ ] **SEC-U4** سقف ۵ مگابایت **پیش از** بافر شدن بدنه: `Content-Length` بیش از `MAX_UPLOAD_BYTES + 64KB` ← `413` فوری. جریان بدنه با شمارنده‌ی بایت خوانده شود و پس از سقف قطع شود. `request.formData()` روی بدنه‌ی بی‌سقف صدا زده نشود.
 - [ ] **SEC-U5** ترتیب: `.rotate()` (اعمال جهت EXIF) ← بازکدگذاری به همان قالب ← **بدون** `withMetadata()` (EXIF، GPS، ICC و XMP حذف می‌شوند). فایل اصلی هرگز ذخیره نشود.
-- [ ] **SEC-U6** دانلود از `GET /attachments/:id`: `Content-Type` از قالب بازکدگذاری‌شده (نه از ورودی)، `X-Content-Type-Options: nosniff`، `Content-Disposition: inline; filename*=UTF-8''<نام پاک‌شده>`، CSP جدا (SEC-H1)، `Cache-Control: private, no-cache` (C4).
+- [ ] **SEC-U6** دانلود از `GET /attachments/:id`: `Content-Type` از قالب بازکدگذاری‌شده (نه از ورودی)، `X-Content-Type-Options: nosniff`، `Content-Disposition: inline; filename*=UTF-8''<نام پاک‌شده>`، CSP جدا (SEC-H1)، `Cache-Control: private, no-store` (اصلاح F-07؛ سخت‌گیرتر از `no-cache` در C4).
 - [ ] **SEC-U7** سهمیه: حداکثر ۲۰ پیوست `pending` و ۱۰۰ آپلود در روز به ازای هر کاربر ← `429`.
 - [ ] **SEC-U8** `storage_key` = UUID تصادفی. `original_name` فقط برای نمایش و پاک‌شده (بدون مسیر، بدون نویسه‌ی کنترل، حداکثر ۲۰۰ نویسه).
 - [ ] **SEC-U9** (C4) وصل کردن اتمی فقط پیوست `pending` همان آپلودکننده.

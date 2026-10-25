@@ -19,6 +19,8 @@ export default defineConfig({
         test: {
           name: 'unit',
           include: ['src/**/*.test.ts'],
+          // Testing Library timeouts for the jsdom component tests (see the file).
+          setupFiles: ['src/components/test-setup.ts'],
         },
       },
       {
@@ -28,6 +30,7 @@ export default defineConfig({
           include: ['tests/integration/**/*.test.ts'],
           // Starts a throwaway Postgres 16 (or uses TEST_DATABASE_URL in CI) and migrates it.
           globalSetup: ['tests/integration/global-setup.ts'],
+          setupFiles: ['tests/integration/setup-env.ts'],
           testTimeout: 30_000,
           hookTimeout: 60_000,
         },

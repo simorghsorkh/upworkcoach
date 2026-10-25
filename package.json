@@ -18,7 +18,11 @@
     "db:start": "pnpm --filter @upworkcoach/web db:start",
     "db:stop": "pnpm --filter @upworkcoach/web db:stop",
     "db:migrate": "pnpm --filter @upworkcoach/web db:migrate",
-    "db:generate": "pnpm --filter @upworkcoach/web db:generate"
+    "db:generate": "pnpm --filter @upworkcoach/web db:generate",
+    "db:seed": "pnpm --filter @upworkcoach/web db:seed",
+    "admin:create": "pnpm --filter @upworkcoach/web admin:create",
+    "admin:reset-link": "pnpm --filter @upworkcoach/web admin:reset-link",
+    "admin:erase-user": "pnpm --filter @upworkcoach/web admin:erase-user"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",

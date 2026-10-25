@@ -5,6 +5,7 @@ import path from 'node:path';
 import type { TestProject } from 'vitest/node';
 import { initCluster, startCluster, stopCluster } from '../../scripts/lib/embedded-pg';
 import { runMigrations } from '../../src/server/db/migrate';
+import { runSeed } from '../../src/server/db/seed';
 
 declare module 'vitest' {
   export interface ProvidedContext {
@@ -34,6 +35,7 @@ export default async function setup(project: TestProject) {
   const external = process.env.TEST_DATABASE_URL;
   if (external) {
     await runMigrations(external);
+    await runSeed(external);
     project.provide('databaseUrl', external);
     return;
   }
@@ -48,6 +50,7 @@ export default async function setup(project: TestProject) {
 
   const url = `postgres://${user}:${password}@localhost:${port}/postgres`;
   await runMigrations(url);
+  await runSeed(url);
   project.provide('databaseUrl', url);
 
   return async () => {

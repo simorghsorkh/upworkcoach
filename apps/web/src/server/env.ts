@@ -13,7 +13,14 @@ const envSchema = z
     // ADR-0003: HMAC key for the trusted-device cookie (login lockout policy). Required in production.
     DEVICE_COOKIE_SECRET: z.string().min(32).optional(),
     // ADR-0003: number of trusted proxies in front of the app for X-Forwarded-For (local 0, App Service 1).
-    TRUSTED_PROXY_HOPS: z.coerce.number().int().min(0).max(5).default(0),
+    // F-18: required in production (a missing value would silently mean 0 = every login
+    // lock keyed on the proxy's IP); elsewhere it defaults to 0.
+    TRUSTED_PROXY_HOPS: z.coerce.number().int().min(0).max(5).optional(),
+    // F-08: build identifier shown by /healthz (e.g. the commit SHA). Optional; 'dev' when unset.
+    APP_VERSION: z
+      .string()
+      .regex(/^[\w.+-]{1,64}$/)
+      .optional(),
 
     STORAGE_DRIVER: z.enum(['local', 'azure-blob', 's3']).default('local'),
     LOCAL_STORAGE_DIR: z.string().min(1).default('.data/uploads'),
@@ -42,6 +49,22 @@ const envSchema = z
       }
     };
     requireFor(env.NODE_ENV === 'production', ['DEVICE_COOKIE_SECRET'], 'in production');
+    // F-18: 0 is a valid value, so check presence rather than truthiness.
+    if (env.NODE_ENV === 'production' && env.TRUSTED_PROXY_HOPS === undefined) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['TRUSTED_PROXY_HOPS'],
+        message: 'required in production (1 on App Service)',
+      });
+    }
+    // SEC-S8: production cookies are `__Host-` + Secure, which needs https.
+    if (env.NODE_ENV === 'production' && !env.APP_BASE_URL.startsWith('https://')) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['APP_BASE_URL'],
+        message: 'must be https:// in production',
+      });
+    }
     requireFor(
       env.STORAGE_DRIVER === 'azure-blob',
       ['AZURE_STORAGE_CONNECTION_STRING', 'AZURE_STORAGE_CONTAINER'],
@@ -57,7 +80,8 @@ const envSchema = z
       ['JOB_TRIGGER_SECRET'],
       'when JOBS_MODE=http-trigger',
     );
-  });
+  })
+  .transform((env) => ({ ...env, TRUSTED_PROXY_HOPS: env.TRUSTED_PROXY_HOPS ?? 0 }));
 
 export type Env = z.infer<typeof envSchema>;
 

@@ -35,11 +35,16 @@ export default defineConfig({
       },
     },
   ],
+  // A throwaway Postgres (migrated + seeded, one admin) and `next dev` on PORT; never the dev
+  // database on 5432. See tests/e2e/server/start.ts. The teardown stops Postgres even when the
+  // server process tree was force-killed.
+  globalTeardown: './tests/e2e/global-teardown.ts',
   webServer: {
-    command: `next dev --port ${PORT}`,
+    command: 'tsx tests/e2e/server/start.ts',
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !isCI,
-    timeout: 120_000,
+    timeout: 240_000,
+    stderr: 'pipe',
     env: { JOBS_MODE: 'off' },
   },
 });

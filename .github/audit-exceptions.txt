@@ -1,0 +1,12 @@
+# Dependency audit exceptions (F-19, SEC-D2). Read by scripts/ci-audit.mjs.
+#
+# One per line:   GHSA-xxxx-xxxx-xxxx  YYYY-MM-DD  reason
+#   - YYYY-MM-DD is the review-by date (Gregorian), at most 90 days ahead.
+#     After that date CI fails until the exception is re-reviewed or removed.
+#   - reason: who accepted it, why it is not exploitable here, and the plan
+#     (e.g. "waiting for next@x.y.z; only reachable in dev server; devops 2026-10-21").
+#   - Prefer fixing (upgrade / pnpm override) over adding a line here.
+#
+# Currently empty: `pnpm audit --prod` reports no advisories (2026-10-21).
+# Only advisory in all deps: GHSA-67mh-4wv8-2f99 (esbuild, moderate, dev-only
+# via drizzle-kit) - below the CI fail levels, so no exception is needed.

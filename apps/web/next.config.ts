@@ -1,6 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type { NextConfig } from 'next';
+import {
+  STATIC_SECURITY_HEADERS,
+  TOKEN_PAGE_HEADERS,
+  TOKEN_PAGE_PATHS,
+} from './src/server/http/security-headers';
 
 /** Walks up from `start` until it finds the pnpm workspace root. */
 function findRepoRoot(start: string): string {
@@ -33,10 +38,22 @@ const nextConfig: NextConfig = {
   output: 'standalone',
   // Monorepo: trace files from the workspace root so the standalone bundle is complete.
   outputFileTracingRoot: repoRoot,
+  // SEC-H2: no X-Powered-By.
   poweredByHeader: false,
   reactStrictMode: true,
+  // SEC-H5: no image optimisation from other domains.
+  images: { remotePatterns: [] },
   // Node-only server libraries: keep them out of the bundle.
-  serverExternalPackages: ['pg', 'pg-boss', 'pino'],
+  serverExternalPackages: ['pg', 'pg-boss', 'pino', '@node-rs/argon2'],
+  async headers() {
+    return [
+      // SEC-H2 on every response (pages, API, static assets). The page CSP with a nonce is
+      // added per request in src/proxy.ts; API responses set their own CSP.
+      { source: '/:path*', headers: [...STATIC_SECURITY_HEADERS] },
+      // SEC-T3: invite/reset pages carry the token in the URL fragment.
+      ...TOKEN_PAGE_PATHS.map((source) => ({ source, headers: [...TOKEN_PAGE_HEADERS] })),
+    ];
+  },
 };
 
 export default nextConfig;

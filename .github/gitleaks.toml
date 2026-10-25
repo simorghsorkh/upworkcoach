@@ -1,0 +1,15 @@
+# gitleaks config for CI (F-19, SEC-K1). Used via `--config .github/gitleaks.toml`.
+# Keeps all default rules; only adds narrow, reviewed allowlists below.
+# Every new allowlist entry needs a reason and a date (Gregorian, YYYY-MM-DD).
+
+[extend]
+useDefault = true
+
+# 2026-10-21: generic-api-key flags `secretKey: env.S3_SECRET_KEY ?? ''`
+# (apps/web/src/server/storage/index.ts). The value is a reference to an env
+# var name, not a secret. Allow only matches whose value is `env.UPPER_CASE`.
+[[allowlists]]
+description = "Values read from env vars (env.NAME), not literal secrets"
+targetRules = ["generic-api-key"]
+regexTarget = "match"
+regexes = ['''env\.[A-Z][A-Z0-9_]*''']

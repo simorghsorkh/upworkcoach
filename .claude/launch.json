@@ -4,8 +4,24 @@
     {
       "name": "wireframes",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "8765", "--directory", "docs/03-ux"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8765",
+        "--directory",
+        "docs/03-ux"
+      ],
       "port": 8765
+    },
+    {
+      "name": "app",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "-y",
+        "pnpm@12.14.0",
+        "dev"
+      ],
+      "port": 3000
     }
   ]
 }

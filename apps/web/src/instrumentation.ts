@@ -3,6 +3,10 @@
 export async function register(): Promise<void> {
   if (process.env.NEXT_RUNTIME !== 'nodejs') return;
 
+  // Fail fast on a bad environment instead of answering every request with 500.
+  const { getEnv } = await import('./server/env');
+  getEnv();
+
   const { startJobs } = await import('./server/jobs');
   const { logger } = await import('./server/logger');
   try {

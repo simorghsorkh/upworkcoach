@@ -118,7 +118,7 @@ PRD (بخش ۸ و فرض A4) و `mvp-scope.md` می‌گویند: «0.1 بدون
 | قاعده | چرا |
 |---|---|
 | برنامه **یک image داکر** است (Next.js `output: 'standalone'`) و با `docker run` روی هر لینوکسی اجرا می‌شود | انتقال = اجرای همان image |
-| همه‌ی تنظیمات از **متغیر محیطی** (`DATABASE_URL`، `STORAGE_DRIVER`، `APP_BASE_URL`، `SESSION_SECRET`، …) | بدون تغییر کد |
+| همه‌ی تنظیمات از **متغیر محیطی** (`DATABASE_URL`، `STORAGE_DRIVER`، `APP_BASE_URL`، `DEVICE_COOKIE_SECRET`، `TRUSTED_PROXY_HOPS`، …؛ (امنیت C7، هماهنگ با کد، اسپرینت ۱) `SESSION_SECRET` حذف شد، چون توکن نشست تصادفی است و هش می‌شود؛ فهرست کامل در `tech-stack.md` بخش ۵ و `.env.example`) | بدون تغییر کد |
 | دیتابیس **Postgres استاندارد** (نسخه‌ی ۱۶ یا بالاتر). فقط افزونه‌های رایج: `pg_trgm`، `unaccent`، `citext`. بدون قابلیت اختصاصی Azure یا Neon | `pg_dump` / `pg_restore` روی هر Postgres کار کند |
 | زمان‌بندی و صف با **pg-boss داخل Postgres** (ADR-0007)، نه Vercel Cron یا سرویس Azure | زمان‌بند با داده جابه‌جا می‌شود |
 | فایل‌ها پشت رابط **`FileStorage`** با دو آداپتور: `azure-blob` و `s3` (برای MinIO یا ذخیره‌سازی S3-compatible ایرانی) | انتقال = عوض کردن `STORAGE_DRIVER` و کپی فایل‌ها |

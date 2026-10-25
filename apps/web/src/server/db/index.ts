@@ -30,3 +30,9 @@ export async function closeDb(): Promise<void> {
   globalForDb.__ucDb = undefined;
   await current?.pool.end();
 }
+
+/** A transaction handle as passed to `db.transaction(async (tx) => …)`. */
+export type Tx = Parameters<Parameters<Db['transaction']>[0]>[0];
+
+/** Service and repo functions accept either the pool-backed client or a transaction. */
+export type DbOrTx = Db | Tx;

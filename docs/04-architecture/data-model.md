@@ -4,6 +4,7 @@
 > منابع: `02-product/prd.md` (F1 تا F11، بخش ۶)، `02-product/learning/progress-tracking.md` (پرونده، کارها، سلامت)، `learning-path.md`، `mentor-workflow.md`.
 > تصمیم‌های مرتبط: ADR-0003 (احراز هویت)، ADR-0004 (دسترسی)، ADR-0005 (سلامت)، ADR-0008 (زمان و متن فارسی).
 > **پرداخت در این مدل نیست** (تصمیم D7). جای آن در `overview.md` بخش ۸ آمده است.
+> **به‌روزرسانی ۳۰ مهر ۱۴۰۵: هماهنگ با کد اسپرینت‌های ۱ تا ۴** (migrationهای `apps/web/drizzle/0001` تا `0004`). جدول‌ها و ستون‌های ساخته‌شده با این سند یکی‌اند؛ تفاوت‌ها و تصمیم‌های تازه با برچسب «(هماهنگ با کد، اسپرینت N)» مشخص شده‌اند. کارهای کدی باقی‌مانده در `docs/05-delivery/followups.md`.
 
 ---
 
@@ -22,6 +23,9 @@
 | پیکربندی به‌جای کد | مرحله‌ها، پلتفرم‌ها، شاخه‌ها، انواع نقطه‌ی عطف، قالب کارها و آستانه‌ها **داده** هستند. رفتار خاص فقط از پرچم‌ها می‌آید (`is_open_ended`، `counts_for_north_star`)، نه از نام |
 
 **افزونه‌های Postgres:** `pg_trgm` (جستجو)، `citext` (لازم نیست، ولی مجاز). هیچ افزونه‌ی اختصاصی ارائه‌دهنده استفاده نمی‌شود.
+(هماهنگ با کد، اسپرینت ۲؛ تصمیم معماری) `0002_students_path.sql` با `CREATE EXTENSION IF NOT EXISTS pg_trgm` شروع می‌شود و **همان‌جا می‌ماند** تا محیط محلی، CI و میزبان ایرانی بی‌قدم دستی کار کنند. روی Azure Flexible Server پیش از اولین `db:migrate` باید `azure.extensions` شامل `PG_TRGM` باشد و نقش migrate عضو `azure_pg_admin` باشد (followup F-10، devops-engineer). اگر میزبانی اجازه‌ی ساخت افزونه به نقش migrate نداد، runbook افزونه را یک بار با نقش مدیر می‌سازد و `IF NOT EXISTS` باعث می‌شود migration بی‌خطا رد شود.
+
+**seed (هماهنگ با کد، اسپرینت ۲ تا ۴):** `src/modules/catalog/seed.ts` با شناسه‌های ثابت و `ON CONFLICT DO NOTHING` (اجرای دوباره چیزی اضافه یا بازنویسی نمی‌کند). با `pnpm db:migrate` (پس از مهاجرت) یا `pnpm db:seed` اجرا می‌شود، نه داخل `runMigrations`. محتوا: ۳ شاخه، ۸ پلتفرم، مسیر پیش‌فرض و ۹ مرحله، ۱۶ قالب کار، ۵ نوع نقطه‌ی عطف، پاسخ استاندارد «خطوط قرمز»، و `settings.checkin`.
 
 ---
 
@@ -155,7 +159,7 @@ erDiagram
 | فیلد | نوع | الزامی | توضیح |
 |---|---|---|---|
 | id | uuid | ✓ | — |
-| phone | text، **unique** | ✓ | قالب E.164 (`+989121234567`). ورودی با ارقام فارسی، `0912…` یا `+98…` نرمال می‌شود. CHECK: `phone ~ '^\+[0-9]{10,15}$' OR erased_at IS NOT NULL` (امنیت C5: پس از حذف حساب مقدار `erased:<id>` می‌گیرد که یکتا می‌ماند و هیچ ورودی نرمال‌شده‌ای با آن برابر نمی‌شود) |
+| phone | text، **unique** | ✓ | قالب E.164 (`+989121234567`). ورودی با ارقام فارسی، `0912…` یا `+98…` نرمال می‌شود. (هماهنگ با کد، اسپرینت ۱) لایه‌ی برنامه (`lib/phone`) در 0.1 **فقط موبایل ایران** (`+989` + ۹ رقم) می‌پذیرد؛ CHECK دیتابیس عمداً شماره‌ی بین‌المللی را هم می‌پذیرد تا بعداً بدون migration باز شود. CHECK: `phone ~ '^\+[0-9]{10,15}$' OR erased_at IS NOT NULL` (امنیت C5: پس از حذف حساب مقدار `erased:<id>` می‌گیرد که یکتا می‌ماند و هیچ ورودی نرمال‌شده‌ای با آن برابر نمی‌شود) |
 | display_name | text | ✓ | نام و نام خانوادگی |
 | role | text | ✓ | `admin` \| `mentor` \| `student`. هر کاربر **یک** نقش دارد. مدیر می‌تواند مشاور اصلی هنرجو هم باشد |
 | status | text | ✓ | `invited` (رمز ندارد) \| `active` \| `disabled` |
@@ -165,6 +169,8 @@ erDiagram
 | last_seen_at | timestamptz | — | حداکثر هر ۱۵ دقیقه یک بار به‌روز می‌شود (برای R-INACT) |
 | created_by | uuid FK users | — | — |
 | erased_at | timestamptz | — | (امنیت C5) زمان اجرای حذف حساب (ناشناس‌سازی). پر بودن یعنی `status = 'disabled'` و داده‌ی شخصی پاک شده است. بخش ۶ و ADR-0010 |
+| invite_accepted_at | timestamptz | — | **(تصمیم معماری، پاسخ سؤال باز اسپرینت ۱؛ هنوز در کد نیست: followup F-01)** زمان پذیرش **دعوت** (نه بازنشانی). در همان تراکنش مصرف توکن نوشته می‌شود. منبع `inviteAcceptedAt` در `GET /users` و پرونده (SEC-T5)، چون `auth_tokens` ۷ روز پس از مصرف حذف می‌شود (بخش ۶-۱) |
+| invite_accepted_user_agent | text | — | **(همان تصمیم؛ F-01)** User-Agent هنگام پذیرش دعوت، حداکثر ۵۱۲ نویسه؛ منبع `inviteAcceptedDevice`. با حذف حساب ← `null` |
 | created_at، updated_at | timestamptz | ✓ | — |
 
 #### `auth_tokens` (دعوت و بازنشانی رمز)
@@ -177,11 +183,12 @@ erDiagram
 | expires_at | timestamptz | ✓ | دعوت: ۷ روز (F1). بازنشانی: ۲۴ ساعت. لینک CLI (`admin:bootstrap`، `admin:reset-link`): ۱ ساعت (امنیت C1، SEC-T6/T7) |
 | used_at، revoked_at | timestamptz | — | یک‌بارمصرف |
 | phone_mismatch_count | smallint، م 0 | ✓ | (امنیت C1) تعداد پذیرش با موبایل غلط. با رسیدن به ۵ ← `revoked_at = now()` و `audit_log(auth.token_revoked_mismatch)` |
-| used_user_agent | text | — | (امنیت C1، SEC-T5) User-Agent هنگام پذیرش؛ برای نمایش «دعوت پذیرفته شد: زمان، نوع دستگاه» به کارکنان |
+| used_user_agent | text | — | (امنیت C1، SEC-T5) User-Agent هنگام پذیرش. (هماهنگ با کد، اسپرینت ۱) چون ردیف ۷ روز پس از مصرف حذف می‌شود، نمایش ماندگار «دعوت پذیرفته شد» از `users.invite_accepted_*` خوانده می‌شود (F-01) |
 | created_by | uuid FK users | — | null فقط برای لینک‌های CLI |
 | created_at | timestamptz | ✓ | — |
 
 Index: `(user_id, purpose) WHERE used_at IS NULL AND revoked_at IS NULL`. ساخت توکن جدید توکن‌های باز قبلی همان کاربر و همان هدف را باطل می‌کند.
+(هماهنگ با کد، اسپرینت ۱) `password_reset` فقط برای کاربر `active` ساخته می‌شود (`invited`/`disabled` ← `409`). CLI `admin:reset-link` برای کاربر `invited` یک توکن **`invite`** یک‌ساعته می‌سازد تا اولین مدیری که لینک راه‌اندازی‌اش منقضی شده بیرون نماند.
 (امنیت C1) **خود توکن هرگز در مسیر URL نمی‌آید**: لینک‌ها `…/invite#t=<token>` و `…/reset#t=<token>` هستند و توکن فقط در بدنه‌ی `POST /auth/tokens/lookup` و `/accept` به سرور می‌رسد (ADR-0003 بخش ۱–۲).
 
 #### `sessions`
@@ -191,7 +198,7 @@ Index: `(user_id, purpose) WHERE used_at IS NULL AND revoked_at IS NULL`. ساخ
 | user_id | uuid FK users | ✓ | — |
 | token_hash | text، unique | ✓ | SHA-256 توکن کوکی |
 | created_at | timestamptz | ✓ | — |
-| expires_at | timestamptz | ✓ | (امنیت C2) بر اساس نقش هنگام ساخت: **هنرجو** لغزنده‌ی ۳۰ روز از آخرین استفاده و سقف مطلق ۹۰ روز از `created_at`؛ **مدیر و مشاور** لغزنده‌ی ۷ روز و سقف مطلق ۳۰ روز. تغییر نقش همه‌ی نشست‌ها را باطل می‌کند |
+| expires_at | timestamptz | ✓ | (امنیت C2) بر اساس نقش هنگام ساخت: **هنرجو** لغزنده‌ی ۳۰ روز از آخرین استفاده و سقف مطلق ۹۰ روز از `created_at`؛ **مدیر و مشاور** لغزنده‌ی ۷ روز و سقف مطلق ۳۰ روز. تغییر نقش همه‌ی نشست‌ها را باطل می‌کند. (هماهنگ با کد، اسپرینت ۱) این ستون **انقضای لغزنده** است و در هر درخواست API و RSC، حداکثر هر ۱۵ دقیقه، تمدید می‌شود؛ `Max-Age` کوکی برابر سقف مطلق است (ADR-0003 بخش ۹) |
 | last_used_at | timestamptz | ✓ | — |
 | ip، user_agent | text | — | برای فهرست «دستگاه‌های من». `ip` فقط از `getClientIp(req)` (ADR-0003 بخش ۴) |
 | revoked_at | timestamptz | — | — |
@@ -262,8 +269,10 @@ Index: `(user_id, purpose) WHERE used_at IS NULL AND revoked_at IS NULL`. ساخ
 | is_open_ended | bool، م false | ✓ | مرحله‌ی باز (مثل «رشد»): R-STALL و R-NOTASK برایش اجرا نمی‌شوند. **جایگزین شرط «جز مرحله‌ی ۸»** |
 | student_description | text | — | چیزی که هنرجو در «مسیر من» می‌بیند |
 | content_links | jsonb | — | `[{title, url}]` لینک به محتوای آموزشی بیرونی (فرض A5) |
-| is_active | bool | ✓ | غیرفعال‌سازی فقط وقتی هیچ هنرجوی فعالی در آن نیست |
+| is_active | bool | ✓ | غیرفعال‌سازی فقط وقتی هیچ هنرجوی **`active`** در آن نیست (هماهنگ با کد، اسپرینت ۲: `paused`/`graduated`/`dropped` مانع نیستند) و فقط از `POST /stages/:id/deactivate` |
 | created_at، updated_at | timestamptz | ✓ | — |
+
+**هم‌زمانی غیرفعال‌سازی و تغییر مرحله (تصمیم معماری، پاسخ سؤال باز اسپرینت ۲):** قفل ردیف اضافه **نمی‌شود**. اگر دو تراکنش هم‌زمان (غیرفعال کردن X و بردن هنرجو به X) هر دو موفق شوند، نتیجه «هنرجوی فعال در مرحله‌ی غیرفعال» است که سیستم از قبل درست نمایش می‌دهد (`stage.isActive = false` در DTOها، ستون کانبان برای مرحله‌ی غیرفعالِ دارای هنرجو) و مدیر با فعال‌سازی دوباره یا تغییر مرحله رفعش می‌کند. با یک مدیر و حدود ۸۰ هنرجو احتمال آن ناچیز است و قفل، پیچیدگی بی‌فایده است. اگر 1.0 چند مدیر داشت، `SELECT … FOR UPDATE` روی ردیف مرحله در هر دو مسیر اضافه شود.
 
 Seed از `learning-path.md` بخش ۳ (۹ مرحله با `expected_days` = حد بالای بازه: ۴، ۱۰، ۱۰، ۱۴، ۵، ۴۲، خالی، خالی، خالی + `is_open_ended` برای «رشد»). اعداد را بنیان‌گذار در تنظیمات اصلاح می‌کند.
 
@@ -310,12 +319,14 @@ Seed: پروفایل آماده، اولین اپلای، اولین پاسخ/م
 | key | پیش‌فرض | منبع |
 |---|---|---|
 | `health.rules` | بخش ۴-۲ همین سند | PRD F7 |
-| `sla` | `{ questionHours: 24, urgentQuestionHours: 4, reviewHours: 48, redNoActionHours: 48, redEscalateDays: 7, clock: "business" }` | PRD F7، `mentor-workflow.md` بخش ۴ |
+| `sla` | `{ questionHours: 24, urgentQuestionHours: 4, reviewHours: 48, reviewHoursNonGate: 72, redNoActionHours: 48, redEscalateDays: 7, clock: "business" }` | PRD F7، `mentor-workflow.md` بخش ۴. **(تصمیم معماری، پاسخ سؤال باز اسپرینت ۳ و ۴)** `reviewHours` آستانه‌ی بازبینی کار **گیت** (`required_for_gate = true`) است و کلید تازه‌ی `reviewHoursNonGate` (پیش‌فرض ۷۲) برای بقیه‌ی کارها. کد فعلی همه را با `reviewHours` می‌سنجد (followup F-09). مقدار ذخیره‌شده‌ی بدون کلید تازه با پیش‌فرض ۷۲ پر می‌شود (بدون migration داده) |
 | `business_hours` | `{ timezone: "Asia/Tehran", week: { sat:[9,21], sun:[9,21], mon:[9,21], tue:[9,21], wed:[9,21], thu:[9,14], fri:null }, holidays: [] }` | `mentor-workflow.md` بخش ۴ (فرض، منتظر بنیان‌گذار) |
 | `access` | `{ mentorScope: "assigned", mentorsCanInviteStudents: true }` | PRD بخش ۵ و فرض A8 |
 | `questions` | `{ expectedResponseText: "معمولاً تا ۲۴ ساعت" }` | F8 |
-| `checkin` | `{ enabled: false, weekday: "thu" }` | Should؛ با روشن شدن، R-CHECKIN و R-MOOD فعال می‌شوند |
+| `checkin` | `{ enabled: true, weekday: "thu" }` (هماهنگ با کد، اسپرینت ۴: تصمیم E5 = روشن؛ ردیف در seed ذخیره می‌شود) | Should؛ با روشن بودن، R-CHECKIN و R-MOOD فعال‌اند |
 | `tasks` | `{ defaultDueDays: 3 }` | `progress-tracking.md` ۴-۱ |
+
+(هماهنگ با کد، اسپرینت ۱ و ۴) ردیف نبودن = مقدار پیش‌فرض با `version = 0`. `GET /settings` همه‌ی کلیدها را با `value` و `version` برمی‌گرداند؛ `PUT /settings` چند کلید را در یک تراکنش ذخیره می‌کند. تغییر `health.rules` یا `checkin` ← sweep فوری سلامت. متن `questions.expectedResponseText` هنگام ذخیره نرمال می‌شود (ADR-0008؛ تنوین حذف می‌شود).
 
 ### ۲-۳. هنرجو و پرونده (ماژول `students`)
 
@@ -327,7 +338,7 @@ Seed: پروفایل آماده، اولین اپلای، اولین پاسخ/م
 | user_id | uuid PK FK users | ✓ | س | — |
 | primary_mentor_id | uuid FK users | — | م | مشاور اصلی (نقش mentor یا admin). خالی = تخصیص‌نیافته (فقط مدیر می‌بیند). **منبع حقیقت دسترسی مشاور در 0.1** (ADR-0004) |
 | lifecycle_status | text، م `active` | ✓ | م | `active` \| `paused` \| `graduated` \| `dropped` |
-| paused_until | date | — | م | فقط برای `paused`؛ یک روز قبلش یادآور سیستمی ساخته می‌شود |
+| paused_until | date | — | م | فقط برای `paused`؛ باید **بعد از** امروزِ تهران باشد (هماهنگ با کد، اسپرینت ۲). یک روز قبلش یادآور سیستمی ساخته می‌شود که با خروج زودتر از توقف لغو می‌شود (اسپرینت ۳) |
 | status_reason | text | — | م | — |
 | current_stage_id | uuid FK stages | ✓ | م | ستون کانبان |
 | stage_entered_at | timestamptz | ✓ | س | پایه‌ی R-STALL و «چند روز در مرحله» |
@@ -347,7 +358,7 @@ Seed: پروفایل آماده، اولین اپلای، اولین پاسخ/م
 | niche_statement | text | — | م/ه | جمله‌ی نیچ (خروجی مرحله‌ی ۱) |
 | joined_at | timestamptz | ✓ | س | زمان ساخت پرونده (برای مهاجرت قابل‌ویرایش توسط مدیر) |
 | last_activity_at | timestamptz | — | س | آخرین ورود، تحویل، پیام سؤال، check-in یا پیشنهاد نقطه‌ی عطف هنرجو. **پایه‌ی R-INACT** |
-| search_text | text | ✓ | س | نرمال‌شده‌ی نام، موبایل، آیدی پیام‌رسان و برچسب‌ها (ADR-0008) |
+| search_text | text | ✓ | س | نرمال‌شده‌ی نام، موبایل، آیدی پیام‌رسان و برچسب‌ها (ADR-0008). (تصمیم معماری، پاسخ سؤال باز اسپرینت ۲) هر تغییر `users.display_name` یا `users.phone` هنرجو (در `PATCH /users/:id`، هنوز ساخته نشده: F-02) باید در **همان تراکنش** این ستون را با `buildSearchText` بازسازی کند |
 | created_at، updated_at | timestamptz | ✓ | س | — |
 
 Indexها: `(primary_mentor_id, lifecycle_status)`، `(current_stage_id)`، `GIN (tags)`، `GIN (search_text gin_trgm_ops)`.
@@ -367,6 +378,7 @@ Indexها: `(primary_mentor_id, lifecycle_status)`، `(current_stage_id)`، `GIN
 
 Partial unique: `(student_id) WHERE role='primary' AND ended_at IS NULL`.
 **ناوردا:** `students.primary_mentor_id` همیشه برابر ردیف فعال `primary` است. هر دو فقط در `students.service.assignMentor()` و در یک تراکنش تغییر می‌کنند.
+(هماهنگ با کد، اسپرینت ۲ تا ۴) مدیر می‌تواند هنرجو را بی‌مشاور بسازد یا `mentorId: null` بدهد (ردیف فعال بسته می‌شود و ردیف تازه‌ای ساخته نمی‌شود). در تغییر مشاور، یادآورهای باز و سؤال‌های باز مشاور قبلی درباره‌ی این هنرجو در همان تراکنش به مشاور جدید، و اگر جدید `null` است به **مدیرِ انجام‌دهنده**، منتقل می‌شوند.
 
 #### `platform_profiles` (ویترین‌ها: «چه پروفایلی دارد؟»)
 | فیلد | نوع | الزامی | توضیح |
@@ -390,7 +402,7 @@ Partial unique: `(student_id) WHERE role='primary' AND ended_at IS NULL`.
 #### `profile_snapshots`
 نسخه‌های متن کامل ویترین (مقایسه‌ی پیشرفت). با تحویل کار از نوع `profile_review` ساخته می‌شود، یا دستی.
 
-`id`، `profile_id` FK، `headline`، `body_text`، `rate_text`، `source_submission_id` FK submissions (اختیاری)، `created_by`، `created_at`.
+`id`، `profile_id` FK، `headline`، `body_text`، `rate_text`، `source_submission_id` FK submissions (اختیاری)، `created_by`، `created_at`. (هماهنگ با کد، اسپرینت ۳) FK `source_submission_id` در `0003` اضافه شد.
 
 ### ۲-۴. مسیر و مرحله (ماژول `path`)
 
@@ -415,6 +427,10 @@ Partial unique: `(student_id) WHERE role='primary' AND ended_at IS NULL`.
 **محدودیت آگاهانه‌ی 0.1:** هر هنرجو **یک** مرحله‌ی فعلی دارد. هم‌زمانی مراحل ۲ و ۳ (`learning-path.md`) با کارهایی که `stage_id` آن‌ها مرحله‌ی ۳ است پوشش داده می‌شود، ولی ستون کانبان یکی است. اگر لازم شد، در 1.0 جدول `student_stage_progress` اضافه می‌شود. `stage_transitions` تغییر نمی‌کند.
 
 تغییر مرحله (در یک تراکنش): درج `stage_transitions` ← به‌روزرسانی `students.current_stage_id` و `stage_entered_at = now()` ← `timeline_events(stage.changed)` ← بازمحاسبه‌ی سلامت پس از commit ← برگرداندن قالب‌های پیشنهادی مرحله‌ی جدید (F3 Should).
+
+(هماهنگ با کد، اسپرینت ۲) **جهت گذار با نوعش هم‌خوان است:** `regress` فقط به مرحله‌ای با `sort_order` کمتر؛ `advance`، `skip_by_assessment` و `advance_with_exception` فقط به جلو (پرش مجاز). همان مرحله یا جهت نادرست ← `409 INVALID_TRANSITION`؛ مقصد غیرفعال ← `422`. CHECK دیتابیس: `note` برای `regress` و `advance_with_exception` الزامی، و فقط `initial` بی‌مبدأ است.
+(هماهنگ با کد، اسپرینت ۴) همان تراکنش می‌تواند کارهای قالب‌های `createTemplateIds` را بسازد و کارهای `cancelTaskIds` را لغو کند (`api.md` بخش ۵)؛ هر خطا کل تراکنش را برمی‌گرداند.
+**«روز در مرحله»** (`daysInStage`، هماهنگ با کد، اسپرینت ۲) = روزهای کامل ۲۴ ساعته از `stage_entered_at`. `overExpected` (کانبان و فهرست): بیش از `expected_days` ← `warn`، بیش از ۲ برابر ← `over`؛ مرحله‌ی باز یا بی‌مدت ← `none`. (آستانه‌ی R-STALL سلامت جداست: ۱٫۵ و ۲ برابر.)
 
 ### ۲-۵. کارها، تحویل، بازبینی و تمدید (ماژول `tasks`)
 
@@ -448,11 +464,13 @@ Partial unique: `(student_id) WHERE role='primary' AND ended_at IS NULL`.
 
 Indexها: `(student_id, status)`؛ `(reviewer_id, last_submitted_at) WHERE status='submitted'`؛ `(due_at) WHERE status IN ('open','in_progress','changes_requested')`.
 
-**«معوق» ستون نیست:** `status IN ('open','in_progress','changes_requested') AND due_at < now()`.
+**«معوق» ستون نیست:** `status IN ('open','in_progress','changes_requested') AND due_at < now()`. (هماهنگ با کد، اسپرینت ۳) `overdueDays` = روزهای تقویم تهران پس از مهلت، حداقل ۱.
+**پیش‌فرض‌های ساخت (هماهنگ با کد، اسپرینت ۳):** `kind = custom` و `submission_type = text` مگر از قالب؛ بدون قالب `title` الزامی؛ مهلت از روزهای قالب یا `settings.tasks.defaultDueDays`؛ مهلت گذشته ← `422`؛ `reviewer_id` = مشاور اصلی فعال، وگرنه سازنده.
+**«مهلت نسخه‌ی بعد» (هماهنگ با کد، اسپرینت ۴):** بازبینی `changes_requested` می‌تواند `due_at` را با `nextDueDate` عوض کند. این **تمدید نیست**: ردیف `task_extensions` ساخته نمی‌شود، `extension_count` و `original_due_at` دست نمی‌خورند، و ردپا در `timeline_events(review.created).data` با `previousDueAt` و `nextDueAt` می‌ماند. دلیل در ADR-0005 بخش «تطبیق با پیاده‌سازی».
 **«باز» برای R-NOTASK:** `status NOT IN ('accepted','cancelled')` (یعنی `submitted` هم باز حساب می‌شود، چون کار هنوز تمام نشده).
 
 #### `task_extensions`
-`id`، `task_id` FK، `previous_due_at`، `new_due_at`، `reason` (الزامی)، `actor_id`، `created_at`. هر درج یعنی `tasks.extension_count += 1` و `tasks.due_at = new_due_at` در همان تراکنش.
+`id`، `task_id` FK، `previous_due_at`، `new_due_at`، `reason` (الزامی)، `actor_id`، `created_at`. هر درج یعنی `tasks.extension_count += 1` و `tasks.due_at = new_due_at` در همان تراکنش. (هماهنگ با کد، اسپرینت ۳) فقط از `POST /tasks/:id/extend`، فقط در وضعیت غیرنهایی و فقط به بعد از مهلت فعلی. `nextDueDate` بازبینی این‌جا ثبت **نمی‌شود** (اسپرینت ۴).
 
 #### `submissions` (نسخه‌های تحویل)
 | فیلد | نوع | الزامی | توضیح |
@@ -482,7 +500,7 @@ Indexها: `(student_id, status)`؛ `(reviewer_id, last_submitted_at) WHERE stat
 | outcome | text | ✓ | `accepted` \| `changes_requested` |
 | feedback_text | text | ✓ | فارسی، طبق قالب `mentor-workflow.md` بخش ۶ |
 | score | smallint | — | ۱ تا ۵ (اختیاری) |
-| created_at، updated_at | timestamptz | ✓ | بازبین تا ۲۴ ساعت می‌تواند متن را اصلاح کند؛ `outcome` قابل‌تغییر نیست |
+| created_at، updated_at | timestamptz | ✓ | بازبین تا ۲۴ ساعت می‌تواند متن را اصلاح کند؛ `outcome` قابل‌تغییر نیست. (هماهنگ با کد، اسپرینت ۳) پنجره‌ی ۲۴ ساعت برای مدیر هم هست؛ **هر کارمند در دامنه** می‌تواند بازبینی ثبت کند و `reviewer_id` بازبینی = همان actor (نه لزوماً `tasks.reviewer_id`) |
 
 **مجموعه‌ی داده‌ی ارزیابی AI (G4):** `submissions` با `tasks.submission_type='proposal_review' AND ai_use_consent` به‌همراه `reviews`. این جفت «ورودی + نقد مربی» است. خروجی آن در 1.0 یک view به نام `ai_eval_proposals` خواهد بود. در 0.1 فقط شمارش آن در داشبورد مدیر نمایش داده می‌شود.
 
@@ -495,7 +513,7 @@ Indexها: `(student_id, status)`؛ `(reviewer_id, last_submitted_at) WHERE stat
 | mime_type، size_bytes، width، height | — | از **خروجی بازکدگذاری‌شده**، نه از ورودی کاربر. فقط `image/jpeg`، `image/png`، `image/webp` |
 | uploaded_by | uuid FK users | — |
 | status | text | `pending` (آپلودشده و هنوز وصل نشده) \| `linked` |
-| submission_id، question_message_id، milestone_id | uuid FK | **دقیقاً یکی** پس از وصل شدن پر است (CHECK: `status='pending'` ⇔ هر سه خالی) |
+| submission_id، question_message_id، milestone_id | uuid FK | **دقیقاً یکی** پس از وصل شدن پر است (CHECK: `status='pending'` ⇔ هر سه خالی). (هماهنگ با کد، اسپرینت ۳ و ۴) FKهای `question_message_id` و `milestone_id` در `0004` اضافه شدند؛ سؤال باز اسپرینت ۳ بسته است |
 | created_at | timestamptz | — |
 
 Index: `(uploaded_by, status)`، `(uploaded_by, created_at)`.
@@ -551,6 +569,11 @@ Index: `(student_id, occurred_at DESC)`.
 
 انواع رویداد در 0.1: `student.created`، `student.updated` (`data.fields`)، `student.lifecycle_changed`، `mentor.changed`، `invite.accepted`، `stage.changed`، `profile.added`، `profile.updated`، `profile.removed`، `profile.approved`، `task.created`، `task.status_changed`، `task.due_extended`، `submission.created`، `review.created`، `question.created`، `question.answered`، `question.closed`، `checkin.submitted`، `milestone.proposed`، `milestone.approved`، `milestone.rejected`، `flag.added`، `flag.cleared`، `health.changed`، `health.snoozed`.
 
+(هماهنگ با کد، اسپرینت ۳ و ۴) قواعد `data`:
+- همان قاعده‌ی `audit_log`: کلیدهایی مثل `token`، `url`، `link`، `password` رد می‌شوند (خطای برنامه، نه ذخیره). شناسه‌ها خام ذخیره می‌شوند و API نام‌ها را در `refs` می‌دهد.
+- `task.created` عنوان کار را دارد؛ `stage.changed`: `{ from, to, kind }`؛ `task.status_changed`: `{ from, to }`؛ `review.created`: `{ taskId, version, outcome, score, previousDueAt?, nextDueAt? }`؛ `profile.added/updated/approved/removed`: `{ platformId, platformName, kind }` (+ `fields` برای `updated`؛ رویدادهای پیش از اسپرینت ۴ این کلیدها را ندارند).
+- اولین محاسبه‌ی سلامت هر هنرجو رویداد `health.changed` نمی‌سازد (بخش ۴-۲).
+
 **تایم‌لاین پرونده** = `UNION ALL` از `timeline_events` و `notes` (حذف‌نشده)، مرتب بر `occurred_at`، با فیلتر نوع (F5). یادداشت‌ها در `timeline_events` **کپی نمی‌شوند**، پس visibility یک منبع دارد.
 
 **هنرجو در 0.1 تایم‌لاین نمی‌بیند.** خانه‌ی هنرجو مستقیم از `tasks`، `question_threads` و `listSharedNotesForStudent` ساخته می‌شود. (`timeline_events` ستون visibility ندارد، چون در 0.1 هیچ مصرف‌کننده‌ی سمت هنرجو ندارد. اگر در 1.0 تایم‌لاین هنرجو ساخته شد، فهرست سفید نوع‌ها در کد تعریف می‌شود.)
@@ -575,6 +598,7 @@ Index: `(student_id, occurred_at DESC)`.
 
 Index: `(owner_id, status, due_at)`.
 «امروز» = `status='open' AND due_at < پایان امروز به وقت تهران` (شامل گذشته‌ها). **هیچ job لازم نیست.**
+(هماهنگ با کد، اسپرینت ۳) تعویق از دیرترِ «اکنون» و `due_at` فعلی حساب می‌شود؛ «انجام شد» تکراری بی‌اثر است. `GET /reminders` مدیر بدون `ownerId` فقط مال خودش است، ولی «امروز» مدیر بدون فیلتر مشاور یادآورهای همه را نشان می‌دهد.
 
 ### ۲-۸. سؤال و پاسخ (ماژول `questions`)
 
@@ -587,7 +611,7 @@ Index: `(owner_id, status, due_at)`.
 | status | text، م `open` | ✓ | `open` \| `answered` \| `closed` |
 | awaiting | text، م `team` | ✓ | `team` \| `student` \| `none`؛ «توپ در زمین کیست» |
 | awaiting_team_since | timestamptz | — | شروع ساعت SLA؛ با پیام هنرجو پر و با پاسخ تیم خالی می‌شود |
-| assignee_id | uuid FK users | ✓ | پیش‌فرض: مشاور اصلی؛ اگر هنرجو مشاور ندارد، یک مدیر |
+| assignee_id | uuid FK users | ✓ | پیش‌فرض: مشاور اصلی **فعال**؛ اگر نیست، (هماهنگ با کد، اسپرینت ۴) **قدیمی‌ترین مدیر فعال**؛ اگر هیچ مدیر فعالی نیست، ساخت سؤال ← `409` |
 | task_id | uuid FK tasks | — | سؤال درباره‌ی یک کار |
 | priority | text، م `normal` | ✓ | `normal` \| `urgent` (هنرجو علامت می‌زند؛ SLA ۴ ساعت) |
 | source | text، م `student` | ✓ | `student` \| `checkin` |
@@ -598,7 +622,8 @@ Index: `(owner_id, status, due_at)`.
 گذارها: پیام هنرجو ← `status=open, awaiting=team` (اگر `awaiting_team_since` خالی است، مقدار now می‌گیرد). پیام تیم ← `status=answered, awaiting=student, awaiting_team_since=null`. بستن ← `closed, awaiting=none`. پیام بعدی هنرجو در رشته‌ی بسته، آن را دوباره باز می‌کند.
 
 #### `question_messages`
-`id`، `thread_id` FK، `author_id` FK users، `body` (الزامی)، `links jsonb`، `canned_response_id` (اختیاری، برای آمار)، `created_at`، `edited_at`. ویرایش فقط تا ۱۵ دقیقه و فقط توسط نویسنده.
+`id`، `thread_id` FK، `author_id` FK users، `body` (الزامی)، `links jsonb`، `canned_response_id` (اختیاری، برای آمار)، `created_at`، `edited_at`. ویرایش فقط تا ۱۵ دقیقه و فقط توسط نویسنده. (تصمیم معماری، هماهنگ با کد، اسپرینت ۴) در 0.1 **endpoint ویرایش ندارد**؛ ستون `edited_at` رزرو است و امکان به بک‌لاگ می‌رود (followup F-16).
+(هماهنگ با کد، اسپرینت ۴) `cannedResponseId` فقط از کارکنان پذیرفته می‌شود؛ پیام کارکنان روی رشته‌ی بسته ← `409`؛ پیام هنرجو رشته‌ی بسته را دوباره باز می‌کند.
 
 ### ۲-۹. check-in هفتگی (ماژول `checkins`، Should)
 
@@ -616,7 +641,8 @@ Index: `(owner_id, status, due_at)`.
 | question_id | uuid FK | — |
 | submitted_at | timestamptz | — |
 
-فرم از روز تنظیم‌شده (پیش‌فرض پنجشنبه) تا پایان جمعه‌ی همان هفته باز است. ارسال دیرتر به هفته‌ی بعد تعلق می‌گیرد.
+~~فرم از روز تنظیم‌شده (پیش‌فرض پنجشنبه) تا پایان جمعه‌ی همان هفته باز است. ارسال دیرتر به هفته‌ی بعد تعلق می‌گیرد.~~
+(هماهنگ با کد، اسپرینت ۴؛ جایگزین جمله‌ی بالا) check-in **هر روز هفته** پذیرفته و به هفته‌ی **جاری** (شنبه تا جمعه‌ی تهران) نسبت داده می‌شود؛ یکتایی `(student_id, week_start)` جلوی ارسال دوم را می‌گیرد (`409`). «باز بودن» (`open` در `GET /me/checkins/current`) از روز تنظیم‌شده به بعد است و فقط برای یادآوری در UI است. دلیل: ساده‌تر است و هیچ check-inی گم نمی‌شود. `needs_help` سؤال را در همان تراکنش می‌سازد.
 
 ### ۲-۱۰. نقطه‌ی عطف (ماژول `milestones`)
 
@@ -637,7 +663,8 @@ Index: `(owner_id, status, due_at)`.
 | created_at | timestamptz | ✓ | — |
 
 اگر `milestone_types.unique_per_student` باشد، تأیید دوم برای همان هنرجو و همان نوع رد می‌شود (بررسی در service با قفل ردیف `students`).
-**North Star (F9):** تعداد `approved` با `counts_for_north_star` در ماه جاری و تجمعی؛ میانه‌ی `occurred_on - joined_at` به روز.
+**North Star (F9):** تعداد `approved` با `counts_for_north_star` در ماه جاری و تجمعی؛ میانه‌ی `occurred_on - joined_at` به روز. (هماهنگ با کد، اسپرینت ۴) «روز» = روز تهران `occurred_on` منهای روز تهران `joined_at`، فقط روی **اولین** نقطه‌ی عطف North Star تأییدشده‌ی هر هنرجو. «ماه جاری» = ماه **شمسی** جاری (`lib/jalali.jalaliMonthRange`).
+(هماهنگ با کد، اسپرینت ۴) پیشنهاد هنرجو فقط `proposed` است و تأیید/رد فقط از `proposed`؛ ردشده‌ها در `GET /me/milestones` نمی‌آیند.
 
 ### ۲-۱۱. پرچم و سلامت (ماژول `health`)
 
@@ -697,7 +724,7 @@ stateDiagram-v2
 - هر گذار: `status_changed_at = now()`، `timeline_events(task.status_changed)`، و بازمحاسبه‌ی سلامت هنرجو پس از commit.
 
 ### ۳-۲. هنرجو (`students.lifecycle_status`)
-`active` ⇄ `paused` (با `paused_until`)؛ `active` → `graduated` | `dropped`؛ برگشت به `active` توسط مدیر یا مشاور. وقتی `paused_until` می‌گذرد، job ساعتی سلامت هنرجو را **خودکار** به `active` برمی‌گرداند و رویداد ثبت می‌کند.
+`active` ⇄ `paused` (با `paused_until`)؛ `active` → `graduated` | `dropped`؛ برگشت به `active` توسط مدیر یا مشاور. وقتی `paused_until` می‌گذرد، job ساعتی سلامت هنرجو را **خودکار** به `active` برمی‌گرداند و رویداد ثبت می‌کند. (هماهنگ با کد، اسپرینت ۴) پیاده‌سازی: `students/lifecycle-auto.ts` که `health.sweep` پیش از محاسبه صدا می‌زند.
 
 ---
 
@@ -714,6 +741,12 @@ stateDiagram-v2
 
 بازمحاسبه‌ی پس از commit **best-effort** است: اگر شکست بخورد، لاگ می‌شود و sweep ساعتی درستش می‌کند. هزینه: برای ۸۰ هنرجو، sweep کمتر از یک ثانیه طول می‌کشد (حدود ۶ پرس‌وجوی تجمیعی، نه N+1).
 
+(هماهنگ با کد، اسپرینت ۴) جزئیات پیاده‌سازی:
+- محرک‌های پس از commit در کد: ساخت هنرجو، تغییر وضعیت و مرحله، ساخت/تمدید/لغو/شروع/تحویل/بازبینی کار، پرچم، snooze، check-in، پیام هنرجو، پیشنهاد نقطه‌ی عطف، و ورود/فعالیت هنرجو (ساعتی یک بار). قفل `pg_advisory_xact_lock` به ازای هنرجو.
+- **sweep فوری** با تغییر `expected_days` یا `is_open_ended` مرحله، و با ذخیره‌ی `health.rules` یا `checkin`. این sweep **داخل همان درخواست** (پس از commit تنظیم، best-effort) اجرا می‌شود، نه به‌صورت job صف‌شده در pg-boss؛ برای حجم 0.1 کمتر از یک ثانیه است. اگر حجم بالا رفت، به `boss.send('health.sweep')` تبدیل شود.
+- sweep ساعتی فقط `active` و `paused` را می‌خواند؛ `graduated`/`dropped` با همان تغییر وضعیت `untracked` ذخیره می‌شوند و دیگر محاسبه نمی‌شوند.
+- `GET /students/:id/health` اگر ردیفی نیست، همان‌جا محاسبه می‌کند. پس از اولین `db:migrate` روی دیتابیسی که هنرجو دارد، یک بار `POST /admin/health/recompute` (یا صبر تا sweep ساعتی).
+
 ### ۴-۲. چطور (قواعد 0.1 و پیش‌فرض `health.rules`)
 تابع خالص: `evaluateHealth(input: StudentHealthInput, rules: HealthRules, now: Date) → { status, reasons, churnRisk }`. ورودی‌ها را `health.repo` جمع می‌کند. **تابع هیچ I/O ندارد** و جدول قواعد با تست واحد پوشش داده می‌شود.
 
@@ -729,12 +762,17 @@ stateDiagram-v2
 | R-CHECKIN | هفته‌های کامل‌شده‌ی پیاپی بدون check-in، از آخرین هفته‌ی بسته به عقب (فقط هفته‌هایی که هنرجو `active` بوده و پس از `joined_at`) | ۱ | ≥ ۲ | هنرجو | فقط اگر `checkin.enabled` |
 | R-MOOD | `mood` آخرین check-inها | آخرین ≤ ۲ | دو هفته‌ی پیاپی ≤ ۲ | هنرجو | فقط اگر `checkin.enabled` |
 
+**تفسیرهای پیاده‌شده (هماهنگ با کد، اسپرینت ۴):**
+- **R-OVERDUE** کار `submitted` را معوق **نمی‌شمرد** (توپ با بازبین است)، ولی **R-NOTASK** آن را باز می‌شمرد.
+- **R-CHECKIN** فقط هفته‌هایی را می‌شمرد که پنجره‌ی فرمشان (روز `checkin.weekday`) **پس از** شروع دوره‌ی فعال هنرجو (عضویت یا آخرین بازگشت به `active`) باز شده است؛ حداکثر ۱۲ هفته به عقب.
+- **R-MOOD**: آخرین check-in این هفته یا هفته‌ی قبل با `mood ≤ maxMood` (پیش‌فرض ۲) ← زرد؛ `redConsecutiveWeeks` هفته‌ی پیاپی (پیش‌فرض ۲) ← قرمز.
+
 **ترکیب:**
 1. اگر `lifecycle_status = paused` ← `paused`. اگر `graduated` یا `dropped` ← `untracked`. (قواعد اجرا نمی‌شوند.)
 2. وضعیت = **بدترین** سطح میان قواعد فعال؛ اگر هیچ‌کدام فعال نیست ← `green`.
 3. **خطر ریزش:** اگر دست‌کم ۲ قاعده از `{R-INACT, R-CHECKIN, R-MOOD}` (در هر سطحی) فعال باشند ← `red` و `churn_risk = true`. (R-LOWVOL در 1.0 به این مجموعه اضافه می‌شود.)
 4. `reasons` مرتب: قرمزها، بعد زردها؛ در هر سطح بر اساس ترتیب جدول بالا.
-5. اگر `status` با مقدار قبلی فرق کرد: `status_since = now`؛ اگر قرمز شد `red_since = now`، اگر از قرمز خارج شد `red_since = null`؛ و `timeline_events(health.changed)` با `{from, to, rules}`.
+5. اگر `status` با مقدار قبلی فرق کرد: `status_since = now`؛ اگر قرمز شد `red_since = now`، اگر از قرمز خارج شد `red_since = null`؛ و `timeline_events(health.changed)` با `{from, to, rules}`. (هماهنگ با کد، اسپرینت ۴) رویداد وقتی هم ثبت می‌شود که فقط مجموعه‌ی `(rule, level)` عوض شود؛ **اولین** محاسبه‌ی هر هنرجو رویداد نمی‌سازد. CHECK دیتابیس: `status = 'red'` ⇔ `red_since IS NOT NULL`.
 6. **snooze:** محاسبه ادامه دارد و ذخیره می‌شود، ولی وقتی `snoozed_until > now`، هنرجو از فهرست «گیرکرده» و بخش هنرجوهای گیرکرده‌ی «امروز» حذف می‌شود و نشان «نادیده تا …» می‌گیرد.
 
 ### ۴-۳. قواعد سمت تیم («منتظر ما»)
@@ -742,9 +780,9 @@ stateDiagram-v2
 
 | نشانه | پرس‌وجو | آستانه (`sla`) |
 |---|---|---|
-| تحویل بازبینی‌نشده | `tasks.status='submitted'` و `last_submitted_at` | `reviewHours` (۴۸) |
+| تحویل بازبینی‌نشده | `tasks.status='submitted'` و `last_submitted_at` | کار گیت: `reviewHours` (۴۸)؛ کار غیرگیت: `reviewHoursNonGate` (۷۲) (تصمیم معماری؛ کد فعلی همه را با ۴۸ می‌سنجد: F-09) |
 | سؤال بی‌پاسخ | `question_threads.awaiting='team'` و `awaiting_team_since` | `questionHours` (۲۴)؛ فوری: `urgentQuestionHours` (۴) |
-| قرمز بدون اقدام | `student_health.status='red'` و نبود هیچ `notes` از طرف تیم با `occurred_at > red_since` | `redNoActionHours` (۴۸)؛ بعد از `redEscalateDays` (۷) برای همه‌ی مدیرها هم نمایش داده می‌شود |
+| قرمز بدون اقدام | `student_health.status='red'` و نبود هیچ `notes` از طرف تیم با `occurred_at > red_since` | `redNoActionHours` (۴۸)؛ بعد از `redEscalateDays` (۷) برای همه‌ی مدیرها هم نمایش داده می‌شود. (هماهنگ با کد، اسپرینت ۴) «اقدام» = **هر** یادداشت حذف‌نشده‌ی کارکنان (هر `kind` و هر `visibility`) پس از `red_since`. مورد پس از `redEscalateDays` با `escalated: true` می‌آید و مدیری که با فیلتر مشاور دیگری نگاه می‌کند هم آن را می‌بیند |
 
 اگر `sla.clock = "business"` باشد، مدت با `lib/business-hours.elapsedBusinessHours(from, now, business_hours)` محاسبه می‌شود؛ وگرنه ساعت تقویمی. «بیش از آستانه» = نقض؛ «کمتر از ۲۵٪ آستانه باقی‌مانده» = هشدار نارنجی (برای مرتب‌سازی صف).
 
@@ -774,7 +812,7 @@ stateDiagram-v2
 | داده | مدت | سازوکار |
 |---|---|---|
 | `sessions` | تا انقضا یا ابطال + ۷ روز، سپس حذف | `auth.cleanup` |
-| `auth_tokens` | تا انقضا، مصرف یا ابطال + ۷ روز، سپس حذف | `auth.cleanup` |
+| `auth_tokens` | تا انقضا، مصرف یا ابطال + ۷ روز، سپس حذف | `auth.cleanup`. (هماهنگ با کد، اسپرینت ۱؛ تصمیم معماری برای SEC-T5) این مدت عوض **نمی‌شود** و استثنایی در cleanup ساخته نمی‌شود؛ داده‌ی ماندگار «دعوت پذیرفته شد» در `users.invite_accepted_at` و `users.invite_accepted_user_agent` نگه داشته می‌شود (F-01). دلیل: هش توکن مصرف‌شده نباید فقط برای یک برچسب نمایشی بماند، و دو ستون روی `users` ساده‌ترین و صریح‌ترین منبع است |
 | `auth_throttle` | تا پایان پنجره یا قفل | `auth.cleanup` |
 | پیوست `pending` | ۲۴ ساعت | `files.cleanup` |
 | `audit_log.ip` | ۹۰ روز، سپس `null` | `auth.cleanup` (گسترش‌یافته؛ ADR-0007) |
@@ -795,20 +833,20 @@ stateDiagram-v2
 
 | جدول | عمل |
 |---|---|
-| `users` | `display_name = 'کاربر حذف‌شده'`، `phone = 'erased:' \|\| id`، `password_hash = null`، `status = 'disabled'`، `erased_at = now()` |
+| `users` | `display_name = 'کاربر حذف‌شده'`، `phone = 'erased:' \|\| id`، `password_hash = null`، `status = 'disabled'`، `erased_at = now()`، `invite_accepted_user_agent = null` (پس از F-01) |
 | `sessions`، `auth_tokens` | حذف همه‌ی ردیف‌های کاربر |
 | `auth_throttle` | حذف کلیدهایی که موبایل قبلی یا `userId` را دارند |
 | `students` | `messenger_handle`، `primary_skill`، `goal_90d`، `self_reported_blocker`، `niche_statement`، `income_goal_usd`، `status_reason`، `cohort` ← `null`؛ `tags = '{}'`؛ `search_text = 'کاربر حذف‌شده'`؛ `lifecycle_status = 'dropped'`. مرحله، شاخه، سطح، `joined_at` می‌مانند |
 | `platform_profiles`، `profile_snapshots` | **حذف کامل** (لینک پروفایل ح۳ است). `tasks.profile_id` ← `null` |
 | `submissions` | `body_text`، `job_post_text`، `proposal_text`، `profile_text` ← `null`؛ `links = '[]'`؛ `ai_use_consent = false` |
 | `reviews` روی تحویل‌های او | `feedback_text = '[حذف شد]'`. `outcome`، `score` و زمان‌ها می‌مانند (آمار بازبینی مربی) |
-| `tasks` | `description` و `cancel_reason` ← `null`. عنوان، وضعیت و زمان‌ها می‌مانند |
+| `tasks` | `description` ← `null`؛ `cancel_reason` (اگر پر است) ← `'[حذف شد]'` (هماهنگ با کد، اسپرینت ۳: نه `null`، تا CHECK «دلیل لغو الزامی» نشکند). عنوان، وضعیت و زمان‌ها می‌مانند (عنوان در `timeline_events(task.created).data` با پاک شدن `data` پاک می‌شود) |
 | `task_extensions`، `stage_transitions`، `mentor_assignments` | `reason` و `note` (اگر پر است) ← `'[حذف شد]'` (مقدار ثابت، نه `null`، تا CHECKهای «الزامی» مثل `note` برای `regress` نشکنند) |
 | `question_threads` | `subject = '[حذف شد]'`؛ رشته‌های باز ← `closed`. زمان‌ها (SLA و زمان پاسخ) می‌مانند |
 | `question_messages` در رشته‌های او (**هر نویسنده‌ای**) | `body = '[حذف شد]'`، `links = '[]'` (پاسخ مشاور هم ممکن است جزئیات هنرجو را تکرار کند) |
 | `checkins` | `activity_text`، `blocker`، `next_week_plan` ← `null`. `mood` و `week_start` می‌مانند |
 | `milestones` | `evidence_text`، `amount`، `rejection_reason` ← `null`. نوع، وضعیت و `occurred_on` می‌مانند (North Star بی‌نام) |
-| `attachments` (همه‌ی والدهای این هنرجو + `pending`های خودش) | حذف فایل از storage و ردیف |
+| `attachments` (همه‌ی والدهای این هنرجو + `pending`های خودش) | حذف فایل از storage و ردیف. (هماهنگ با کد، اسپرینت ۳) فایل‌ها پس از commit پاک می‌شوند؛ اگر حذف فایلی شکست خورد، ردیفش به‌صورت `pending` قدیمی می‌ماند تا `files.cleanup` دوباره امتحان کند |
 | `notes` درباره‌ی او، `student_flags` | **حذف کامل** (سخت، نه نرم) |
 | `student_health` | `reasons = '[]'`، `snooze_reason = null`، `status = 'untracked'` |
 | `reminders` درباره‌ی او | `text = '[حذف شد]'`؛ بازها ← `cancelled` |

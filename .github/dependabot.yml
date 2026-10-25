@@ -1,0 +1,44 @@
+# Dependabot (F-19, SEC-D1). Weekly version updates for npm and GitHub Actions.
+# Security updates (PRs opened as soon as an advisory lands) must also be
+# switched on in the repo: Settings > Code security > Dependabot alerts +
+# Dependabot security updates. This file alone does not enable them.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/" # pnpm workspace root (pnpm-lock.yaml covers apps/* and packages/*)
+    schedule:
+      interval: weekly
+      day: saturday
+      time: "06:00"
+      timezone: Asia/Tehran
+    open-pull-requests-limit: 10
+    labels: [dependencies]
+    commit-message:
+      prefix: deps
+      prefix-development: deps-dev
+    groups:
+      # Internet-facing runtime core: patch fast, review separately (SEC-D1: <= 72h).
+      runtime-core-security:
+        applies-to: security-updates
+        patterns: [next, react, react-dom, sharp, "@node-rs/argon2"]
+      runtime-core:
+        applies-to: version-updates
+        patterns: [next, react, react-dom, sharp, "@node-rs/argon2"]
+      dev-tooling:
+        applies-to: version-updates
+        dependency-type: development
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: "/" # scans .github/workflows; keeps the SHA pins and their version comments current
+    schedule:
+      interval: weekly
+      day: saturday
+      time: "06:00"
+      timezone: Asia/Tehran
+    labels: [dependencies, ci]
+    commit-message:
+      prefix: ci
+    groups:
+      actions:
+        patterns: ["*"]

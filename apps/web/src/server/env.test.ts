@@ -25,8 +25,47 @@ describe('parseEnv', () => {
     expect(() =>
       parseEnv({ ...base, NODE_ENV: 'production', DEVICE_COOKIE_SECRET: 'too-short' }),
     ).toThrow(/DEVICE_COOKIE_SECRET/);
-    const env = parseEnv({ ...base, NODE_ENV: 'production', DEVICE_COOKIE_SECRET: 'x'.repeat(43) });
-    expect(env.TRUSTED_PROXY_HOPS).toBe(0);
+    const env = parseEnv({
+      ...base,
+      NODE_ENV: 'production',
+      DEVICE_COOKIE_SECRET: 'x'.repeat(43),
+      APP_BASE_URL: 'https://app.example.ir',
+      TRUSTED_PROXY_HOPS: '1',
+    });
+    expect(env.TRUSTED_PROXY_HOPS).toBe(1);
+  });
+
+  it('requires TRUSTED_PROXY_HOPS in production only; 0 is an explicit value (F-18)', () => {
+    const prod = {
+      ...base,
+      NODE_ENV: 'production',
+      DEVICE_COOKIE_SECRET: 'x'.repeat(43),
+      APP_BASE_URL: 'https://app.example.ir',
+    };
+    expect(() => parseEnv(prod)).toThrow(/TRUSTED_PROXY_HOPS/);
+    expect(() => parseEnv({ ...prod, TRUSTED_PROXY_HOPS: '' })).toThrow(/TRUSTED_PROXY_HOPS/);
+    expect(parseEnv({ ...prod, TRUSTED_PROXY_HOPS: '0' }).TRUSTED_PROXY_HOPS).toBe(0);
+    expect(() => parseEnv({ ...prod, TRUSTED_PROXY_HOPS: '9' })).toThrow(/TRUSTED_PROXY_HOPS/);
+    // Development and tests keep the default.
+    expect(parseEnv({ ...base }).TRUSTED_PROXY_HOPS).toBe(0);
+  });
+
+  it('accepts a safe APP_VERSION for /healthz (F-08)', () => {
+    expect(parseEnv({ ...base, APP_VERSION: 'a1b2c3d' }).APP_VERSION).toBe('a1b2c3d');
+    expect(() => parseEnv({ ...base, APP_VERSION: 'bad value<script>' })).toThrow(/APP_VERSION/);
+  });
+
+  it('requires an https APP_BASE_URL in production (SEC-S8)', () => {
+    const prod = {
+      ...base,
+      NODE_ENV: 'production',
+      DEVICE_COOKIE_SECRET: 'x'.repeat(43),
+      TRUSTED_PROXY_HOPS: '1',
+    };
+    expect(() => parseEnv({ ...prod, APP_BASE_URL: 'http://app.example.ir' })).toThrow(
+      /APP_BASE_URL/,
+    );
+    expect(() => parseEnv({ ...base, APP_BASE_URL: 'http://localhost:3000' })).not.toThrow();
   });
 
   it('never echoes secret values in the error', () => {
