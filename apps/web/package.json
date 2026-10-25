@@ -19,6 +19,7 @@
     "db:migrate": "tsx scripts/migrate.ts",
     "db:generate": "drizzle-kit generate",
     "db:seed": "tsx scripts/seed.ts",
+    "storage:check": "tsx scripts/storage-check.ts",
     "admin:create": "tsx scripts/admin-create.ts",
     "admin:bootstrap": "tsx scripts/admin-create.ts",
     "admin:reset-link": "tsx scripts/admin-reset-link.ts",
@@ -27,6 +28,7 @@
   "dependencies": {
     "@next/env": "16.4.2",
     "@node-rs/argon2": "^2.2.2",
+    "@supabase/supabase-js": "^2.118.0",
     "drizzle-orm": "^0.45.4",
     "next": "16.4.2",
     "papaparse": "^5.7.0",

@@ -16,8 +16,25 @@ describe('parseEnv', () => {
   });
 
   it('requires driver-specific variables', () => {
+    expect(() => parseEnv({ ...base, STORAGE_DRIVER: 'supabase' })).toThrow(
+      /SUPABASE_SERVICE_ROLE_KEY/,
+    );
     expect(() => parseEnv({ ...base, STORAGE_DRIVER: 's3' })).toThrow(/S3_BUCKET/);
     expect(() => parseEnv({ ...base, JOBS_MODE: 'http-trigger' })).toThrow(/JOB_TRIGGER_SECRET/);
+  });
+
+  it('validates the Supabase storage configuration', () => {
+    const config = {
+      ...base,
+      STORAGE_DRIVER: 'supabase',
+      SUPABASE_URL: 'https://example.supabase.co',
+      SUPABASE_SERVICE_ROLE_KEY: 'server-secret',
+    };
+    expect(parseEnv(config).SUPABASE_STORAGE_BUCKET).toBe('uploads');
+    expect(() => parseEnv({ ...config, SUPABASE_URL: 'invalid' })).toThrow(/SUPABASE_URL/);
+    expect(() => parseEnv({ ...config, SUPABASE_STORAGE_BUCKET: '../public' })).toThrow(
+      /SUPABASE_STORAGE_BUCKET/,
+    );
   });
 
   it('requires DEVICE_COOKIE_SECRET (32+ chars) in production only', () => {

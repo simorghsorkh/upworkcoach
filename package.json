@@ -20,6 +20,7 @@
     "db:migrate": "pnpm --filter @upworkcoach/web db:migrate",
     "db:generate": "pnpm --filter @upworkcoach/web db:generate",
     "db:seed": "pnpm --filter @upworkcoach/web db:seed",
+    "storage:check": "pnpm --filter @upworkcoach/web storage:check",
     "admin:create": "pnpm --filter @upworkcoach/web admin:create",
     "admin:reset-link": "pnpm --filter @upworkcoach/web admin:reset-link",
     "admin:erase-user": "pnpm --filter @upworkcoach/web admin:erase-user"

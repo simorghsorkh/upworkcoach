@@ -22,7 +22,13 @@ const envSchema = z
       .regex(/^[\w.+-]{1,64}$/)
       .optional(),
 
-    STORAGE_DRIVER: z.enum(['local', 'azure-blob', 's3']).default('local'),
+    STORAGE_DRIVER: z.enum(['local', 'azure-blob', 's3', 'supabase']).default('local'),
+    SUPABASE_URL: z.url().optional(),
+    SUPABASE_SERVICE_ROLE_KEY: z.string().min(1).optional(),
+    SUPABASE_STORAGE_BUCKET: z
+      .string()
+      .regex(/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/)
+      .default('uploads'),
     LOCAL_STORAGE_DIR: z.string().min(1).default('.data/uploads'),
     AZURE_STORAGE_CONNECTION_STRING: z.string().optional(),
     AZURE_STORAGE_CONTAINER: z.string().optional(),
@@ -69,6 +75,11 @@ const envSchema = z
       env.STORAGE_DRIVER === 'azure-blob',
       ['AZURE_STORAGE_CONNECTION_STRING', 'AZURE_STORAGE_CONTAINER'],
       'when STORAGE_DRIVER=azure-blob',
+    );
+    requireFor(
+      env.STORAGE_DRIVER === 'supabase',
+      ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY'],
+      'when STORAGE_DRIVER=supabase',
     );
     requireFor(
       env.STORAGE_DRIVER === 's3',

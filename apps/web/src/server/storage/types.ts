@@ -1,4 +1,4 @@
-export type StorageDriver = 'local' | 'azure-blob' | 's3';
+export type StorageDriver = 'local' | 'azure-blob' | 's3' | 'supabase';
 
 /**
  * File storage port (ADR-0002 section 6). Uploads and downloads always go through
