@@ -2,6 +2,7 @@ import { and, eq, inArray } from 'drizzle-orm';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { tehranDayEnd } from '@/lib/tehran-day';
 import { taskTemplates } from '@/modules/catalog/schema';
+import { DEFAULT_ORGANIZATION_ID } from '@/modules/identity/schema';
 import { platformProfiles, students } from '@/modules/students/schema';
 import { reviews, taskExtensions, tasks } from '@/modules/tasks/schema';
 import { timelineEvents } from '@/modules/timeline/schema';
@@ -382,7 +383,11 @@ describe('gap 4 — tasks of a stage change, atomic', () => {
   it('one invalid template (inactive or missing) → 422; nothing created, cancelled or moved', async () => {
     const [inactive] = await getDb()
       .insert(taskTemplates)
-      .values({ title: 'قالب غیرفعال شکاف ۴', isActive: false })
+      .values({
+        organizationId: DEFAULT_ORGANIZATION_ID,
+        title: 'قالب غیرفعال شکاف ۴',
+        isActive: false,
+      })
       .returning({ id: taskTemplates.id });
     for (const bad of [inactive?.id ?? '', MISSING]) {
       const s = await createUser('student', { mentorId: mentor.id });

@@ -13,6 +13,8 @@ import { SelectField } from '@/components/ui/field';
 export type FilterValues = {
   q: string;
   stageId: string;
+  /** Course filter (sprint 5c): `runId` or `runId.phaseId`. */
+  course: string;
   mentorId: string;
   platformId: string;
   tag: string;
@@ -24,6 +26,13 @@ export type FilterValues = {
 
 export type FilterOptions = {
   stages: Array<{ id: string; label: string }>;
+  /** Courses with their phases (sprint 5c); null when there are none. */
+  courses: {
+    label: string;
+    all: string;
+    allPhases: string;
+    groups: Array<{ id: string; title: string; phases: Array<{ id: string; label: string }> }>;
+  } | null;
   /** null for mentors: they only see their own students (no mentor filter). */
   mentors: Array<{ id: string; label: string }> | null;
   platforms: Array<{ id: string; label: string }>;
@@ -33,7 +42,7 @@ export type FilterOptions = {
   sorts: Array<{ value: string; label: string }>;
 };
 
-const SELECT_KEYS = ['stageId', 'mentorId', 'platformId', 'tag'] as const;
+const SELECT_KEYS = ['stageId', 'course', 'mentorId', 'platformId', 'tag'] as const;
 
 /** Builds `/students?…` without empty values (clean, shareable URLs). */
 function toQuery(values: Partial<FilterValues>): string {
@@ -203,6 +212,11 @@ export function StudentFilters({
               </option>
             ))}
           </ToolbarSelect>
+          {options.courses ? (
+            <ToolbarSelect label={options.courses.label} name="course" value={values.course}>
+              <CourseOptions courses={options.courses} />
+            </ToolbarSelect>
+          ) : null}
           {options.mentors ? (
             <ToolbarSelect label="مشاور" name="mentorId" value={values.mentorId}>
               <option value="">همه‌ی مشاورها</option>
@@ -272,6 +286,25 @@ export function StudentFilters({
   );
 }
 
+/** «همه‌ی دوره‌ها», then per course: all its phases, then each phase. */
+function CourseOptions({ courses }: { courses: NonNullable<FilterOptions['courses']> }) {
+  return (
+    <>
+      <option value="">{courses.all}</option>
+      {courses.groups.map((g) => (
+        <optgroup key={g.id} label={g.title}>
+          <option value={g.id}>{`${g.title} — ${courses.allPhases}`}</option>
+          {g.phases.map((p) => (
+            <option key={p.id} value={`${g.id}.${p.id}`}>
+              {p.label}
+            </option>
+          ))}
+        </optgroup>
+      ))}
+    </>
+  );
+}
+
 function MobileFilterForm({
   values,
   options,
@@ -313,6 +346,11 @@ function MobileFilterForm({
           </option>
         ))}
       </SelectField>
+      {options.courses ? (
+        <SelectField label={options.courses.label} name="course" defaultValue={values.course}>
+          <CourseOptions courses={options.courses} />
+        </SelectField>
+      ) : null}
       {options.mentors ? (
         <SelectField label="مشاور" name="mentorId" defaultValue={values.mentorId}>
           <option value="">همه</option>

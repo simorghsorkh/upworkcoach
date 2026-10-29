@@ -10,7 +10,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import { uuidv7 } from '../../lib/uuid';
-import { users } from '../identity/schema';
+import { organizationId, users } from '../identity/schema';
 import { milestones } from '../milestones/schema';
 import { questionMessages } from '../questions/schema';
 import { submissions } from '../tasks/schema';
@@ -32,6 +32,8 @@ const ts = () => timestamp({ withTimezone: true });
 export const attachments = pgTable(
   'attachments',
   {
+    /** The uploader's organization; linking checks the parent is in the same one. */
+    organizationId: organizationId(),
     id: uuid()
       .primaryKey()
       .$defaultFn(() => uuidv7()),

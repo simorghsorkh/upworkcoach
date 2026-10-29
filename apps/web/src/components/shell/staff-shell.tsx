@@ -27,7 +27,7 @@ export function StaffShell({
         <SkipLink />
         <div className="min-h-dvh md:grid md:grid-cols-[var(--sidebar-w)_minmax(0,1fr)]">
           <StaffSidebar user={user} counts={counts} activeHref={activeHref} />
-          <StaffTopbar user={user} activeHref={activeHref} />
+          <StaffTopbar user={user} counts={counts} activeHref={activeHref} />
           <main
             id="main"
             tabIndex={-1}

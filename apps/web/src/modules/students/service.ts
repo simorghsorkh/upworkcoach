@@ -21,6 +21,7 @@ import { recomputeHealthSafe } from '../health/recompute';
 import { toHealthSummary } from '../health/summary';
 import { createInvitedUser, inviteUrlFor } from '../identity/service';
 import { insertTransition } from '../path/transitions';
+import { coursePhasesOf } from '../programs/course-phases';
 import { transferOpenQuestionsOnMentorChange } from '../questions/transfer';
 import {
   cancelPauseReturnReminders,
@@ -204,6 +205,7 @@ function toListItem(
   primary: repo.ProfileRow | undefined,
   now: Date,
   stats: TaskStats = NO_TASKS,
+  courses: StudentListItemDTO['courses'] = [],
 ): StudentListItemDTO {
   const days = daysSince(row.stageEnteredAt, now);
   return {
@@ -229,6 +231,7 @@ function toListItem(
     tags: row.tags,
     cohort: row.cohort,
     primaryProfile: toPrimaryProfile(primary),
+    courses,
   };
 }
 
@@ -332,7 +335,7 @@ export async function createStudent(
   db: Db = getDb(),
 ): Promise<StudentCreatedDTO> {
   assertDecision(staffOnly(actor));
-  assertDecision(createStudentDecision(actor, await getAccessSettings(db)));
+  assertDecision(createStudentDecision(actor, await getAccessSettings(db, actor.organizationId)));
   const mentorId = mentorForNewStudent(actor, input.mentorId);
   let created: StudentCreatedDTO;
   try {
@@ -359,7 +362,9 @@ async function withExistingStudent(
     return err;
   }
   const normalized = normalizeIranMobile(phone);
-  const id = normalized ? await repo.findStudentIdByPhone(db, normalized) : null;
+  const id = normalized
+    ? await repo.findStudentIdByPhone(db, actor.organizationId, normalized)
+    : null;
   return id ? errors.phoneTaken({ existingStudentId: id }) : err;
 }
 
@@ -388,7 +393,10 @@ async function createStudentTx(
       });
     }
     await assertRefs(tx, actor, refs);
-    const stage = input.stageId ? await getStage(tx, input.stageId) : await getFirstActiveStage(tx);
+    const org = actor.organizationId;
+    const stage = input.stageId
+      ? await getStage(tx, org, input.stageId)
+      : await getFirstActiveStage(tx, org);
     if (!stage) throw errors.validation({ stageId: 'مقدار نامعتبر است' });
 
     const created = await createInvitedUser(tx, {
@@ -396,12 +404,14 @@ async function createStudentTx(
       displayName: input.displayName,
       phone: input.phone,
       createdBy: actor.userId,
+      organizationId: org,
     });
     const now = new Date();
     const tags = input.tags ?? [];
     await repo.insertStudent(
       tx,
       {
+        organizationId: org,
         userId: created.userId,
         primaryMentorId: mentorId,
         currentStageId: stage.id,
@@ -490,8 +500,10 @@ export async function listStudents(
   const scope = await staffStudentScope(db, actor);
   const search = query.q ? normalizeForSearch(query.q).replace(/^\+/, '') : '';
   const base = {
-    scope: scopeCondition(scope, students.primaryMentorId),
+    scope: scopeCondition(scope, students.userId, students.organizationId),
     stageId: query.stageId,
+    runId: query.runId,
+    phaseId: query.runId ? query.phaseId : undefined,
     mentorId: query.mentorId,
     // Tags are stored normalised (normalizeFa); compare with the same normalisation.
     tag: query.tag ? normalizeFa(query.tag) || undefined : undefined,
@@ -518,11 +530,11 @@ export async function listStudents(
     )
   ).filter((p) => p.isPrimary);
   const now = new Date();
-  const stats = await taskStatsForStudents(
-    db,
-    page.map((r) => r.id),
-    now,
-  );
+  const pageIds = page.map((r) => r.id);
+  const [stats, courses] = await Promise.all([
+    taskStatsForStudents(db, pageIds, now),
+    coursePhasesOf(db, actor.organizationId, pageIds, now),
+  ]);
   return {
     items: page.map((row) =>
       toListItem(
@@ -530,6 +542,7 @@ export async function listStudents(
         primaries.find((p) => p.studentId === row.id),
         now,
         stats.get(row.id),
+        courses.get(row.id),
       ),
     ),
     nextCursor: rows.length > limit ? encodeCursor(offset + limit) : null,
@@ -547,7 +560,7 @@ export async function listStudentTags(
   const scope = await staffStudentScope(db, actor);
   const rows = await repo.listTags(
     db,
-    scopeCondition(scope, students.primaryMentorId),
+    scopeCondition(scope, students.userId, students.organizationId),
     query.lifecycle ?? DEFAULT_LIFECYCLE,
   );
   return { tags: rows.map((r) => ({ tag: r.tag, count: r.count })) };
@@ -572,7 +585,7 @@ export async function listStudentItemsByHealth(
   const rows = await repo.listStudents(
     db,
     {
-      scope: scopeCondition(scope, students.primaryMentorId),
+      scope: scopeCondition(scope, students.userId, students.organizationId),
       lifecycle: ['active'],
       mentorId: filter.mentorId,
       health: filter.health,
@@ -583,9 +596,10 @@ export async function listStudentItemsByHealth(
     0,
   );
   const ids = rows.map((r) => r.id);
-  const [profiles, stats] = await Promise.all([
+  const [profiles, stats, courses] = await Promise.all([
     repo.listProfiles(db, ids),
     taskStatsForStudents(db, ids, now),
+    coursePhasesOf(db, actor.organizationId, ids, now),
   ]);
   const primaries = profiles.filter((p) => p.isPrimary);
   return rows.map((row) =>
@@ -594,6 +608,7 @@ export async function listStudentItemsByHealth(
       primaries.find((p) => p.studentId === row.id),
       now,
       stats.get(row.id),
+      courses.get(row.id),
     ),
   );
 }
@@ -1225,7 +1240,7 @@ export async function listStudentsForBoard(
   const scope = await staffStudentScope(db, actor);
   const conditions: SQL[] = [
     ...repo.listConditions({
-      scope: scopeCondition(scope, students.primaryMentorId),
+      scope: scopeCondition(scope, students.userId, students.organizationId),
       lifecycle: DEFAULT_LIFECYCLE,
       mentorId: filter.mentorId,
       tag: filter.tag,
@@ -1272,11 +1287,15 @@ export async function insertProfileSnapshotFromSubmission(
  * with the columns of `GET /exports/students.csv` (SEC-V3: explicit and minimal; no notes,
  * flags or health).
  */
-export async function listStudentsForExport(db: DbOrTx) {
+export async function listStudentsForExport(db: DbOrTx, organizationId: string) {
   const rows = await repo.listStudents(
     db,
     {
-      scope: scopeCondition({ kind: 'all' }, students.primaryMentorId),
+      scope: scopeCondition(
+        { kind: 'all', organizationId },
+        students.primaryMentorId,
+        students.organizationId,
+      ),
       lifecycle: [...ALL_LIFECYCLES],
     },
     'name',

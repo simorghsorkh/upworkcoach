@@ -1,3 +1,4 @@
+import { LOCALE_COOKIE } from '../../i18n/config';
 import { getEnv } from '../env';
 
 /**
@@ -43,6 +44,14 @@ export function serializeCookie(
   ];
   if (options.secure) parts.push('Secure');
   return parts.join('; ');
+}
+
+/**
+ * `uc_locale` (ADR-0013): the last language of this browser, so the sign-in and invite pages
+ * speak it too. One year; not a secret.
+ */
+export function serializeLocaleCookie(locale: string, secure: boolean): string {
+  return serializeCookie(LOCALE_COOKIE, locale, { maxAgeSeconds: 365 * 86_400, secure });
 }
 
 /** Minimal Cookie header parser. Only the first occurrence of a name counts. */

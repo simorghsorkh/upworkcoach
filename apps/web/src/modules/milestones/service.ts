@@ -182,7 +182,7 @@ async function validateWrite(tx: DbOrTx, actor: Actor, input: WriteInput) {
   if (input.occurredOn > tehranDay()) {
     throw errors.validation({ occurredOn: 'تاریخ نمی‌تواند در آینده باشد.' });
   }
-  const type = await getMilestoneType(tx, input.typeId);
+  const type = await getMilestoneType(tx, actor.organizationId, input.typeId);
   if (!type) throw errors.validation({ typeId: 'مقدار نامعتبر است' });
   return type;
 }
@@ -320,7 +320,7 @@ async function decide(
     }
     const now = new Date();
     if (decision.to === 'approved') {
-      const type = await getMilestoneType(tx, current.typeId);
+      const type = await getMilestoneType(tx, actor.organizationId, current.typeId);
       if (!type) throw errors.notFound();
       await assertUniqueApproval(tx, studentId, type, milestoneId);
     }
@@ -378,7 +378,12 @@ export async function getNorthStar(
   const from = query.from ?? month.from;
   const to = query.to ?? month.to;
   if (from > to) throw errors.validation({ to: 'پایان بازه نباید قبل از شروع باشد.' });
-  const ns = and(eq(milestones.status, 'approved'), eq(milestoneTypes.countsForNorthStar, true));
+  const org = actor.organizationId;
+  const ns = and(
+    eq(milestones.organizationId, org),
+    eq(milestones.status, 'approved'),
+    eq(milestoneTypes.countsForNorthStar, true),
+  );
   const [[inRange], [total], firsts, [labeled], [pending]] = await Promise.all([
     db
       .select({ n: sql<number>`count(*)::int` })
@@ -406,11 +411,17 @@ export async function getNorthStar(
       .from(submissions)
       .innerJoin(tasks, eq(tasks.id, submissions.taskId))
       .innerJoin(reviews, eq(reviews.submissionId, submissions.id))
-      .where(and(eq(tasks.submissionType, 'proposal_review'), eq(submissions.aiUseConsent, true))),
+      .where(
+        and(
+          eq(submissions.organizationId, org),
+          eq(tasks.submissionType, 'proposal_review'),
+          eq(submissions.aiUseConsent, true),
+        ),
+      ),
     db
       .select({ n: sql<number>`count(*)::int` })
       .from(milestones)
-      .where(eq(milestones.status, 'proposed')),
+      .where(and(eq(milestones.organizationId, org), eq(milestones.status, 'proposed'))),
   ]);
   const days = firsts.map((f) => Math.max(0, Number(f.days)));
   return {
@@ -428,7 +439,7 @@ export async function getNorthStar(
 // ---- internal ----------------------------------------------------------------------------
 
 /** CSV export (admin; the caller checks the role and audits). No evidence text (SEC-V3). */
-export async function listMilestonesForExport(db: DbOrTx) {
+export async function listMilestonesForExport(db: DbOrTx, organizationId: string) {
   const studentUsers = alias(users, 'm_student');
   return db
     .select({
@@ -447,6 +458,7 @@ export async function listMilestonesForExport(db: DbOrTx) {
     .innerJoin(milestoneTypes, eq(milestoneTypes.id, milestones.typeId))
     .innerJoin(studentUsers, eq(studentUsers.id, milestones.studentId))
     .leftJoin(platforms, eq(platforms.id, milestones.platformId))
+    .where(eq(milestones.organizationId, organizationId))
     .orderBy(asc(milestones.occurredOn), asc(milestones.createdAt));
 }
 

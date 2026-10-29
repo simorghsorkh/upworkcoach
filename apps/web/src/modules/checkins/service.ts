@@ -35,8 +35,9 @@ const DEFAULT_LIMIT = 20;
 
 async function assertEnabled(
   db: DbOrTx,
+  actor: Actor,
 ): Promise<{ weekday: Parameters<typeof checkinWindowOpens>[1] }> {
-  const settings = await getCheckinSettings(db);
+  const settings = await getCheckinSettings(db, actor.organizationId);
   if (!settings.enabled) throw errors.notFound();
   return { weekday: settings.weekday };
 }
@@ -83,7 +84,7 @@ export async function getCurrentCheckin(
   db: DbOrTx = getDb(),
 ): Promise<CurrentCheckinDTO> {
   if (actor.role !== 'student') throw errors.forbidden();
-  const { weekday } = await assertEnabled(db);
+  const { weekday } = await assertEnabled(db, actor);
   const now = new Date();
   const weekStart = currentWeekStart(now);
   const opensAt = checkinWindowOpens(weekStart, weekday);
@@ -122,7 +123,7 @@ export async function submitCheckin(
   db: Db = getDb(),
 ): Promise<CheckinDTO> {
   if (actor.role !== 'student') throw errors.forbidden();
-  await assertEnabled(db);
+  await assertEnabled(db, actor);
   const now = new Date();
   const weekStart = currentWeekStart(now);
   const row = await db.transaction(async (tx) => {
@@ -185,7 +186,7 @@ export async function listStudentCheckins(
   db: DbOrTx = getDb(),
 ): Promise<CheckinListDTO> {
   if (actor.role !== 'admin' && actor.role !== 'mentor') throw errors.forbidden();
-  await assertEnabled(db);
+  await assertEnabled(db, actor);
   await loadInScope(db, actor, 'student', studentId);
   const offset = decodeCursor(query.cursor);
   if (offset < 0) throw errors.validation({ cursor: 'مقدار نامعتبر است' });

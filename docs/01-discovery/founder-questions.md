@@ -1,18 +1,18 @@
-# سؤال‌های بنیان‌گذار — فاز ۰
+# Founder questions — Phase 0
 
-> ۲۷ مهر ۱۴۰۵ — به ترتیب اولویت. جواب کوتاه هم کافی است؛ هرجا «نمی‌دانم» است، همان را بنویسید.
+> 27 Mehr 1405 (2026-10-19) — in order of priority. A short answer is enough; wherever the answer is "I don't know", just write that.
 
-| # | سؤال | چرا مهم است | چه تصمیمی به آن وابسته است |
+| # | Question | Why it matters | Which decision depends on it |
 |---|---|---|---|
-| ۱ | پلتفرم **جایگزین** دوره‌ی فعلی شماست، **مکمل** آن، یا محصول مستقل برای فریلنسرهای غیرهنرجو هم هست؟ | تعیین‌کننده‌ی مشتری اول و جریان پول | مدل درآمد (دوره+دسترسی یا اشتراک مستقل)؛ لزوم ثبت‌نام عمومی و بازاریابی در MVP |
-| ۲ | الان چند هنرجوی فعال دارید (و در سال چند نفر اضافه می‌شوند)؟ از کوهورت‌های قبلی تقریباً چند درصد به **اولین قرارداد** رسیده‌اند و در چه مدت؟ | بدون خط پایه، موفقیت قابل‌سنجش نیست | هدف North Star؛ مقیاس زیرساخت؛ بودجه‌ی AI |
-| ۳ | مشاورها چه کسانی‌اند (تعداد، سابقه)، چطور پول می‌گیرند (ثابت/ساعتی/به ازای هنرجو) و هفته‌ای چند ساعت وقت دارند؟ | احتمالاً بزرگ‌ترین هزینه و گلوگاه | طراحی ماژول مشاور، SLA پاسخ، قیمت پلن‌ها، نقش AI در کم کردن بار مشاور |
-| ۴ | هنرجوها الان **اکانت آپورک را چطور می‌سازند و درآمد را چطور نقد می‌کنند**؟ موضع شما درباره‌ی خرید/اجاره‌ی اکانت با هویت دیگران چیست؟ | رقبا اکانت و نقد درآمد می‌فروشند و این خلاف قوانین آپورک است؛ اگر گلوگاه اصلی هنرجو اینجاست، ابزارهای ما مسئله‌ی اصلی را حل نمی‌کنند | دامنه‌ی محتوا؛ ریسک حقوقی/اعتباری (R4)؛ پیام بازاریابی |
-| ۵ | آیا امکان **پرداخت ارزی** (کارت/حساب خارجی) برای API هوش مصنوعی و سرور دارید؟ شخص یا شرکتی خارج از ایران در تیم هست؟ | دسترسی به LLM و هاست خارجی بدون این ممکن نیست یا پرریسک است | انتخاب ارائه‌دهنده‌ی LLM (مستقیم یا واسط ایرانی)؛ معماری سرور واسط (R1، R2) |
-| ۶ | آیا روش یا چک‌لیست مکتوبی برای «بررسی جاب» و «بررسی پروپوزال» دارید؟ می‌توانید ۲۰ تا ۵۰ نمونه‌ی واقعی پروپوزال (موفق و ناموفق) با نقد خودتان بدهید؟ | مزیت رقابتی ما «روش شما» است، نه AI عمومی | rubric ابزارها؛ مجموعه‌ی ارزیابی کیفیت AI؛ ترتیب ساخت ابزارها |
-| ۷ | پرتکرارترین ۳ گیر یا سؤال هنرجوها چیست؟ آیا به تاریخچه‌ی گروه تلگرامی/پیام‌ها برای تحلیل (بی‌نام‌شده) دسترسی می‌دهید؟ | آزمون فرض «گلوگاه = پروپوزال/جاب» (R8) | اولویت ابزارها در MVP |
-| ۸ | قیمت فعلی دوره‌ها و آنچه داخلشان است (پشتیبانی، جلسه، مدت دسترسی)؟ | لنگر قیمت و تمایل به پرداخت | قیمت‌گذاری پلن‌ها و بسته‌ی «همراه دوره» |
-| ۹ | محتوای آموزشی موجود چیست (ویدئو، جزوه، تمرین)؟ کجا میزبانی می‌شود و مالکیتش با کیست؟ | ساخت LMS کامل گران است | ساخت پخش‌کننده‌ی محتوا یا لینک به پلتفرم موجود؛ نقش curriculum-designer |
-| ۱۰ | هنرجوها حاضرند از تلگرام به یک وب‌اپ بیایند، یا MVP بهتر است **ربات تلگرام** باشد؟ | تلگرام عادت فعلی است؛ مهاجرت اصطکاک دارد | قالب MVP (وب‌اپ PWA یا ربات یا هر دو) |
-| ۱۱ | هنرجوها بیشتر در چه مهارت‌ها/نیچ‌هایی هستند (برنامه‌نویسی، طراحی، محتوا، …)؟ | ابزار نیچ‌یاب و rubricها به حوزه وابسته‌اند | دامنه‌ی ابزار نیچ‌یاب؛ تخصصی‌سازی rubric |
-| ۱۲ | بودجه و زمان‌بندی مدنظر برای MVP چیست؟ کسب‌وکار ثبت‌شده/اینماد برای درگاه پرداخت دارید؟ | محدودیت منابع دامنه را تعیین می‌کند | اندازه‌ی MVP؛ پرداخت آنلاین یا دستی در نسخه‌ی اول |
+| 1 | Is the platform a **replacement** for your current course, a **complement** to it, or also a standalone product for freelancers who are not your students? | Determines the first customer and the money flow | Revenue model (course + access or standalone subscription); need for public sign-up and marketing in the MVP |
+| 2 | How many active students do you have now (and how many are added per year)? Roughly what percentage of previous cohorts reached their **first contract**, and in how long? | Without a baseline, success is not measurable | North Star target; infrastructure scale; AI budget |
+| 3 | Who are the mentors (number, experience), how are they paid (fixed/hourly/per student) and how many hours a week do they have? | Probably the biggest cost and bottleneck | Mentor module design, response SLA, plan prices, AI's role in reducing mentor load |
+| 4 | How do students currently **create their Upwork account and cash out their income**? What is your position on buying/renting accounts under other people's identities? | Competitors sell accounts and income cash-out, and this violates Upwork's rules; if the student's main bottleneck is here, our tools don't solve the main problem | Content scope; legal/reputational risk (R4); marketing message |
+| 5 | Do you have the ability to make **foreign-currency payments** (foreign card/account) for the AI API and servers? Is there a person or company outside Iran on the team? | Access to LLMs and foreign hosting is impossible or high-risk without this | Choice of LLM provider (direct or Iranian intermediary); intermediary server architecture (R1, R2) |
+| 6 | Do you have a written method or checklist for "job review" and "proposal review"? Can you provide 20 to 50 real proposal examples (successful and unsuccessful) with your own critique? | Our competitive advantage is "your method", not generic AI | Tool rubrics; AI quality evaluation set; order of building the tools |
+| 7 | What are the students' 3 most frequent sticking points or questions? Will you give access to the Telegram group/message history for (anonymized) analysis? | Testing the hypothesis "bottleneck = proposal/job" (R8) | Tool priority in the MVP |
+| 8 | What is the current price of the courses and what is included (support, sessions, access period)? | Price anchor and willingness to pay | Plan pricing and the "with course" package |
+| 9 | What training content exists (videos, handouts, exercises)? Where is it hosted and who owns it? | Building a full LMS is expensive | Building a content player or linking to an existing platform; the curriculum-designer's role |
+| 10 | Are students willing to move from Telegram to a web app, or would the MVP be better as a **Telegram bot**? | Telegram is the current habit; migration has friction | MVP format (PWA web app or bot or both) |
+| 11 | Which skills/niches are students mostly in (programming, design, content, …)? | The niche-finder tool and rubrics depend on the field | Niche-finder tool scope; rubric specialization |
+| 12 | What budget and timeline do you have in mind for the MVP? Do you have a registered business/eNamad for a payment gateway? | Resource constraints determine the scope | MVP size; online or manual payment in the first version |

@@ -2,7 +2,9 @@ import { and, asc, desc, eq, inArray, isNull, max, type SQL, sql } from 'drizzle
 import { alias } from 'drizzle-orm/pg-core';
 import type { DbOrTx } from '@/server/db';
 import { platforms, stages } from '../catalog/schema';
+import { isActiveStaffOf } from '../identity/membership-sql';
 import { users } from '../identity/schema';
+import { enrollments, programRuns } from '../programs/schema';
 import { platformProfiles, students } from '../students/schema';
 import type { TaskStatus } from './contracts';
 import { reviews, type SubmissionLink, submissions, taskExtensions, tasks } from './schema';
@@ -82,6 +84,7 @@ export async function lockTask(db: DbOrTx, id: string) {
       dueAt: tasks.dueAt,
       profileId: tasks.profileId,
       title: tasks.title,
+      reviewerId: tasks.reviewerId,
       updatedAt: tasks.updatedAt,
     })
     .from(tasks)
@@ -160,6 +163,11 @@ export type TaskWriteValues = {
   templateId: string | null;
   batchId: string | null;
   profileId: string | null;
+  /** Coach Office sprint 5: a task from a program activity. */
+  enrollmentId?: string | null;
+  nodeId?: string | null;
+  /** Coach Office sprint 5b: a "next action" of a mentoring session. */
+  sessionId?: string | null;
 };
 
 export async function insertTask(db: DbOrTx, values: TaskWriteValues, now: Date): Promise<string> {
@@ -392,9 +400,13 @@ export async function listExtensions(db: DbOrTx, taskId: string) {
 
 // ---- review queue (staff list; scope in SQL, SEC-A2) ----------------------------------
 
-export async function listReviewQueue(db: DbOrTx, scope: SQL, reviewerId?: string) {
+export type ReviewQueueFilters = { reviewerId?: string; runId?: string; studentId?: string };
+
+export async function listReviewQueue(db: DbOrTx, scope: SQL, filters: ReviewQueueFilters = {}) {
   const conditions: SQL[] = [eq(tasks.status, 'submitted'), scope];
-  if (reviewerId) conditions.push(eq(tasks.reviewerId, reviewerId));
+  if (filters.reviewerId) conditions.push(eq(tasks.reviewerId, filters.reviewerId));
+  if (filters.studentId) conditions.push(eq(tasks.studentId, filters.studentId));
+  if (filters.runId) conditions.push(eq(enrollments.runId, filters.runId));
   return db
     .select({
       taskId: tasks.id,
@@ -413,12 +425,17 @@ export async function listReviewQueue(db: DbOrTx, scope: SQL, reviewerId?: strin
       lastSubmittedAt: tasks.lastSubmittedAt,
       submissionId: submissions.id,
       version: submissions.version,
+      runId: programRuns.id,
+      runTitle: programRuns.title,
+      legacyPathId: programRuns.legacyPathId,
     })
     .from(tasks)
     .innerJoin(students, eq(students.userId, tasks.studentId))
     .innerJoin(studentUsers, eq(studentUsers.id, tasks.studentId))
     .innerJoin(reviewerUsers, eq(reviewerUsers.id, tasks.reviewerId))
     .leftJoin(stages, eq(stages.id, tasks.stageId))
+    .leftJoin(enrollments, eq(enrollments.id, tasks.enrollmentId))
+    .leftJoin(programRuns, eq(programRuns.id, enrollments.runId))
     .innerJoin(
       submissions,
       and(
@@ -439,8 +456,12 @@ export async function primaryMentorOf(db: DbOrTx, studentId: string): Promise<st
   return row?.id ?? null;
 }
 
-/** Active (non-erased) staff ids among `ids`. */
-export async function activeStaffIds(db: DbOrTx, ids: readonly string[]): Promise<Set<string>> {
+/** Active (non-erased) staff of the organization among `ids`. */
+export async function activeStaffIds(
+  db: DbOrTx,
+  organizationId: string,
+  ids: readonly string[],
+): Promise<Set<string>> {
   if (ids.length === 0) return new Set();
   const rows = await db
     .select({ id: users.id })
@@ -450,13 +471,15 @@ export async function activeStaffIds(db: DbOrTx, ids: readonly string[]): Promis
         inArray(users.id, [...ids]),
         eq(users.status, 'active'),
         isNull(users.erasedAt),
-        inArray(users.role, ['admin', 'mentor']),
+        isActiveStaffOf(users.id, organizationId),
       ),
     );
   return new Set(rows.map((r) => r.id));
 }
 
 /** CSV export (admin): every task, by student then deadline. */
-export async function listAllTasks(db: DbOrTx) {
-  return baseTaskQuery(db).orderBy(asc(studentUsers.displayName), asc(tasks.dueAt), asc(tasks.id));
+export async function listAllTasks(db: DbOrTx, organizationId: string) {
+  return baseTaskQuery(db)
+    .where(eq(tasks.organizationId, organizationId))
+    .orderBy(asc(studentUsers.displayName), asc(tasks.dueAt), asc(tasks.id));
 }

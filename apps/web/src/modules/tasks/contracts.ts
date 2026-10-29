@@ -213,6 +213,10 @@ export type MyTasksQuery = z.infer<typeof myTasksQuery>;
 /** GET /review-queue (A, M). `mentorId` (admin filter) = reviewer. */
 export const reviewQueueQuery = z.strictObject({
   mentorId: uuidInput.optional(),
+  /** Coach Office sprint 5: tasks of one program run, of one student, by SLA state. */
+  runId: uuidInput.optional(),
+  studentId: uuidInput.optional(),
+  sla: z.enum(['breached', 'warning', 'ok']).optional(),
 });
 export type ReviewQueueQuery = z.infer<typeof reviewQueueQuery>;
 
@@ -334,6 +338,8 @@ export type ReviewQueueItemDTO = {
   breached: boolean;
   /** Less than 25 % of the SLA left. */
   warning: boolean;
+  /** Coach Office sprint 5: the program run the task comes from (null: a free task). */
+  program: { runId: string; title: string; isLegacy: boolean } | null;
 };
 
 // ---- DTOs (student) --------------------------------------------------------------------

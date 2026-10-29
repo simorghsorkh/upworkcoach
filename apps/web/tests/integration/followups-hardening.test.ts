@@ -10,7 +10,7 @@ import { SEED_IDS } from '@/modules/catalog/seed';
 import { getSlaSettings } from '@/modules/catalog/service';
 import { getHealthFreshness } from '@/modules/health/recompute';
 import { studentHealth } from '@/modules/health/schema';
-import { authTokens, sessions, users } from '@/modules/identity/schema';
+import { authTokens, DEFAULT_ORGANIZATION_ID, sessions, users } from '@/modules/identity/schema';
 import { changeUserRole, eraseUser, updateUser } from '@/modules/identity/service';
 import { sha256Hex } from '@/modules/identity/tokens';
 import { students } from '@/modules/students/schema';
@@ -22,6 +22,8 @@ import { errorResponse } from '@/server/http/handler';
 import { logger, logSerializers, safeError } from '@/server/logger';
 import { submittedTaskFixture } from './fixtures';
 import {
+  actorOf,
+  addMembership,
   call,
   createUser,
   localForm,
@@ -466,13 +468,14 @@ describe('F-02: the last active admin (isolated database)', () => {
         .values({ role, status: 'active', phone: uniquePhone(), displayName: key })
         .returning({ id: users.id });
       ids[key] = row?.id ?? '';
+      await addMembership(iso.db, ids[key] ?? '', role);
     }
   });
   afterAll(async () => {
     await iso.drop();
   });
 
-  const as = (key: string): Actor => ({ userId: ids[key] ?? '', role: 'admin' });
+  const as = (key: string): Actor => actorOf(ids[key] ?? '', 'admin');
 
   it('with two admins one can be demoted; the last one can be neither demoted nor disabled', async () => {
     const demoted = await changeUserRole(as('a1'), ids.a2 ?? '', { role: 'mentor' }, META, iso.db);
@@ -626,7 +629,9 @@ describe('F-08 / F-14: health freshness (isolated database)', () => {
       .values({ role: 'student', status: 'active', phone: uniquePhone(), displayName: 'س' })
       .returning({ id: users.id });
     const id = user?.id ?? '';
+    await addMembership(db, id, 'student');
     await db.insert(students).values({
+      organizationId: DEFAULT_ORGANIZATION_ID,
       userId: id,
       currentStageId: SEED_IDS.stages[0] ?? '',
       stageEnteredAt: new Date(),
@@ -640,8 +645,8 @@ describe('F-08 / F-14: health freshness (isolated database)', () => {
   }
 
   it('fresh results → not stale; one active student older than 3 hours → stale', async () => {
-    const admin1: Actor = { userId: crypto.randomUUID(), role: 'admin' };
-    const mentor1: Actor = { userId: crypto.randomUUID(), role: 'mentor' };
+    const admin1 = actorOf(crypto.randomUUID(), 'admin');
+    const mentor1 = actorOf(crypto.randomUUID(), 'mentor');
     expect((await getHealthFreshness(iso.db)).stale).toBe(false);
     await studentWithHealth(iso.db, new Date(Date.now() - 10 * 60_000));
     const fresh = await getToday(admin1, {}, iso.db);
@@ -675,7 +680,7 @@ describe('F-09: review SLA of non-gate tasks', () => {
     const gate = (await submittedTaskFixture(student.id, mentor.id)).taskId;
     const plain = (await submittedTaskFixture(student.id, mentor.id)).taskId;
     await getDb().update(tasks).set({ requiredForGate: true }).where(eq(tasks.id, gate));
-    const sla = await getSlaSettings(getDb());
+    const sla = await getSlaSettings(getDb(), DEFAULT_ORGANIZATION_ID);
     const queue = await call('GET', '/review-queue', { cookies: c.mentor });
     const byId = new Map(queue.body.map((r: { taskId: string }) => [r.taskId, r]));
     expect(byId.get(gate)).toMatchObject({ slaHours: sla.reviewHours, requiredForGate: true });

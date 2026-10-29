@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, isNull, type SQL } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNull, ne, or, type SQL } from 'drizzle-orm';
 import type { DbOrTx } from '@/server/db';
 import { stages } from '../catalog/schema';
 import { users } from '../identity/schema';
@@ -50,15 +50,26 @@ export async function lockNote(db: DbOrTx, id: string) {
   return row ?? null;
 }
 
+/**
+ * Who reads a student's notes: private notes only reach their author, plus the student's
+ * current mentors when `seesPrivate` (never the admin as such; ADR-0011 section 6).
+ */
+export type NoteViewer = { userId: string; seesPrivate: boolean };
+
 /** Staff list (A, M after the scope check): not deleted, newest first. */
 export async function listNotes(
   db: DbOrTx,
   studentId: string,
+  viewer: NoteViewer,
   filter: { visibility?: NoteVisibility; kind?: NoteKind },
   limit: number,
   offset: number,
 ) {
   const conditions: SQL[] = [eq(notes.studentId, studentId), isNull(notes.deletedAt)];
+  if (!viewer.seesPrivate) {
+    const readable = or(ne(notes.visibility, 'private'), eq(notes.authorId, viewer.userId));
+    if (readable) conditions.push(readable);
+  }
   if (filter.visibility) conditions.push(eq(notes.visibility, filter.visibility));
   if (filter.kind) conditions.push(eq(notes.kind, filter.kind));
   return db

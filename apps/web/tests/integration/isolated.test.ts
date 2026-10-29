@@ -25,7 +25,7 @@ import {
 } from '@/modules/students/service';
 import type { Actor } from '@/server/auth/current-user';
 import { ApiError } from '@/server/http/errors';
-import { uniquePhone } from './helpers';
+import { actorOf, addMembership, uniquePhone } from './helpers';
 import { createIsolatedDb } from './isolated-db';
 
 /**
@@ -50,7 +50,8 @@ async function staff(role: 'admin' | 'mentor', name: string): Promise<Actor> {
       passwordHash: await hashPassword('irrelevant-long-pass-1'),
     })
     .returning({ id: users.id });
-  return { userId: row?.id ?? '', role };
+  await addMembership(iso.db, row?.id ?? '', role);
+  return actorOf(row?.id ?? '', role);
 }
 
 async function codeOf(promise: Promise<unknown>): Promise<string | null> {
@@ -127,6 +128,7 @@ describe('settings.access (ADR-0004 section 4 test 4)', () => {
 
     await putAccessSettings(
       iso.db,
+      admin.organizationId,
       { mentorScope: 'all', mentorsCanInviteStudents: true },
       admin.userId,
     );
@@ -135,6 +137,7 @@ describe('settings.access (ADR-0004 section 4 test 4)', () => {
 
     await putAccessSettings(
       iso.db,
+      admin.organizationId,
       { mentorScope: 'assigned', mentorsCanInviteStudents: true },
       admin.userId,
     );
@@ -144,6 +147,7 @@ describe('settings.access (ADR-0004 section 4 test 4)', () => {
   it('mentorsCanInviteStudents = false → a mentor gets 403 on POST /students; admin still can', async () => {
     await putAccessSettings(
       iso.db,
+      admin.organizationId,
       { mentorScope: 'assigned', mentorsCanInviteStudents: false },
       admin.userId,
     );
@@ -156,6 +160,7 @@ describe('settings.access (ADR-0004 section 4 test 4)', () => {
     ).toBeTruthy();
     await putAccessSettings(
       iso.db,
+      admin.organizationId,
       { mentorScope: 'assigned', mentorsCanInviteStudents: true },
       admin.userId,
     );

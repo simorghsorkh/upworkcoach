@@ -1,99 +1,99 @@
-# معیارها — UpworkCoach
+# Metrics — UpworkCoach
 
-> فاز ۱ — ۲۷ مهر ۱۴۰۵ — نویسنده: product-strategist
-> عددهای هدف **فرضی‌اند**، چون خط پایه نداریم (سؤال باز ۳). دو هفته‌ی اول 0.1 خط پایه را می‌سازد و هدف‌ها بعد از آن بازتنظیم می‌شوند.
+> Phase 1 — 27 Mehr 1405 (2026-10-19) — Author: product-strategist
+> Target numbers are **hypothetical**, because we have no baseline (open question 3). The first two weeks of 0.1 build the baseline, and targets are recalibrated after that.
 
-## ۱. North Star Metric
+## 1. North Star Metric
 
-**تعداد هنرجوهایی که در ماه اولین درآمد فریلنسری‌شان را گرفتند**
-(اولین قرارداد یا سفارش پولی در **هر پلتفرم یا با مشتری مستقیم**، تأییدشده توسط مربی یا مشاور).
+**Number of students who earned their first freelance income in the month**
+(first paid contract or order on **any platform or with a direct client**, approved by the coach or a mentor).
 
-| جزء تعریف | جزئیات |
+| Part of the definition | Details |
 |---|---|
-| چرا «هر پلتفرم» نه فقط Upwork | محصول چندپلتفرمی است و ریسک R11 (ممنوعیت ساکنان ایران در Upwork) نباید معیار اصلی را گروگان بگیرد |
-| «پولی» یعنی | قرارداد یا سفارشی که پرداخت آن شروع شده (milestone تأمین‌شده، سفارش پذیرفته‌شده یا پیش‌پرداخت مشتری مستقیم). کار رایگان و تست بدون پرداخت شمرده نمی‌شود |
-| منبع | نقطه‌ی عطف «اولین قرارداد/سفارش پولی» در F9 با مدرک (تصویر یا شرح) و تأیید مربی یا مشاور |
-| شمارش | هر هنرجو فقط یک بار در عمرش؛ بر اساس ماه تأیید؛ به تفکیک پلتفرم |
-| همراه آن | **میانه‌ی روز از ورود تا اولین درآمد** (سرعت)، و **نرخ تبدیل کوهورت**: درصد ورودی‌های هر ماه که تا ۹۰ روز به اولین درآمد رسیدند |
-| هدف ۶ ماهه (فرضی) | ۲ برابر نرخ کوهورت‌های قبلی. اگر عدد قبلی معلوم نیست: نرخ تبدیل ۹۰ روزه ≥ ۲۵٪ |
+| Why "any platform" and not just Upwork | The product is multi-platform, and risk R11 (Upwork's ban on residents of Iran) must not hold the main metric hostage |
+| "Paid" means | A contract or order whose payment has started (funded milestone, accepted order, or a direct client's prepayment). Free work and unpaid tests do not count |
+| Source | The "first paid contract/order" milestone in F9, with evidence (image or description) and approval by the coach or a mentor |
+| Counting | Each student only once in their lifetime; by approval month; broken down by platform |
+| Companion metrics | **Median days from joining to first income** (speed), and **cohort conversion rate**: the percentage of each month's joiners who reached first income within 90 days |
+| 6-month target (hypothetical) | 2× the rate of previous cohorts. If the previous number is unknown: 90-day conversion rate ≥ 25% |
 
-**محدودیت‌ها:** این معیار دیرآیند (lagging) است، عددش در ماه‌های اول کوچک است و به خوداظهاری وابسته است. برای همین تصمیم‌های هفتگی با معیارهای پیشرو گرفته می‌شود.
+**Limitations:** this metric is lagging, its number is small in the first months, and it depends on self-reporting. That is why weekly decisions are made with leading metrics.
 
-## ۲. درخت معیارها
+## 2. Metric tree
 ```
-اولین درآمد فریلنسری (NSM)
-├── هنرجو به مرحله‌ی اپلای می‌رسد       ← پیشرفت در مراحل (0.1)
-│     ├── کارهای مرحله به‌موقع تحویل می‌شود   ← نرخ تحویل به‌موقع (0.1)
-│     └── گیرکرده‌ها زود دیده و پیگیری می‌شوند   ← زمان واکنش به گیرکرده (0.1)
-├── به اندازه‌ی کافی اپلای می‌کند           ← اپلای در هفته (1.0)
-├── اپلای‌ها کیفیت دارند                   ← نرخ پاسخ/مصاحبه، استفاده از ابزار AI (1.0)
-└── سؤال‌ها سریع جواب می‌گیرند              ← زمان پاسخ (0.1)
+First freelance income (NSM)
+├── Student reaches the applying stage       ← progress through stages (0.1)
+│     ├── Stage tasks are submitted on time   ← on-time submission rate (0.1)
+│     └── Stuck students are spotted and followed up early   ← response time to stuck (0.1)
+├── Applies enough                           ← applications per week (1.0)
+├── Applications are high quality            ← reply/interview rate, AI tool usage (1.0)
+└── Questions get answered quickly           ← response time (0.1)
 ```
 
-## ۳. معیارهای نسخه‌ی 0.1 (دفتر مربی)
-| معیار | تعریف | هدف (فرضی) | منبع داده |
+## 3. Version 0.1 metrics (Coach Office)
+| Metric | Definition | Target (hypothetical) | Data source |
 |---|---|---|---|
-| **استفاده‌ی مربی** | روزهایی در هفته که مدیر صفحه‌ی «امروز» را باز می‌کند | ≥ ۴ روز | رویداد `today_viewed` |
-| استفاده‌ی مشاور | همان، برای هر مشاور | ≥ ۳ روز | همان |
-| پوشش پرونده | درصد هنرجوهای فعال با مرحله + ≥ ۱ پروفایل پلتفرم + مشاور | ≥ ۹۰٪ | پایگاه داده |
-| تازگی پرونده | درصد هنرجوهای فعال با ≥ ۱ تعامل (یادداشت، کار، بازبینی) در ۱۴ روز اخیر | ≥ ۸۰٪ | تایم‌لاین |
-| **نرخ تحویل به‌موقع** | کارهای تحویل‌شده تا مهلت ÷ کارهایی که مهلتشان در دوره گذشته | ≥ ۶۰٪ | کارها |
-| زمان بازبینی تحویل | میانه‌ی زمان از تحویل تا بازخورد | < ۴۸ ساعت | کارها |
-| زمان پاسخ سؤال | میانه‌ی زمان تا اولین پاسخ | < ۲۴ ساعت (هدف بلندمدت < ۴ ساعت، `vision.md`) | سؤال‌ها |
-| درصد گیرکرده | هنرجوهای فعال با برچسب «گیرکرده» یا «ساکت» | روند نزولی؛ خط پایه در هفته‌ی ۲ | F7 |
-| زمان واکنش به گیرکرده | میانه‌ی زمان از برچسب خوردن تا اولین اقدام مربی/مشاور (یادداشت، یادآور، کار) | < ۴۸ ساعت | F7 + تایم‌لاین |
-| سرعت پیشرفت | میانه‌ی روزهای ماندن در هر مرحله | خط پایه، سپس کاهش | F3 |
-| هنرجوی فعال هفتگی | هنرجوهایی که در هفته ≥ ۱ بار وارد شده‌اند ÷ دعوت‌شده‌ها | ≥ ۵۰٪ | `login` |
-| داده‌ی AI | جفت‌های «پروپوزال + نقد مربی» با رضایت | ≥ ۳۰ تا پایان 0.1 | کارهای نوع «پروپوزال برای بررسی» |
-| رضایت مربی (کیفی) | «چقدر حالا می‌دانی هر هنرجو کجاست؟» ۰ تا ۱۰، هر دو هفته | ≥ ۸ | پرسش مستقیم |
+| **Coach usage** | Days per week the admin opens the "Today" page | ≥ 4 days | `today_viewed` event |
+| Mentor usage | Same, per mentor | ≥ 3 days | Same |
+| File coverage | Percentage of active students with a stage + ≥ 1 platform profile + a mentor | ≥ 90% | Database |
+| File freshness | Percentage of active students with ≥ 1 interaction (note, task, review) in the last 14 days | ≥ 80% | Timeline |
+| **On-time submission rate** | Tasks submitted by the due date ÷ tasks whose due date passed in the period | ≥ 60% | Tasks |
+| Submission review time | Median time from submission to feedback | < 48 hours | Tasks |
+| Question response time | Median time to first answer | < 24 hours (long-term target < 4 hours, `vision.md`) | Questions |
+| Stuck percentage | Active students with a "stuck" or "silent" label | Downward trend; baseline in week 2 | F7 |
+| Response time to stuck | Median time from labeling to the first coach/mentor action (note, reminder, task) | < 48 hours | F7 + timeline |
+| Progress speed | Median days spent in each stage | Baseline, then decrease | F3 |
+| Weekly active students | Students who logged in ≥ 1 time in the week ÷ invited students | ≥ 50% | `login` |
+| AI data | "Proposal + coach critique" pairs with consent | ≥ 30 by the end of 0.1 | Tasks of type "proposal for review" |
+| Coach satisfaction (qualitative) | "How well do you now know where each student is?" 0 to 10, every two weeks | ≥ 8 | Direct question |
 
-## ۴. معیارهای نسخه‌ی 1.0 (پلتفرم)
-| معیار | تعریف | هدف (فرضی) |
+## 4. Version 1.0 metrics (Platform)
+| Metric | Definition | Target (hypothetical) |
 |---|---|---|
-| اپلای در هفته | میانه‌ی اپلای ثبت‌شده برای هنرجوهای مرحله‌ی اپلای | خط پایه، سپس ≥ ۵ |
-| نرخ پاسخ اپلای | اپلای‌های «پاسخ/مصاحبه» ÷ ارسال‌شده، برای هر هنرجو در طول زمان | روند صعودی پس از استفاده از ابزارها |
-| استفاده از ابزار AI | بررسی‌های AI به ازای هنرجوی فعال در هفته | ≥ ۲ |
-| اثر بررسی | درصد بررسی‌های پروپوزال که بعدشان نسخه‌ی اصلاح‌شده دوباره بررسی شد یا اپلای ثبت شد | ≥ ۴۰٪ |
-| رضایت از بازخورد AI | میانگین امتیاز «مفید بود؟» | ≥ ۴ از ۵ |
-| توافق AI و مربی | روی مجموعه‌ی ارزیابی از 0.1، و نمونه‌برداری ماهانه | ≥ ۸۰٪ |
-| نرخ ارجاع به مشاور | بررسی‌های ارجاع‌شده ÷ کل بررسی‌ها | ۵ تا ۱۵٪ (بیشتر = AI ضعیف؛ کمتر = اعتماد زیاد یا بی‌توجهی) |
-| تبدیل به پولی | کاربران ثبت‌نام عمومی که در ۱۴ روز پرداخت کردند | ≥ ۱۰٪ |
-| نگهداشت ماه دوم | پرداخت‌کنندگان ماه اول که تمدید کردند | ≥ ۵۰٪ |
-| اقتصاد واحد | هزینه‌ی AI ÷ درآمد هر کاربر پولی | < ۱۵ تا ۲۰٪ |
-| بار مشاور | دقیقه‌ی مشاور به ازای هر هنرجو در هفته | خط پایه، سپس کاهش با AI |
+| Applications per week | Median applications logged for students at the applying stage | Baseline, then ≥ 5 |
+| Application reply rate | "Reply/interview" applications ÷ sent, per student over time | Upward trend after using the tools |
+| AI tool usage | AI reviews per active student per week | ≥ 2 |
+| Review effect | Percentage of proposal reviews followed by a re-review of the revised version or a logged application | ≥ 40% |
+| Satisfaction with AI feedback | Average "Was it useful?" score | ≥ 4 out of 5 |
+| AI–coach agreement | On the evaluation set from 0.1, plus monthly sampling | ≥ 80% |
+| Mentor referral rate | Referred reviews ÷ all reviews | 5 to 15% (higher = weak AI; lower = high trust or inattention) |
+| Paid conversion | Public sign-up users who paid within 14 days | ≥ 10% |
+| Second-month retention | First-month payers who renewed | ≥ 50% |
+| Unit economics | AI cost ÷ revenue per paying user | < 15 to 20% |
+| Mentor load | Mentor minutes per student per week | Baseline, then decrease with AI |
 
-## ۵. معیارهای محافظ (نباید بدتر شوند)
-| محافظ | آستانه‌ی هشدار |
+## 5. Guardrail metrics (must not get worse)
+| Guardrail | Alert threshold |
 |---|---|
-| گزارش نقض ToS یا محتوای ممنوع (اکانت، دور زدن احراز، circumvention) در پاسخ‌ها یا خروجی AI | هر مورد = بررسی فوری |
-| نشت یادداشت داخلی به هنرجو | هر مورد = حادثه‌ی امنیتی |
-| خطا یا timeout ابزار AI | > ۵٪ درخواست‌ها |
-| هزینه‌ی AI ماهانه | > بودجه‌ی ماه (تعیین با بنیان‌گذار) |
-| زمان پاسخ سؤال پس از ثبت‌نام عمومی | بدتر از میانه‌ی 0.1 |
-| شکایت از ادعای درآمدی | هر مورد |
+| Reports of ToS violations or forbidden content (accounts, bypassing identity verification, circumvention) in answers or AI output | Each case = immediate review |
+| Internal note leaked to a student | Each case = security incident |
+| AI tool error or timeout | > 5% of requests |
+| Monthly AI cost | > the month's budget (set with the founder) |
+| Question response time after public sign-up | Worse than the 0.1 median |
+| Complaints about income claims | Each case |
 
-## ۶. رویدادهایی که باید ثبت شوند (برای software-architect و backend)
-| رویداد | ویژگی‌ها | نسخه |
+## 6. Events to log (for software-architect and backend)
+| Event | Properties | Version |
 |---|---|---|
-| `login` | نقش | 0.1 |
-| `today_viewed` | نقش، تعداد موارد هر بخش | 0.1 |
-| `student_created` / `profile_added` | پلتفرم | 0.1 |
-| `stage_changed` | از، به، روزهای ماندن در مرحله‌ی قبلی | 0.1 |
-| `task_assigned` / `task_submitted` / `task_reviewed` | نوع، مهلت، به‌موقع؟، نتیجه | 0.1 |
-| `note_added` | نوع، داخلی/اشتراکی | 0.1 |
+| `login` | Role | 0.1 |
+| `today_viewed` | Role, item count per section | 0.1 |
+| `student_created` / `profile_added` | Platform | 0.1 |
+| `stage_changed` | From, to, days spent in the previous stage | 0.1 |
+| `task_assigned` / `task_submitted` / `task_reviewed` | Type, due date, on time?, result | 0.1 |
+| `note_added` | Type, internal/shared | 0.1 |
 | `reminder_created` / `reminder_done` / `reminder_snoozed` | — | 0.1 |
-| `stuck_flagged` / `stuck_actioned` | قاعده، زمان تا اقدام | 0.1 |
-| `question_asked` / `question_answered` | زمان تا پاسخ، پاسخ‌دهنده | 0.1 |
-| `milestone_proposed` / `milestone_confirmed` | نوع، پلتفرم، روز از ورود | 0.1 |
-| `application_logged` / `application_status_changed` | پلتفرم، وضعیت | 1.0 |
-| `ai_review_run` | ابزار، پلتفرم، نسخه‌ی rubric، تأخیر، هزینه‌ی توکن | 1.0 |
-| `ai_review_rated` / `ai_review_escalated` | امتیاز | 1.0 |
-| `signup` / `payment_succeeded` / `subscription_renewed` | پلن، مبلغ | 1.0 |
+| `stuck_flagged` / `stuck_actioned` | Rule, time to action | 0.1 |
+| `question_asked` / `question_answered` | Time to answer, responder | 0.1 |
+| `milestone_proposed` / `milestone_confirmed` | Type, platform, days since joining | 0.1 |
+| `application_logged` / `application_status_changed` | Platform, status | 1.0 |
+| `ai_review_run` | Tool, platform, rubric version, latency, token cost | 1.0 |
+| `ai_review_rated` / `ai_review_escalated` | Rating | 1.0 |
+| `signup` / `payment_succeeded` / `subscription_renewed` | Plan, amount | 1.0 |
 
-## ۷. آهنگ بازبینی
-| آهنگ | چه کسی | چه چیزی |
+## 7. Review cadence
+| Cadence | Who | What |
 |---|---|---|
-| هفتگی (۱۵ دقیقه) | بنیان‌گذار + product-strategist | معیارهای 0.1، فهرست گیرکرده‌ها، North Star ماه جاری |
-| پایان هفته‌ی ۲ از 0.1 | همان | ثبت خط پایه و بازتنظیم هدف‌ها |
-| پایان هفته‌ی ۴ تا ۶ از 0.1 | همان + project-lead | گیت ورود به 1.0 (`mvp-scope.md` بخش ۲) |
-| ماهانه (از 1.0) | همان + ai-engineer | توافق AI و مربی، هزینه‌ی AI، تبدیل و نگهداشت |
+| Weekly (15 minutes) | Founder + product-strategist | 0.1 metrics, stuck list, current month's North Star |
+| End of week 2 of 0.1 | Same | Record the baseline and recalibrate targets |
+| End of weeks 4 to 6 of 0.1 | Same + project-lead | Gate into 1.0 (`mvp-scope.md` section 2) |
+| Monthly (from 1.0) | Same + ai-engineer | AI–coach agreement, AI cost, conversion and retention |

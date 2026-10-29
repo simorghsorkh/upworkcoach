@@ -1,4 +1,5 @@
 import type { z } from 'zod';
+import { type Locale, localeFromAcceptLanguage } from '@/i18n/config';
 import type { RequestMeta } from '@/modules/identity/service';
 import { type AuthenticatedRequest, authenticateRequest, requestMeta } from '../auth/request';
 import { getEnv } from '../env';
@@ -107,7 +108,11 @@ export function route<
       } as Parameters<Options<P, I, Q, Auth>['handler']>[0];
       response = toResponse(await options.handler(ctx));
     } catch (err) {
-      response = errorResponse(err, { requestId, path });
+      response = errorResponse(err, {
+        requestId,
+        path,
+        locale: localeFromAcceptLanguage(req.headers.get('accept-language')),
+      });
     }
     finalizeHeaders(response.headers);
     logger.info(
@@ -156,7 +161,7 @@ function finalizeHeaders(headers: Headers): void {
 
 export function errorResponse(
   err: unknown,
-  context: { requestId: string; path: string },
+  context: { requestId: string; path: string; locale?: Locale },
 ): Response {
   const apiError =
     err instanceof ApiError
@@ -177,7 +182,10 @@ export function errorResponse(
   if (apiError.retryAfterSeconds !== undefined) {
     headers.set('retry-after', String(apiError.retryAfterSeconds));
   }
-  return new Response(JSON.stringify(apiError.toBody()), { status: apiError.status, headers });
+  return new Response(JSON.stringify(apiError.toBody(context.locale)), {
+    status: apiError.status,
+    headers,
+  });
 }
 
 /** Error summary without values that may contain user input (SEC-L4). */

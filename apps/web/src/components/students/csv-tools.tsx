@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { type ChangeEvent, useId, useRef, useState } from 'react';
 import { apiUpload } from '@/components/api/client';
 import { CsvDownloadButton } from '@/components/files/csv-download';
@@ -11,6 +12,7 @@ import { Tag } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/components/ui/cn';
 import { Dialog, DialogActions } from '@/components/ui/dialog';
+import { SelectField } from '@/components/ui/field';
 import { Alert } from '@/components/ui/states';
 import { useToast } from '@/components/ui/toast';
 
@@ -21,14 +23,20 @@ export type ImportRow = {
   errors: Array<{ column: string; message: string }>;
   studentId?: string;
   inviteUrl?: string;
+  existing?: true;
 };
 export type ImportResult = {
   dryRun: boolean;
   total: number;
   valid: number;
   imported: number;
+  enrolled: number;
+  course: { id: string; title: string } | null;
   rows: ImportRow[];
 };
+
+/** Open group courses an import may join (sprint 6). */
+export type ImportCourse = { id: string; title: string };
 
 const MAX_BYTES = 1024 * 1024;
 
@@ -50,9 +58,9 @@ function downloadSample() {
  * M2b «ورود از اکسل» (F11, security C6): CSV only (Excel → «ذخیره به‌صورت CSV UTF-8»), up to
  * 1 MB and 500 rows. Step 1 sends `dryRun=true` and shows every row with its errors (line and
  * column, never the value); step 2 imports the valid rows. Invite links are shown only here,
- * once (SEC-V3).
+ * once (SEC-V3). Sprint 6: optionally into one open group course (`runId`).
  */
-export function ImportStudentsButton() {
+export function ImportStudentsButton({ courses = [] }: { courses?: ImportCourse[] }) {
   const [open, setOpen] = useState(false);
   return (
     <>
@@ -67,16 +75,24 @@ export function ImportStudentsButton() {
         description="فقط CSV با کدگذاری UTF-8؛ حداکثر ۱ مگابایت و ۵۰۰ ردیف."
         className="md:max-w-[720px]"
       >
-        <ImportFlow onClose={() => setOpen(false)} />
+        <ImportFlow courses={courses} onClose={() => setOpen(false)} />
       </Dialog>
     </>
   );
 }
 
-export function ImportFlow({ onClose }: { onClose: () => void }) {
+export function ImportFlow({
+  courses = [],
+  onClose,
+}: {
+  courses?: ImportCourse[];
+  onClose: () => void;
+}) {
+  const t = useTranslations('studentImport');
   const router = useRouter();
   const toast = useToast();
   const inputId = useId();
+  const [runId, setRunId] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<ImportResult | null>(null);
@@ -84,11 +100,28 @@ export function ImportFlow({ onClose }: { onClose: () => void }) {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<'check' | 'import' | null>(null);
 
-  async function send(f: File, dryRun: boolean) {
+  async function send(f: File, dryRun: boolean, course = runId) {
     const form = new FormData();
     form.append('file', f);
     form.append('dryRun', dryRun ? 'true' : 'false');
+    if (course) form.append('runId', course);
     return apiUpload<ImportResult>('/api/v1/imports/students', form);
+  }
+
+  async function check(f: File, course: string) {
+    setBusy('check');
+    const res = await send(f, true, course);
+    setBusy(null);
+    if (res.ok) setPreview(res.data);
+    else setError(res.error.fields.file ?? res.error.fields.runId ?? res.error.message);
+  }
+
+  /** A new course re-checks the picked file (phases and existing mentees depend on it). */
+  async function onCourse(next: string) {
+    setRunId(next);
+    setPreview(null);
+    setError(null);
+    if (file && !error) await check(file, next);
   }
 
   async function onPick(event: ChangeEvent<HTMLInputElement>) {
@@ -106,11 +139,7 @@ export function ImportFlow({ onClose }: { onClose: () => void }) {
       setError('حجم فایل بیش از ۱ مگابایت است؛ آن را به چند فایل تقسیم کن.');
       return;
     }
-    setBusy('check');
-    const res = await send(f, true);
-    setBusy(null);
-    if (res.ok) setPreview(res.data);
-    else setError(res.error.fields.file ?? res.error.message);
+    await check(f, runId);
   }
 
   async function onImport() {
@@ -120,11 +149,15 @@ export function ImportFlow({ onClose }: { onClose: () => void }) {
     const res = await send(file, false);
     setBusy(null);
     if (!res.ok) {
-      setError(res.error.fields.file ?? res.error.message);
+      setError(res.error.fields.file ?? res.error.fields.runId ?? res.error.message);
       return;
     }
     setResult(res.data);
-    toast.show({ message: `${faNumber(res.data.imported)} هنرجو ساخته شد.` });
+    toast.show({
+      message: res.data.course
+        ? t('doneCourse', { count: res.data.enrolled, title: res.data.course.title })
+        : `${faNumber(res.data.imported)} هنرجو ساخته شد.`,
+    });
     router.refresh();
   }
 
@@ -133,8 +166,13 @@ export function ImportFlow({ onClose }: { onClose: () => void }) {
     return (
       <>
         <Alert tone="ok" role="status" title={`${faNumber(result.imported)} هنرجو ساخته شد.`}>
-          {result.total > result.imported
-            ? ` ${faNumber(result.total - result.imported)} ردیف به‌خاطر خطا ثبت نشد.`
+          {result.course ? (
+            <span className="block">
+              {t('doneCourse', { count: result.enrolled, title: result.course.title })}
+            </span>
+          ) : null}
+          {result.rows.some((r) => !r.ok)
+            ? ` ${t('failedRows', { count: result.rows.filter((r) => !r.ok).length })}`
             : ''}
         </Alert>
         {made.length ? (
@@ -178,6 +216,7 @@ export function ImportFlow({ onClose }: { onClose: () => void }) {
   }
 
   const bad = preview ? preview.rows.filter((r) => !r.ok) : [];
+  const existing = preview ? preview.rows.filter((r) => r.ok && r.existing).length : 0;
 
   return (
     <>
@@ -200,6 +239,25 @@ export function ImportFlow({ onClose }: { onClose: () => void }) {
         <li>اول بررسی می‌شود و هیچ چیزی ثبت نمی‌شود؛ بعد تأیید می‌کنی.</li>
       </ol>
       {error ? <Alert tone="error" role="alert" title={error} /> : null}
+      {courses.length ? (
+        <div className="mb-4">
+          <SelectField
+            label={t('course')}
+            name="runId"
+            value={runId}
+            onChange={(e) => void onCourse(e.target.value)}
+            disabled={busy !== null}
+            hint={runId ? t('courseHint') : undefined}
+          >
+            <option value="">{t('noCourse')}</option>
+            {courses.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.title}
+              </option>
+            ))}
+          </SelectField>
+        </div>
+      ) : null}
       <div className="mb-4">
         <label htmlFor={inputId} className="mb-1.5 block text-ui font-semibold">
           فایل CSV
@@ -230,6 +288,7 @@ export function ImportFlow({ onClose }: { onClose: () => void }) {
               <Icon name="check" size={14} />
               {`${faNumber(preview.valid)} آماده`}
             </span>
+            {existing ? <Tag icon="user">{t('existing', { count: existing })}</Tag> : null}
             {bad.length ? (
               <Tag variant="late" icon="alert">{`${faNumber(bad.length)} با خطا`}</Tag>
             ) : null}
@@ -282,7 +341,11 @@ export function ImportFlow({ onClose }: { onClose: () => void }) {
           disabled={!preview?.valid || busy !== null}
           onClick={() => void onImport()}
         >
-          {preview?.valid ? `ثبت ${faNumber(preview.valid)} هنرجو` : 'ثبت'}
+          {preview?.valid
+            ? runId
+              ? t('submitCourse', { count: preview.valid })
+              : `ثبت ${faNumber(preview.valid)} هنرجو`
+            : 'ثبت'}
         </Button>
       </DialogActions>
     </>

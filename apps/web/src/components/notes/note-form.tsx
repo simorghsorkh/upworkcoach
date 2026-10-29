@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { type FormEvent, useEffect, useId, useRef, useState } from 'react';
 import { apiPost } from '@/components/api/client';
 import { addDaysTo, todayDay } from '@/components/format/jalali';
@@ -81,6 +82,7 @@ export function NoteForm({
   const [kind, setKind] = useState<NoteKind>('note');
   const [body, setBody] = useState('');
   const [visibility, setVisibility] = useState<NoteVisibility>('internal');
+  const t = useTranslations('notes');
   const [followUp, setFollowUp] = useState<FollowUp>(null);
   const [error, setError] = useState<string | null>(null);
   const [failed, setFailed] = useState<string | null>(null);
@@ -163,7 +165,9 @@ export function NoteForm({
       message:
         (visibility === 'shared'
           ? `یادداشت ثبت شد؛ ${firstName} آن را می‌بیند.`
-          : 'یادداشت داخلی ثبت شد.') + extra,
+          : visibility === 'private'
+            ? t('savedPrivate')
+            : 'یادداشت داخلی ثبت شد.') + extra,
     });
     // Clear only what was sent: text typed while the save was in flight stays.
     setBody((current) => (current === body ? '' : current));
@@ -184,6 +188,11 @@ export function NoteForm({
       value: 'shared' as const,
       label: variant === 'inline' ? 'اشتراکی' : `اشتراکی — ${firstName} هم می‌بیند`,
       icon: 'eye' as const,
+    },
+    {
+      value: 'private' as const,
+      label: variant === 'inline' ? t('privateShort') : t('privateLong'),
+      icon: 'user' as const,
     },
   ];
 
@@ -305,6 +314,8 @@ export function NoteForm({
             <span className="font-semibold text-primary-text">
               {`هنرجو این را می‌بیند: در خانه‌ی ${firstName} زیر «از مشاورت» می‌آید.`}
             </span>
+          ) : visibility === 'private' ? (
+            t('privateHint')
           ) : (
             'فقط مدیر و مشاورها می‌بینند.'
           )
@@ -361,12 +372,13 @@ function VisibilitySwitch({
 }: {
   value: NoteVisibility;
   onChange: (v: NoteVisibility) => void;
-  options: Array<{ value: NoteVisibility; label: string; icon: 'lock' | 'eye' }>;
+  options: Array<{ value: NoteVisibility; label: string; icon: 'lock' | 'eye' | 'user' }>;
 }) {
   const name = useId();
+  const t = useTranslations('notes');
   return (
     <fieldset className="inline-flex gap-0.5 rounded-[10px] border border-line bg-surface-3 p-[3px]">
-      <legend className="sr-only">چه کسی می‌بیند</legend>
+      <legend className="sr-only">{t('visibilityLegend')}</legend>
       {options.map((o) => {
         const on = o.value === value;
         return (
@@ -375,9 +387,9 @@ function VisibilitySwitch({
             className={cn(
               'inline-flex min-h-7 cursor-pointer items-center gap-1 rounded-[7px] px-2.5 text-xs font-semibold has-[input:focus-visible]:shadow-ring',
               on
-                ? o.value === 'internal'
-                  ? 'bg-fg text-surface'
-                  : 'bg-primary-weak-2 text-primary-text'
+                ? o.value === 'shared'
+                  ? 'bg-primary-weak-2 text-primary-text'
+                  : 'bg-fg text-surface'
                 : 'text-fg-2 hover:text-fg',
             )}
           >

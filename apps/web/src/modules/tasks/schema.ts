@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import {
+  type AnyPgColumn,
   boolean,
   check,
   index,
@@ -14,7 +15,9 @@ import {
 } from 'drizzle-orm/pg-core';
 import { uuidv7 } from '../../lib/uuid';
 import { platforms, SUBMISSION_TYPES, stages, TASK_KINDS, taskTemplates } from '../catalog/schema';
-import { users } from '../identity/schema';
+import { inheritedOrganizationId, users } from '../identity/schema';
+import { mentoringSessions } from '../mentoring/schema';
+import { enrollments, runNodes } from '../programs/schema';
 import { platformProfiles, students } from '../students/schema';
 
 /**
@@ -45,6 +48,7 @@ export type SubmissionLink = { url: string; label: string | null };
 export const tasks = pgTable(
   'tasks',
   {
+    organizationId: inheritedOrganizationId(),
     id: uuid()
       .primaryKey()
       .$defaultFn(() => uuidv7()),
@@ -84,6 +88,11 @@ export const tasks = pgTable(
     /** `accepted` or `cancelled` time (base of R-NOTASK). */
     closedAt: ts(),
     cancelReason: text(),
+    /** Coach Office sprint 5: the enrollment and program activity this task comes from. */
+    enrollmentId: uuid().references(() => enrollments.id, { onDelete: 'set null' }),
+    nodeId: uuid().references(() => runNodes.id, { onDelete: 'set null' }),
+    /** A "next action" of a mentoring session (sprint 5b). */
+    sessionId: uuid().references((): AnyPgColumn => mentoringSessions.id, { onDelete: 'set null' }),
     createdAt: ts().notNull().defaultNow(),
     updatedAt: ts().notNull().defaultNow(),
   },
@@ -96,6 +105,12 @@ export const tasks = pgTable(
       .on(t.dueAt)
       .where(sql`${t.status} IN ('open', 'in_progress', 'changes_requested')`),
     index('tasks_batch_idx').on(t.batchId),
+    // One live task per enrollment and activity: «assign to the group» skips who has one.
+    uniqueIndex('tasks_enrollment_node_key')
+      .on(t.enrollmentId, t.nodeId)
+      .where(sql`${t.nodeId} IS NOT NULL AND ${t.status} <> 'cancelled'`),
+    index('tasks_enrollment_idx').on(t.enrollmentId),
+    index('tasks_session_idx').on(t.sessionId),
     check('tasks_status_check', sql`${t.status} IN (${inList(TASK_STATUSES)})`),
     check('tasks_kind_check', sql`${t.kind} IN (${inList(TASK_KINDS)})`),
     check('tasks_submission_type_check', sql`${t.submissionType} IN (${inList(SUBMISSION_TYPES)})`),
@@ -116,6 +131,7 @@ export const tasks = pgTable(
 export const taskExtensions = pgTable(
   'task_extensions',
   {
+    organizationId: inheritedOrganizationId(),
     id: uuid()
       .primaryKey()
       .$defaultFn(() => uuidv7()),
@@ -140,6 +156,7 @@ export const taskExtensions = pgTable(
 export const submissions = pgTable(
   'submissions',
   {
+    organizationId: inheritedOrganizationId(),
     id: uuid()
       .primaryKey()
       .$defaultFn(() => uuidv7()),
@@ -180,6 +197,7 @@ export const submissions = pgTable(
 export const reviews = pgTable(
   'reviews',
   {
+    organizationId: inheritedOrganizationId(),
     id: uuid()
       .primaryKey()
       .$defaultFn(() => uuidv7()),

@@ -1,11 +1,15 @@
 import { and, asc, count, eq, gt, inArray, lt, sql } from 'drizzle-orm';
 import type { DbOrTx } from '@/server/db';
+import { milestones } from '../milestones/schema';
+import { questionMessages } from '../questions/schema';
+import { submissions } from '../tasks/schema';
 import { attachments } from './schema';
 
 /** files — queries (only used inside the module). Columns are explicit (SEC-A9). */
 
 const columns = {
   id: attachments.id,
+  organizationId: attachments.organizationId,
   storageKey: attachments.storageKey,
   originalName: attachments.originalName,
   mimeType: attachments.mimeType,
@@ -53,6 +57,8 @@ export async function uploadCounts(
 export async function insertAttachment(
   db: DbOrTx,
   values: {
+    /** The uploader's (active) organization; a file links only to a parent there. */
+    organizationId: string;
     storageKey: string;
     originalName: string;
     mimeType: 'image/jpeg' | 'image/png' | 'image/webp';
@@ -88,10 +94,22 @@ export async function linkToParent(
         inArray(attachments.id, [...ids]),
         eq(attachments.status, 'pending'),
         eq(attachments.uploadedBy, uploadedBy),
+        // ADR-0011: a file uploaded in one organization never links to another's record.
+        eq(attachments.organizationId, parentOrganization(parent)),
       ),
     )
     .returning({ id: attachments.id });
   return rows.map((r) => r.id);
+}
+
+function parentOrganization(parent: AttachmentParent) {
+  if ('submissionId' in parent) {
+    return sql`(SELECT ${submissions.organizationId} FROM ${submissions} WHERE ${submissions.id} = ${parent.submissionId})`;
+  }
+  if ('questionMessageId' in parent) {
+    return sql`(SELECT ${questionMessages.organizationId} FROM ${questionMessages} WHERE ${questionMessages.id} = ${parent.questionMessageId})`;
+  }
+  return sql`(SELECT ${milestones.organizationId} FROM ${milestones} WHERE ${milestones.id} = ${parent.milestoneId})`;
 }
 
 /** Linked attachments of question messages or milestones. */

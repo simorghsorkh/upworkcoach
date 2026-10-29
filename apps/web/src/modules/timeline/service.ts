@@ -2,7 +2,7 @@ import type { Actor } from '@/server/auth/current-user';
 import { type Db, type DbOrTx, getDb } from '@/server/db';
 import { errors } from '@/server/http/errors';
 import { decodeCursor, encodeCursor } from '@/server/http/schemas';
-import { loadInScope } from '../access/scope';
+import { loadInScope, mentorWorksWithStudent } from '../access/scope';
 import { recordAudit } from '../admin/service';
 import type { AuditMeta } from '../catalog/service';
 import type {
@@ -67,8 +67,17 @@ function toNoteDTO(actor: Actor, row: repo.NoteRow): NoteDTO {
     occurredAt: row.occurredAt.toISOString(),
     author: { id: row.authorId, displayName: row.authorDisplayName },
     canEdit: canEdit(actor, row.authorId),
+    isAuthor: row.authorId === actor.userId,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
+  };
+}
+
+/** Private notes of others reach a staff member only while they mentor the student. */
+async function noteViewer(db: DbOrTx, actor: Actor, studentId: string): Promise<repo.NoteViewer> {
+  return {
+    userId: actor.userId,
+    seesPrivate: await mentorWorksWithStudent(db, actor.userId, actor.organizationId, studentId),
   };
 }
 
@@ -80,7 +89,7 @@ async function loadNoteDTO(db: DbOrTx, actor: Actor, noteId: string): Promise<No
 
 // ---- notes (staff) ---------------------------------------------------------------------
 
-/** GET /students/:id/notes (A, M in scope): internal and shared, newest first. */
+/** GET /students/:id/notes (A, M in scope): newest first; private ones per `NoteViewer`. */
 export async function listStudentNotes(
   actor: Actor,
   studentId: string,
@@ -94,6 +103,7 @@ export async function listStudentNotes(
   const rows = await repo.listNotes(
     db,
     studentId,
+    await noteViewer(db, actor, studentId),
     { visibility: query.visibility, kind: query.kind },
     limit + 1,
     offset,
@@ -134,8 +144,9 @@ export async function createNote(
 }
 
 /**
- * Loads a note for a write: admin → any note in scope; mentor → author AND the student in
- * the current scope. Anything else (missing, deleted, other author, former mentor) → 404.
+ * Loads a note for a write: admin → any note in scope except another author's private note;
+ * mentor → author AND the student in the current scope. Anything else (missing, deleted,
+ * other author, former mentor) → 404.
  */
 async function loadNoteForWrite(tx: DbOrTx, actor: Actor, noteId: string) {
   assertStaff(actor);
@@ -148,12 +159,14 @@ async function loadNoteForWrite(tx: DbOrTx, actor: Actor, noteId: string) {
   if (actor.role !== 'admin' && resource.authorId !== actor.userId) throw errors.notFound();
   const locked = await repo.lockNote(tx, noteId);
   if (!locked) throw errors.notFound();
+  if (locked.visibility === 'private' && locked.authorId !== actor.userId) throw errors.notFound();
   return locked;
 }
 
 /**
- * PATCH /notes/:id (A; M author + in scope). internal → shared is audited
+ * PATCH /notes/:id (A; M author + in scope). Becoming shared is audited
  * (`note.visibility_changed`, SEC-L7); the UI asks for a confirmation first (SEC-F6).
+ * Only the author makes a note private (an admin would hide someone else's note).
  */
 export async function updateNote(
   actor: Actor,
@@ -169,6 +182,9 @@ export async function updateNote(
     if (input.ifUpdatedAt && input.ifUpdatedAt.getTime() !== locked.updatedAt.getTime()) {
       throw errors.conflict('این یادداشت در این فاصله تغییر کرده است. صفحه را تازه کن.');
     }
+    if (input.visibility === 'private' && locked.authorId !== actor.userId) {
+      throw errors.forbidden();
+    }
     const values: Parameters<typeof repo.updateNote>[2] = {};
     if (input.kind !== undefined) values.kind = input.kind;
     if (input.visibility !== undefined) values.visibility = input.visibility;
@@ -176,13 +192,13 @@ export async function updateNote(
     if (input.tags !== undefined) values.tags = input.tags;
     if (input.occurredAt !== undefined) values.occurredAt = input.occurredAt;
     if (Object.keys(values).length > 0) await repo.updateNote(tx, noteId, values, now);
-    if (locked.visibility === 'internal' && input.visibility === 'shared') {
+    if (locked.visibility !== 'shared' && input.visibility === 'shared') {
       await recordAudit(tx, {
         actorId: actor.userId,
         action: 'note.visibility_changed',
         targetType: 'note',
         targetId: noteId,
-        data: { from: 'internal', to: 'shared', studentId: locked.studentId },
+        data: { from: locked.visibility, to: 'shared', studentId: locked.studentId },
         ip: meta.ip ?? null,
       });
     }
@@ -286,7 +302,9 @@ export async function getTimeline(
     eventTypes && eventTypes.length === 0
       ? Promise.resolve([])
       : repo.listEvents(db, studentId, eventTypes, window),
-    wantNotes ? repo.listNotes(db, studentId, {}, window, 0) : Promise.resolve([]),
+    wantNotes
+      ? repo.listNotes(db, studentId, await noteViewer(db, actor, studentId), {}, window, 0)
+      : Promise.resolve([]),
   ]);
 
   const merged: TimelineItemDTO[] = [

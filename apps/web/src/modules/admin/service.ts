@@ -19,6 +19,10 @@ export type AuditAction =
   | 'auth.locked'
   | 'session.revoked_all'
   | 'session.reauth'
+  | 'session.organization_switched'
+  | 'organization.created'
+  | 'organization.renamed'
+  | 'organization.member_added'
   | 'user.updated'
   | 'user.phone_changed'
   | 'user.disabled'
@@ -44,12 +48,33 @@ export type AuditAction =
   | 'note.visibility_changed'
   | 'import.students'
   | 'export.students'
-  | 'export.tasks';
+  | 'export.tasks'
+  | 'program.template_created'
+  | 'program.template_published'
+  | 'program.template_archived'
+  | 'program.template_restored'
+  | 'program.template_deleted'
+  | 'program.template_submitted'
+  | 'program.template_approved'
+  | 'program.template_rejected'
+  | 'program.run_created'
+  | 'program.run_status_changed'
+  | 'program.staff_added'
+  | 'program.staff_ended'
+  | 'program.enrolled'
+  | 'program.activity_assigned'
+  | 'program.mentor_assigned'
+  | 'program.mentor_ended'
+  | 'mentor.profile_updated'
+  | 'mentor.students_transferred';
 
 export type AuditEntry = {
   actorId: string | null;
+  /** The organization the event happened in; null for account-level and CLI events. */
+  organizationId?: string | null;
   action: AuditAction;
   targetType?:
+    | 'organization'
     | 'user'
     | 'session'
     | 'auth_token'
@@ -61,7 +86,11 @@ export type AuditEntry = {
     | 'settings'
     | 'milestone_type'
     | 'canned_response'
-    | 'question';
+    | 'question'
+    | 'program_template'
+    | 'program_run'
+    | 'enrollment'
+    | 'mentor';
   targetId?: string;
   data?: Record<string, unknown>;
   ip?: string | null;
@@ -81,6 +110,7 @@ export async function recordAudit(db: DbOrTx, entry: AuditEntry): Promise<void> 
   assertSafeAuditData(data);
   await db.insert(auditLog).values({
     actorId: entry.actorId,
+    organizationId: entry.organizationId ?? null,
     action: entry.action,
     targetType: entry.targetType ?? null,
     targetId: entry.targetId ?? null,

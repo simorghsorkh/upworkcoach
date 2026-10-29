@@ -1,55 +1,65 @@
 import type { z } from 'zod';
-import { errors } from './errors';
+import type { Locale } from '@/i18n/config';
+import { formatCount, localizeText, translate } from '@/i18n/translate';
+import { ApiError } from './errors';
 
 /**
- * zod → `422 VALIDATION_FAILED` with Persian per-field messages (api.md section 1).
- * Custom refinements in contracts already carry Persian messages; built-in issues get a
- * generic Persian text. Input values are never echoed (SEC-L4).
+ * zod → `422 VALIDATION_FAILED` with per-field messages in the request's language (api.md
+ * section 1, ADR-0013). Custom refinements in contracts carry Persian messages that are looked
+ * up in the catalog; built-in issues get a generic text. Input values are never echoed (SEC-L4).
  */
-export function issueMessage(issue: z.core.$ZodIssue): string {
+export function issueMessage(issue: z.core.$ZodIssue, locale: Locale = 'fa'): string {
+  const t = (key: string, params?: Record<string, string>) => translate(locale, key, params);
   switch (issue.code) {
     case 'custom':
-      return issue.message;
+      return localizeText(locale, issue.message);
     case 'invalid_type':
-      return issue.input === undefined ? 'این فیلد را پر کن.' : 'مقدار نامعتبر است';
+      return issue.input === undefined ? t('validation.required') : t('validation.invalid');
     case 'too_small':
       if (issue.origin === 'string') {
         return Number(issue.minimum) <= 1
-          ? 'این فیلد را پر کن.'
-          : `حداقل ${Number(issue.minimum).toLocaleString('fa-IR')} نویسه لازم است.`;
+          ? t('validation.required')
+          : t('validation.minChars', { count: formatCount(locale, Number(issue.minimum)) });
       }
-      return 'مقدار نامعتبر است';
+      return t('validation.invalid');
     case 'too_big':
       if (issue.origin === 'string') {
-        return `حداکثر ${Number(issue.maximum).toLocaleString('fa-IR')} نویسه مجاز است.`;
+        return t('validation.maxChars', { count: formatCount(locale, Number(issue.maximum)) });
       }
-      return 'مقدار نامعتبر است';
+      return t('validation.invalid');
     case 'unrecognized_keys':
-      return 'فیلد ناشناخته';
+      return t('validation.unknownField');
     default:
-      return 'مقدار نامعتبر است';
+      return t('validation.invalid');
   }
 }
 
-export function zodFields(error: z.ZodError): Record<string, string> {
+export function zodFields(error: z.ZodError, locale: Locale = 'fa'): Record<string, string> {
   const fields: Record<string, string> = {};
   for (const issue of error.issues) {
     if (issue.code === 'unrecognized_keys') {
       for (const key of issue.keys) {
         const path = [...issue.path, key].join('.');
-        fields[path] ??= issueMessage(issue);
+        fields[path] ??= issueMessage(issue, locale);
       }
       continue;
     }
     const path = issue.path.length > 0 ? issue.path.join('.') : '_';
-    fields[path] ??= issueMessage(issue);
+    fields[path] ??= issueMessage(issue, locale);
   }
   return fields;
 }
 
 export function parseOrThrow<T extends z.ZodType>(schema: T, data: unknown): z.output<T> {
   const result = schema.safeParse(data);
-  if (!result.success) throw errors.validation(zodFields(result.error));
+  if (!result.success) {
+    const error = result.error;
+    // Persian fields; ApiError.toBody(locale) rebuilds them in the response language.
+    throw new ApiError('VALIDATION_FAILED', {
+      fields: zodFields(error),
+      fieldsFor: (locale) => zodFields(error, locale),
+    });
+  }
   return result.data;
 }
 

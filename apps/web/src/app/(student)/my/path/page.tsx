@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { faNumber } from '@/components/format/fa';
 import { Icon } from '@/components/icons/icon';
 import { ContentLinks, PathCard } from '@/components/student/path-card';
+import { ButtonLink } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/components/ui/cn';
 import { PageHead } from '@/components/ui/page-head';
@@ -14,13 +16,19 @@ const stateText = { passed: 'پشت سر گذاشتی', current: 'اینجایی
 
 /** S6 — my path: the home stepper, opened up with every stage's output and links. */
 export default async function MyPathPage() {
-  const { path } = await loadOwn();
+  const [{ path }, t] = await Promise.all([loadOwn(), getTranslations('nav')]);
   if (!path) return <NoRecord />;
   return (
     <>
       <PageHead
         title="مسیر من"
         sub={`${faNumber(path.stages.length)} مرحله؛ مشاورت عبور از هر مرحله را تأیید می‌کند.`}
+        actions={
+          <ButtonLink href="/my/programs" variant="soft" size="sm" className="md:hidden">
+            <Icon name="flag" size={14} />
+            {t('programs')}
+          </ButtonLink>
+        }
       />
       <div className="flex flex-col gap-4 md:gap-5">
         <PathCard path={path} showAllLink={false} />

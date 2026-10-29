@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type { NextConfig } from 'next';
+import createNextIntlPlugin from 'next-intl/plugin';
 import {
   STATIC_SECURITY_HEADERS,
   TOKEN_PAGE_HEADERS,
@@ -56,4 +57,7 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// ADR-0013: locale, time zone and messages per request (no locale prefix in the URL).
+const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
+
+export default withNextIntl(nextConfig);

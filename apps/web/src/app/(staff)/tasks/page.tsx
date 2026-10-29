@@ -15,6 +15,7 @@ import { EmptyState } from '@/components/ui/states';
 import type { SubmissionType } from '@/modules/catalog/contracts';
 import { listStages, listTaskTemplates } from '@/modules/catalog/service';
 import { listMentors } from '@/modules/identity/service';
+import { listRuns } from '@/modules/programs/service';
 import type { ReviewQueueItemDTO, StaffTaskDTO, StaffTasksQuery } from '@/modules/tasks/contracts';
 import { getReviewQueue, listStaffTasks } from '@/modules/tasks/service';
 import { requireUser, toActor } from '@/server/auth/current-user';
@@ -59,6 +60,7 @@ function fromTask(t: StaffTaskDTO, q?: ReviewQueueItemDTO): TaskRow {
     revisionCount: t.revisionCount,
     version: q?.version ?? null,
     lastSubmittedAt: t.lastSubmittedAt,
+    program: q?.program && !q.program.isLegacy ? q.program.title : null,
     sla: q
       ? {
           breached: q.breached,
@@ -86,6 +88,7 @@ function fromQueue(q: ReviewQueueItemDTO): TaskRow {
     revisionCount: 0,
     version: q.version,
     lastSubmittedAt: q.lastSubmittedAt,
+    program: q.program && !q.program.isLegacy ? q.program.title : null,
     sla: {
       breached: q.breached,
       warning: q.warning,
@@ -114,6 +117,11 @@ export default async function TasksPage({ searchParams }: { searchParams: Search
   const mentorParam = isAdmin ? param(sp.mentor) : '';
   const mentorId = UUID.test(mentorParam) ? mentorParam : undefined;
   const cursor = param(sp.cursor) || undefined;
+  // Review tab only (sprint 5): program run and SLA state narrow the queue itself.
+  const runParam = tab === 'review' ? param(sp.run) : '';
+  const runId = UUID.test(runParam) ? runParam : undefined;
+  const slaParam = tab === 'review' ? param(sp.sla) : '';
+  const sla = (['breached', 'warning', 'ok'] as const).find((s) => s === slaParam);
 
   // GET /tasks (sprint-3 gap 1): filters and scope in SQL; `counts` ignore status/overdue, so
   // one request gives every tab's number. The review tab keeps the SLA queue order.
@@ -135,14 +143,19 @@ export default async function TasksPage({ searchParams }: { searchParams: Search
       cursor,
     },
   };
-  const [queue, list, stages, templates, mentors] = await Promise.all([
-    getReviewQueue(actor, mentorId ? { mentorId } : {}),
+  const [queue, list, stages, templates, mentors, runs] = await Promise.all([
+    getReviewQueue(actor, {
+      ...(mentorId ? { mentorId } : {}),
+      ...(runId ? { runId } : {}),
+      ...(sla ? { sla } : {}),
+    }),
     listStaffTasks(actor, { ...filters, ...tabQuery[tab] }).catch(() =>
       listStaffTasks(actor, { ...filters, ...tabQuery[tab], cursor: undefined }),
     ),
     listStages(actor),
     listTaskTemplates(actor, {}),
     isAdmin ? listMentors(actor) : Promise.resolve([]),
+    tab === 'review' ? listRuns(actor, { status: 'active' }) : Promise.resolve([]),
   ]);
   const now = new Date();
   const c = list.counts;
@@ -185,7 +198,7 @@ export default async function TasksPage({ searchParams }: { searchParams: Search
     const s = next.toString();
     return s ? `/tasks?${s}` : '/tasks';
   };
-  const filtersOn = Boolean(q || type || stage);
+  const filtersOn = Boolean(q || type || stage || runId || sla);
   const pageHref = (next: string | null) => {
     const base = href(tab);
     return next
@@ -262,6 +275,11 @@ export default async function TasksPage({ searchParams }: { searchParams: Search
             : null
         }
         stages={stageOptions}
+        runs={
+          tab === 'review'
+            ? runs.filter((r) => !r.isLegacy).map((r) => ({ id: r.id, label: r.title }))
+            : null
+        }
       />
 
       {filtered.length ? (

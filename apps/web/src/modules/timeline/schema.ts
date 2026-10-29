@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { check, index, jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { uuidv7 } from '../../lib/uuid';
-import { users } from '../identity/schema';
+import { inheritedOrganizationId, users } from '../identity/schema';
 import { students } from '../students/schema';
 
 /**
@@ -15,7 +15,12 @@ import { students } from '../students/schema';
  */
 
 export const NOTE_KINDS = ['note', 'session', 'call', 'external_message', 'weekly_review'] as const;
-export const NOTE_VISIBILITIES = ['internal', 'shared'] as const;
+/**
+ * `private` (sprint 4 of Coach Office): only the author reads it, the admin included
+ * (founder decision Q8). The organization still sees that a note exists through its effects
+ * (health «red without action»), never its text.
+ */
+export const NOTE_VISIBILITIES = ['internal', 'shared', 'private'] as const;
 
 const ts = () => timestamp({ withTimezone: true });
 const inList = (values: readonly string[]) => sql.raw(values.map((v) => `'${v}'`).join(', '));
@@ -23,6 +28,7 @@ const inList = (values: readonly string[]) => sql.raw(values.map((v) => `'${v}'`
 export const notes = pgTable(
   'notes',
   {
+    organizationId: inheritedOrganizationId(),
     id: uuid()
       .primaryKey()
       .$defaultFn(() => uuidv7()),
@@ -57,6 +63,7 @@ export const notes = pgTable(
 export const timelineEvents = pgTable(
   'timeline_events',
   {
+    organizationId: inheritedOrganizationId(),
     id: uuid()
       .primaryKey()
       .$defaultFn(() => uuidv7()),

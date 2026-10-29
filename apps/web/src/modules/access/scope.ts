@@ -12,10 +12,10 @@ import {
   findFlagRoot,
   findMilestoneRoot,
   findNoteRoot,
-  findPrimaryMentor,
   findProfileRoot,
   findQuestionRoot,
   findReviewRoot,
+  findStudentOrganization,
   findSubmissionRoot,
   findTaskRoot,
 } from './repo';
@@ -24,24 +24,32 @@ import {
  * access — role + ownership scope (ADR-0004 section 1, security.md SEC-A1/A2).
  *
  *   staffStudentScope(actor):
- *     admin   → ALL
- *     mentor  → settings.access.mentorScope == 'all' ? ALL : students.primary_mentor_id = actor
+ *     admin   → ALL (of the actor's organization)
+ *     mentor  → settings.access.mentorScope == 'all' ? ALL : the students they work with
  *     student → NONE (students never go through staff paths)
+ *
+ * "Work with" (sprint 4 of Coach Office, ADR-0012 section 5): an active `enrollment_mentors`
+ * row on one of the student's enrollments (primary or secondary; on the legacy run this is
+ * `students.primary_mentor_id`, kept in sync by a trigger), or an active `run_staff` row on a
+ * run the student is enrolled in and has not dropped out of.
+ *
+ * ALL and the mentor scope are always limited to the actor's organization (ADR-0011):
+ * a student of another organization is out of scope, which every path answers with 404.
  */
 export type StaffStudentScope =
-  | { kind: 'all' }
-  | { kind: 'mentor'; mentorId: string }
+  | { kind: 'all'; organizationId: string }
+  | { kind: 'mentor'; mentorId: string; organizationId: string }
   | { kind: 'none' };
 
 /** Pure decision; unit-tested. */
 export function resolveStaffStudentScope(actor: Actor, access: AccessSettings): StaffStudentScope {
   switch (actor.role) {
     case 'admin':
-      return { kind: 'all' };
+      return { kind: 'all', organizationId: actor.organizationId };
     case 'mentor':
       return access.mentorScope === 'all'
-        ? { kind: 'all' }
-        : { kind: 'mentor', mentorId: actor.userId };
+        ? { kind: 'all', organizationId: actor.organizationId }
+        : { kind: 'mentor', mentorId: actor.userId, organizationId: actor.organizationId };
     case 'student':
       return { kind: 'none' };
     default: {
@@ -54,35 +62,77 @@ export function resolveStaffStudentScope(actor: Actor, access: AccessSettings): 
 
 export async function staffStudentScope(db: DbOrTx, actor: Actor): Promise<StaffStudentScope> {
   if (actor.role !== 'mentor') return resolveStaffStudentScope(actor, NARROWEST);
-  return resolveStaffStudentScope(actor, await getAccessSettings(db));
+  return resolveStaffStudentScope(actor, await getAccessSettings(db, actor.organizationId));
 }
 
 const NARROWEST: AccessSettings = { mentorScope: 'assigned', mentorsCanInviteStudents: false };
 
 /**
- * SQL condition every staff list query ANDs into its WHERE (SEC-A2), given the column that
- * holds the student's primary mentor (`students.primary_mentor_id`, or the same column
- * reached through a join).
+ * Subquery of the student ids a mentor works with in one organization (see the header).
+ * Plain SQL with its own aliases, so it nests inside any query, including queries that read
+ * `enrollments` or `run_staff` themselves. Run staff lose a student who dropped out of the
+ * run; an explicit mentor assignment holds until it ends, whatever the enrollment status.
+ */
+export function mentoredStudentIds(mentorId: string, organizationId: string): SQL {
+  return sql`(SELECT scope_e.student_id FROM enrollments scope_e
+    WHERE scope_e.organization_id = ${organizationId} AND (
+      EXISTS (SELECT 1 FROM enrollment_mentors scope_em
+        WHERE scope_em.enrollment_id = scope_e.id AND scope_em.user_id = ${mentorId}
+          AND scope_em.ended_at IS NULL)
+      OR (scope_e.status <> 'dropped' AND EXISTS (SELECT 1 FROM run_staff scope_rs
+        WHERE scope_rs.run_id = scope_e.run_id AND scope_rs.user_id = ${mentorId}
+          AND scope_rs.ended_at IS NULL))))`;
+}
+
+/**
+ * SQL condition every staff list query ANDs into its WHERE (SEC-A2), given the columns that
+ * hold the student's id and organization (`students.user_id` and `students.organization_id`,
+ * or a row's own `student_id` and `organization_id`, which always equals its student's).
+ * Also usable as a selected boolean ("is this row's student in my scope?").
  */
 export function scopeCondition(
   scope: StaffStudentScope,
-  primaryMentorColumn: AnyPgColumn | SQL,
-): SQL {
+  studentIdColumn: AnyPgColumn | SQL,
+  organizationColumn: AnyPgColumn | SQL,
+): SQL<boolean> {
   switch (scope.kind) {
     case 'all':
-      return sql`true`;
+      return sql<boolean>`${organizationColumn} = ${scope.organizationId}`;
     case 'mentor':
-      return sql`${primaryMentorColumn} = ${scope.mentorId}`;
+      return sql<boolean>`(${organizationColumn} = ${scope.organizationId} AND ${studentIdColumn} IN ${mentoredStudentIds(scope.mentorId, scope.organizationId)})`;
     case 'none':
-      return sql`false`;
+      return sql<boolean>`false`;
   }
 }
 
-/** Primary-mentor lookup for one student (null when unassigned or not a student). */
-export type PrimaryMentorLookup = (db: DbOrTx, studentId: string) => Promise<string | null>;
+/** Whether a mentor works with one student of an organization. */
+export type MentorLinkCheck = (
+  db: DbOrTx,
+  mentorId: string,
+  organizationId: string,
+  studentId: string,
+) => Promise<boolean>;
 
-export const lookupPrimaryMentorFromStudents: PrimaryMentorLookup = async (db, studentId) =>
-  isUuid(studentId) ? ((await findPrimaryMentor(db, studentId))?.primaryMentorId ?? null) : null;
+export const mentorWorksWithStudent: MentorLinkCheck = async (
+  db,
+  mentorId,
+  organizationId,
+  studentId,
+) => {
+  const result = await db.execute<{ linked: boolean }>(
+    sql`SELECT ${studentId}::uuid IN ${mentoredStudentIds(mentorId, organizationId)} AS linked`,
+  );
+  return result.rows[0]?.linked === true;
+};
+
+/** Organization of one student (null when not a student). */
+export type StudentOrganizationLookup = (
+  db: DbOrTx,
+  studentId: string,
+) => Promise<{ organizationId: string } | null>;
+
+export const lookupStudentOrganization: StudentOrganizationLookup = async (db, studentId) =>
+  isUuid(studentId) ? findStudentOrganization(db, studentId) : null;
 
 /**
  * Whether `studentId` (an existing student) is inside the actor's staff scope.
@@ -92,31 +142,31 @@ export async function isStudentInScope(
   db: DbOrTx,
   actor: Actor,
   studentId: string,
-  lookupPrimaryMentor: PrimaryMentorLookup = lookupPrimaryMentorFromStudents,
+  lookup: StudentOrganizationLookup = lookupStudentOrganization,
+  linked: MentorLinkCheck = mentorWorksWithStudent,
 ): Promise<boolean> {
   const scope = await staffStudentScope(db, actor);
-  return isInScope(
-    scope,
-    await lookupPrimaryMentorIfNeeded(scope, db, studentId, lookupPrimaryMentor),
-  );
+  if (scope.kind === 'none') return false;
+  const root = await lookup(db, studentId);
+  return root !== null && studentInScope(db, scope, studentId, root.organizationId, linked);
 }
 
-async function lookupPrimaryMentorIfNeeded(
-  scope: StaffStudentScope,
+/** One student (its id and organization) against a scope. */
+export async function studentInScope(
   db: DbOrTx,
+  scope: StaffStudentScope,
   studentId: string,
-  lookup: PrimaryMentorLookup,
-): Promise<string | null> {
-  return scope.kind === 'mentor' ? lookup(db, studentId) : null;
-}
-
-/** Pure check of one student's primary mentor against a scope. */
-export function isInScope(scope: StaffStudentScope, primaryMentorId: string | null): boolean {
+  organizationId: string,
+  linked: MentorLinkCheck = mentorWorksWithStudent,
+): Promise<boolean> {
   switch (scope.kind) {
     case 'all':
-      return true;
+      return organizationId === scope.organizationId;
     case 'mentor':
-      return primaryMentorId !== null && primaryMentorId === scope.mentorId;
+      return (
+        organizationId === scope.organizationId &&
+        linked(db, scope.mentorId, scope.organizationId, studentId)
+      );
     case 'none':
       return false;
   }
@@ -145,7 +195,11 @@ export type ScopedKind =
 export type ScopeResolver<T = unknown> = (
   db: DbOrTx,
   id: string,
-) => Promise<{ studentId: string; primaryMentorId: string | null; resource: T } | null>;
+) => Promise<{
+  studentId: string;
+  organizationId: string;
+  resource: T;
+} | null>;
 
 /**
  * Resolvers per kind. Each walks from the resource to its root `student_id`. Later modules
@@ -155,8 +209,8 @@ export type ScopeResolver<T = unknown> = (
 export const scopeResolvers: Partial<Record<ScopedKind, ScopeResolver>> = {
   student: async (db, id) => {
     if (!isUuid(id)) return null;
-    const row = await findPrimaryMentor(db, id);
-    return row ? { studentId: id, primaryMentorId: row.primaryMentorId, resource: { id } } : null;
+    const row = await findStudentOrganization(db, id);
+    return row ? { studentId: id, ...row, resource: { id } } : null;
   },
   // Soft-deleted profiles do not exist for anyone.
   profile: async (db, id) => {
@@ -175,7 +229,7 @@ export const scopeResolvers: Partial<Record<ScopedKind, ScopeResolver>> = {
     return row
       ? {
           studentId: row.studentId,
-          primaryMentorId: row.primaryMentorId,
+          organizationId: row.organizationId,
           resource: { id, taskId: row.taskId },
         }
       : null;
@@ -186,7 +240,7 @@ export const scopeResolvers: Partial<Record<ScopedKind, ScopeResolver>> = {
     return row
       ? {
           studentId: row.studentId,
-          primaryMentorId: row.primaryMentorId,
+          organizationId: row.organizationId,
           resource: { id, reviewerId: row.reviewerId },
         }
       : null;
@@ -198,7 +252,7 @@ export const scopeResolvers: Partial<Record<ScopedKind, ScopeResolver>> = {
     return row
       ? {
           studentId: row.studentId,
-          primaryMentorId: row.primaryMentorId,
+          organizationId: row.organizationId,
           resource: { id, authorId: row.authorId },
         }
       : null;
@@ -210,7 +264,7 @@ export const scopeResolvers: Partial<Record<ScopedKind, ScopeResolver>> = {
     return row
       ? {
           studentId: row.studentId,
-          primaryMentorId: row.primaryMentorId,
+          organizationId: row.organizationId,
           resource: { id, thread: row.thread },
         }
       : null;
@@ -222,7 +276,7 @@ export const scopeResolvers: Partial<Record<ScopedKind, ScopeResolver>> = {
     return row
       ? {
           studentId: row.studentId,
-          primaryMentorId: row.primaryMentorId,
+          organizationId: row.organizationId,
           resource: { id, assigneeId: row.assigneeId, status: row.status },
         }
       : null;
@@ -254,6 +308,7 @@ export async function loadInScope<T = unknown>(
   kind: ScopedKind,
   id: string,
   resolvers: Partial<Record<ScopedKind, ScopeResolver>> = scopeResolvers,
+  linked: MentorLinkCheck = mentorWorksWithStudent,
 ): Promise<{ studentId: string; resource: T }> {
   const resolver = resolvers[kind];
   if (!resolver) throw new Error(`loadInScope: no resolver registered for "${kind}"`);
@@ -262,6 +317,8 @@ export async function loadInScope<T = unknown>(
   const found = await resolver(db, id);
   if (!found) throw errors.notFound();
   const scope = await staffStudentScope(db, actor);
-  if (!isInScope(scope, found.primaryMentorId)) throw errors.notFound();
+  if (!(await studentInScope(db, scope, found.studentId, found.organizationId, linked))) {
+    throw errors.notFound();
+  }
   return { studentId: found.studentId, resource: found.resource as T };
 }

@@ -16,7 +16,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { uuidv7 } from '../../lib/uuid';
 import { platforms, stages, tracks } from '../catalog/schema';
-import { users } from '../identity/schema';
+import { inheritedOrganizationId, organizationId, users } from '../identity/schema';
 
 /**
  * students — student record, mentor assignment history, platform profiles and their
@@ -43,6 +43,7 @@ const inList = (values: readonly string[]) => sql.raw(values.map((v) => `'${v}'`
 export const students = pgTable(
   'students',
   {
+    organizationId: organizationId(),
     userId: uuid()
       .primaryKey()
       .references(() => users.id),
@@ -81,6 +82,7 @@ export const students = pgTable(
     updatedAt: ts().notNull().defaultNow(),
   },
   (t) => [
+    index('students_org_lifecycle_idx').on(t.organizationId, t.lifecycleStatus),
     index('students_mentor_lifecycle_idx').on(t.primaryMentorId, t.lifecycleStatus),
     index('students_current_stage_idx').on(t.currentStageId),
     index('students_tags_gin_idx').using('gin', t.tags),
@@ -119,6 +121,7 @@ export const students = pgTable(
 export const mentorAssignments = pgTable(
   'mentor_assignments',
   {
+    organizationId: inheritedOrganizationId(),
     id: uuid()
       .primaryKey()
       .$defaultFn(() => uuidv7()),
@@ -147,6 +150,7 @@ export const mentorAssignments = pgTable(
 export const platformProfiles = pgTable(
   'platform_profiles',
   {
+    organizationId: inheritedOrganizationId(),
     id: uuid()
       .primaryKey()
       .$defaultFn(() => uuidv7()),
@@ -201,6 +205,7 @@ export const platformProfiles = pgTable(
 export const profileSnapshots = pgTable(
   'profile_snapshots',
   {
+    organizationId: inheritedOrganizationId(),
     id: uuid()
       .primaryKey()
       .$defaultFn(() => uuidv7()),

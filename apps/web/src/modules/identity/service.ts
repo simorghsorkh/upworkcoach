@@ -1,9 +1,16 @@
 import { randomBytes } from 'node:crypto';
 import { sql } from 'drizzle-orm';
+import { type Locale, pickLocale } from '@/i18n/config';
 import { maskPhone, normalizeIranMobile } from '@/lib/phone';
 import { normalizeFa } from '@/lib/text-fa';
 import { isUuid } from '@/lib/uuid';
-import type { Actor, MeDTO, Role } from '@/server/auth/current-user';
+import {
+  type Actor,
+  legacyRole,
+  type MeDTO,
+  type OrganizationRole,
+  type Role,
+} from '@/server/auth/current-user';
 import { type Db, type DbOrTx, getDb } from '@/server/db';
 import { getEnv } from '@/server/env';
 import { errors } from '@/server/http/errors';
@@ -13,10 +20,15 @@ import { isStudentInScope } from '../access/scope';
 import { anonymizeAuditForUser, applyAuditRetention, recordAudit } from '../admin/service';
 import { detachForErasure } from '../files/repo';
 import { purgeAttachments } from '../files/service';
+import { eraseMentoringOfStudent } from '../mentoring/erasure';
+import { eraseMentorProfiles } from '../mentors/erasure';
+import { eraseNotificationsOf } from '../notifications/service';
 import { eraseTransitionNotes } from '../path/transitions';
+import { endStaffRolesOf, eraseProgramsOfStudent } from '../programs/erasure';
 import { eraseSprint4OfStudent } from '../questions/erasure';
 import { countOpenQuestionsAssignedTo } from '../questions/transfer';
 import { countOpenRemindersOwnedBy, eraseRemindersAboutStudent } from '../reminders/erasure';
+import { eraseSchedulingOf } from '../scheduling/repo';
 import { touchStudentActivity } from '../students/activity';
 import { countStudentsOfMentor, eraseStudentRecord } from '../students/erasure';
 import { rebuildStudentSearchText } from '../students/search-text';
@@ -27,6 +39,7 @@ import {
   type InvitationCreatedDTO,
   type InviteLinkDTO,
   type MentorOptionDTO,
+  type OrganizationOptionDTO,
   PHONE_INVALID_MESSAGE,
   type ReauthDTO,
   type ResetLinkDTO,
@@ -50,6 +63,7 @@ import {
   staffOnly,
 } from './policy';
 import * as repo from './repo';
+import { DEFAULT_ORGANIZATION_ID } from './schema';
 import {
   absoluteExpiry,
   isRecentlyAuthenticated,
@@ -121,9 +135,38 @@ export type AuthResult = {
 
 // ---- helpers -------------------------------------------------------------------------
 
-function toMe(u: { id: string; displayName: string; role: Role; phone: string }): MeDTO {
-  return { id: u.id, displayName: u.displayName, role: u.role, phone: u.phone };
+function toMe(
+  u: { id: string; displayName: string; phone: string },
+  m: repo.ActiveMembership,
+): MeDTO {
+  return {
+    id: u.id,
+    displayName: u.displayName,
+    role: legacyRole(m.role),
+    phone: u.phone,
+    locale: pickLocale(m.preferredLocale, m.organizationLocale),
+    organization: {
+      id: m.organizationId,
+      name: m.organizationName,
+      role: m.role,
+      timeZone: m.organizationTimeZone,
+    },
+  };
 }
+
+/** The user's active membership in this (active) organization, if any. */
+async function activeMembershipIn(
+  db: DbOrTx,
+  userId: string,
+  organizationId: string,
+): Promise<repo.ActiveMembership | null> {
+  const rows = await repo.listActiveMemberships(db, userId);
+  return rows.find((m) => m.organizationId === organizationId) ?? null;
+}
+
+const SHARED_ACCOUNT_MESSAGE =
+  'این حساب در سازمان دیگری هم عضو است؛ نام، شماره و رمز آن را از اینجا نمی‌شود تغییر داد.';
+const OWNER_MESSAGE = 'مالک سازمان را نمی‌شود غیرفعال کرد یا نقشش را تغییر داد.';
 
 function assertDecision(decision: Decision): void {
   switch (decision) {
@@ -185,23 +228,27 @@ async function issueToken(
   return { token, expiresAt };
 }
 
+/** A new session working in the organization of `membership`; lifetimes follow its role. */
 async function createSession(
   db: DbOrTx,
-  user: { id: string; role: Role },
+  userId: string,
+  membership: repo.ActiveMembership,
   meta: RequestMeta,
   now: Date,
 ): Promise<IssuedSession> {
+  const role = legacyRole(membership.role);
   const token = generateToken();
-  const expiresAt = slidingExpiry(user.role, now, now);
+  const expiresAt = slidingExpiry(role, now, now);
   await repo.insertSession(db, {
-    userId: user.id,
+    userId,
+    organizationId: membership.organizationId,
     tokenHash: sha256Hex(token),
     createdAt: now,
     expiresAt,
     ip: meta.ip,
     userAgent: meta.userAgent?.slice(0, 500) ?? null,
   });
-  return { token, expiresAt, cookieExpiresAt: absoluteExpiry(user.role, now) };
+  return { token, expiresAt, cookieExpiresAt: absoluteExpiry(role, now) };
 }
 
 function isUniqueViolation(err: unknown): boolean {
@@ -220,8 +267,9 @@ export type AuthenticatedSession = {
 };
 
 /**
- * SEC-S3: validates the session cookie on every request. Role and status come from `users`,
- * never from a cache. With `touch`, last_used_at / expires_at / last_seen_at are refreshed
+ * SEC-S3: validates the session cookie on every request. Status comes from `users`, role
+ * from the membership in the session's organization (ADR-0011), never from a cache; a
+ * disabled membership or suspended organization ends the session. With `touch`, last_used_at / expires_at / last_seen_at are refreshed
  * at most every 15 minutes (allowed side effect of GET, SEC-C4).
  */
 export async function authenticateSession(
@@ -233,23 +281,35 @@ export async function authenticateSession(
   const now = options.now ?? new Date();
   const row = await repo.findSessionWithUser(db, sha256Hex(token));
   if (!row) return null;
-  if (!isSessionValid(row, row.role, now)) return null;
+  if (row.membershipStatus !== 'active' || row.organizationStatus !== 'active') return null;
+  const role = legacyRole(row.organizationRole);
+  if (!isSessionValid(row, role, now)) return null;
 
   if (options.touch !== false) {
     if (shouldTouch(row.lastUsedAt, now)) {
-      await repo.touchSession(db, row.sessionId, now, slidingExpiry(row.role, row.createdAt, now));
+      await repo.touchSession(db, row.sessionId, now, slidingExpiry(role, row.createdAt, now));
     }
     if (shouldTouch(row.lastSeenAt, now)) {
       await repo.touchUserSeen(db, row.userId, now);
       // R-INACT base, at most once an hour (data-model.md 2-3).
-      if (row.role === 'student' && (await touchStudentActivity(db, row.userId, now))) {
+      if (role === 'student' && (await touchStudentActivity(db, row.userId, now))) {
         await recomputeHealthAfterActivity(row.userId);
       }
     }
   }
   return {
     sessionId: row.sessionId,
-    user: toMe({ ...row, id: row.userId }),
+    user: toMe(
+      { ...row, id: row.userId },
+      {
+        organizationId: row.organizationId,
+        organizationName: row.organizationName,
+        role: row.organizationRole,
+        organizationLocale: row.organizationLocale,
+        organizationTimeZone: row.organizationTimeZone,
+        preferredLocale: row.preferredLocale,
+      },
+    ),
     lastPasswordAt: lastPasswordAt(row.createdAt, row.reauthAt),
   };
 }
@@ -271,8 +331,9 @@ async function recomputeHealthAfterActivity(studentId: string): Promise<void> {
 
 /**
  * POST /auth/login (ADR-0003 section 4, SEC-R1..R7).
- * Same 401 for unknown / invited / disabled / wrong password; the dummy hash is verified
- * so timing does not reveal accounts; counting is identical for unknown phones.
+ * Same 401 for unknown / invited / disabled / wrong password / no active membership; the
+ * dummy hash is verified so timing does not reveal accounts; counting is identical for
+ * unknown phones. The session lands in the oldest active membership (ADR-0011 section 2).
  */
 export async function login(
   input: { phone: string; password: string },
@@ -302,14 +363,20 @@ export async function login(
   );
   if (retryAfter > 0) throw errors.tooManyAttempts(retryAfter);
 
-  let ok = false;
+  // ADR-0011: an account without an active membership signs in nowhere; like invited and
+  // disabled accounts it only verifies the dummy hash (same timing, no oracle).
+  let membership: repo.ActiveMembership | null = null;
   if (cred && cred.status === 'active' && cred.erasedAt === null && cred.passwordHash) {
+    membership = (await repo.listActiveMemberships(db, cred.id))[0] ?? null;
+  }
+  let ok = false;
+  if (cred?.passwordHash && membership) {
     ok = await verifyPassword(cred.passwordHash, input.password);
   } else {
     await dummyVerifier.verify(input.password);
   }
 
-  if (!ok || !cred?.passwordHash) {
+  if (!ok || !cred?.passwordHash || !membership) {
     const [pi, p, ip] = await Promise.all([
       registerFailure(db, keys.pi, THROTTLE_RULES.loginPhoneIp, now),
       registerFailure(db, keys.p, THROTTLE_RULES.loginPhone, now),
@@ -348,15 +415,15 @@ export async function login(
     await repo.updatePasswordHashOnly(db, cred.id, await hashPassword(input.password));
   }
 
-  const session = await createSession(db, cred, meta, now);
+  const session = await createSession(db, cred.id, membership, meta, now);
   await repo.markLogin(db, cred.id, now);
-  if (cred.role === 'student' && (await touchStudentActivity(db, cred.id, now))) {
+  if (membership.role === 'mentee' && (await touchStudentActivity(db, cred.id, now))) {
     await recomputeHealthAfterActivity(cred.id);
   }
   await clearThrottleKeys(db, [keys.pi]);
   logger.info({ event: 'auth.login_succeeded', userId: cred.id }, 'login succeeded');
   return {
-    user: toMe(cred),
+    user: toMe(cred, membership),
     session,
     deviceCookie: signDeviceCookie(cred.id, deviceSecret()),
   };
@@ -398,12 +465,14 @@ export async function changePassword(
     phone: user.phone,
   });
   if (policyError) throw errors.validation({ newPassword: policyError });
+  const membership = await activeMembershipIn(db, user.id, actor.organizationId);
+  if (!membership) throw errors.unauthenticated();
 
   const passwordHash = await hashPassword(input.newPassword);
   const session = await db.transaction(async (tx) => {
     await repo.updatePassword(tx, user.id, passwordHash, now);
     const revoked = await repo.revokeAllSessions(tx, user.id, now);
-    const fresh = await createSession(tx, user, meta, now);
+    const fresh = await createSession(tx, user.id, membership, meta, now);
     await recordAudit(tx, {
       actorId: user.id,
       action: 'session.revoked_all',
@@ -415,7 +484,11 @@ export async function changePassword(
     return fresh;
   });
   await clearThrottleKeys(db, [key]);
-  return { user: toMe(user), session, deviceCookie: signDeviceCookie(user.id, deviceSecret()) };
+  return {
+    user: toMe(user, membership),
+    session,
+    deviceCookie: signDeviceCookie(user.id, deviceSecret()),
+  };
 }
 
 /** GET /auth/sessions — only the actor's own active sessions. */
@@ -445,6 +518,73 @@ export async function revokeOwnSession(
     ? await repo.revokeOwnSession(db, actor.userId, sessionId, new Date())
     : false;
   if (!done) throw errors.notFound();
+}
+
+// ---- preferences (ADR-0013) ----------------------------------------------------------------
+
+/** PATCH /auth/preferences — the interface language of this account, in every organization. */
+export async function updateMyPreferences(
+  actor: Actor,
+  input: { locale: Locale },
+  db: DbOrTx = getDb(),
+): Promise<{ locale: Locale }> {
+  await repo.upsertLocale(db, actor.userId, input.locale, new Date());
+  return { locale: input.locale };
+}
+
+// ---- organizations of the signed-in user (ADR-0011 section 2) -------------------------------
+
+/** GET /auth/organizations — the organizations this user can work in. */
+export async function listMyOrganizations(
+  actor: Actor,
+  db: DbOrTx = getDb(),
+): Promise<OrganizationOptionDTO[]> {
+  const rows = await repo.listActiveMemberships(db, actor.userId);
+  return rows.map((m) => ({
+    id: m.organizationId,
+    name: m.organizationName,
+    role: m.role,
+    current: m.organizationId === actor.organizationId,
+  }));
+}
+
+/**
+ * POST /auth/organization — moves this browser to another organization of the user. The
+ * session is rotated (new token, lifetimes of the new role); another user's or a missing
+ * organization → 404.
+ */
+export async function switchOrganization(
+  actor: Actor,
+  sessionToken: string,
+  input: { organizationId: string },
+  meta: RequestMeta,
+  db: Db = getDb(),
+): Promise<AuthResult> {
+  const membership = isUuid(input.organizationId)
+    ? await activeMembershipIn(db, actor.userId, input.organizationId)
+    : null;
+  if (!membership) throw errors.notFound();
+  const user = await repo.findUserById(db, actor.userId);
+  if (user?.status !== 'active' || user.erasedAt) throw errors.unauthenticated();
+  const now = new Date();
+  const session = await db.transaction(async (tx) => {
+    await repo.revokeSessionByHash(tx, sha256Hex(sessionToken), now);
+    const fresh = await createSession(tx, user.id, membership, meta, now);
+    await recordAudit(tx, {
+      actorId: user.id,
+      organizationId: membership.organizationId,
+      action: 'session.organization_switched',
+      targetType: 'organization',
+      targetId: membership.organizationId,
+      ip: meta.ip,
+    });
+    return fresh;
+  });
+  return {
+    user: toMe(user, membership),
+    session,
+    deviceCookie: signDeviceCookie(user.id, deviceSecret()),
+  };
 }
 
 // ---- invite / reset tokens -------------------------------------------------------------
@@ -530,6 +670,9 @@ export async function acceptToken(
 
   const policyError = checkPasswordPolicy(input.password, { role: row.role, phone: row.phone });
   if (policyError) throw errors.validation({ password: policyError });
+  // The newest active membership: an invite to another organization lands there.
+  const membership = (await repo.listActiveMemberships(db, row.userId)).at(-1);
+  if (!membership) throw errors.tokenExpired();
 
   // Hash outside the transaction (it is slow and queued).
   const passwordHash = await hashPassword(input.password);
@@ -557,7 +700,7 @@ export async function acceptToken(
     if (meta.sessionToken && looksLikeToken(meta.sessionToken)) {
       await repo.revokeSessionByHash(tx, sha256Hex(meta.sessionToken), now);
     }
-    const session = await createSession(tx, { id: consumed.userId, role: row.role }, meta, now);
+    const session = await createSession(tx, consumed.userId, membership, meta, now);
     await recordAudit(tx, {
       actorId: consumed.userId,
       action: consumed.purpose === 'invite' ? 'user.invite_accepted' : 'user.password_reset',
@@ -575,7 +718,7 @@ export async function acceptToken(
         ip: meta.ip,
       });
     }
-    if (consumed.purpose === 'invite' && row.role === 'student') {
+    if (consumed.purpose === 'invite' && membership.role === 'mentee') {
       await recordTimelineEvent(tx, {
         studentId: consumed.userId,
         type: 'invite.accepted',
@@ -597,7 +740,7 @@ export async function acceptToken(
     'token accepted',
   );
   return {
-    user: toMe({ id: row.userId, displayName: row.displayName, role: row.role, phone: row.phone }),
+    user: toMe({ id: row.userId, displayName: row.displayName, phone: row.phone }, membership),
     session: result.session,
     deviceCookie: signDeviceCookie(row.userId, deviceSecret()),
   };
@@ -606,13 +749,22 @@ export async function acceptToken(
 // ---- users and invitations (admin / mentor) -----------------------------------------------
 
 /**
- * Creates a user in `invited` state and its first invite token, inside the caller's
- * transaction. Used by POST /invitations, the CLI, and (sprint 2) POST /students.
- * Throws 409 PHONE_TAKEN for a duplicate phone.
+ * Creates a user in `invited` state, their membership in `organizationId` and the first
+ * invite token, inside the caller's transaction. Used by POST /invitations, the CLI, and
+ * POST /students. Throws 409 PHONE_TAKEN for a duplicate phone (an existing account joins
+ * another organization only through the CLI, ADR-0011 limitation).
  */
 export async function createInvitedUser(
   tx: DbOrTx,
-  values: { role: Role; displayName: string; phone: string; createdBy: string | null },
+  values: {
+    role: Role;
+    displayName: string;
+    phone: string;
+    createdBy: string | null;
+    organizationId: string;
+    /** Default: the organization role of `role` (student → mentee). */
+    organizationRole?: OrganizationRole;
+  },
   options: { ttlMs?: number; now?: Date } = {},
 ): Promise<{ userId: string; token: string; expiresAt: Date }> {
   const now = options.now ?? new Date();
@@ -623,11 +775,22 @@ export async function createInvitedUser(
   if (await repo.findUserByPhone(tx, phone)) throw errors.phoneTaken();
   let userId: string;
   try {
-    userId = await repo.insertUser(tx, { ...values, phone, displayName });
+    userId = await repo.insertUser(tx, {
+      role: values.role,
+      createdBy: values.createdBy,
+      phone,
+      displayName,
+    });
   } catch (err) {
     if (isUniqueViolation(err)) throw errors.phoneTaken();
     throw err;
   }
+  await repo.insertMembership(tx, {
+    organizationId: values.organizationId,
+    userId,
+    role: values.organizationRole ?? (values.role === 'student' ? 'mentee' : values.role),
+    invitedBy: values.createdBy,
+  });
   const { token, expiresAt } = await issueToken(
     tx,
     userId,
@@ -648,7 +811,11 @@ export async function createInvitation(
 ): Promise<InvitationCreatedDTO> {
   assertDecision(adminOnly(actor));
   const created = await db.transaction(async (tx) => {
-    const result = await createInvitedUser(tx, { ...input, createdBy: actor.userId });
+    const result = await createInvitedUser(tx, {
+      ...input,
+      createdBy: actor.userId,
+      organizationId: actor.organizationId,
+    });
     await recordAudit(tx, {
       actorId: actor.userId,
       action: 'user.invited',
@@ -683,7 +850,9 @@ export async function createInviteLink(
 ): Promise<InviteLinkDTO> {
   if (actor.role === 'student') throw errors.forbidden();
   return db.transaction(async (tx) => {
-    const target = isUuid(targetId) ? await repo.findUserById(tx, targetId) : null;
+    const target = isUuid(targetId)
+      ? await repo.findMember(tx, actor.organizationId, targetId)
+      : null;
     // The role is checked explicitly first, so the scope lookup only runs for students.
     const inScope =
       actor.role === 'mentor' && target?.role === 'student'
@@ -721,9 +890,15 @@ export async function createResetLink(
 ): Promise<ResetLinkDTO> {
   if (actor.role !== 'admin') throw errors.forbidden();
   return db.transaction(async (tx) => {
-    const target = isUuid(targetId) ? await repo.findUserById(tx, targetId) : null;
+    const target = isUuid(targetId)
+      ? await repo.findMember(tx, actor.organizationId, targetId)
+      : null;
     assertDecision(resetLinkDecision(actor, target));
     if (!target) throw errors.notFound();
+    // The password is the account's, not this organization's.
+    if ((await repo.countOtherMemberships(tx, target.id, actor.organizationId)) > 0) {
+      throw errors.conflict(SHARED_ACCOUNT_MESSAGE);
+    }
     const now = new Date();
     const { token, expiresAt } = await issueToken(
       tx,
@@ -752,7 +927,7 @@ export async function listUsers(
   db: DbOrTx = getDb(),
 ): Promise<{ items: UserListItemDTO[]; nextCursor: null }> {
   assertDecision(adminOnly(actor));
-  const rows = await repo.listUsers(db, filter);
+  const rows = await repo.listMembers(db, actor.organizationId, filter);
   return { items: rows.map(toUserListItem), nextCursor: null };
 }
 
@@ -784,19 +959,19 @@ const STALE_MESSAGE = 'این کاربر در این فاصله تغییر کر�
 type UserStatus = 'invited' | 'active' | 'disabled';
 
 /** Serialises every change that can remove an active admin (disable, role change). */
-async function lockAdminSet(tx: DbOrTx): Promise<void> {
-  await tx.execute(sqlAdvisoryLock('identity.admin_set'));
+async function lockAdminSet(tx: DbOrTx, organizationId: string): Promise<void> {
+  await tx.execute(sqlAdvisoryLock(`identity.admin_set:${organizationId}`));
 }
 
 async function lockTargetForAdminEdit(
   tx: DbOrTx,
   actor: Actor,
   targetId: string,
-): Promise<repo.UserRow> {
+): Promise<repo.MemberRow> {
   assertDecision(adminOnly(actor));
   if (!isUuid(targetId)) throw errors.notFound();
-  await lockAdminSet(tx);
-  const target = await repo.lockUser(tx, targetId);
+  await lockAdminSet(tx, actor.organizationId);
+  const target = await repo.lockMember(tx, actor.organizationId, targetId);
   if (!target) throw errors.notFound();
   if (target.erasedAt) throw errors.conflict(ERASED_MESSAGE);
   return target;
@@ -810,7 +985,7 @@ async function revokeAllWithAudit(
   meta: { ip?: string | null },
   now: Date,
 ): Promise<number> {
-  const count = await repo.revokeAllSessions(tx, userId, now);
+  const count = await repo.revokeAllSessions(tx, userId, now, actor.organizationId);
   await recordAudit(tx, {
     actorId: actor.userId,
     action: 'session.revoked_all',
@@ -875,17 +1050,41 @@ export async function updateUser(
         if (next !== target.status) values.status = next;
       }
       if (
+        (values.displayName !== undefined || values.phone !== undefined) &&
+        (await repo.countOtherMemberships(tx, target.id, actor.organizationId)) > 0
+      ) {
+        throw errors.conflict(SHARED_ACCOUNT_MESSAGE);
+      }
+      if (values.status === 'disabled' && target.organizationRole === 'owner') {
+        throw errors.conflict(OWNER_MESSAGE);
+      }
+      if (
         values.status === 'disabled' &&
         target.role === 'admin' &&
         target.status === 'active' &&
-        (await repo.countActiveAdmins(tx, target.id)) === 0
+        (await repo.countActiveAdmins(tx, actor.organizationId, target.id)) === 0
       ) {
         throw errors.conflict(LAST_ADMIN_MESSAGE);
       }
       const fields = Object.keys(values);
       if (fields.length === 0) return toUserListItem(target);
 
-      await repo.updateUserFields(tx, target.id, values, now);
+      // Name and phone belong to the account; enabling/disabling to the membership.
+      await repo.updateUserFields(
+        tx,
+        target.id,
+        { displayName: values.displayName, phone: values.phone },
+        now,
+      );
+      if (values.status !== undefined) {
+        await repo.updateMembership(
+          tx,
+          actor.organizationId,
+          target.id,
+          { status: values.status === 'disabled' ? 'disabled' : 'active' },
+          now,
+        );
+      }
       await recordAudit(tx, {
         actorId: actor.userId,
         action: 'user.updated',
@@ -925,7 +1124,7 @@ export async function updateUser(
       if (target.role === 'student' && (values.displayName || values.phone)) {
         await rebuildStudentSearchText(tx, target.id);
       }
-      const updated = await repo.findUserById(tx, target.id);
+      const updated = await repo.findMember(tx, actor.organizationId, target.id);
       if (!updated) throw errors.notFound();
       logger.info(
         { event: 'user.updated', userId: actor.userId, targetId: target.id, fields },
@@ -958,14 +1157,18 @@ export async function changeUserRole(
     const target = await lockTargetForAdminEdit(tx, actor, targetId);
     if (target.role === 'student') throw errors.conflict('نقش هنرجو تغییر نمی‌کند.');
     if (target.role === input.role) return toUserListItem(target);
+    if (target.organizationRole === 'owner') throw errors.conflict(OWNER_MESSAGE);
     if (
       target.role === 'admin' &&
       target.status === 'active' &&
-      (await repo.countActiveAdmins(tx, target.id)) === 0
+      (await repo.countActiveAdmins(tx, actor.organizationId, target.id)) === 0
     ) {
       throw errors.conflict(LAST_ADMIN_MESSAGE);
     }
-    await repo.updateUserFields(tx, target.id, { role: input.role }, now);
+    await repo.updateMembership(tx, actor.organizationId, target.id, { role: input.role }, now);
+    // users.role is deprecated (ADR-0011); kept in step while there is a single membership.
+    const single = (await repo.countOtherMemberships(tx, target.id, actor.organizationId)) === 0;
+    await repo.updateUserFields(tx, target.id, single ? { role: input.role } : {}, now);
     await recordAudit(tx, {
       actorId: actor.userId,
       action: 'user.role_changed',
@@ -985,7 +1188,7 @@ export async function changeUserRole(
       },
       'user role changed',
     );
-    const updated = await repo.findUserById(tx, target.id);
+    const updated = await repo.findMember(tx, actor.organizationId, target.id);
     if (!updated) throw errors.notFound();
     return toUserListItem(updated);
   });
@@ -1046,7 +1249,7 @@ export function assertRecentPassword(lastPassword: Date, now: Date = new Date())
 /** GET /mentors — admin and mentor. */
 export async function listMentors(actor: Actor, db: DbOrTx = getDb()): Promise<MentorOptionDTO[]> {
   assertDecision(staffOnly(actor));
-  const rows = await repo.listActiveStaff(db);
+  const rows = await repo.listActiveStaff(db, actor.organizationId);
   return rows.map((r) => ({
     id: r.id,
     displayName: r.displayName,
@@ -1054,10 +1257,14 @@ export async function listMentors(actor: Actor, db: DbOrTx = getDb()): Promise<M
   }));
 }
 
-/** Used by access.assertRefs: is this an active admin/mentor account? */
-export async function isActiveStaffUser(db: DbOrTx, userId: string): Promise<boolean> {
+/** Used by access.assertRefs: is this an active admin/mentor of the organization? */
+export async function isActiveStaffUser(
+  db: DbOrTx,
+  organizationId: string,
+  userId: string,
+): Promise<boolean> {
   if (!isUuid(userId)) return false;
-  const user = await repo.findUserById(db, userId);
+  const user = await repo.findMember(db, organizationId, userId);
   return (
     user !== null &&
     user.status === 'active' &&
@@ -1071,15 +1278,29 @@ export async function isPhoneTaken(db: DbOrTx, phone: string): Promise<boolean> 
   return (await repo.findUserByPhone(db, phone)) !== null;
 }
 
-/** Internal (CSV import): the active admin/mentor with this normalised phone, if any. */
+/** Internal (CSV import): the organization's active admin/mentor with this phone, if any. */
 export async function findActiveStaffByPhone(
   db: DbOrTx,
+  organizationId: string,
   phone: string,
 ): Promise<{ id: string; displayName: string } | null> {
-  const user = await repo.findUserByPhone(db, phone);
+  const account = await repo.findUserByPhone(db, phone);
+  const user = account ? await repo.findMember(db, organizationId, account.id) : null;
   if (user?.status !== 'active' || user.erasedAt) return null;
   if (user.role !== 'admin' && user.role !== 'mentor') return null;
   return { id: user.id, displayName: user.displayName };
+}
+
+/** Internal (CSV import into a course): the organization's mentee with this phone, if any. */
+export async function findStudentByPhone(
+  db: DbOrTx,
+  organizationId: string,
+  phone: string,
+): Promise<{ id: string } | null> {
+  const account = await repo.findUserByPhone(db, phone);
+  const user = account ? await repo.findMember(db, organizationId, account.id) : null;
+  if (!user || user.erasedAt || user.status === 'disabled' || user.role !== 'student') return null;
+  return { id: user.id };
 }
 
 // ---- CLI (server console only) ---------------------------------------------------------
@@ -1087,26 +1308,36 @@ export async function findActiveStaffByPhone(
 export class CliError extends Error {}
 
 /**
- * `pnpm admin:create` (ADR-0003 `admin:bootstrap`, SEC-T6, SEC-E3): only when no admin
- * exists yet. The 1-hour setup link is returned to the CLI, which prints it to stdout only.
+ * `pnpm admin:create` (ADR-0003 `admin:bootstrap`, SEC-T6, SEC-E3): the owner of an
+ * organization (default: the 0.1 organization), only while it has no admin yet. The 1-hour
+ * setup link is returned to the CLI, which prints it to stdout only.
  */
 export async function bootstrapAdmin(
-  input: { phone: string; displayName: string },
+  input: { phone: string; displayName: string; organizationId?: string },
   db: Db = getDb(),
 ): Promise<{ userId: string; setupUrl: string; expiresAt: Date }> {
+  const organizationId = input.organizationId ?? DEFAULT_ORGANIZATION_ID;
   return db.transaction(async (tx) => {
     // Serialise concurrent bootstrap runs.
-    await tx.execute(sqlAdvisoryLock('identity.bootstrap_admin'));
-    if ((await repo.countAdmins(tx)) > 0) {
+    await tx.execute(sqlAdvisoryLock(`identity.bootstrap_admin:${organizationId}`));
+    if ((await repo.countAdmins(tx, organizationId)) > 0) {
       throw new CliError('An admin already exists. Use the web UI or `pnpm admin:reset-link`.');
     }
     const created = await createInvitedUser(
       tx,
-      { role: 'admin', displayName: input.displayName, phone: input.phone, createdBy: null },
+      {
+        role: 'admin',
+        organizationRole: 'owner',
+        displayName: input.displayName,
+        phone: input.phone,
+        createdBy: null,
+        organizationId,
+      },
       { ttlMs: TOKEN_TTL.cli },
     );
     await recordAudit(tx, {
       actorId: null,
+      organizationId,
       action: 'user.bootstrap_admin',
       targetType: 'user',
       targetId: created.userId,
@@ -1140,7 +1371,10 @@ export async function createCliResetLink(
   return db.transaction(async (tx) => {
     const user = await repo.findUserByPhone(tx, phone);
     if (!user || user.erasedAt) throw new CliError('No user with this phone.');
-    if (user.status === 'disabled') {
+    if (
+      user.status === 'disabled' ||
+      (await repo.listActiveMemberships(tx, user.id)).length === 0
+    ) {
       throw new CliError('User is disabled; re-enable the account before resetting the password.');
     }
     const purpose = user.status === 'invited' ? 'invite' : 'password_reset';
@@ -1191,24 +1425,35 @@ export async function eraseUser(
     if (normalizeFa(input.confirmDisplayName) !== user.displayName) {
       throw new CliError('--confirm does not match the current display name. Nothing was changed.');
     }
+    const memberships = await repo.listMembershipsOfUser(tx, user.id);
+    if (memberships.length > 1) {
+      throw new CliError('This user belongs to more than one organization. Nothing was changed.');
+    }
+    const membership = memberships[0];
+    const role = membership ? legacyRole(membership.role) : user.role;
+    if (membership?.role === 'owner') {
+      throw new CliError('This user owns the organization. Transfer the ownership first.');
+    }
     if (
-      user.role === 'admin' &&
+      membership &&
+      role === 'admin' &&
+      membership.status === 'active' &&
       user.status === 'active' &&
-      (await repo.countActiveAdmins(tx, user.id)) === 0
+      (await repo.countActiveAdmins(tx, membership.organizationId, user.id)) === 0
     ) {
       throw new CliError('This is the last active admin. Invite another admin first.');
     }
-    if (user.role !== 'student' && (await countStudentsOfMentor(tx, user.id)) > 0) {
+    if (role !== 'student' && (await countStudentsOfMentor(tx, user.id)) > 0) {
       throw new CliError(
         'This user is still the primary mentor of students. Move them first (PUT /students/:id/mentor).',
       );
     }
-    if (user.role !== 'student' && (await countOpenRemindersOwnedBy(tx, user.id)) > 0) {
+    if (role !== 'student' && (await countOpenRemindersOwnedBy(tx, user.id)) > 0) {
       throw new CliError(
         'This user still owns open reminders. Complete, cancel or reassign them first.',
       );
     }
-    if (user.role !== 'student' && (await countOpenQuestionsAssignedTo(tx, user.id)) > 0) {
+    if (role !== 'student' && (await countOpenQuestionsAssignedTo(tx, user.id)) > 0) {
       throw new CliError(
         'This user is still the assignee of open questions. Reassign them first (PUT /questions/:id/assignee).',
       );
@@ -1219,7 +1464,7 @@ export async function eraseUser(
       questionMessageIds: [],
       milestoneIds: [],
     };
-    if (user.role === 'student') {
+    if (role === 'student') {
       // students, platform_profiles, profile_snapshots, mentor_assignments, stage_transitions
       await eraseStudentRecord(tx, user.id, now);
       await eraseTransitionNotes(tx, user.id);
@@ -1230,11 +1475,24 @@ export async function eraseUser(
       await eraseRemindersAboutStudent(tx, user.id, now);
       // question_threads/messages, checkins, milestones, student_flags, student_health (sprint 4)
       sprint4 = await eraseSprint4OfStudent(tx, user.id, now);
+      // enrollment_mentors reasons, enrollment_transitions notes (Coach Office sprint 4)
+      await eraseProgramsOfStudent(tx, user.id);
+      // goals, session places and cancellation reasons (Coach Office sprint 5b)
+      await eraseMentoringOfStudent(tx, user.id);
+    } else {
+      // enrollment_mentors, run_staff (ended), mentor_profiles (deleted; Coach Office sprint 4)
+      await endStaffRolesOf(tx, user.id, now);
+      await eraseMentorProfiles(tx, user.id);
     }
     // Attachments of their submissions, question messages and milestones + their own pending
     // uploads (any role).
     attachmentIds = await detachForErasure(tx, user.id, { submissionIds, ...sprint4 });
+    // Notices to them and about them (Coach Office sprint 6b), any role.
+    await eraseNotificationsOf(tx, user.id);
+    // Bookable hours, offerings and booking requests (Coach Office sprint 7), any role.
+    await eraseSchedulingOf(tx, user.id);
     await repo.eraseUserRow(tx, user.id, now);
+    await repo.disableMembershipsOfUser(tx, user.id, now);
     await repo.deleteSessionsOfUser(tx, user.id);
     await repo.deleteTokensOfUser(tx, user.id);
     await clearThrottleForPhone(tx, user.phone);

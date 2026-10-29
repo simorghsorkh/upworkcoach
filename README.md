@@ -1,117 +1,117 @@
 # UpworkCoach
 
-پلتفرم مربیگری فریلنسری و آپورک. نسخه‌ی فعلی: **0.1 «دفتر مربی»** (در حال ساخت).
-زمینه‌ی محصول: [`CLAUDE.md`](CLAUDE.md) و [`docs/STATUS.md`](docs/STATUS.md). معماری: [`docs/04-architecture/`](docs/04-architecture/).
+A coaching platform for freelancing and Upwork. Current version: **0.1 "Coach Office"** (under construction).
+Product context: [`CLAUDE.md`](CLAUDE.md) and [`docs/STATUS.md`](docs/STATUS.md). Architecture: [`docs/04-architecture/`](docs/04-architecture/).
 
-## ساختار مخزن
+## Repository layout
 
-| مسیر | چیست |
+| Path | What it is |
 |---|---|
-| `apps/web` | تنها برنامه‌ی 0.1: Next.js (رابط فارسی RTL + REST API + کارهای زمان‌بندی‌شده) |
-| `apps/web/src/app` | صفحه‌ها: `(auth)`، `(staff)`، `(student)`، `api/v1`، و `healthz` |
-| `apps/web/src/modules` | ماژول‌های دامنه (هنوز خالی) |
-| `apps/web/src/server` | env، db (Drizzle)، logger (pino)، jobs (pg-boss)، storage |
-| `apps/web/drizzle` | مهاجرت‌های SQL |
-| `apps/web/tests` | تست یکپارچه و e2e |
+| `apps/web` | The only app in 0.1: Next.js (Persian RTL UI + REST API + scheduled jobs) |
+| `apps/web/src/app` | Pages: `(auth)`, `(staff)`, `(student)`, `api/v1`, and `healthz` |
+| `apps/web/src/modules` | Domain modules (still empty) |
+| `apps/web/src/server` | env, db (Drizzle), logger (pino), jobs (pg-boss), storage |
+| `apps/web/drizzle` | SQL migrations |
+| `apps/web/tests` | Integration and e2e tests |
 | `apps/web/scripts` | `db:start` / `db:stop` / `db:migrate` |
-| `packages/config` | tsconfig و Biome مشترک |
+| `packages/config` | Shared tsconfig and Biome |
 
-هر پوشه یک README کوتاه دارد که قاعده‌هایش را می‌گوید.
+Each folder has a short README describing its rules.
 
-## پیش‌نیازها
+## Prerequisites
 
-| ابزار | نسخه | نکته |
+| Tool | Version | Note |
 |---|---|---|
-| Node.js | **22 یا بالاتر** (`engines: >=22`) | تولید و CI روی **Node 24 LTS** اجرا می‌شوند (Dockerfile و `ci.yml`). دستگاه توسعه‌ی فعلی Node 22.17 دارد و همه‌چیز روی آن آزموده شده است. اگر رفتاری فقط در یکی دیده شد، Node 24 مرجع است |
-| pnpm | **12.14.0** (ثابت در `packageManager`) | نصب سراسری لازم نیست: `npx pnpm@12.14.0 …`. corepack همراه Node 22 (نسخه‌ی 0.33) pnpm 12 را اجرا نمی‌کند |
-| Docker | **لازم نیست** | فقط برای استقرار. دیتابیس محلی و تست با Postgres جاسازی‌شده از npm کار می‌کنند ([ADR-0009](docs/04-architecture/adr/0009-local-dev-without-docker.md)) |
-| PostgreSQL | **لازم نیست** | با `pnpm install` باینری Postgres 16.14 برای سیستم‌عامل شما می‌آید |
+| Node.js | **22 or higher** (`engines: >=22`) | Production and CI run on **Node 24 LTS** (Dockerfile and `ci.yml`). The current development machine has Node 22.17 and everything has been tested on it. If a behavior shows up in only one of them, Node 24 is the reference |
+| pnpm | **12.14.0** (pinned in `packageManager`) | No global install needed: `npx pnpm@12.14.0 …`. The corepack bundled with Node 22 (version 0.33) does not run pnpm 12 |
+| Docker | **Not required** | Only for deployment. The local database and tests work with embedded Postgres from npm ([ADR-0009](docs/04-architecture/adr/0009-local-dev-without-docker.md)) |
+| PostgreSQL | **Not required** | `pnpm install` brings the Postgres 16.14 binary for your operating system |
 
-برای کوتاه‌تر شدن فرمان‌ها می‌توانید در شل خودتان یک alias بسازید (مثلاً در Git Bash: `alias pnpm='npx -y pnpm@12.14.0'`). در ادامه `pnpm` یعنی همین.
+To shorten commands you can create an alias in your own shell (e.g. in Git Bash: `alias pnpm='npx -y pnpm@12.14.0'`). From here on, `pnpm` means exactly that.
 
-## راه‌اندازی از صفر
+## Setup from scratch
 
 ```bash
-npx -y pnpm@12.14.0 install     # وابستگی‌ها + باینری Postgres 16
-cp .env.example .env            # تنظیمات محلی (فقط ریشه‌ی مخزن؛ در گیت نمی‌رود)
-pnpm db:start                   # Postgres محلی در پس‌زمینه؛ داده در .data/pg
-pnpm db:migrate                 # اعمال مهاجرت‌ها
+npx -y pnpm@12.14.0 install     # dependencies + Postgres 16 binary
+cp .env.example .env            # local settings (repo root only; not committed to git)
+pnpm db:start                   # local Postgres in the background; data in .data/pg
+pnpm db:migrate                 # apply migrations
 pnpm dev                        # http://localhost:3000
 ```
 
-بررسی سریع: `http://localhost:3000/healthz` باید `{"status":"ok","db":"ok"}` برگرداند.
-پایان کار: `pnpm db:stop` (Postgres را تمیز می‌بندد). اگر سیستم ری‌استارت شد، دوباره `pnpm db:start`.
+Quick check: `http://localhost:3000/healthz` should return `{"status":"ok","db":"ok"}`.
+When done: `pnpm db:stop` (shuts Postgres down cleanly). If the system restarts, run `pnpm db:start` again.
 
-همه‌ی داده‌ی محلی در `.data/` است (`pg/` دیتابیس، `pg.log` لاگ دیتابیس، `uploads/` فایل‌ها). برای شروع از صفر: `pnpm db:stop`، پوشه‌ی `.data` را پاک کنید و دوباره `db:start` و `db:migrate`.
+All local data lives in `.data/` (`pg/` database, `pg.log` database log, `uploads/` files). To start from scratch: `pnpm db:stop`, delete the `.data` folder, then run `db:start` and `db:migrate` again.
 
-## فرمان‌ها (از ریشه‌ی مخزن)
+## Commands (from the repo root)
 
-| فرمان | کار |
+| Command | What it does |
 |---|---|
-| `pnpm dev` | سرور توسعه‌ی Next.js |
-| `pnpm build` / `pnpm start` | ساخت production (`output: 'standalone'`) و اجرای آن |
-| `pnpm lint` / `pnpm lint:fix` | Biome (lint + قالب‌بندی) |
+| `pnpm dev` | Next.js development server |
+| `pnpm build` / `pnpm start` | Production build (`output: 'standalone'`) and running it |
+| `pnpm lint` / `pnpm lint:fix` | Biome (lint + formatting) |
 | `pnpm typecheck` | `next typegen` + `tsc --noEmit` |
-| `pnpm test` | Vitest: تست‌های واحد (`src/**/*.test.ts`) و یکپارچه (`tests/integration`) |
-| `pnpm test:e2e` | Playwright در دو اندازه: دسکتاپ ۱۴۴۰ و موبایل ۳۷۵ |
-| `pnpm db:start` / `pnpm db:stop` | روشن و خاموش کردن Postgres محلی |
-| `pnpm db:generate` | ساخت فایل مهاجرت SQL از روی `schema.ts`ها |
-| `pnpm db:migrate` | اعمال مهاجرت‌ها روی `DATABASE_URL` |
+| `pnpm test` | Vitest: unit tests (`src/**/*.test.ts`) and integration tests (`tests/integration`) |
+| `pnpm test:e2e` | Playwright at two sizes: desktop 1440 and mobile 375 |
+| `pnpm db:start` / `pnpm db:stop` | Start and stop local Postgres |
+| `pnpm db:generate` | Generate a SQL migration file from the `schema.ts` files |
+| `pnpm db:migrate` | Apply migrations to `DATABASE_URL` |
 
-## تست
+## Testing
 
-- **واحد و یکپارچه:** `pnpm test`. تست یکپارچه **به دیتابیس توسعه وصل نمی‌شود**؛ یک Postgres 16 موقت روی پورت آزاد می‌سازد، مهاجرت‌ها را اجرا می‌کند و بعد پاکش می‌کند (حدود ۱۵ ثانیه). اگر `TEST_DATABASE_URL` در شل تنظیم باشد (مثل CI)، از همان دیتابیس استفاده می‌شود؛ هرگز آن را به داده‌ی واقعی وصل نکنید.
-- **e2e:** یک بار مرورگر را بگیرید (حدود ۱۲۰ مگابایت در `%LOCALAPPDATA%\ms-playwright`، نه در پروژه):
+- **Unit and integration:** `pnpm test`. Integration tests **do not connect to the development database**; they spin up a temporary Postgres 16 on a free port, run the migrations, and then delete it (about 15 seconds). If `TEST_DATABASE_URL` is set in the shell (as in CI), that database is used instead; never point it at real data.
+- **e2e:** download the browser once (about 120 MB in `%LOCALAPPDATA%\ms-playwright`, not in the project):
   ```bash
   pnpm --filter @upworkcoach/web exec playwright install chromium
   pnpm test:e2e
   ```
-  Playwright خودش `next dev` را روی پورت 3100 با `JOBS_MODE=off` بالا می‌آورد. اگر سرور dev دیگری در همین پوشه باز است، اول آن را ببندید.
+  Playwright starts `next dev` itself on port 3100 with `JOBS_MODE=off`. If another dev server is running in the same folder, stop it first.
 
-## مهاجرت دیتابیس
+## Database migrations
 
-1. جدول‌ها را در `apps/web/src/modules/<module>/schema.ts` تعریف کنید (فقط import نسبی) و از `src/server/db/schema.ts` re-export کنید.
-2. `pnpm db:generate --name <short_name>` ← فایل SQL تازه در `apps/web/drizzle/`. **SQL را بخوانید** و با کد کامیت کنید.
+1. Define tables in `apps/web/src/modules/<module>/schema.ts` (relative imports only) and re-export them from `src/server/db/schema.ts`.
+2. `pnpm db:generate --name <short_name>` → a new SQL file in `apps/web/drizzle/`. **Read the SQL** and commit it with the code.
 3. `pnpm db:migrate`.
 
-مهاجرت اعمال‌شده ویرایش نمی‌شود. نام ستون‌ها در TypeScript camelCase و در دیتابیس snake_case است. فعلاً فقط جدول زیرساختی `_health` وجود دارد.
+An applied migration is never edited. Column names are camelCase in TypeScript and snake_case in the database. For now only the infrastructure table `_health` exists.
 
-## متغیرهای محیطی
+## Environment variables
 
-فهرست کامل با توضیح در [`.env.example`](.env.example)؛ قرارداد در `docs/04-architecture/tech-stack.md` بخش ۵؛ اعتبارسنجی در `apps/web/src/server/env.ts`.
+Full list with descriptions in [`.env.example`](.env.example); the contract is in `docs/04-architecture/tech-stack.md` section 5; validation is in `apps/web/src/server/env.ts`.
 
-| متغیر | محلی | توضیح |
+| Variable | Local | Description |
 |---|---|---|
-| `DATABASE_URL` | `postgres://upworkcoach:upworkcoach@localhost:5432/upworkcoach` | `db:start` همین را می‌سازد |
-| `APP_BASE_URL` | `http://localhost:3000` | برای ساخت لینک دعوت |
+| `DATABASE_URL` | `postgres://upworkcoach:upworkcoach@localhost:5432/upworkcoach` | `db:start` creates exactly this |
+| `APP_BASE_URL` | `http://localhost:3000` | For building invite links |
 | `SESSION_COOKIE_NAME` | `__Host-uc_session` | — |
-| `DEVICE_COOKIE_SECRET` | خالی | راز HMAC کوکی دستگاه در سیاست قفل ورود (ADR-0003)؛ ۳۲ بایت تصادفی؛ **در production الزامی** است و بدون آن برنامه بالا نمی‌آید |
-| `TRUSTED_PROXY_HOPS` | `0` | تعداد پراکسی‌های مورد اعتماد برای خواندن IP واقعی از `X-Forwarded-For` (ADR-0003). محلی `0` (سرآیند نادیده گرفته می‌شود)، Azure App Service `1` |
-| `STORAGE_DRIVER` | `local` | `local` \| `azure-blob` \| `s3` (دو تای آخر هنوز stub هستند) |
-| `LOCAL_STORAGE_DIR` | `.data/uploads` | فقط برای `local`؛ مسیر نسبی از ریشه‌ی مخزن |
-| `AZURE_STORAGE_*`، `S3_*` | خالی | فقط برای driver مربوط |
+| `DEVICE_COOKIE_SECRET` | empty | HMAC secret for the device cookie in the login lockout policy (ADR-0003); 32 random bytes; **required in production**, and the app will not start without it |
+| `TRUSTED_PROXY_HOPS` | `0` | Number of trusted proxies for reading the real IP from `X-Forwarded-For` (ADR-0003). Local `0` (the header is ignored), Azure App Service `1` |
+| `STORAGE_DRIVER` | `local` | `local` \| `azure-blob` \| `s3` (the last two are still stubs) |
+| `LOCAL_STORAGE_DIR` | `.data/uploads` | Only for `local`; path relative to the repo root |
+| `AZURE_STORAGE_*`, `S3_*` | empty | Only for the corresponding driver |
 | `JOBS_MODE` | `in-process` | `in-process` \| `http-trigger` \| `off` (ADR-0007) |
-| `JOB_TRIGGER_SECRET` | خالی | برای `http-trigger` الزامی (حداقل ۳۲ نویسه) |
+| `JOB_TRIGGER_SECRET` | empty | Required for `http-trigger` (at least 32 characters) |
 | `LOG_LEVEL` | `info` | — |
-| `MAX_UPLOAD_BYTES` | `5242880` | ۵ مگابایت |
+| `MAX_UPLOAD_BYTES` | `5242880` | 5 MB |
 
-**اسرار هرگز در مخزن نیستند.** `.env` و `.data/` در `.gitignore` هستند. مقادیر تولید فقط در تنظیمات میزبان (App Service) یا `.env` روی خود سرور. ساخت راز: `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"`.
+**Secrets are never in the repo.** `.env` and `.data/` are in `.gitignore`. Production values live only in the host settings (App Service) or in a `.env` on the server itself. Generating a secret: `node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"`.
 
 ## CI
 
-`.github/workflows/ci.yml` روی هر push به `main` و هر PR: نصب با `--frozen-lockfile`، lint، typecheck، تست (تست یکپارچه روی service container رسمی `postgres:16`)، build. Node 24.
+`.github/workflows/ci.yml` on every push to `main` and every PR: install with `--frozen-lockfile`, lint, typecheck, tests (integration tests on the official `postgres:16` service container), build. Node 24.
 
-## استقرار (Docker)
+## Deployment (Docker)
 
-- `apps/web/Dockerfile`: چندمرحله‌ای روی `node:24-alpine`؛ هدف `runner` (image کوچک standalone، کاربر غیر root، HEALTHCHECK روی `/healthz`) و هدف `migrator` (اجرای یک‌باره‌ی مهاجرت‌ها).
-- `docker-compose.yml`: Postgres 16 + migrate + web برای یک سرور (مثلاً VPS ایرانی)؛ نیازمند `POSTGRES_PASSWORD` و `DEVICE_COOKIE_SECRET` در `.env`.
+- `apps/web/Dockerfile`: multi-stage on `node:24-alpine`; a `runner` target (small standalone image, non-root user, HEALTHCHECK on `/healthz`) and a `migrator` target (one-off migration run).
+- `docker-compose.yml`: Postgres 16 + migrate + web for a single server (e.g. an Iranian VPS); requires `POSTGRES_PASSWORD` and `DEVICE_COOKIE_SECRET` in `.env`.
 
-> **هنوز اجرا نشده‌اند:** روی دستگاه توسعه Docker نصب نیست. اولین ساخت واقعی در CI یا روی سرور استقرار انجام می‌شود. خروجی standalone همان build به‌صورت محلی با Node آزموده شده است (صفحه‌ی اصلی و `/healthz` پاسخ ۲۰۰ دادند).
+> **Not run yet:** Docker is not installed on the development machine. The first real build will happen in CI or on the deployment server. The standalone output of the same build has been tested locally with Node (the home page and `/healthz` returned 200).
 
-جزئیات استقرار، پشتیبان‌گیری و rollback در `docs/07-launch/runbook.md` می‌آید.
+Deployment, backup and rollback details will go in `docs/07-launch/runbook.md`.
 
-## نکته‌ها و محدودیت‌های شناخته‌شده
+## Notes and known limitations
 
-- **TypeScript 6.0** عمداً به‌جای 7.0 استفاده شده است: بسته‌ی `typescript@7` (کامپایلر بومی) API برنامه‌نویسی پایدار ندارد و `next build` به آن وابسته است.
-- `next dev` فایل `apps/web/AGENTS.md` را می‌سازد و نگه می‌دارد (راهنمای Next.js برای ایجنت‌های کدنویس). عمداً در مخزن می‌ماند.
-- روی لینوکس، `db:start` با کاربر root اجرا نمی‌شود (محدودیت `initdb`).
+- **TypeScript 6.0** is used deliberately instead of 7.0: the `typescript@7` package (native compiler) has no stable programmatic API, and `next build` depends on it.
+- `next dev` creates and maintains the file `apps/web/AGENTS.md` (Next.js guidance for coding agents). It stays in the repo on purpose.
+- On Linux, `db:start` does not run as the root user (an `initdb` limitation).

@@ -1,6 +1,6 @@
 import { index, jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { uuidv7 } from '../../lib/uuid';
-import { users } from '../identity/schema';
+import { organizations, users } from '../identity/schema';
 
 /**
  * admin — audit log of security and management events (data-model.md section 2-1,
@@ -14,6 +14,8 @@ export const auditLog = pgTable(
       .$defaultFn(() => uuidv7()),
     /** null = the system or a CLI run on the server console. */
     actorId: uuid().references(() => users.id, { onDelete: 'set null' }),
+    /** null = an account-level or platform event (login lock, erasure, CLI). */
+    organizationId: uuid().references(() => organizations.id),
     action: text().notNull(),
     targetType: text(),
     targetId: uuid(),

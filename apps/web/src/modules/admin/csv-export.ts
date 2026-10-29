@@ -39,7 +39,7 @@ export async function exportStudentsCsv(
   db: DbOrTx = getDb(),
 ): Promise<CsvFile> {
   if (actor.role !== 'admin') throw errors.forbidden();
-  const rows = await listStudentsForExport(db);
+  const rows = await listStudentsForExport(db, actor.organizationId);
   await recordAudit(db, {
     actorId: actor.userId,
     action: 'export.students',
@@ -94,7 +94,7 @@ export async function exportTasksCsv(
   db: DbOrTx = getDb(),
 ): Promise<CsvFile> {
   if (actor.role !== 'admin') throw errors.forbidden();
-  const rows = await listTasksForExport(db);
+  const rows = await listTasksForExport(db, actor.organizationId);
   await recordAudit(db, {
     actorId: actor.userId,
     action: 'export.tasks',
@@ -150,7 +150,7 @@ export async function exportMilestonesCsv(
   db: DbOrTx = getDb(),
 ): Promise<CsvFile> {
   if (actor.role !== 'admin') throw errors.forbidden();
-  const rows = await listMilestonesForExport(db);
+  const rows = await listMilestonesForExport(db, actor.organizationId);
   await recordAudit(db, {
     actorId: actor.userId,
     action: 'export.milestones',

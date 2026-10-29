@@ -1,311 +1,311 @@
-# مسیر یادگیری — UpworkCoach
+# Learning Path — UpworkCoach
 
-> فاز ۱ — نویسنده: curriculum-designer — ۲۷ مهر ۱۴۰۵
-> وضعیت: پیش‌نویس، منتظر تأیید بنیان‌گذار
-> سندهای هم‌خانواده: `progress-tracking.md` (پرونده، مرحله‌ها و هشدارها)، `mentor-workflow.md` (کار مشاور)، `engagement.md` (یادآور و جامعه)
-> rubricهای ابزارها: `../tool-rubrics/` (نوشته‌ی upwork-domain-expert). هر جا در این سند «rubric» آمده، منظور rubric همان ابزار در آن پوشه است. **آستانه‌ی عبور را rubric تعیین می‌کند، نه این سند.**
+> Phase 1 — Author: curriculum-designer — 27 Mehr 1405 (2026-10-19)
+> Status: draft, awaiting founder approval
+> Sibling documents: `progress-tracking.md` (file, stages and alerts), `mentor-workflow.md` (mentor work), `engagement.md` (reminders and community)
+> Tool rubrics: `../tool-rubrics/` (written by upwork-domain-expert). Wherever this document says "rubric", it means that tool's rubric in that folder. **The pass threshold is set by the rubric, not by this document.**
 
 ---
 
-## ۱. اصول طراحی
+## 1. Design principles
 
-| اصل | معنی در عمل |
+| Principle | What it means in practice |
 |---|---|
-| **هدف، قرارداد و درآمد است، نه تمام کردن ویدئو** | هیچ مرحله‌ای با «تماشا کردم» تمام نمی‌شود. هر مرحله یک **خروجی واقعی** دارد که AI یا مشاور بررسی می‌کند |
-| **پلتفرم‌خنثی، با شاخه‌ی پلتفرمی** | مراحل مشترک‌اند. هر جا روش جذب مشتری فرق کند، مرحله سه شاخه دارد (بخش ۲) |
-| **محتوا جای خالی دارد** | بنیان‌گذار هنوز محتوای مشخصی نداده. جای هر محتوا با کد `C-…` مشخص شده تا بنیان‌گذار بسازد یا محتوای موجودش را به آن وصل کند |
-| **مشاور مرحله را باز می‌کند، نه AI** | AI بازخورد اولیه و فوری می‌دهد. عبور از مرحله (گیت) را مشاور تأیید می‌کند |
-| **ورود از وسط مسیر** | هنرجوی باتجربه لازم نیست از صفر شروع کند. در شروع، تعیین سطح انجام می‌شود (بخش ۴) |
-| **بدون میان‌بُر غیرمجاز** | مسیر هیچ آموزشی درباره‌ی خرید یا اجاره‌ی اکانت، دور زدن تأیید هویت یا ارتباط و پرداخت خارج از پلتفرم ندارد (ر.ک. `domain-notes.md` بخش ۴) |
+| **The goal is contracts and income, not finishing videos** | No stage ends with "I watched it". Every stage has a **real output** that the AI or a mentor reviews |
+| **Platform-neutral, with platform branches** | Stages are shared. Wherever the client-acquisition method differs, the stage has three branches (section 2) |
+| **Content has placeholders** | The founder has not yet provided specific content. Each content slot is marked with a `C-…` code so the founder can create it or link existing content to it |
+| **The mentor unlocks the stage, not the AI** | The AI gives initial, immediate feedback. Passing a stage (the gate) is approved by the mentor |
+| **Entering mid-path** | An experienced student does not have to start from zero. Placement happens at the start (section 4) |
+| **No illegitimate shortcuts** | The path contains no training on buying or renting accounts, bypassing identity verification, or communicating and paying outside the platform (see `domain-notes.md` section 4) |
 
 ---
 
-## ۲. شاخه‌های پلتفرمی (بر اساس «مدل جذب مشتری»، نه نام پلتفرم)
+## 2. Platform branches (based on the "client-acquisition model", not the platform name)
 
-به‌جای اینکه برای هر سایت یک مسیر جدا بسازیم، شاخه‌ها را بر اساس **روش رسیدن به مشتری** تعریف می‌کنیم. هر پلتفرم تازه در یکی از این سه دسته قرار می‌گیرد.
+Instead of building a separate path for each site, we define branches by **how the client is reached**. Any new platform falls into one of these three categories.
 
-| کد شاخه | مدل | نمونه‌ها | ویترین | روش جذب | ارز هزینه‌ی جذب |
+| Branch code | Model | Examples | Showcase | Acquisition method | Acquisition cost currency |
 |---|---|---|---|---|---|
-| **B — مناقصه‌ای** | کارفرما آگهی می‌دهد، فریلنسر پیشنهاد می‌فرستد | **Upwork** (شاخه‌ی اول و کامل در MVP)، Freelancer.com و مشابه | پروفایل | انتخاب جاب + پروپوزال | Connects و وقت |
-| **C — کاتالوگی** | فریلنسر خدمت بسته‌بندی‌شده می‌گذارد، خریدار جستجو می‌کند | **Fiverr** و مشابه | گیگ و پکیج | دیده شدن در جستجو + پاسخ به پیام خریدار + پیشنهاد سفارشی | وقت (و در صورت تبلیغ، پول) |
-| **D — مستقیم** | فریلنسر خودش مشتری را پیدا می‌کند | LinkedIn، ایمیل سرد، شبکه‌ی آشنایان، معرفی | پروفایل LinkedIn + صفحه‌ی نمونه‌کار | outreach و پیگیری | وقت |
+| **B — Bidding** | The client posts a job, the freelancer sends a proposal | **Upwork** (the first and complete branch in the MVP), Freelancer.com and similar | Profile | Job selection + proposal | Connects and time |
+| **C — Catalog** | The freelancer lists a packaged service, the buyer searches | **Fiverr** and similar | Gig and packages | Visibility in search + replying to buyer messages + custom offer | Time (and money, if advertising) |
+| **D — Direct** | The freelancer finds the client themselves | LinkedIn, cold email, personal network, referrals | LinkedIn profile + portfolio page | Outreach and follow-up | Time |
 
-**قواعد:**
-- هر هنرجو یک **شاخه‌ی اصلی** دارد و حداکثر یک **شاخه‌ی فرعی** (پیشنهاد: از مرحله‌ی ۸ به بعد، یا زودتر با نظر مشاور).
-- در MVP فقط شاخه‌ی B (آپورک) محتوا و ابزار کامل دارد. شاخه‌های C و D ساختار دارند و محتوایشان بعداً پر می‌شود (فرض — تأیید بنیان‌گذار لازم است).
-- اینکه کدام پلتفرم برای یک هنرجوی خاص مجاز و مناسب است، تصمیم مسیر آموزشی نیست. قواعد هر پلتفرم درباره‌ی کشور محل اقامت، و موضع رسمی پلتفرم ما (ریسک‌های R4 و R11)، باید پیش از انتخاب شاخه به هنرجو گفته شود (محتوای `C-S0-03`).
-- جزئیات Fiverr در این سند کلی است و باید با upwork-domain-expert تأیید شود (⚠).
+**Rules:**
+- Each student has one **primary branch** and at most one **secondary branch** (proposal: from stage 8 onward, or earlier with the mentor's agreement).
+- In the MVP only branch B (Upwork) has complete content and tools. Branches C and D have structure, and their content is filled in later (assumption — founder approval required).
+- Which platform is permitted and suitable for a particular student is not a learning-path decision. Each platform's rules about country of residence, and our platform's official position (risks R4 and R11), must be explained to the student before choosing a branch (content `C-S0-03`).
+- Fiverr details in this document are general and must be confirmed with upwork-domain-expert (⚠).
 
 ---
 
-## ۳. نمای کلی مسیر
+## 3. Path overview
 
-| # | مرحله | خروجی قابل‌تحویل (خلاصه) | گیت عبور | زمان تقریبی* |
+| # | Stage | Deliverable output (summary) | Pass gate | Approximate time* |
 |---|---|---|---|---|
-| ۰ | شروع و تعیین سطح | فرم ورود + هدف ۹۰ روزه + انتخاب شاخه | جلسه‌ی آشنایی با مشاور | ۲ تا ۴ روز |
-| ۱ | انتخاب نیچ | «سند نیچ» + ۱۰ شاهد تقاضا + تحلیل ۳ رقیب | تأیید مشاور | ۵ تا ۱۰ روز |
-| ۲ | ساخت ویترین (پروفایل / گیگ / LinkedIn) | متن کامل ویترین + نرخ اولیه | rubric بررسی پروفایل + تأیید مشاور | ۵ تا ۱۰ روز |
-| ۳ | نمونه‌کار | ۲ تا ۳ نمونه‌کار مرتبط با نیچ | تأیید مشاور | ۷ تا ۱۴ روز (هم‌زمان با ۲) |
-| ۴ | پیدا کردن فرصت مناسب | ۱۰ فرصت ارزیابی‌شده با تصمیم «برو / نرو» | توافق با ابزار/مشاور در ≥ ۸ از ۱۰ | ۳ تا ۵ روز |
-| ۵ | پروپوزال و ارسال فعال | ۳ پروپوزال کالیبره + ثبت ارسال‌ها در ردیاب | rubric پروپوزال + حجم ارسال | ۲ تا ۶ هفته |
-| ۶ | مصاحبه و مذاکره | برگه‌ی آمادگی + مصاحبه‌ی تمرینی | **اولین قرارداد** | متغیر |
-| ۷ | تحویل پروژه و گرفتن نظر | برنامه‌ی پروژه + پیام بستن + جمع‌بندی درس‌ها | قرارداد بسته‌شده با نظر مثبت | به اندازه‌ی پروژه |
-| ۸ | رشد | مرور ماهانه‌ی رشد | مرحله‌ی باز (بدون پایان)، با milestone | پیوسته |
+| 0 | Start and placement | Intake form + 90-day goal + branch selection | Intro session with the mentor | 2 to 4 days |
+| 1 | Niche selection | "Niche document" + 10 demand signals + analysis of 3 competitors | Mentor approval | 5 to 10 days |
+| 2 | Building the showcase (profile / gig / LinkedIn) | Full showcase text + initial rate | Profile review rubric + mentor approval | 5 to 10 days |
+| 3 | Portfolio | 2 to 3 portfolio pieces relevant to the niche | Mentor approval | 7 to 14 days (in parallel with 2) |
+| 4 | Finding the right opportunity | 10 evaluated opportunities with a "go / no-go" decision | Agreement with the tool/mentor on ≥ 8 of 10 | 3 to 5 days |
+| 5 | Proposals and active submitting | 3 calibrated proposals + submissions logged in the tracker | Proposal rubric + submission volume | 2 to 6 weeks |
+| 6 | Interview and negotiation | Prep sheet + practice interview | **First contract** | Variable |
+| 7 | Project delivery and getting a review | Project plan + closing message + lessons summary | Closed contract with a positive review | Length of the project |
+| 8 | Growth | Monthly growth review | Open-ended stage (no end), with milestones | Ongoing |
 
-\* زمان‌ها فرض‌اند، با فرض ۱۰ تا ۱۵ ساعت در هفته وقت هنرجو. باید با داده‌ی هنرجوهای فعلی بنیان‌گذار تنظیم شوند (سؤال باز ۳ در `STATUS.md`). هدف پیشنهادی: رسیدن به مرحله‌ی ۵ در ۳ تا ۵ هفته، و اولین قرارداد در ۶ تا ۱۲ هفته.
+\* Times are assumptions, assuming 10 to 15 hours per week of student time. They must be tuned with data from the founder's current students (open question 3 in `STATUS.md`). Proposed target: reach stage 5 in 3 to 5 weeks, and the first contract in 6 to 12 weeks.
 
-**ترتیب و هم‌زمانی:** مرحله‌های ۲ و ۳ می‌توانند هم‌زمان پیش بروند (ویترین بدون نمونه‌کار ناقص است و نمونه‌کار بدون نیچ بی‌جهت). گیت مرحله‌ی ۴ مستقل از ۳ است ولی **ورود به مرحله‌ی ۵ به عبور از ۲، ۳ و ۴ وابسته است.** مرحله‌ی ۶ با اولین پاسخ مثبت کارفرما باز می‌شود، حتی اگر هنرجو هنوز در چرخه‌ی ارسال مرحله‌ی ۵ باشد.
+**Order and parallelism:** stages 2 and 3 can proceed in parallel (a showcase without portfolio is incomplete, and a portfolio without a niche is aimless). The stage 4 gate is independent of 3, but **entering stage 5 depends on passing 2, 3 and 4.** Stage 6 opens with the first positive client response, even if the student is still in the stage 5 submission cycle.
 
 ---
 
-## ۴. تعیین سطح و نقطه‌ی ورود
+## 4. Placement and entry point
 
-در مرحله‌ی ۰، پاسخ‌های فرم ورود و جلسه‌ی آشنایی نقطه‌ی شروع را تعیین می‌کند. مرحله‌هایی که هنرجو از آن‌ها می‌پرد، «عبورکرده با ارزیابی» ثبت می‌شوند، ولی خروجی‌شان باید یک بار بررسی شود.
+In stage 0, the intake form answers and the intro session determine the starting point. Stages the student skips are recorded as "passed by assessment", but their output must be reviewed once.
 
-| وضعیت هنرجو در شروع | پرسونای نزدیک | نقطه‌ی ورود | کار اجباری پیش از ورود |
+| Student's situation at the start | Closest persona | Entry point | Mandatory work before entry |
 |---|---|---|---|
-| مهارت دارد، نیچ و ویترین ندارد | سارا | مرحله‌ی ۱ | — |
-| ویترین دارد، اپلای نکرده یا کم کرده | — | مرحله‌ی ۲ (بازبینی) | ارسال متن ویترین فعلی برای بررسی |
-| مدتی اپلای کرده و جواب نمی‌گیرد | امیر | مرحله‌ی ۵ | **ممیزی سه‌لایه**: بررسی ویترین + بررسی ۵ جاب آخر + بررسی ۳ پروپوزال آخر. اگر یکی رد شد، به همان مرحله برمی‌گردد |
-| قرارداد دارد و می‌خواهد رشد کند | نیلوفر | مرحله‌ی ۸ | ثبت قراردادها و نرخ فعلی در پرونده |
+| Has skills, no niche or showcase | Sara | Stage 1 | — |
+| Has a showcase, hasn't applied or has applied little | — | Stage 2 (review) | Submit the current showcase text for review |
+| Has been applying for a while and gets no replies | Amir | Stage 5 | **Three-layer audit**: showcase review + review of the last 5 jobs + review of the last 3 proposals. If one fails, they go back to that stage |
+| Has contracts and wants to grow | Niloufar | Stage 8 | Record contracts and current rate in the file |
 
 ---
 
-## ۵. جزئیات مرحله‌ها
+## 5. Stage details
 
-قالب هر مرحله: هدف یادگیری، محتوا (جای خالی)، تکلیف عملی، معیار عبور، ابزار پلتفرم، شاخه‌های پلتفرمی، زمان.
-نوع محتوا: «ویدئو»، «متن»، «چک‌لیست»، «نمونه» (نمونه‌ی خوب و بد، بی‌نام‌شده). ستون «وضعیت» در همه‌ی ردیف‌ها فعلاً «خالی، سازنده: بنیان‌گذار» است.
+Template for each stage: learning goal, content (placeholders), practical task, pass criteria, platform tools, platform branches, time.
+Content types: "video", "text", "checklist", "example" (good and bad examples, anonymized). The "status" column in all rows is currently "empty, creator: founder".
 
-### مرحله‌ی ۰ — شروع و تعیین سطح
+### Stage 0 — Start and placement
 
-| بخش | شرح |
+| Part | Description |
 |---|---|
-| هدف یادگیری | هنرجو بداند مسیر چیست، از او چه انتظاری هست، خطوط قرمز کدام‌اند، و یک هدف ۹۰ روزه‌ی عددی داشته باشد |
-| تکلیف عملی | (۱) فرم ورود (فیلدها در `progress-tracking.md` بخش ۲)؛ (۲) نوشتن هدف ۹۰ روزه: «تا تاریخ X، Y پروپوزال، Z مصاحبه، اولین قرارداد»؛ (۳) انتخاب شاخه‌ی اصلی پس از دیدن `C-S0-03` |
-| معیار عبور | فرم کامل + هدف عددی + شاخه‌ی انتخاب‌شده + **جلسه‌ی آشنایی ۱۵ تا ۲۰ دقیقه‌ای با مشاور** که در آن نقطه‌ی ورود (بخش ۴) تعیین می‌شود |
-| ابزار پلتفرم | فرم ورود، پرونده‌ی هنرجو |
-| زمان | ۲ تا ۴ روز |
+| Learning goal | The student knows what the path is, what is expected of them, what the red lines are, and has a numeric 90-day goal |
+| Practical task | (1) Intake form (fields in `progress-tracking.md` section 2); (2) write the 90-day goal: "By date X, Y proposals, Z interviews, first contract"; (3) choose the primary branch after viewing `C-S0-03` |
+| Pass criteria | Complete form + numeric goal + chosen branch + **a 15 to 20 minute intro session with the mentor** in which the entry point (section 4) is determined |
+| Platform tools | Intake form, student file |
+| Time | 2 to 4 days |
 
-| کد محتوا | نوع | موضوع |
+| Content code | Type | Topic |
 |---|---|---|
-| C-S0-01 | ویدئو | خوش‌آمد بنیان‌گذار: مسیر، انتظارات، اینکه نتیجه تضمینی نیست و به اجرای هنرجو بستگی دارد |
-| C-S0-02 | متن | نحوه‌ی کار با پلتفرم: تکلیف، بازخورد AI، مشاور، check-in هفتگی |
-| C-S0-03 | متن | انتخاب شاخه: مقایسه‌ی سه مدل جذب مشتری، قواعد پلتفرم‌ها و موضع رسمی UpworkCoach (متن را بنیان‌گذار تأیید می‌کند) |
-| C-S0-04 | چک‌لیست | خطوط قرمز: اسکرپ، ارتباط و پرداخت خارج از پلتفرم، اکانت چندگانه یا اجاره‌ای، دروغ در پروفایل |
+| C-S0-01 | Video | Founder's welcome: the path, expectations, and that results are not guaranteed and depend on the student's execution |
+| C-S0-02 | Text | How to work with the platform: tasks, AI feedback, mentor, weekly check-in |
+| C-S0-03 | Text | Choosing a branch: comparison of the three client-acquisition models, platform rules, and UpworkCoach's official position (text approved by the founder) |
+| C-S0-04 | Checklist | Red lines: scraping, communication and payment outside the platform, multiple or rented accounts, lying on the profile |
 
-### مرحله‌ی ۱ — انتخاب نیچ
+### Stage 1 — Niche selection
 
-| بخش | شرح |
+| Part | Description |
 |---|---|
-| هدف یادگیری | هنرجو یک نیچ مشخص انتخاب کند که هم به مهارت واقعی‌اش بخورد و هم تقاضای قابل‌مشاهده داشته باشد، و بتواند آن را در یک جمله بگوید |
-| تکلیف عملی | **«سند نیچ»** با این بخش‌ها: (۱) جمله‌ی نیچ با فرمول «به [چه مشتری‌ای] کمک می‌کنم [چه نتیجه‌ای] بگیرد با [چه خدمتی]»؛ (۲) **۱۰ شاهد تقاضا** که هنرجو خودش دستی جمع کرده (آگهی، گیگ پرفروش یا شرکت هدف، بسته به شاخه) با بودجه یا قیمت؛ (۳) تحلیل **۳ رقیب** (نرخ، تیتر، نقطه‌ی قوت)؛ (۴) دو نیچ دیگری که بررسی و رد شد و دلیلش |
-| معیار عبور | جمله‌ی نیچ از «Web Developer» یا «Graphic Designer» مشخص‌تر است؛ دست‌کم ۷ از ۱۰ شاهد با جمله‌ی نیچ هم‌خوان‌اند؛ مهارت ادعاشده با یک نمونه‌کار یا تجربه‌ی واقعی پشتیبانی می‌شود؛ **تأیید مشاور** (rubric نیچ‌یاب در `../tool-rubrics/` اگر آماده باشد) |
-| ابزار پلتفرم | نیچ‌یاب (P1، اگر در MVP نباشد بازبینی دستی مشاور)، فرم ساختاریافته‌ی «سند نیچ» |
-| زمان | ۵ تا ۱۰ روز |
+| Learning goal | The student chooses a specific niche that both fits their real skills and has visible demand, and can state it in one sentence |
+| Practical task | **"Niche document"** with these parts: (1) the niche sentence using the formula "I help [which client] achieve [which result] with [which service]"; (2) **10 demand signals** the student collected manually themselves (job posts, best-selling gigs or target companies, depending on the branch) with budget or price; (3) analysis of **3 competitors** (rate, title, strength); (4) two other niches that were examined and rejected, and why |
+| Pass criteria | The niche sentence is more specific than "Web Developer" or "Graphic Designer"; at least 7 of 10 signals match the niche sentence; the claimed skill is backed by a portfolio piece or real experience; **mentor approval** (niche finder rubric in `../tool-rubrics/` if ready) |
+| Platform tools | Niche finder (P1; if not in the MVP, manual review by the mentor), structured "Niche document" form |
+| Time | 5 to 10 days |
 
-| شاخه | تفاوت تکلیف |
+| Branch | Task difference |
 |---|---|
-| B (آپورک) | شاهدها = آگهی‌های ۳۰ روز اخیر در جستجوی آپورک (کپی دستی، بدون اسکرپ). رقبا = پروفایل فریلنسرهای همین نیچ |
-| C (Fiverr) | شاهدها = گیگ‌های همین نیچ با تعداد نظر بالا و قیمت پکیج‌ها |
-| D (مستقیم) | شاهدها = ۱۰ کسب‌وکار هدف که نشانه‌ی نیاز دارند (مثلاً سایت قدیمی، آگهی استخدام مرتبط) |
+| B (Upwork) | Signals = job posts from the last 30 days in Upwork search (copied manually, no scraping). Competitors = profiles of freelancers in the same niche |
+| C (Fiverr) | Signals = gigs in the same niche with many reviews, and package prices |
+| D (Direct) | Signals = 10 target businesses showing signs of need (e.g. an outdated website, a related job ad) |
 
-| کد محتوا | نوع | موضوع |
+| Content code | Type | Topic |
 |---|---|---|
-| C-S1-01 | ویدئو | نیچ چیست و چرا «همه‌کاره» بودن به ضرر تازه‌کار است |
-| C-S1-02 | ویدئو | روش جمع کردن شاهد تقاضا در هر شاخه |
-| C-S1-03 | چک‌لیست | معیارهای نیچ خوب (مهارت، تقاضا، رقابت، قیمت) |
-| C-S1-04 | نمونه | ۳ سند نیچ خوب و ۳ سند ضعیف با نقد بنیان‌گذار |
+| C-S1-01 | Video | What a niche is and why being a "generalist" hurts a beginner |
+| C-S1-02 | Video | How to collect demand signals in each branch |
+| C-S1-03 | Checklist | Criteria for a good niche (skill, demand, competition, price) |
+| C-S1-04 | Example | 3 good and 3 weak niche documents with the founder's critique |
 
-### مرحله‌ی ۲ — ساخت ویترین (پروفایل / گیگ / LinkedIn) و نرخ اولیه
+### Stage 2 — Building the showcase (profile / gig / LinkedIn) and initial rate
 
-| بخش | شرح |
+| Part | Description |
 |---|---|
-| هدف یادگیری | هنرجو ویترینی بسازد که درباره‌ی **مشکل مشتری** حرف بزند نه درباره‌ی «من»، با نیچ هم‌خوان باشد و نرخ قابل‌دفاع داشته باشد |
-| تکلیف عملی | متن کامل ویترین را در فرم پلتفرم paste می‌کند (نه لینک؛ ابزار لینک را باز نمی‌کند) + نرخ اولیه با دلیل (خروجی محاسبه‌گر نرخ اگر موجود باشد) |
-| معیار عبور | امتیاز rubric بررسی پروفایل ≥ آستانه‌ی تعیین‌شده در `../tool-rubrics/` + **تأیید مشاور**. حداکثر ۳ دور اصلاح؛ بعد از دور سوم، جلسه‌ی کوتاه با مشاور به‌جای دور چهارم |
-| ابزار پلتفرم | بررسی پروفایل (P1)، محاسبه‌گر نرخ (P1)، تاریخچه‌ی نسخه‌های ویترین در پرونده |
-| زمان | ۵ تا ۱۰ روز |
+| Learning goal | The student builds a showcase that talks about the **client's problem** rather than "me", matches the niche, and has a defensible rate |
+| Practical task | Paste the full showcase text into the platform form (not a link; the tool does not open links) + initial rate with reasoning (rate calculator output if available) |
+| Pass criteria | Profile review rubric score ≥ the threshold set in `../tool-rubrics/` + **mentor approval**. At most 3 revision rounds; after the third round, a short session with the mentor instead of a fourth round |
+| Platform tools | Profile review (P1), rate calculator (P1), showcase version history in the file |
+| Time | 5 to 10 days |
 
-| شاخه | ویترین | اجزای تحویلی |
+| Branch | Showcase | Deliverable components |
 |---|---|---|
-| B (آپورک) | پروفایل آپورک | تیتر، Overview، مهارت‌ها، نرخ ساعتی، توضیح نمونه‌کارها (Specialized Profiles از ۲۸ مه ۲۰۲۶ حذف شده‌اند؛ ر.ک. `tool-rubrics/profile-review.md`)، عکس (بررسی دستی مشاور) |
-| C (Fiverr) | گیگ | عنوان گیگ، توضیح، سه پکیج و قیمت‌ها، تگ‌ها، FAQ، توضیح تصویر گیگ ⚠ |
-| D (مستقیم) | LinkedIn + صفحه‌ی نمونه‌کار | Headline، About، بخش Featured، صفحه‌ی یک‌صفحه‌ای پیشنهاد خدمت |
+| B (Upwork) | Upwork profile | Title, Overview, skills, hourly rate, portfolio descriptions (Specialized Profiles were removed on 28 May 2026; see `tool-rubrics/profile-review.md`), photo (manual mentor review) |
+| C (Fiverr) | Gig | Gig title, description, three packages and prices, tags, FAQ, gig image description ⚠ |
+| D (Direct) | LinkedIn + portfolio page | Headline, About, Featured section, one-page service offer page |
 
-| کد محتوا | نوع | موضوع |
+| Content code | Type | Topic |
 |---|---|---|
-| C-S2-01 | ویدئو | ساختار ویترین مشتری‌محور (تیتر، قلاب، اثبات، دعوت به اقدام) |
-| C-S2-02 | ویدئو | نرخ اولیه: چرا نه خیلی پایین و نه خیلی بالا |
-| C-S2-03 | چک‌لیست | چک‌لیست ویترین هر شاخه (هم‌راستا با rubric بررسی پروفایل) |
-| C-S2-04 | نمونه | قبل/بعد ۳ پروفایل یا گیگ |
+| C-S2-01 | Video | Structure of a client-centered showcase (title, hook, proof, call to action) |
+| C-S2-02 | Video | Initial rate: why neither too low nor too high |
+| C-S2-03 | Checklist | Showcase checklist for each branch (aligned with the profile review rubric) |
+| C-S2-04 | Example | Before/after of 3 profiles or gigs |
 
-### مرحله‌ی ۳ — نمونه‌کار
+### Stage 3 — Portfolio
 
-| بخش | شرح |
+| Part | Description |
 |---|---|
-| هدف یادگیری | هنرجو برای نیچش **۲ تا ۳ نمونه‌کار** داشته باشد که مسئله، کاری که شده و نتیجه را نشان بدهند. اگر کار واقعی ندارد، پروژه‌ی خودساخته (spec work) بسازد و **صادقانه** بگوید خودساخته است |
-| تکلیف عملی | برای هر نمونه‌کار: عنوان، مسئله، کاری که کردی، نتیجه یا خروجی، ابزارها، لینک یا فایل، و اینکه واقعی است یا خودساخته |
-| معیار عبور | دست‌کم ۲ نمونه‌کار مرتبط با جمله‌ی نیچ؛ هر کدام هر سه بخش «مسئله، کار، نتیجه» را دارد؛ هیچ ادعای نادرستی ندارد؛ **تأیید مشاور** |
-| ابزار پلتفرم | فرم نمونه‌کار در پرونده؛ AI فقط متن توضیح را بررسی می‌کند (کیفیت فنی خود کار را مشاور قضاوت می‌کند) |
-| زمان | ۷ تا ۱۴ روز (هم‌زمان با مرحله‌ی ۲) |
+| Learning goal | The student has **2 to 3 portfolio pieces** for their niche that show the problem, the work done and the result. If they have no real work, they build a self-initiated project (spec work) and **honestly** say it is self-initiated |
+| Practical task | For each portfolio piece: title, problem, what you did, result or output, tools, link or file, and whether it is real or self-initiated |
+| Pass criteria | At least 2 portfolio pieces relevant to the niche sentence; each has all three parts "problem, work, result"; no false claims; **mentor approval** |
+| Platform tools | Portfolio form in the file; the AI only reviews the description text (the technical quality of the work itself is judged by the mentor) |
+| Time | 7 to 14 days (in parallel with stage 2) |
 
-| شاخه | تفاوت |
+| Branch | Difference |
 |---|---|
-| B | بخش Portfolio پروفایل؛ توضیح کوتاه و نتیجه‌محور |
-| C | تصویر یا ویدئوی گیگ و نمونه‌ها داخل گیگ ⚠ |
-| D | case study کامل‌تر روی صفحه‌ی نمونه‌کار یا Featured در LinkedIn |
+| B | Profile Portfolio section; short, results-focused description |
+| C | Gig image or video and samples inside the gig ⚠ |
+| D | Fuller case study on the portfolio page or in LinkedIn Featured |
 
-| کد محتوا | نوع | موضوع |
+| Content code | Type | Topic |
 |---|---|---|
-| C-S3-01 | ویدئو | نمونه‌کار بدون مشتری: پروژه‌ی خودساخته‌ی صادقانه |
-| C-S3-02 | چک‌لیست | ساختار «مسئله، کار، نتیجه» |
-| C-S3-03 | نمونه | نمونه‌کارهای خوب در ۳ نیچ رایج هنرجوها (نیچ‌ها: سؤال باز ۹) |
+| C-S3-01 | Video | Portfolio without clients: an honest self-initiated project |
+| C-S3-02 | Checklist | The "problem, work, result" structure |
+| C-S3-03 | Example | Good portfolio pieces in 3 common student niches (niches: open question 9) |
 
-### مرحله‌ی ۴ — پیدا کردن فرصت مناسب
+### Stage 4 — Finding the right opportunity
 
-| بخش | شرح |
+| Part | Description |
 |---|---|
-| هدف یادگیری | هنرجو قبل از خرج کردن Connects یا وقت، بتواند فرصت خوب را از بد و اسکم جدا کند |
-| تکلیف عملی | **۱۰ فرصت واقعی** را ارزیابی کند و برای هر کدام تصمیم «برو / نرو» و دلیلش را بنویسد، بعد ابزار بررسی جاب را روی همان‌ها اجرا کند |
-| معیار عبور | تصمیم هنرجو در دست‌کم ۸ از ۱۰ مورد با خروجی ابزار یا نظر مشاور یکی باشد؛ هنرجو دست‌کم ۳ نشانه‌ی اسکم را بدون کمک نام ببرد؛ در موارد اختلاف، مشاور حکم نهایی را می‌دهد |
-| ابزار پلتفرم | **بررسی جاب + تشخیص اسکم (P0)**، rubric بررسی جاب در `../tool-rubrics/` |
-| زمان | ۳ تا ۵ روز |
+| Learning goal | Before spending Connects or time, the student can tell a good opportunity from a bad one or a scam |
+| Practical task | Evaluate **10 real opportunities**, writing a "go / no-go" decision and its reason for each, then run the job review tool on the same ones |
+| Pass criteria | The student's decision matches the tool output or the mentor's view in at least 8 of 10 cases; the student can name at least 3 scam signs without help; in cases of disagreement, the mentor gives the final ruling |
+| Platform tools | **Job review + scam detection (P0)**, job review rubric in `../tool-rubrics/` |
+| Time | 3 to 5 days |
 
-| شاخه | «فرصت» یعنی | تکلیف |
+| Branch | "Opportunity" means | Task |
 |---|---|---|
-| B (آپورک) | آگهی جاب | ۱۰ آگهی با فیلدهای کارفرما (payment verified، کل خرج، hire rate، تعداد پروپوزال، زمان انتشار) + تخمین Connects. ساخت ۲ تا ۳ saved search |
-| C (Fiverr) | جستجوی خریدار | تحقیق ۱۰ کلمه‌ی کلیدی: کدام جستجو تقاضا دارد و گیگ هنرجو کجا دیده می‌شود ⚠ |
-| D (مستقیم) | مشتری هدف | فهرست ۲۰ مشتری هدف با دلیل انتخاب و راه تماس مجاز (ایمیل عمومی شرکت، LinkedIn) |
+| B (Upwork) | Job post | 10 job posts with client fields (payment verified, total spent, hire rate, number of proposals, posting time) + Connects estimate. Create 2 to 3 saved searches |
+| C (Fiverr) | Buyer search | Research 10 keywords: which searches have demand and where the student's gig appears ⚠ |
+| D (Direct) | Target client | List of 20 target clients with the reason for choosing them and a permitted contact route (public company email, LinkedIn) |
 
-| کد محتوا | نوع | موضوع |
+| Content code | Type | Topic |
 |---|---|---|
-| C-S4-01 | ویدئو | خواندن آگهی و کارفرما: نشانه‌های خوب، بد و اسکم |
-| C-S4-02 | متن | اقتصاد Connects: هزینه‌ی هر پروپوزال، Boost، بودجه‌ی ماهانه (شاخه‌ی B) |
-| C-S4-03 | چک‌لیست | چک‌لیست ۶۰ ثانیه‌ای «اپلای کنم یا نه؟» (هم‌راستا با rubric بررسی جاب) |
+| C-S4-01 | Video | Reading the job post and the client: good, bad and scam signs |
+| C-S4-02 | Text | Connects economics: cost per proposal, Boost, monthly budget (branch B) |
+| C-S4-03 | Checklist | 60-second "should I apply or not?" checklist (aligned with the job review rubric) |
 
-### مرحله‌ی ۵ — پروپوزال و ارسال فعال
+### Stage 5 — Proposals and active submitting
 
-این مرحله دو بخش دارد، چون بیشترین گیر کردن‌ها همین‌جاست (پرسونای امیر).
+This stage has two parts, because this is where most students get stuck (the Amir persona).
 
-**۵-الف. کالیبراسیون (کیفیت)**
+**5-A. Calibration (quality)**
 
-| بخش | شرح |
+| Part | Description |
 |---|---|
-| هدف یادگیری | هنرجو پروپوزال یا پیامی بنویسد که شخصی، کوتاه، مسئله‌محور و دارای دعوت به اقدام باشد، و ایرادهای پروپوزال خودش را ببیند |
-| تکلیف عملی | ۳ پروپوزال برای ۳ فرصت واقعی (که در ابزار بررسی جاب «برو» گرفته‌اند) بنویسد، با ابزار بررسی کند، اصلاح کند، و نسخه‌ی نهایی یکی از آن‌ها را برای مشاور بفرستد |
-| معیار عبور | هر ۳ پروپوزال ≥ آستانه‌ی rubric بررسی پروپوزال (`../tool-rubrics/`) + **تأیید مشاور روی یکی** |
+| Learning goal | The student writes a proposal or message that is personal, short, problem-focused and has a call to action, and can see the flaws in their own proposal |
+| Practical task | Write 3 proposals for 3 real opportunities (that got a "go" in the job review tool), review them with the tool, revise them, and send the final version of one of them to the mentor |
+| Pass criteria | All 3 proposals ≥ the proposal review rubric threshold (`../tool-rubrics/`) + **mentor approval on one** |
 
-**۵-ب. چرخه‌ی ارسال (حجم و قیف)**
+**5-B. Submission cycle (volume and funnel)**
 
-| بخش | شرح |
+| Part | Description |
 |---|---|
-| هدف یادگیری | هنرجو یک ریتم ارسال پایدار بسازد و از روی عددهای قیف خودش بفهمد ایراد کجاست |
-| تکلیف عملی | هر ارسال را در **ردیاب قیف** ثبت کند (فیلدها در `progress-tracking.md` بخش ۶) + check-in هفتگی. سهمیه‌ی پیشنهادی ارسال هفتگی را مشاور بر اساس وقت و بودجه‌ی Connects هنرجو تعیین می‌کند (پیش‌فرض: ۵ تا ۱۰ در هفته در شاخه‌ی B، فرض) |
-| معیار عبور | این بخش با **اولین پاسخ مثبت کارفرما** (درخواست گفت‌وگو یا مصاحبه) به مرحله‌ی ۶ وصل می‌شود. اگر بعد از ۲۰ ارسال پاسخی نیامد، هنرجو «گیرکرده» علامت می‌خورد و ممیزی سه‌لایه انجام می‌شود (`progress-tracking.md` بخش ۷) |
-| ابزار پلتفرم | **بررسی پروپوزال (P0)**، **ردیاب قیف و Connects (P0/P1)**، بررسی جاب |
-| زمان | ۲ تا ۶ هفته (فرض) |
+| Learning goal | The student builds a steady submission rhythm and, from their own funnel numbers, understands where the problem is |
+| Practical task | Log every submission in the **funnel tracker** (fields in `progress-tracking.md` section 6) + weekly check-in. The proposed weekly submission quota is set by the mentor based on the student's time and Connects budget (default: 5 to 10 per week in branch B, assumption) |
+| Pass criteria | This part connects to stage 6 with the **first positive client response** (a request for a conversation or interview). If no reply has come after 20 submissions, the student is flagged as "stuck" and a three-layer audit is carried out (`progress-tracking.md` section 7) |
+| Platform tools | **Proposal review (P0)**, **funnel and Connects tracker (P0/P1)**, job review |
+| Time | 2 to 6 weeks (assumption) |
 
-| شاخه | «پروپوزال» یعنی | تفاوت کلیدی |
+| Branch | "Proposal" means | Key difference |
 |---|---|---|
-| B (آپورک) | Cover letter + پاسخ سؤال‌های آگهی + نرخ پیشنهادی | هزینه‌ی Connects؛ پیام پیگیری فقط بعد از اینکه کارفرما گفت‌وگو را شروع کرد |
-| C (Fiverr) | پاسخ به پیام اول خریدار + Custom Offer | سرعت پاسخ مهم است؛ کیفیت پیام اول و پیشنهاد سفارشی ⚠ |
-| D (مستقیم) | ایمیل یا پیام سرد + ۲ پیگیری | شخصی‌سازی بر اساس مشتری هدف؛ ارسال انبوه و اسپم ممنوع |
+| B (Upwork) | Cover letter + answers to the job post's questions + proposed rate | Connects cost; follow-up messages only after the client has started the conversation |
+| C (Fiverr) | Reply to the buyer's first message + Custom Offer | Response speed matters; quality of the first message and the custom offer ⚠ |
+| D (Direct) | Cold email or message + 2 follow-ups | Personalization based on the target client; mass sending and spam are prohibited |
 
-| کد محتوا | نوع | موضوع |
+| Content code | Type | Topic |
 |---|---|---|
-| C-S5-01 | ویدئو | ساختار پروپوزال: دو خط اول، اثبات، سؤال یا دعوت به اقدام |
-| C-S5-02 | ویدئو | چرا پروپوزال AI‌گونه رد می‌شود و چطور از AI درست استفاده کنیم |
-| C-S5-03 | متن | خواندن قیف خودت: «دیده نشد»، «دیده شد ولی جواب نگرفت»، «مصاحبه شد ولی قرارداد نشد»، هر کدام یعنی چه |
-| C-S5-04 | نمونه | ۵ پروپوزال قبل/بعد با نقد بنیان‌گذار |
-| C-S5-05 | متن | کنار آمدن با رد شدن (ریزش در این مرحله بیشتر است) |
+| C-S5-01 | Video | Proposal structure: the first two lines, proof, question or call to action |
+| C-S5-02 | Video | Why AI-sounding proposals get rejected and how to use AI correctly |
+| C-S5-03 | Text | Reading your own funnel: what "not viewed", "viewed but no reply", and "interviewed but no contract" each mean |
+| C-S5-04 | Example | 5 before/after proposals with the founder's critique |
+| C-S5-05 | Text | Coping with rejection (drop-off is higher at this stage) |
 
-### مرحله‌ی ۶ — مصاحبه و مذاکره
+### Stage 6 — Interview and negotiation
 
-| بخش | شرح |
+| Part | Description |
 |---|---|
-| هدف یادگیری | هنرجو با سؤال‌های کشف (discovery) نیاز کارفرما را روشن کند، دامنه‌ی کار و قیمت را بی‌عجله و با دلیل توافق کند و قرارداد را درست ببندد (milestone، دامنه‌ی مکتوب) |
-| تکلیف عملی | (۱) **برگه‌ی آمادگی** برای یک فرصت واقعی یا شبیه‌سازی‌شده: خلاصه‌ی نیاز، ۵ سؤال کشف، ۳ ریسک، پاسخ به «قیمتت چند است؟»؛ (۲) **مصاحبه‌ی تمرینی** با مشاور یا در جلسه‌ی گروهی (یا پاسخ ضبط‌شده به ۵ سؤال، اگر زمان جلسه نیست)؛ (۳) بعد از هر مصاحبه‌ی واقعی، یادداشت کوتاه «چه پرسیدند، چه گفتم، نتیجه» |
-| معیار عبور | **اولین قرارداد** (milestone M6). تمرین با چک‌لیست مصاحبه‌ی تمرینی تأیید مشاور می‌گیرد. اگر ۵ مصاحبه بدون قرارداد شد، هشدار «گیر در مصاحبه» |
-| ابزار پلتفرم | آماده‌سازی مصاحبه (P2؛ تا آن موقع قالب برگه‌ی آمادگی)، محاسبه‌گر نرخ، بررسی پیام و پیشنهاد کارفرما (ضد اسکم) |
-| زمان | متغیر |
+| Learning goal | The student uses discovery questions to clarify the client's need, agrees on scope and price unhurriedly and with reasoning, and closes the contract properly (milestones, written scope) |
+| Practical task | (1) **Prep sheet** for a real or simulated opportunity: summary of the need, 5 discovery questions, 3 risks, an answer to "what's your price?"; (2) **practice interview** with the mentor or in a group session (or recorded answers to 5 questions, if no session time is available); (3) after each real interview, a short note: "what they asked, what I said, the outcome" |
+| Pass criteria | **First contract** (milestone M6). The practice is approved by the mentor using the practice-interview checklist. If 5 interviews happen without a contract, a "stuck in interviews" alert |
+| Platform tools | Interview prep (P2; until then, the prep sheet template), rate calculator, client message and offer review (anti-scam) |
+| Time | Variable |
 
-| شاخه | تفاوت |
+| Branch | Difference |
 |---|---|
-| B | چت یا تماس داخل آپورک؛ احتمال مصاحبه‌ی اولیه با Uma؛ قرارداد fixed با milestone یا ساعتی |
-| C | گفت‌وگوی پیش از سفارش؛ روشن کردن دامنه پیش از Custom Offer ⚠ |
-| D | تماس کشف، پیشنهاد مکتوب (proposal document)، قرارداد و پیش‌پرداخت |
+| B | Chat or call inside Upwork; possible initial interview with Uma; fixed-price contract with milestones, or hourly |
+| C | Pre-order conversation; clarifying scope before the Custom Offer ⚠ |
+| D | Discovery call, written proposal (proposal document), contract and upfront payment |
 
-| کد محتوا | نوع | موضوع |
+| Content code | Type | Topic |
 |---|---|---|
-| C-S6-01 | ویدئو | سؤال‌های کشف و هدایت گفت‌وگو |
-| C-S6-02 | ویدئو | مذاکره‌ی قیمت و دامنه؛ نه گفتن به کار بی‌دامنه |
-| C-S6-03 | چک‌لیست | چک‌لیست بستن قرارداد امن (milestone، دامنه، پرداخت داخل پلتفرم در شاخه‌های B و C) |
-| C-S6-04 | متن | جمله‌ها و عبارت‌های انگلیسی پرکاربرد مصاحبه |
+| C-S6-01 | Video | Discovery questions and steering the conversation |
+| C-S6-02 | Video | Negotiating price and scope; saying no to unscoped work |
+| C-S6-03 | Checklist | Safe contract-closing checklist (milestones, scope, payment inside the platform in branches B and C) |
+| C-S6-04 | Text | Common English sentences and phrases for interviews |
 
-### مرحله‌ی ۷ — تحویل پروژه و گرفتن نظر
+### Stage 7 — Project delivery and getting a review
 
-| بخش | شرح |
+| Part | Description |
 |---|---|
-| هدف یادگیری | هنرجو پروژه را با ارتباط منظم و بدون scope creep تحویل دهد و قرارداد را با نظر مثبت ببندد |
-| تکلیف عملی | (۱) **برنامه‌ی پروژه** در ۴۸ ساعت اول قرارداد: دامنه، milestoneها، زمان‌بندی گزارش به کارفرما، برنامه‌ی پشتیبان برای قطعی اینترنت؛ (۲) گزارش وسط پروژه در check-in؛ (۳) پیام بستن پروژه و درخواست نظر؛ (۴) **جمع‌بندی درس‌ها**: ۳ چیزی که خوب رفت و ۳ چیزی که دفعه‌ی بعد فرق می‌کند |
-| معیار عبور | قرارداد بسته‌شده + نظر کارفرما ثبت‌شده (اسکرین‌شات با پوشاندن نام کارفرما، یا خوداظهاری که مشاور تأیید می‌کند) + جمع‌بندی درس‌ها. نظر منفی رد شدن مرحله نیست؛ جلسه‌ی بازبینی با مشاور فعال می‌شود |
-| ابزار پلتفرم | قالب برنامه‌ی پروژه، ثبت قرارداد در پرونده |
-| زمان | به اندازه‌ی پروژه |
+| Learning goal | The student delivers the project with regular communication and without scope creep, and closes the contract with a positive review |
+| Practical task | (1) **Project plan** within the first 48 hours of the contract: scope, milestones, schedule for reporting to the client, backup plan for internet outages; (2) mid-project report in the check-in; (3) project closing message and review request; (4) **lessons summary**: 3 things that went well and 3 things that will be different next time |
+| Pass criteria | Closed contract + client review recorded (screenshot with the client's name hidden, or a self-declaration confirmed by the mentor) + lessons summary. A negative review does not mean failing the stage; a review session with the mentor is triggered |
+| Platform tools | Project plan template, contract recording in the file |
+| Time | Length of the project |
 
-| شاخه | تفاوت |
+| Branch | Difference |
 |---|---|
-| B | Feedback و اثرش روی JSS؛ درخواست نظر بدون فشار و بدون پیشنهاد پاداش |
-| C | Review سفارش و اثرش روی سطح فروشنده ⚠ |
-| D | Testimonial مکتوب و اجازه‌ی استفاده در نمونه‌کار؛ درخواست معرفی |
+| B | Feedback and its effect on JSS; requesting a review without pressure and without offering incentives |
+| C | Order review and its effect on seller level ⚠ |
+| D | Written testimonial and permission to use it in the portfolio; asking for referrals |
 
-| کد محتوا | نوع | موضوع |
+| Content code | Type | Topic |
 |---|---|---|
-| C-S7-01 | ویدئو | شروع درست پروژه: انتظارها و ارتباط |
-| C-S7-02 | چک‌لیست | مدیریت scope creep و تغییرات |
-| C-S7-03 | متن | بستن پروژه و درخواست نظر |
+| C-S7-01 | Video | Starting a project right: expectations and communication |
+| C-S7-02 | Checklist | Managing scope creep and changes |
+| C-S7-03 | Text | Closing the project and requesting a review |
 
-### مرحله‌ی ۸ — رشد (مرحله‌ی باز)
+### Stage 8 — Growth (open-ended stage)
 
-| بخش | شرح |
+| Part | Description |
 |---|---|
-| هدف یادگیری | تبدیل اولین قرارداد به **درآمد پایدار**: نرخ بالاتر، کارفرمای تکراری و بلندمدت، نشان‌های پلتفرم، و در صورت نیاز شاخه‌ی دوم |
-| تکلیف عملی | **مرور ماهانه‌ی رشد** (فرم ۱۰ دقیقه‌ای): درآمد ماه، تعداد قرارداد فعال، کارفرمای تکراری، نرخ فعلی، یک هدف برای ماه بعد (مثلاً افزایش نرخ پروپوزال‌های جدید به X، پیگیری ۳ کارفرمای قبلی، اضافه کردن شاخه‌ی دوم) |
-| معیار عبور | پایان ندارد. پیشرفت با milestoneهای M8 تا M12 سنجیده می‌شود (`progress-tracking.md` بخش ۳). «فارغ‌التحصیلی» پیشنهادی: ۳ ماه پیاپی درآمد ≥ هدف ۹۰ روزه‌ی هنرجو |
-| ابزار پلتفرم | محاسبه‌گر نرخ، بررسی پروفایل پیشرفته، بررسی جاب‌های گران‌تر، مشاوره‌ی ۱:۱ (پلن پرو) |
-| زمان | پیوسته |
+| Learning goal | Turning the first contract into **sustainable income**: higher rates, repeat and long-term clients, platform badges, and a second branch if needed |
+| Practical task | **Monthly growth review** (10-minute form): monthly income, number of active contracts, repeat clients, current rate, one goal for next month (e.g. raising the rate on new proposals to X, following up with 3 previous clients, adding a second branch) |
+| Pass criteria | No end. Progress is measured by milestones M8 to M12 (`progress-tracking.md` section 3). Proposed "graduation": 3 consecutive months of income ≥ the student's 90-day goal |
+| Platform tools | Rate calculator, advanced profile review, review of higher-value jobs, 1:1 coaching (Pro plan) |
+| Time | Ongoing |
 
-| شاخه | نشانه‌های رشد |
+| Branch | Growth signals |
 |---|---|
-| B | JSS، Rising Talent، Top Rated (شرط‌ها در `domain-notes.md` بخش ۱)، قرارداد ساعتی بلندمدت، دعوت مستقیم کارفرما |
-| C | سطح فروشنده، سفارش تکراری، افزایش قیمت پکیج ⚠ |
-| D | قرارداد ماهانه (retainer)، مشتری معرفی‌شده |
+| B | JSS, Rising Talent, Top Rated (requirements in `domain-notes.md` section 1), long-term hourly contracts, direct client invitations |
+| C | Seller level, repeat orders, higher package prices ⚠ |
+| D | Monthly contracts (retainer), referred clients |
 
-| کد محتوا | نوع | موضوع |
+| Content code | Type | Topic |
 |---|---|---|
-| C-S8-01 | ویدئو | کی و چطور نرخ را بالا ببریم |
-| C-S8-02 | ویدئو | کارفرمای تکراری و قرارداد بلندمدت |
-| C-S8-03 | متن | نشان‌های پلتفرم و مسیر رسیدن به آن‌ها (هر شاخه) |
-| C-S8-04 | متن | اضافه کردن شاخه‌ی دوم برای کاهش وابستگی به یک پلتفرم |
+| C-S8-01 | Video | When and how to raise your rate |
+| C-S8-02 | Video | Repeat clients and long-term contracts |
+| C-S8-03 | Text | Platform badges and the path to earning them (each branch) |
+| C-S8-04 | Text | Adding a second branch to reduce dependence on one platform |
 
 ---
 
-## ۶. ماژول‌های پشتیبان (خارج از مسیر اصلی، در صورت نیاز)
+## 6. Support modules (outside the main path, as needed)
 
-| ماژول | چه وقت فعال می‌شود | کد محتوا |
+| Module | When it is triggered | Content code |
 |---|---|---|
-| نوشتن انگلیسی حرفه‌ای | امتیاز پایین «زبان» در rubric بررسی پروفایل یا پروپوزال، دو بار پشت سر هم | C-X-01 |
-| مکالمه‌ی انگلیسی برای مصاحبه | سطح گفتاری ≤ ۲ در فرم ورود، یا هشدار «گیر در مصاحبه» | C-X-02 |
-| مدیریت زمان و برنامه‌ی هفتگی | هشدار کم‌کاری، یا ساعت اعلام‌شده کمتر از ۸ ساعت در هفته | C-X-03 |
-| امنیت و ضد اسکم | قبل از مرحله‌ی ۴ (اجباری، کوتاه) | C-X-04 |
+| Professional English writing | Low "language" score in the profile or proposal review rubric, twice in a row | C-X-01 |
+| English conversation for interviews | Speaking level ≤ 2 on the intake form, or a "stuck in interviews" alert | C-X-02 |
+| Time management and weekly planning | Low-activity alert, or declared hours under 8 per week | C-X-03 |
+| Security and anti-scam | Before stage 4 (mandatory, short) | C-X-04 |
 
 ---
 
-## ۷. فرض‌ها و سؤال‌های باز
+## 7. Assumptions and open questions
 
-| # | فرض یا سؤال | اثر | ثبت در `STATUS.md` |
+| # | Assumption or question | Impact | Recorded in `STATUS.md` |
 |---|---|---|---|
-| ۱ | محتوای فعلی دوره‌ی بنیان‌گذار چیست و به کدام کدهای `C-…` وصل می‌شود؟ (سؤال باز ۸) | پر کردن جاهای خالی؛ لینک به محتوای موجود یا ساخت LMS | بله |
-| ۲ | زمان‌های تقریبی هر مرحله و حجم ارسال هفتگی با داده‌ی واقعی هنرجوها (سؤال باز ۳) | آستانه‌ی هشدارها | بله |
-| ۳ | در MVP فقط شاخه‌ی B محتوای کامل دارد و C و D ساختار دارند | دامنه‌ی محتوا | تأیید بنیان‌گذار |
-| ۴ | موضع رسمی پلتفرم درباره‌ی واجد شرایط بودن هنرجو برای هر پلتفرم (متن `C-S0-03`) | ریسک R4 و R11 | بله (سؤال ۱، بخش دوم) |
-| ۵ | جزئیات Fiverr (پکیج، سطح فروشنده، رفتار جستجو) باید با upwork-domain-expert تأیید شود | دقت محتوای شاخه‌ی C | داخلی |
+| 1 | What is the founder's current course content, and which `C-…` codes does it map to? (open question 8) | Filling the placeholders; linking to existing content or building an LMS | Yes |
+| 2 | Approximate times for each stage and weekly submission volume, with real student data (open question 3) | Alert thresholds | Yes |
+| 3 | In the MVP only branch B has complete content, and C and D have structure | Content scope | Founder approval |
+| 4 | The platform's official position on student eligibility for each platform (text of `C-S0-03`) | Risks R4 and R11 | Yes (question 1, part two) |
+| 5 | Fiverr details (packages, seller level, search behavior) must be confirmed with upwork-domain-expert | Accuracy of branch C content | Internal |

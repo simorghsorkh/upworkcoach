@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { faNumber } from '@/components/format/fa';
+import { useTranslations } from 'next-intl';
 import { Avatar } from '@/components/ui/avatar';
 import { Tag } from '@/components/ui/badge';
 import { buttonClass } from '@/components/ui/button';
@@ -28,6 +28,7 @@ export function ReviewQueueList({
   showReviewer?: boolean;
   now: Date;
 }) {
+  const t = useTranslations('tasks');
   return (
     <ul className="-mx-4 md:-mx-5">
       {sortQueue(items).map((r) => (
@@ -60,31 +61,36 @@ export function ReviewQueueList({
                 lastSubmittedAt={r.lastSubmittedAt}
                 now={now}
               />
-              {r.priority === 'urgent' ? <Tag variant="urgent">فوری</Tag> : null}
+              {r.priority === 'urgent' ? <Tag variant="urgent">{t('urgent')}</Tag> : null}
               {r.version > 1 ? <TaskStatusBadge status="submitted" version={r.version} /> : null}
+              {r.program && !r.program.isLegacy ? (
+                <Tag variant="outline" icon="flag">
+                  <bdi>{r.program.title}</bdi>
+                </Tag>
+              ) : null}
               {r.requiredForGate ? (
                 <Tag variant="gate">
-                  {r.stage
-                    ? `اجباری برای عبور از مرحله‌ی ${r.stage.displayCode}`
-                    : 'اجباری برای عبور'}
+                  {r.stage ? t('gateStage', { stage: r.stage.displayCode }) : t('gate')}
                 </Tag>
               ) : null}
               {showReviewer ? (
-                <span>{`بازبین: ${r.reviewer.id === viewerId ? 'خودم' : r.reviewer.displayName}`}</span>
+                <span>
+                  {t('reviewer', {
+                    name: r.reviewer.id === viewerId ? t('me') : r.reviewer.displayName,
+                  })}
+                </span>
               ) : null}
             </div>
           </div>
           <Link
             href={`/tasks/${r.taskId}`}
             className={buttonClass({ size: 'sm', variant: 'soft', className: 'flex-none' })}
-            aria-label={`بازبینی ${r.title} از ${r.student.displayName}`}
+            aria-label={t('reviewAria', { title: r.title, student: r.student.displayName })}
           >
-            بازبینی
+            {t('review')}
           </Link>
         </li>
       ))}
     </ul>
   );
 }
-
-export const reviewCountLabel = (n: number) => `${faNumber(n)} تحویل منتظر بازبینی`;

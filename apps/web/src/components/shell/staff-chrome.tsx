@@ -2,10 +2,12 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { logout } from '@/components/auth/logout';
-import { faDayMonth } from '@/components/format/fa';
+import { useFormat } from '@/components/format/use-format';
 import { Icon, type IconName } from '@/components/icons/icon';
+import { NotificationBell } from '@/components/notifications/notification-bell';
 import { Avatar } from '@/components/ui/avatar';
 import { Count } from '@/components/ui/badge';
 import { cn } from '@/components/ui/cn';
@@ -16,7 +18,6 @@ import {
   isActive,
   type NavCounts,
   type NavItem,
-  roleLabel,
   staffNav,
   staffTabbarEnd,
   staffTabbarStart,
@@ -42,10 +43,13 @@ function useActive(activeHref?: string) {
    --------------------------------------------------------------------------- */
 export function StaffSidebar({ user, counts, activeHref }: ChromeProps) {
   const active = useActive(activeHref);
+  const t = useTranslations('shell');
+  const tRole = useTranslations('role');
+  const tNav = useTranslations('nav');
   const isAdmin = user.role === 'admin';
   return (
     <aside
-      aria-label="ناوبری اصلی"
+      aria-label={t('mainNav')}
       className="sticky top-0 hidden h-dvh flex-col gap-1 overflow-y-auto bg-side-bg px-3 pt-5 pb-4 text-side-fg [scrollbar-width:thin] md:flex"
     >
       <Link href="/today" className="flex items-center gap-3 px-2 pb-5 text-inherit">
@@ -54,7 +58,7 @@ export function StaffSidebar({ user, counts, activeHref }: ChromeProps) {
           <span className="block text-h2 leading-[22px] font-extrabold text-side-strong">
             UpworkCoach
           </span>
-          <span className="block text-xs leading-4 font-medium text-side-fg-2">دفتر مربی</span>
+          <span className="block text-xs leading-4 font-medium text-side-fg-2">{t('tagline')}</span>
         </span>
       </Link>
 
@@ -63,11 +67,11 @@ export function StaffSidebar({ user, counts, activeHref }: ChromeProps) {
         className="mb-4 flex min-h-btn items-center gap-2 rounded-sm border border-side-border bg-side-bg-2 px-3 text-sm text-side-fg-2 hover:border-side-count hover:text-side-fg focus-visible:outline-side-accent"
       >
         <Icon name="search" size={16} />
-        جستجوی هنرجو
+        {t('searchStudent')}
         <kbd className="ms-auto">/</kbd>
       </Link>
 
-      <nav aria-label="بخش‌ها" className="flex flex-col gap-0.5">
+      <nav aria-label={t('sections')} className="flex flex-col gap-0.5">
         {staffNav.map((item) => (
           <SideLink
             key={item.href}
@@ -78,7 +82,9 @@ export function StaffSidebar({ user, counts, activeHref }: ChromeProps) {
         ))}
         {isAdmin ? (
           <>
-            <p className="px-3 pt-4 pb-1 text-2xs leading-4 font-semibold text-side-fg-2">مدیر</p>
+            <p className="px-3 pt-4 pb-1 text-2xs leading-4 font-semibold text-side-fg-2">
+              {t('adminGroup')}
+            </p>
             {adminNav.map((item) => (
               <SideLink key={item.href} item={item} active={active(item.href)} />
             ))}
@@ -97,11 +103,11 @@ export function StaffSidebar({ user, counts, activeHref }: ChromeProps) {
           <b className="block truncate text-ui font-semibold text-side-strong">
             {user.displayName}
           </b>
-          <small className="text-xs text-side-fg-2">{roleLabel[user.role]}</small>
+          <small className="text-xs text-side-fg-2">{tRole(user.role)}</small>
         </div>
         <Link
           href="/account"
-          aria-label="حساب من"
+          aria-label={tNav('account')}
           aria-current={active('/account') ? 'page' : undefined}
           className="inline-grid size-8 place-items-center rounded-sm text-side-fg-2 hover:bg-side-bg-2 hover:text-side-strong focus-visible:outline-side-accent"
         >
@@ -121,6 +127,7 @@ function SideLink({
   active: boolean;
   count?: NavCounts[string];
 }) {
+  const t = useTranslations('nav');
   return (
     <Link
       href={item.href}
@@ -136,7 +143,7 @@ function SideLink({
         name={item.icon}
         className={active ? 'text-side-accent' : 'text-side-fg-2 group-hover:text-side-fg'}
       />
-      {item.label}
+      {t(item.label)}
       {count ? (
         <Count
           value={count.value}
@@ -155,25 +162,46 @@ function SideLink({
 const iconBtn =
   'inline-grid size-tap flex-none place-items-center rounded-sm text-fg-2 hover:bg-surface-2 hover:text-fg cursor-pointer';
 
-export function StaffTopbar({ user, activeHref }: ChromeProps) {
+export function StaffTopbar({ user, counts, activeHref }: ChromeProps) {
   const pathname = usePathname();
   const active = useActive(activeHref);
   const [menuOpen, setMenuOpen] = useState(false);
+  const t = useTranslations('shell');
+  const tNav = useTranslations('nav');
+  const format = useFormat();
   const current = [...staffNav, ...adminNav].find((item) => active(item.href));
   const isToday = current?.href === '/today';
   const isAdmin = user.role === 'admin';
   const close = () => setMenuOpen(false);
 
   const menu: Array<NavItem & { sub?: string }> = [
-    { href: '/stages', label: 'مراحل (کانبان)', icon: 'board' },
-    { href: '/reminders', label: 'یادآورهای من', icon: 'bell' },
+    { href: '/stages', label: 'stagesKanban', icon: 'board' },
+    { href: '/programs', label: 'programs', icon: 'flag' },
+    { href: '/mentors', label: 'mentors', icon: 'briefcase' },
+    { href: '/reminders', label: 'reminders', icon: 'bell' },
     ...(isAdmin
       ? [
-          { href: '/results', label: 'نتایج', icon: 'chart' as IconName, sub: 'مدیر' },
-          { href: '/settings', label: 'تنظیمات', icon: 'sliders' as IconName, sub: 'مدیر' },
+          {
+            href: '/overview',
+            label: 'overview' as const,
+            icon: 'grid' as IconName,
+            sub: t('adminGroup'),
+          },
+          {
+            href: '/results',
+            label: 'results' as const,
+            icon: 'chart' as IconName,
+            sub: t('adminGroup'),
+          },
+          {
+            href: '/settings',
+            label: 'settings' as const,
+            icon: 'sliders' as IconName,
+            sub: t('adminGroup'),
+          },
         ]
       : []),
-    { href: '/account', label: 'حساب من', icon: 'user' },
+    { href: '/account', label: 'account', icon: 'user' },
   ];
 
   return (
@@ -181,26 +209,31 @@ export function StaffTopbar({ user, activeHref }: ChromeProps) {
       <button
         type="button"
         className={iconBtn}
-        aria-label="منو"
+        aria-label={t('menu')}
         aria-haspopup="dialog"
         onClick={() => setMenuOpen(true)}
       >
         <Icon name="menu" />
       </button>
       <span className="flex-1 truncate text-center text-h2 font-bold">
-        {current?.label ?? (pathname === '/account' ? 'حساب من' : 'UpworkCoach')}
+        {current ? tNav(current.label) : pathname === '/account' ? tNav('account') : 'UpworkCoach'}
         {isToday ? (
           <small className="text-sm font-medium text-fg-3" suppressHydrationWarning>
-            {` · ${faDayMonth(new Date())}`}
+            {` · ${format.dayMonth(new Date())}`}
           </small>
         ) : null}
       </span>
-      <Link href="/students" className={iconBtn} aria-label="جستجوی هنرجو">
+      <NotificationBell
+        href="/notifications"
+        unread={counts?.['/notifications']?.value ?? 0}
+        current={active('/notifications')}
+      />
+      <Link href="/students" className={iconBtn} aria-label={t('searchStudent')}>
         <Icon name="search" />
       </Link>
 
-      <Dialog open={menuOpen} onClose={close} title="منو">
-        <nav aria-label="منوی بیشتر" className="flex flex-col gap-0.5">
+      <Dialog open={menuOpen} onClose={close} title={t('menu')}>
+        <nav aria-label={t('moreMenu')} className="flex flex-col gap-0.5">
           {menu.map((item) => (
             <Link
               key={item.href}
@@ -210,7 +243,7 @@ export function StaffTopbar({ user, activeHref }: ChromeProps) {
               className="flex min-h-12 items-center gap-3 rounded-sm px-3 font-medium text-fg hover:bg-surface-2 aria-[current=page]:bg-primary-weak aria-[current=page]:text-primary-text"
             >
               <Icon name={item.icon} className="text-fg-3" />
-              {item.label}
+              {tNav(item.label)}
               {item.sub ? <span className="ms-auto text-xs text-fg-3">{item.sub}</span> : null}
             </Link>
           ))}
@@ -220,7 +253,7 @@ export function StaffTopbar({ user, activeHref }: ChromeProps) {
             className="flex min-h-12 cursor-pointer items-center gap-3 rounded-sm px-3 text-start font-medium text-h-red-fg hover:bg-surface-2"
           >
             <Icon name="back" />
-            خروج
+            {t('logout')}
           </button>
         </nav>
       </Dialog>
@@ -231,9 +264,10 @@ export function StaffTopbar({ user, activeHref }: ChromeProps) {
 export function StaffTabbar({ counts, activeHref }: ChromeProps) {
   const active = useActive(activeHref);
   const quick = useQuickAdd();
+  const t = useTranslations('shell');
 
   return (
-    <nav aria-label="ناوبری پایین" className={tabbarClass}>
+    <nav aria-label={t('bottomNav')} className={tabbarClass}>
       {staffTabbarStart.map((item) => (
         <TabLink
           key={item.href}
@@ -244,7 +278,7 @@ export function StaffTabbar({ counts, activeHref }: ChromeProps) {
       ))}
       <button
         type="button"
-        aria-label="افزودن سریع"
+        aria-label={t('quickAdd')}
         aria-haspopup="dialog"
         onClick={() => quick?.open()}
         className="flex min-h-tap cursor-pointer flex-col items-center justify-center"
@@ -280,6 +314,7 @@ export function TabLink({
   active: boolean;
   count?: NavCounts[string];
 }) {
+  const t = useTranslations('nav');
   return (
     <Link
       href={item.href}
@@ -292,7 +327,7 @@ export function TabLink({
       )}
     >
       <Icon name={item.icon} size={22} strokeWidth={active ? 2.3 : 1.9} />
-      {item.label}
+      {t(item.label)}
       {count ? (
         <Count
           value={count.value}

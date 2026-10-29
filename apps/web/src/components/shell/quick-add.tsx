@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { createContext, type ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import { Icon, type IconName } from '@/components/icons/icon';
 import { NoteDialog } from '@/components/notes/note-dialog';
@@ -81,37 +82,39 @@ function QuickAddSheet({
   onClose: () => void;
   onNote: () => void;
 }) {
+  const t = useTranslations('quickAdd');
+  const tShell = useTranslations('shell');
   const actions: Action[] = target
     ? [
-        { key: 'note', label: 'یادداشت', icon: 'pen', primary: true },
-        { key: 'task', label: 'کار', icon: 'tasks', href: `/students/${target.id}?add=task` },
+        { key: 'note', label: t('note'), icon: 'pen', primary: true },
+        { key: 'task', label: t('task'), icon: 'tasks', href: `/students/${target.id}?add=task` },
         {
           key: 'reminder',
-          label: 'یادآور',
+          label: t('reminder'),
           icon: 'bell',
           href: `/students/${target.id}?add=reminder`,
         },
       ]
     : [
-        { key: 'note', label: 'یادداشت', sub: 'درباره‌ی یک هنرجو', icon: 'pen', primary: true },
+        { key: 'note', label: t('note'), sub: t('noteSub'), icon: 'pen', primary: true },
         {
           key: 'task',
-          label: 'کار جدید',
-          sub: 'با مهلت شمسی',
+          label: t('newTask'),
+          sub: t('newTaskSub'),
           icon: 'tasks',
           href: '/tasks?new=1',
         },
         {
           key: 'reminder',
-          label: 'یادآور',
-          sub: 'برای خودت یا مشاور',
+          label: t('reminder'),
+          sub: t('reminderSub'),
           icon: 'bell',
           href: '/reminders?new=1',
         },
         {
           key: 'student',
-          label: 'هنرجوی جدید',
-          sub: '+ لینک دعوت',
+          label: t('newStudent'),
+          sub: t('newStudentSub'),
           icon: 'users',
           href: '/students/new',
         },
@@ -132,8 +135,8 @@ function QuickAddSheet({
     <Dialog
       open={open}
       onClose={onClose}
-      title={target ? `افزودن برای ${target.displayName}` : 'افزودن سریع'}
-      description={target ? 'هنرجو از پیش انتخاب شده است' : 'اول نام هنرجو را می‌پرسیم'}
+      title={target ? t('titleFor', { name: target.displayName }) : tShell('quickAdd')}
+      description={target ? t('descriptionFor') : t('description')}
     >
       <div className="grid grid-cols-2 gap-3">
         {actions.map((a) =>
@@ -159,11 +162,12 @@ function QuickAddSheet({
 /** Desktop «افزودن» in a page header (same sheet as the mobile «+»). */
 export function QuickAddButton({ className }: { className?: string }) {
   const ctx = useQuickAdd();
+  const t = useTranslations('shell');
   if (!ctx) return null;
   return (
     <Button aria-haspopup="dialog" onClick={ctx.open} className={className}>
       <Icon name="plus" size={16} />
-      افزودن
+      {t('add')}
     </Button>
   );
 }

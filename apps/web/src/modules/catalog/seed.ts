@@ -1,5 +1,7 @@
-import { eq } from 'drizzle-orm';
+import { createHash } from 'node:crypto';
+import { eq, sql } from 'drizzle-orm';
 import type { DbOrTx } from '../../server/db';
+import { DEFAULT_ORGANIZATION_ID } from '../identity/schema';
 import {
   cannedResponses,
   learningPaths,
@@ -20,106 +22,131 @@ import {
  * deactivated in the settings. Rows are never deleted by the app, so a fixed id that is
  * missing really means "not seeded yet".
  *
- * Run by `pnpm db:migrate` (after the SQL migrations) and by `pnpm db:seed`.
- * The numbers are the team's defaults; the founder changes them in the settings (D3).
+ * Per organization (ADR-0011): the default organization keeps the 0.1 ids (SEED_IDS); any
+ * other organization gets its own ids derived from its id, so its seed is idempotent too.
+ *
+ * Run by `pnpm db:migrate` (after the SQL migrations), by `pnpm db:seed` and by
+ * `pnpm org:create`. The numbers are the team's defaults; each organization's admin changes
+ * them in the settings (D3).
  */
 
 /** Fixed ids (UUIDv7 layout with a constant timestamp). */
 const id = (n: number) => `01920000-0000-7000-8000-${n.toString(16).padStart(12, '0')}`;
 
-export const SEED_IDS = {
-  tracks: { B: id(0x101), C: id(0x102), D: id(0x103) },
-  path: id(0x201),
-  stages: Array.from({ length: 9 }, (_, i) => id(0x300 + i)),
-  platforms: {
-    upwork: id(0x401),
-    fiverr: id(0x402),
-    contra: id(0x403),
-    linkedin: id(0x404),
-    freelancer: id(0x405),
-    behance: id(0x406),
-    direct: id(0x407),
-    other: id(0x408),
-  },
-  taskTemplates: Array.from({ length: 16 }, (_, i) => id(0x500 + i)),
-  milestoneTypes: {
-    profileReady: id(0x601),
-    firstApply: id(0x602),
-    firstReply: id(0x603),
-    firstContract: id(0x604),
-    first500: id(0x605),
-  },
-  cannedResponses: { redLine: id(0x701) },
-} as const;
+/** Deterministic id of seed row `n` in another organization (UUID version 8 layout). */
+function derivedId(org: string, n: number): string {
+  const h = createHash('sha256').update(`${org}:catalog-seed:${n}`).digest('hex');
+  const variant = ((Number.parseInt(h[16] ?? '0', 16) & 0x3) | 0x8).toString(16);
+  return `${h.slice(0, 8)}-${h.slice(8, 12)}-8${h.slice(13, 16)}-${variant}${h.slice(17, 20)}-${h.slice(20, 32)}`;
+}
+
+function seedIds(idOf: (n: number) => string) {
+  return {
+    tracks: { B: idOf(0x101), C: idOf(0x102), D: idOf(0x103) },
+    path: idOf(0x201),
+    stages: Array.from({ length: 9 }, (_, i) => idOf(0x300 + i)),
+    platforms: {
+      upwork: idOf(0x401),
+      fiverr: idOf(0x402),
+      contra: idOf(0x403),
+      linkedin: idOf(0x404),
+      freelancer: idOf(0x405),
+      behance: idOf(0x406),
+      direct: idOf(0x407),
+      other: idOf(0x408),
+    },
+    taskTemplates: Array.from({ length: 16 }, (_, i) => idOf(0x500 + i)),
+    milestoneTypes: {
+      profileReady: idOf(0x601),
+      firstApply: idOf(0x602),
+      firstReply: idOf(0x603),
+      firstContract: idOf(0x604),
+      first500: idOf(0x605),
+    },
+    cannedResponses: { redLine: idOf(0x701) },
+  };
+}
+
+export type SeedIds = ReturnType<typeof seedIds>;
+
+/** Seed ids of the default organization (the 0.1 data). */
+export const SEED_IDS: SeedIds = seedIds(id);
+
+/** Seed ids of any organization. */
+export function seedIdsFor(org: string): SeedIds {
+  return org === DEFAULT_ORGANIZATION_ID ? SEED_IDS : seedIds((n) => derivedId(org, n));
+}
 
 /**
  * Default milestone types (PRD F9). Only «اولین قرارداد یا سفارش پولی» counts for the
  * North Star (flag, not name). «اولین …» types are unique per student.
  */
-const MILESTONE_TYPES = [
-  {
-    id: SEED_IDS.milestoneTypes.profileReady,
-    name: 'پروفایل آماده',
-    countsForNorthStar: false,
-    uniquePerStudent: true,
-    requiresEvidence: false,
-  },
-  {
-    id: SEED_IDS.milestoneTypes.firstApply,
-    name: 'اولین اپلای',
-    countsForNorthStar: false,
-    uniquePerStudent: true,
-    requiresEvidence: false,
-  },
-  {
-    id: SEED_IDS.milestoneTypes.firstReply,
-    name: 'اولین پاسخ یا مصاحبه',
-    countsForNorthStar: false,
-    uniquePerStudent: true,
-    requiresEvidence: true,
-  },
-  {
-    id: SEED_IDS.milestoneTypes.firstContract,
-    name: 'اولین قرارداد یا سفارش پولی',
-    countsForNorthStar: true,
-    uniquePerStudent: true,
-    requiresEvidence: true,
-  },
-  {
-    id: SEED_IDS.milestoneTypes.first500,
-    name: 'اولین درآمد بالای ۵۰۰ دلار',
-    countsForNorthStar: false,
-    uniquePerStudent: true,
-    requiresEvidence: true,
-  },
-].map((t, i) => ({ ...t, sortOrder: (i + 1) * 10 }));
+const milestoneTypeRows = (ids: SeedIds) =>
+  [
+    {
+      id: ids.milestoneTypes.profileReady,
+      name: 'پروفایل آماده',
+      countsForNorthStar: false,
+      uniquePerStudent: true,
+      requiresEvidence: false,
+    },
+    {
+      id: ids.milestoneTypes.firstApply,
+      name: 'اولین اپلای',
+      countsForNorthStar: false,
+      uniquePerStudent: true,
+      requiresEvidence: false,
+    },
+    {
+      id: ids.milestoneTypes.firstReply,
+      name: 'اولین پاسخ یا مصاحبه',
+      countsForNorthStar: false,
+      uniquePerStudent: true,
+      requiresEvidence: true,
+    },
+    {
+      id: ids.milestoneTypes.firstContract,
+      name: 'اولین قرارداد یا سفارش پولی',
+      countsForNorthStar: true,
+      uniquePerStudent: true,
+      requiresEvidence: true,
+    },
+    {
+      id: ids.milestoneTypes.first500,
+      name: 'اولین درآمد بالای ۵۰۰ دلار',
+      countsForNorthStar: false,
+      uniquePerStudent: true,
+      requiresEvidence: true,
+    },
+  ].map((t, i) => ({ ...t, sortOrder: (i + 1) * 10 }));
 
 /** The standard «red lines» answer (PRD section 9, F8). */
-const CANNED_RESPONSES = [
+const cannedResponseRows = (ids: SeedIds) => [
   {
-    id: SEED_IDS.cannedResponses.redLine,
+    id: ids.cannedResponses.redLine,
     title: 'خطوط قرمز: خرید یا اجاره‌ی اکانت',
     category: 'red_line' as const,
     body: 'به سؤال‌هایی درباره‌ی خرید، اجاره یا قرض گرفتن اکانت، دور زدن احراز هویت یا جعل مدارک پاسخ نمی‌دهیم. این کارها خلاف قوانین پلتفرم‌هاست و می‌تواند به بسته شدن همیشگی حساب و از دست رفتن درآمدت برسد. مسیر ما ساختن حساب و ویترین به نام خودت است؛ اگر در احراز هویت گیر کرده‌ای، بگو کجای کار مانده تا قدم بعدی را با هم پیدا کنیم.',
   },
 ];
 
-const TRACKS = [
-  { id: SEED_IDS.tracks.B, code: 'B', name: 'مناقصه‌ای', sortOrder: 1 },
-  { id: SEED_IDS.tracks.C, code: 'C', name: 'کاتالوگی', sortOrder: 2 },
-  { id: SEED_IDS.tracks.D, code: 'D', name: 'مستقیم', sortOrder: 3 },
+const trackRows = (ids: SeedIds) => [
+  { id: ids.tracks.B, code: 'B', name: 'مناقصه‌ای', sortOrder: 1 },
+  { id: ids.tracks.C, code: 'C', name: 'کاتالوگی', sortOrder: 2 },
+  { id: ids.tracks.D, code: 'D', name: 'مستقیم', sortOrder: 3 },
 ];
 
-const PLATFORMS = [
-  { id: SEED_IDS.platforms.upwork, name: 'Upwork', trackId: SEED_IDS.tracks.B },
-  { id: SEED_IDS.platforms.fiverr, name: 'Fiverr', trackId: SEED_IDS.tracks.C },
-  { id: SEED_IDS.platforms.contra, name: 'Contra', trackId: null },
-  { id: SEED_IDS.platforms.linkedin, name: 'LinkedIn', trackId: SEED_IDS.tracks.D },
-  { id: SEED_IDS.platforms.freelancer, name: 'Freelancer', trackId: SEED_IDS.tracks.B },
-  { id: SEED_IDS.platforms.behance, name: 'Behance/Dribbble', trackId: SEED_IDS.tracks.D },
-  { id: SEED_IDS.platforms.direct, name: 'مشتری مستقیم', trackId: SEED_IDS.tracks.D },
-  { id: SEED_IDS.platforms.other, name: 'سایر', trackId: null },
-].map((p, i) => ({ ...p, sortOrder: (i + 1) * 10 }));
+const platformRows = (ids: SeedIds) =>
+  [
+    { id: ids.platforms.upwork, name: 'Upwork', trackId: ids.tracks.B },
+    { id: ids.platforms.fiverr, name: 'Fiverr', trackId: ids.tracks.C },
+    { id: ids.platforms.contra, name: 'Contra', trackId: null },
+    { id: ids.platforms.linkedin, name: 'LinkedIn', trackId: ids.tracks.D },
+    { id: ids.platforms.freelancer, name: 'Freelancer', trackId: ids.tracks.B },
+    { id: ids.platforms.behance, name: 'Behance/Dribbble', trackId: ids.tracks.D },
+    { id: ids.platforms.direct, name: 'مشتری مستقیم', trackId: ids.tracks.D },
+    { id: ids.platforms.other, name: 'سایر', trackId: null },
+  ].map((p, i) => ({ ...p, sortOrder: (i + 1) * 10 }));
 
 /**
  * learning-path.md section 3. `expectedDays` = upper end of the range (data-model.md 2-2):
@@ -245,37 +272,45 @@ export type SeedResult = {
  */
 const SEED_SETTINGS = [{ key: 'checkin', value: { enabled: true, weekday: 'thu' } }];
 
-/** Inserts missing default rows; returns how many rows were added per table. */
-export async function seedCatalogDefaults(db: DbOrTx): Promise<SeedResult> {
+/**
+ * Inserts the missing default rows of one organization (default: the 0.1 organization);
+ * returns how many rows were added per table.
+ */
+export async function seedCatalogDefaults(
+  db: DbOrTx,
+  organizationId: string = DEFAULT_ORGANIZATION_ID,
+): Promise<SeedResult> {
   const now = new Date();
+  const ids = seedIdsFor(organizationId);
+  const own = { organizationId, isActive: true, createdAt: now, updatedAt: now };
   const insertedTracks = await db
     .insert(tracks)
-    .values(TRACKS.map((t) => ({ ...t, isActive: true, createdAt: now, updatedAt: now })))
+    .values(trackRows(ids).map((t) => ({ ...t, ...own })))
     .onConflictDoNothing()
     .returning({ id: tracks.id });
   const insertedPlatforms = await db
     .insert(platforms)
-    .values(PLATFORMS.map((p) => ({ ...p, isActive: true, createdAt: now, updatedAt: now })))
+    .values(platformRows(ids).map((p) => ({ ...p, ...own })))
     .onConflictDoNothing()
     .returning({ id: platforms.id });
   const insertedPaths = await db
     .insert(learningPaths)
-    .values({ id: SEED_IDS.path, name: 'مسیر پیش‌فرض', isDefault: true, createdAt: now })
+    .values({ id: ids.path, organizationId, name: 'مسیر پیش‌فرض', isDefault: true, createdAt: now })
     .onConflictDoNothing()
     .returning({ id: learningPaths.id });
   const insertedMilestoneTypes = await db
     .insert(milestoneTypes)
-    .values(MILESTONE_TYPES.map((t) => ({ ...t, isActive: true, createdAt: now, updatedAt: now })))
+    .values(milestoneTypeRows(ids).map((t) => ({ ...t, ...own })))
     .onConflictDoNothing()
     .returning({ id: milestoneTypes.id });
   const insertedCanned = await db
     .insert(cannedResponses)
-    .values(CANNED_RESPONSES.map((c) => ({ ...c, isActive: true, createdAt: now, updatedAt: now })))
+    .values(cannedResponseRows(ids).map((c) => ({ ...c, ...own })))
     .onConflictDoNothing()
     .returning({ id: cannedResponses.id });
   const insertedSettings = await db
     .insert(settings)
-    .values(SEED_SETTINGS.map((x) => ({ ...x, version: 1, updatedAt: now })))
+    .values(SEED_SETTINGS.map((x) => ({ ...x, organizationId, version: 1, updatedAt: now })))
     .onConflictDoNothing()
     .returning({ key: settings.key });
   const extras = {
@@ -287,8 +322,9 @@ export async function seedCatalogDefaults(db: DbOrTx): Promise<SeedResult> {
   const [seedPath] = await db
     .select({ id: learningPaths.id })
     .from(learningPaths)
-    .where(eq(learningPaths.id, SEED_IDS.path));
+    .where(eq(learningPaths.id, ids.path));
   if (!seedPath) {
+    await db.execute(sql`SELECT ensure_legacy_program(${organizationId})`);
     return {
       tracks: insertedTracks.length,
       platforms: insertedPlatforms.length,
@@ -303,8 +339,8 @@ export async function seedCatalogDefaults(db: DbOrTx): Promise<SeedResult> {
     .values(
       STAGES.map((s, i) => ({
         ...s,
-        id: SEED_IDS.stages[i] ?? id(0x300 + i),
-        pathId: SEED_IDS.path,
+        id: ids.stages[i] as string,
+        pathId: ids.path,
         sortOrder: (i + 1) * 10,
         contentLinks: [],
         isActive: true,
@@ -318,8 +354,9 @@ export async function seedCatalogDefaults(db: DbOrTx): Promise<SeedResult> {
     .insert(taskTemplates)
     .values(
       TEMPLATES.map(([stageIndex, title, days, submissionType, gate], i) => ({
-        id: SEED_IDS.taskTemplates[i] ?? id(0x500 + i),
-        stageId: SEED_IDS.stages[stageIndex] ?? null,
+        organizationId,
+        id: ids.taskTemplates[i] as string,
+        stageId: ids.stages[stageIndex] ?? null,
         title,
         kind: 'path_assignment' as const,
         submissionType,
@@ -334,6 +371,9 @@ export async function seedCatalogDefaults(db: DbOrTx): Promise<SeedResult> {
     )
     .onConflictDoNothing()
     .returning({ id: taskTemplates.id });
+  // ADR-0012 section 9: the default path's legacy program template, run and enrollments
+  // (SQL function of migration 0008; idempotent, adds only what is missing).
+  await db.execute(sql`SELECT ensure_legacy_program(${organizationId})`);
   return {
     tracks: insertedTracks.length,
     platforms: insertedPlatforms.length,

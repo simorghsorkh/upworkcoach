@@ -1,6 +1,7 @@
 import { and, asc, eq, inArray, or, type SQL, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import type { DbOrTx } from '@/server/db';
+import { isActiveAdminOf } from '../identity/membership-sql';
 import { users } from '../identity/schema';
 import { students } from '../students/schema';
 import { tasks } from '../tasks/schema';
@@ -20,7 +21,7 @@ const threadColumns = {
   id: questionThreads.id,
   studentId: questionThreads.studentId,
   studentDisplayName: studentUsers.displayName,
-  primaryMentorId: students.primaryMentorId,
+  organizationId: questionThreads.organizationId,
   subject: questionThreads.subject,
   status: questionThreads.status,
   awaiting: questionThreads.awaiting,
@@ -39,9 +40,10 @@ const threadColumns = {
   messageCount,
 };
 
-function baseThreadQuery(db: DbOrTx) {
+/** `inScope`: the caller's scope condition as a column (rows seen only as the assignee). */
+function baseThreadQuery(db: DbOrTx, inScope: SQL<boolean> = sql<boolean>`true`) {
   return db
-    .select(threadColumns)
+    .select({ ...threadColumns, inScope })
     .from(questionThreads)
     .innerJoin(students, eq(students.userId, questionThreads.studentId))
     .innerJoin(studentUsers, eq(studentUsers.id, questionThreads.studentId))
@@ -65,6 +67,7 @@ export async function lockThread(db: DbOrTx, id: string) {
       awaitingTeamSince: questionThreads.awaitingTeamSince,
       assigneeId: questionThreads.assigneeId,
       firstResponseAt: questionThreads.firstResponseAt,
+      subject: questionThreads.subject,
     })
     .from(questionThreads)
     .where(eq(questionThreads.id, id))
@@ -96,8 +99,14 @@ const staffOrder = [
   asc(questionThreads.id),
 ];
 
-export async function listThreads(db: DbOrTx, conditions: SQL[], limit: number, offset: number) {
-  return baseThreadQuery(db)
+export async function listThreads(
+  db: DbOrTx,
+  conditions: SQL[],
+  inScope: SQL<boolean>,
+  limit: number,
+  offset: number,
+) {
+  return baseThreadQuery(db, inScope)
     .where(and(...conditions))
     .orderBy(...staffOrder)
     .limit(limit)
@@ -201,12 +210,12 @@ export async function listMessages(db: DbOrTx, threadId: string) {
     .orderBy(asc(questionMessages.createdAt), asc(questionMessages.id));
 }
 
-/** Active admin to receive a question when the student has no (active) primary mentor. */
-export async function firstActiveAdmin(db: DbOrTx): Promise<string | null> {
+/** Active admin of the organization for a question whose student has no active mentor. */
+export async function firstActiveAdmin(db: DbOrTx, org: string): Promise<string | null> {
   const [row] = await db
     .select({ id: users.id })
     .from(users)
-    .where(and(eq(users.role, 'admin'), eq(users.status, 'active')))
+    .where(and(isActiveAdminOf(users.id, org), eq(users.status, 'active')))
     .orderBy(asc(users.createdAt), asc(users.id))
     .limit(1);
   return row?.id ?? null;

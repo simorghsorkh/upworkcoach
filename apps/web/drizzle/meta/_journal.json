@@ -43,6 +43,69 @@
       "when": 1792607771502,
       "tag": "0005_invite_accepted_session_reauth",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793201683794,
+      "tag": "0006_organizations",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793207931068,
+      "tag": "0007_user_preferences",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793215395907,
+      "tag": "0008_programs",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793228324366,
+      "tag": "0009_mentors",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793256936428,
+      "tag": "0010_program_progress",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1793276224527,
+      "tag": "0011_sessions_goals",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1793284154376,
+      "tag": "0012_notifications",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1793305408251,
+      "tag": "0013_scheduling",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1793312340065,
+      "tag": "0014_date_hours",
+      "breakpoints": true
     }
   ]
 }

@@ -1,8 +1,13 @@
 import type { AuthResult, RequestMeta } from '@/modules/identity/service';
 import { assertRecentPassword, authenticateSession } from '@/modules/identity/service';
 import { getClientIp } from '../http/client-ip';
-import { getCookieConfig, parseCookieHeader, serializeCookie } from './cookies';
-import type { Actor, MeDTO } from './current-user';
+import {
+  getCookieConfig,
+  parseCookieHeader,
+  serializeCookie,
+  serializeLocaleCookie,
+} from './cookies';
+import { type Actor, type MeDTO, toActor } from './current-user';
 
 /**
  * Request-side session handling for Route Handlers (ADR-0003 section 5).
@@ -47,7 +52,7 @@ export async function authenticateRequest(
   const session = await authenticateSession(sessionToken, { touch: true });
   if (!session) return null;
   return {
-    actor: { userId: session.user.id, role: session.user.role },
+    actor: toActor(session.user),
     user: session.user,
     sessionId: session.sessionId,
     sessionToken,
@@ -81,6 +86,7 @@ export function authCookies(result: AuthResult, now: Date = new Date()): string[
       maxAgeSeconds: DEVICE_COOKIE_MAX_AGE,
       secure: config.secure,
     }),
+    serializeLocaleCookie(result.user.locale, config.secure),
   ];
 }
 

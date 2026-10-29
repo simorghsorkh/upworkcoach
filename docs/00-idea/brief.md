@@ -1,23 +1,23 @@
-# ایده‌ی اولیه — UpworkCoach
+# Initial idea — UpworkCoach
 
-> نوشته‌شده از روی توضیح بنیان‌گذار — ۱۹ اکتبر ۲۰۲۶ (۲۷ مهر ۱۴۰۵)
+> Written from the founder's description — 19 October 2026 (27 Mehr 1405)
 
-## متن اصلی بنیان‌گذار
-«من به عنوان یک مربی کسب درآمد از فریلنسری و آپورک فعالیت می‌کنم. می‌خواهم یک پلتفرم داشته باشم که افراد بتوانند داخلش بیایند و ثبت‌نام کنند و یک تعداد مشاور هم باشند که بتوانند سؤال بپرسند، فرآیند آموزش و … پیگیری شود و یک سری کارهایشان جلو برود، و یک تعداد ابزار هم داشته باشم مثل بررسی جاب و بررسی پروپوزال و … که بتواند ایرادات بچه‌ها را دربیاورد و کمک کند نیچ خوب پیدا کنند و …»
+## The founder's original words
+"I work as a coach for earning income through freelancing and Upwork. I want to have a platform where people can come in and sign up, and there would be a number of mentors who can ask questions, the training process and so on can be followed up, and some of their tasks can move forward, and I'd also have a number of tools, like job review and proposal review and so on, that can find the students' mistakes and help them find a good niche, and so on."
 
-## اجزای ایده
-| جزء | توضیح اولیه |
+## Components of the idea
+| Component | Initial description |
 |---|---|
-| ثبت‌نام و حساب کاربری | هنرجوها وارد پلتفرم می‌شوند |
-| مشاورها | چند مشاور که با هنرجوها در ارتباط‌اند، سؤال‌ها را جواب می‌دهند و کارها را پیگیری می‌کنند |
-| پیگیری آموزش | هنرجو در یک فرآیند آموزشی جلو می‌رود و پیشرفتش دیده می‌شود |
-| ابزار بررسی جاب | تحلیل آگهی آپورک: ارزش اپلای دارد یا نه |
-| ابزار بررسی پروپوزال | پیدا کردن ایرادهای پروپوزال و پیشنهاد اصلاح |
-| ابزار نیچ‌یابی | کمک به انتخاب نیچ مناسب |
-| ابزارهای دیگر | در فاز کشف مشخص می‌شود |
+| Sign-up and user account | Students enter the platform |
+| Mentors | Several mentors who are in contact with students, answer questions and follow up on tasks |
+| Training follow-up | The student progresses through a training process and their progress is visible |
+| Job review tool | Analysis of an Upwork job post: is it worth applying to or not |
+| Proposal review tool | Finding a proposal's problems and suggesting fixes |
+| Niche-finding tool | Help choosing a suitable niche |
+| Other tools | To be determined in the discovery phase |
 
-## نکات مبهم (فاز کشف باید روشن کند)
-- «مشاورها سؤال بپرسند» — یعنی مشاورها به سؤال هنرجوها **جواب** می‌دهند؟ یا مشاورها هم از هنرجو سؤال/پیگیری می‌کنند؟ احتمالاً هر دو.
-- مدل درآمد: پلتفرم جایگزین دوره‌ی فعلی است یا مکمل آن؟
-- مشاورها کارمند/همکار بنیان‌گذارند یا مشاورهای مستقل؟
-- محتوای آموزشی موجود است (ویدئو، جزوه) یا باید ساخته شود؟
+## Ambiguous points (the discovery phase must clarify)
+- "Mentors ask questions" — does it mean mentors **answer** students' questions? Or do mentors also ask/follow up with the student? Probably both.
+- Revenue model: does the platform replace the current course or complement it?
+- Are the mentors the founder's employees/collaborators or independent mentors?
+- Does training content already exist (videos, handouts) or does it need to be created?

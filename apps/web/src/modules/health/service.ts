@@ -1,11 +1,11 @@
-import { and, desc, eq, gt, isNull, or, type SQL, sql } from 'drizzle-orm';
+import { and, desc, eq, gt, inArray, isNull, or, type SQL, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { tehranDay, tehranDayEnd } from '@/lib/tehran-day';
 import { isUuid } from '@/lib/uuid';
 import type { Actor } from '@/server/auth/current-user';
 import { type Db, type DbOrTx, getDb } from '@/server/db';
 import { errors } from '@/server/http/errors';
-import { loadInScope } from '../access/scope';
+import { isStudentInScope, loadInScope } from '../access/scope';
 import { recordAudit } from '../admin/service';
 import type { AuditMeta } from '../catalog/service';
 import { users } from '../identity/schema';
@@ -25,7 +25,7 @@ import type {
 import { recomputeHealth, recomputeHealthSafe, sweepAllHealth } from './recompute';
 import { overallBall } from './rules';
 import { studentFlags, studentHealth } from './schema';
-import { toHealthReasons } from './summary';
+import { type HealthSummary, toHealthReasons, toHealthSummary } from './summary';
 
 /**
  * health — staff API of health, flags and snooze (api.md section 9, PRD F7). Staff only:
@@ -329,6 +329,43 @@ export async function clearFlag(actor: Actor, flagId: string, db: Db = getDb()):
  * oldest status (F7). Paused, graduated and dropped never appear; snoozed ones only with
  * `includeSnoozed=1`. `mentorId` is admin-only (a mentor's value is ignored).
  */
+/**
+ * Health summaries of students the caller already scoped (the course board, sprint 5c). A
+ * student without a computed health is left out.
+ */
+export async function healthSummariesOf(
+  actor: Actor,
+  studentIds: readonly string[],
+  db: DbOrTx = getDb(),
+): Promise<Map<string, HealthSummary>> {
+  assertStaff(actor);
+  const out = new Map<string, HealthSummary>();
+  if (!studentIds.length) return out;
+  const rows = await db
+    .select({
+      studentId: studentHealth.studentId,
+      healthStatus: studentHealth.status,
+      healthReasons: studentHealth.reasons,
+      healthChurnRisk: studentHealth.churnRisk,
+      healthSnoozedUntil: studentHealth.snoozedUntil,
+      healthStatusSince: studentHealth.statusSince,
+      healthComputedAt: studentHealth.computedAt,
+    })
+    .from(studentHealth)
+    .where(
+      and(
+        eq(studentHealth.organizationId, actor.organizationId),
+        inArray(studentHealth.studentId, [...studentIds]),
+      ),
+    );
+  const now = new Date();
+  for (const { studentId, ...row } of rows) {
+    const summary = toHealthSummary(row, now);
+    if (summary) out.set(studentId, summary);
+  }
+  return out;
+}
+
 export async function listStuckStudents(
   actor: Actor,
   query: StuckQuery = {},
@@ -354,12 +391,14 @@ export async function adminRecompute(
   if (actor.role !== 'admin') throw errors.forbidden();
   let result: RecomputeResultDTO;
   if (input.studentId) {
-    if (!isUuid(input.studentId)) throw errors.validation({ studentId: 'مقدار نامعتبر است' });
+    if (!isUuid(input.studentId) || !(await isStudentInScope(db, actor, input.studentId))) {
+      throw errors.validation({ studentId: 'مقدار نامعتبر است' });
+    }
     const n = await recomputeHealth(db, [input.studentId]);
     if (n === 0) throw errors.validation({ studentId: 'مقدار نامعتبر است' });
     result = { recomputed: n, resumed: 0 };
   } else {
-    result = await sweepAllHealth(db);
+    result = await sweepAllHealth(db, actor.organizationId);
   }
   await recordAudit(db, {
     actorId: actor.userId,

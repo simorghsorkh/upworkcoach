@@ -1,9 +1,11 @@
+import { useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';
-import { faAgo, faDayMonth, faDaysLeft, faHours, faNumber } from '@/components/format/fa';
+import { useFormat } from '@/components/format/use-format';
 import { Icon } from '@/components/icons/icon';
 import { Tag, TaskStatusChip } from '@/components/ui/badge';
 import type { TaskStatus } from '@/modules/tasks/contracts';
-import { chipStatus, STUDENT_ACTIONABLE, studentStatusLabel, taskStatusLabel } from './labels';
+import { chipStatus, STUDENT_ACTIONABLE } from './labels';
+import { useTaskLabels } from './use-task-labels';
 
 /** Status chip (icon + text) with the round/version suffix the mockups use. */
 export function TaskStatusBadge({
@@ -25,9 +27,13 @@ export function TaskStatusBadge({
   /** Replaces the status word, e.g. «منتظر بازبینی شما». */
   label?: string;
 }) {
-  let text = label ?? (student ? studentStatusLabel : taskStatusLabel)[status];
-  if (status === 'submitted' && version && version > 1) text += ` · نسخه‌ی ${faNumber(version)}`;
-  if (status === 'changes_requested' && round && round > 0) text += ` · دور ${faNumber(round)}`;
+  const t = useTranslations('tasks');
+  const labels = useTaskLabels();
+  let text = label ?? (student ? labels.studentStatus : labels.status)[status];
+  if (status === 'submitted' && version && version > 1)
+    text += ` · ${t('version', { n: version })}`;
+  if (status === 'changes_requested' && round && round > 0)
+    text += ` · ${t('round', { n: round })}`;
   if (suffix) text += ` · ${suffix}`;
   return <TaskStatusChip status={chipStatus[status]}>{text}</TaskStatusChip>;
 }
@@ -51,12 +57,16 @@ export function DueText({
   now: Date;
   extensions?: number;
 }): ReactNode {
+  const t = useTranslations('tasks');
+  const format = useFormat();
   const due = new Date(dueAt);
-  const ext = extensions ? <Tag className="ms-1">{`${faNumber(extensions)} بار تمدید`}</Tag> : null;
+  const ext = extensions ? (
+    <Tag className="ms-1">{t('extensions', { count: extensions })}</Tag>
+  ) : null;
   if (overdue) {
     return (
       <>
-        <Tag variant="overdue">{`معوق · ${faNumber(Math.max(1, overdueDays))} روز`}</Tag>
+        <Tag variant="overdue">{t('overdue', { count: Math.max(1, overdueDays) })}</Tag>
         {ext}
       </>
     );
@@ -64,7 +74,7 @@ export function DueText({
   if (!STUDENT_ACTIONABLE.includes(status)) {
     return (
       <span className="inline-flex items-center gap-1">
-        {faDayMonth(due)}
+        {format.dayMonth(due)}
         {ext}
       </span>
     );
@@ -72,9 +82,9 @@ export function DueText({
   return (
     <span className="inline-flex flex-wrap items-center gap-1">
       <Icon name="calendar" size={14} className="text-fg-3" />
-      {'تا '}
-      <strong className="font-semibold">{faDayMonth(due)}</strong>
-      <span className="text-fg-3">{`(${faDaysLeft(due, now)})`}</span>
+      {`${t('until')} `}
+      <strong className="font-semibold">{format.dayMonth(due)}</strong>
+      <span className="text-fg-3">{`(${format.daysLeft(due, now)})`}</span>
       {ext}
     </span>
   );
@@ -96,10 +106,14 @@ export function SlaText({
   lastSubmittedAt: string;
   now: Date;
 }) {
-  if (breached) return <Tag variant="late">{`دیر · ${faHours(elapsedHours)}`}</Tag>;
+  const t = useTranslations('tasks');
+  const format = useFormat();
+  if (breached) return <Tag variant="late">{t('late', { hours: format.hours(elapsedHours) })}</Tag>;
   if (warning)
     return (
-      <span className="font-semibold text-h-yellow-fg">{`${faHours(slaRemainingHours)} تا موعد`}</span>
+      <span className="font-semibold text-h-yellow-fg">
+        {t('dueIn', { hours: format.hours(slaRemainingHours) })}
+      </span>
     );
-  return <span>{faAgo(new Date(lastSubmittedAt), now)}</span>;
+  return <span>{format.ago(new Date(lastSubmittedAt), now)}</span>;
 }

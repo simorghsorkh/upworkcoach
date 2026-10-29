@@ -104,7 +104,8 @@ test('task: create → submit → changes requested → resubmit → accepted', 
 
   // --- student: sees it at home and submits v1 --------------------------------------------
   await sp.goto('/home');
-  const homeTask = sp.getByRole('link', { name: title });
+  // exact: the welcome card's first step links to the same task with a longer name.
+  const homeTask = sp.getByRole('link', { name: title, exact: true });
   await expect(homeTask).toBeVisible(SLOW);
   await expectPersianPage(sp);
   await homeTask.click();
@@ -147,7 +148,9 @@ test('task: create → submit → changes requested → resubmit → accepted', 
 
   // --- student: feedback + v2 ---------------------------------------------------------------
   await sp.goto(`/my/tasks/${taskId}`);
-  await expect(sp.getByRole('heading', { name: 'بازخورد مشاورت' })).toBeVisible(SLOW);
+  await expect(
+    sp.getByRole('heading', { level: 2, name: `بازخورد ${state.admin.displayName}` }),
+  ).toBeVisible(SLOW);
   await expect(sp.getByText('با مشکل کارفرما شروع کن.')).toBeVisible();
   await expect(sp.getByText(/نیاز به اصلاح/).first()).toBeVisible();
   // v2 starts from v1.

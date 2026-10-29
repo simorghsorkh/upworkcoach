@@ -6,13 +6,26 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { cache } from 'react';
+import type { Locale } from '@/i18n/config';
 import { authenticateSession } from '@/modules/identity/service';
 import { getCookieConfig } from './cookies';
 
 export type Role = 'admin' | 'mentor' | 'student';
 
-/** First parameter of every service function (ADR-0004). */
-export type Actor = { userId: string; role: Role };
+/** Role in the active organization (ADR-0011 section 1). */
+export type OrganizationRole = 'owner' | 'admin' | 'mentor' | 'mentee';
+
+/**
+ * First parameter of every service function (ADR-0004). `role` is the 0.1 role derived
+ * from `organizationRole` (owner and admin → admin, mentee → student); every query is
+ * limited to `organizationId` (ADR-0011 section 2).
+ */
+export type Actor = {
+  userId: string;
+  role: Role;
+  organizationId: string;
+  organizationRole: OrganizationRole;
+};
 
 /** GET /api/v1/auth/me */
 export type MeDTO = {
@@ -20,7 +33,17 @@ export type MeDTO = {
   displayName: string;
   role: Role;
   phone: string;
+  /** Interface language (ADR-0013): the user's preference, else the organization's default. */
+  locale: Locale;
+  /** The organization this session works in; dates and «today» follow its time zone. */
+  organization: { id: string; name: string; role: OrganizationRole; timeZone: string };
 };
+
+/** The 0.1 role the existing access rules check (ADR-0011 section 1). */
+export function legacyRole(role: OrganizationRole): Role {
+  if (role === 'owner' || role === 'admin') return 'admin';
+  return role === 'mentee' ? 'student' : 'mentor';
+}
 
 // One session lookup per server request, however many components ask (React cache).
 // Validation is the same as for the API (ADR-0003 section 5, SEC-S3): status, expiry,
@@ -55,5 +78,10 @@ export async function requireUser(_allowed: readonly Role[]): Promise<MeDTO> {
 }
 
 export function toActor(user: MeDTO): Actor {
-  return { userId: user.id, role: user.role };
+  return {
+    userId: user.id,
+    role: user.role,
+    organizationId: user.organization.id,
+    organizationRole: user.organization.role,
+  };
 }

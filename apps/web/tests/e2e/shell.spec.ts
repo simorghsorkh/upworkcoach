@@ -106,14 +106,17 @@ test.describe('account (M12 / S10)', () => {
 });
 
 test.describe('student shell (/dev/shell?role=student)', () => {
-  test('five destinations in the top bar (desktop) or bottom bar (mobile)', async ({ page }) => {
+  test('six destinations in the top bar (desktop), five in the bottom bar (mobile)', async ({
+    page,
+  }) => {
     await page.goto('/dev/shell?role=student');
     await expectPersianPage(page);
     const nav = isMobile(page)
       ? page.getByRole('navigation', { name: 'ناوبری پایین' })
       : page.getByRole('banner').getByRole('navigation', { name: 'ناوبری اصلی' });
     await expect(nav).toBeVisible();
-    await expect(nav.getByRole('link')).toHaveCount(5);
+    // Coach Office sprint 3: «برنامه‌های من» on desktop; on mobile it is reached from «مسیر من».
+    await expect(nav.getByRole('link')).toHaveCount(isMobile(page) ? 5 : 6);
     await expect(nav.getByRole('link', { name: /^خانه/ })).toHaveAttribute('aria-current', 'page');
     // Students never see staff navigation.
     await expect(page.getByRole('link', { name: /^هنرجوها/ })).toHaveCount(0);

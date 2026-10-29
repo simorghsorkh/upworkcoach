@@ -25,13 +25,24 @@ const futureTask: HealthTaskInput = {
   extensionCount: 0,
 };
 
-function base(over: Partial<StudentHealthInput> = {}): StudentHealthInput {
+type BaseInput = Partial<StudentHealthInput> & {
+  /** Shorthand for a single current phase (the main path). */
+  stageEnteredAt?: Date;
+  stage?: { expectedDays: number | null; isOpenEnded: boolean };
+};
+
+function base({ stageEnteredAt, stage, ...over }: BaseInput = {}): StudentHealthInput {
   return {
     lifecycleStatus: 'active',
     joinedAt: ago(2),
     lastActivityAt: ago(0.1),
-    stageEnteredAt: ago(2),
-    stage: { expectedDays: 10, isOpenEnded: false },
+    phases: [
+      {
+        enteredAt: stageEnteredAt ?? ago(2),
+        expectedDays: stage ? stage.expectedDays : 10,
+        isOpenEnded: stage?.isOpenEnded ?? false,
+      },
+    ],
     openTasks: [futureTask],
     lastTaskClosedAt: null,
     flags: [],
@@ -138,6 +149,19 @@ describe('R-STALL (> 1.5× yellow, > 2× red; ball = both)', () => {
     const reason = run(base({ stageEnteredAt: ago(25) })).reasons.find((r) => r.rule === 'R-STALL');
     expect(reason).toMatchObject({ ball: 'both', facts: { daysInStage: 25, expectedDays: 10 } });
   });
+
+  it('several courses: the phase furthest past its expected days wins (sprint 5c)', () => {
+    const input = base({
+      phases: [
+        { enteredAt: ago(12), expectedDays: 10, isOpenEnded: false },
+        { enteredAt: ago(25), expectedDays: 10, isOpenEnded: true },
+        { enteredAt: ago(9), expectedDays: 4, isOpenEnded: false },
+      ],
+    });
+    const reason = run(input).reasons.find((r) => r.rule === 'R-STALL');
+    expect(reason).toMatchObject({ level: 'red', facts: { daysInStage: 9, expectedDays: 4 } });
+    expect(levelOf(base({ phases: [] }), 'R-STALL')).toBeNull();
+  });
 });
 
 describe('R-OVERDUE (one > 3 yellow; one > 7 or 2 overdue red; ball = student)', () => {
@@ -232,6 +256,27 @@ describe('R-NOTASK (≥ 3 yellow, ≥ 7 red; ball = team)', () => {
       ball: 'team',
       facts: { days: 20 },
     });
+  });
+
+  it('several courses: skipped only when every current phase is open-ended (sprint 5c)', () => {
+    const openEnded = { enteredAt: ago(30), expectedDays: null, isOpenEnded: true };
+    expect(
+      levelOf(
+        base({ openTasks: [], joinedAt: ago(30), phases: [openEnded, openEnded] }),
+        'R-NOTASK',
+      ),
+    ).toBeNull();
+    expect(
+      levelOf(
+        base({
+          openTasks: [],
+          joinedAt: ago(30),
+          phases: [openEnded, { enteredAt: ago(4), expectedDays: 10, isOpenEnded: false }],
+        }),
+        'R-NOTASK',
+      ),
+    ).toBe('yellow');
+    expect(levelOf(base({ openTasks: [], joinedAt: ago(8), phases: [] }), 'R-NOTASK')).toBe('red');
   });
 
   it('a submitted task is still open; an open-ended stage skips the rule', () => {

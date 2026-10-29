@@ -89,6 +89,10 @@ jobs:
       - name: No "use server"
         run: bash scripts/ci-no-server-actions.sh
 
+      # ADR-0013: no new hard-coded interface text or physical direction classes.
+      - name: i18n guard
+        run: node scripts/ci-i18n-guard.mjs
+
       # pnpm audit reads pnpm-lock.yaml only; no install needed.
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
 

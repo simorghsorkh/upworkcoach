@@ -1,144 +1,144 @@
-# دامنه‌ی MVP — UpworkCoach
+# MVP scope — UpworkCoach
 
-> فاز ۱ — ۲۷ مهر ۱۴۰۵ — نویسنده: product-strategist
-> شناسه‌های F در `prd.md` تعریف شده‌اند. فرض‌های A1 تا A10 هم در `prd.md` بخش ۴ آمده‌اند.
+> Phase 1 — 27 Mehr 1405 (2026-10-19) — Author: product-strategist
+> F IDs are defined in `prd.md`. Assumptions A1 to A10 are also in `prd.md` section 4.
 
-## ۱. اصل برش
-MVP دو نسخه‌ی پشت‌سرهم است:
+## 1. Slicing principle
+The MVP is two consecutive versions:
 
-| نسخه | برای چه کسی | سؤالی که جواب می‌دهد | زمان (فرض A3) |
+| Version | For whom | Question it answers | Time (assumption A3) |
 |---|---|---|---|
-| **0.1 — دفتر مربی** | بنیان‌گذار، مشاورها و هنرجوهای **فعلی** (فقط با دعوت) | «آیا مربی با این ابزار هنرجوهایش را بهتر مدیریت می‌کند و هنرجوها کارهایشان را تحویل می‌دهند؟» | ۴ تا ۶ هفته ساخت |
-| **1.0 — پلتفرم** | هنرجوهای فعلی + کاربران تازه با ثبت‌نام عمومی | «آیا ابزارهای AI ارزش دارند و کسی برایش پول می‌دهد؟» | ۶ تا ۸ هفته پس از شروع استفاده از 0.1 |
+| **0.1 — Coach Office** | The founder, mentors and **current** students (invitation only) | "Does the coach manage students better with this tool, and do students submit their tasks?" | 4 to 6 weeks to build |
+| **1.0 — Platform** | Current students + new users via public sign-up | "Are the AI tools valuable, and will anyone pay for them?" | 6 to 8 weeks after 0.1 usage begins |
 
-**قاعده:** هر امکانی که مربی بدون آن نتواند از فردا تلگرام و حافظه‌اش را کنار بگذارد، در 0.1 است. بقیه منتظر می‌مانند.
+**Rule:** any feature without which the coach cannot drop Telegram and their memory starting tomorrow belongs in 0.1. Everything else waits.
 
-**مزیت جانبی 0.1:** هیچ وابستگی خارجی (LLM، درگاه، سرور خارجی) ندارد. پس با تحریم و اینماد معطل نمی‌شود و هم‌زمان داده‌ی واقعی (پروپوزال + نقد مربی) برای ساخت AI در 1.0 جمع می‌کند. این همان نمونه‌هایی است که بنیان‌گذار الان ندارد.
+**Side benefit of 0.1:** it has no foreign dependency (LLM, payment gateway, foreign server). So it is not held up by sanctions or Enamad, and at the same time it collects real data (proposal + coach critique) for building the AI in 1.0. These are exactly the samples the founder does not have right now.
 
 ---
 
-## ۲. نسخه‌ی 0.1 — دفتر مربی (MoSCoW)
+## 2. Version 0.1 — Coach Office (MoSCoW)
 
-| شناسه | امکان | اولویت | توضیح برش |
+| ID | Feature | Priority | Slicing note |
 |---|---|---|---|
-| F1 | دعوت و ورود (موبایل + رمز) | **Must** | بدون ثبت‌نام عمومی و بدون OTP؛ لینک دعوت را مربی خودش در تلگرام می‌فرستد |
-| F2 | پرونده‌ی هنرجو + پروفایل‌های چندپلتفرمی | **Must** | فهرست پلتفرم قابل‌ویرایش؛ فیلتر و جستجو |
-| F3 | مراحل مسیر + نمای کانبان مراحل | **Must** | مراحل از `learning/learning-path.md`؛ پیشنهاد خودکار کارهای قالب = Should |
-| F4 | کارها با مهلت، تحویل متن/لینک، بازخورد | **Must** | نوع «پروپوزال برای بررسی» با فیلدهای جدا = Must (برای جمع‌آوری داده) |
-| F5 | یادداشت داخلی/اشتراکی + تایم‌لاین | **Must** | |
-| F6 | یادآور + صفحه‌ی «امروز» | **Must** | فقط درون‌برنامه؛ بدون پیامک |
-| F7 | نمای «گیرکرده / عقب» با قاعده‌های قابل‌تنظیم | **Must** | |
-| F8 | سؤال و پاسخ ناهمزمان | **Must** | بدون پیوست فایل (فقط لینک) در نسخه‌ی پایه |
-| F9 | نقاط عطف + شمارش North Star | **Must** | داشبورد مدیر = دو عدد و یک میانه، نه بیشتر |
-| F10 | خانه‌ی هنرجو | **Must** | |
-| F11 | تنظیمات مدیر | **Must** | فقط مراحل، پلتفرم‌ها، آستانه‌ها |
-| F11 | ورود گروهی از CSV/اکسل | Should | اگر هنرجوها کمتر از ۳۰ نفرند، ورود دستی کافی است (فرض A1) |
-| F11 | خروجی CSV | Should | |
-| F4 | قالب کار و واگذاری گروهی | Should | بیشترین صرفه‌جویی زمان مربی بعد از Mustها |
-| F4/F8 | پیوست تصویر (تحویل، سؤال، مدرک نقطه‌ی عطف) | Should | |
-| F7 | check-in هفتگی هنرجو (کارهای هفته، حال ۱ تا ۵، «به کمک نیاز دارم») | Should | از `learning/progress-tracking.md`؛ قواعد R-CHECKIN و R-MOOD و تشخیص «خطر ریزش» به آن وابسته‌اند (هماهنگ‌سازی مدیر پروژه) |
-| F18 | پیامک یادآوری مهلت به هنرجو | Could | اگر نرخ تحویل به‌موقع در هفته‌ی ۲ پایین بود، جلو کشیده می‌شود |
-| F8 | پاسخ‌های آماده (کتابخانه‌ی پاسخ) برای سؤال‌های تکراری | Could | |
-| — | ابزارهای AI، پرداخت، ثبت‌نام عمومی | **Won't (در 0.1)** | در 1.0 |
+| F1 | Invitation and login (mobile + password) | **Must** | No public sign-up and no OTP; the coach sends the invite link themselves on Telegram |
+| F2 | Student file + multi-platform profiles | **Must** | Editable platform list; filter and search |
+| F3 | Path stages + stage kanban view | **Must** | Stages from `learning/learning-path.md`; automatic suggestion of template tasks = Should |
+| F4 | Tasks with due dates, text/link submission, feedback | **Must** | "Proposal for review" type with separate fields = Must (for data collection) |
+| F5 | Internal/shared notes + timeline | **Must** | |
+| F6 | Reminders + "Today" page | **Must** | In-app only; no SMS |
+| F7 | "Stuck / behind" view with configurable rules | **Must** | |
+| F8 | Asynchronous questions and answers | **Must** | No file attachments (links only) in the base version |
+| F9 | Milestones + North Star count | **Must** | Admin dashboard = two numbers and one median, nothing more |
+| F10 | Student home | **Must** | |
+| F11 | Admin settings | **Must** | Stages, platforms and thresholds only |
+| F11 | Bulk import from CSV/Excel | Should | If there are fewer than 30 students, manual entry is enough (assumption A1) |
+| F11 | CSV export | Should | |
+| F4 | Task templates and bulk assignment | Should | The biggest time saving for the coach after the Musts |
+| F4/F8 | Image attachments (submission, question, milestone evidence) | Should | |
+| F7 | Weekly student check-in (this week's tasks, mood 1 to 5, "I need help") | Should | From `learning/progress-tracking.md`; rules R-CHECKIN and R-MOOD and "churn risk" detection depend on it (project lead's alignment) |
+| F18 | SMS due-date reminder to the student | Could | Pulled forward if the on-time submission rate is low in week 2 |
+| F8 | Canned replies (reply library) for recurring questions | Could | |
+| — | AI tools, payments, public sign-up | **Won't (in 0.1)** | In 1.0 |
 
-### تخمین تلاش 0.1 (فرض: ۱ توسعه‌دهنده‌ی فول‌استک)
-| بسته | هفته‌ی تقریبی |
+### 0.1 effort estimate (assumption: 1 full-stack developer)
+| Package | Approximate weeks |
 |---|---|
-| زیرساخت، احراز هویت، نقش‌ها، RTL و تقویم شمسی | ۱ |
-| پرونده، پروفایل‌ها، مراحل، کانبان | ۱ |
-| کارها، تحویل، بازبینی | ۱ |
-| یادداشت، تایم‌لاین، یادآور، «امروز»، «گیرکرده» | ۱ |
-| سؤال و پاسخ، نقاط عطف، خانه‌ی هنرجو، تنظیمات | ۱ |
-| تست، رفع اشکال، ورود هنرجوهای واقعی | ۰٫۵ تا ۱ |
-| **جمع Must** | **۵ تا ۶ هفته** (Shouldها: +۱ هفته) |
+| Infrastructure, authentication, roles, RTL and Jalali calendar | 1 |
+| File, profiles, stages, kanban | 1 |
+| Tasks, submission, review | 1 |
+| Notes, timeline, reminders, "Today", "Stuck" | 1 |
+| Questions and answers, milestones, student home, settings | 1 |
+| Testing, bug fixing, onboarding real students | 0.5 to 1 |
+| **Total Must** | **5 to 6 weeks** (Shoulds: +1 week) |
 
-### معیار خروج از 0.1 (گیت ورود به 1.0)
-| معیار | آستانه | بعد از |
+### 0.1 exit criteria (gate into 1.0)
+| Criterion | Threshold | After |
 |---|---|---|
-| مربی از «امروز» استفاده می‌کند | ≥ ۴ روز در هفته، ۳ هفته‌ی پیاپی | ۴ هفته استفاده |
-| پوشش پرونده | ≥ ۹۰٪ هنرجوهای فعال پرونده و مرحله دارند | ۲ هفته |
-| هنرجوهای فعال هفتگی | ≥ ۵۰٪ هنرجوهای دعوت‌شده | ۴ هفته |
-| داده‌ی برچسب‌خورده برای AI | ≥ ۳۰ جفت «پروپوزال + نقد مربی» با رضایت | ۴ تا ۶ هفته |
-| کیفی | بنیان‌گذار: «دیگر یادم نمی‌رود چه کسی کجاست» (امتیاز ≥ ۸ از ۱۰) | ۴ هفته |
+| The coach uses "Today" | ≥ 4 days a week, 3 consecutive weeks | 4 weeks of use |
+| File coverage | ≥ 90% of active students have a file and a stage | 2 weeks |
+| Weekly active students | ≥ 50% of invited students | 4 weeks |
+| Labeled data for AI | ≥ 30 "proposal + coach critique" pairs with consent | 4 to 6 weeks |
+| Qualitative | Founder: "I no longer forget who is where" (score ≥ 8 out of 10) | 4 weeks |
 
-اگر مربی از 0.1 استفاده نکند، ساخت 1.0 متوقف می‌شود و اول دلیل آن بررسی می‌شود. AI روی هسته‌ای که استفاده نمی‌شود ارزشی ندارد.
+If the coach does not use 0.1, building 1.0 stops and the reason is investigated first. AI on top of a core that is not used has no value.
 
 ---
 
-## ۳. نسخه‌ی 1.0 — پلتفرم
+## 3. Version 1.0 — Platform
 
-### پیش‌نیازها
-| پیش‌نیاز | مالک |
+### Prerequisites
+| Prerequisite | Owner |
 |---|---|
-| rubric بررسی پروپوزال و جاب (`tool-rubrics/`) | upwork-domain-expert + بنیان‌گذار |
-| ≥ ۳۰ نمونه‌ی برچسب‌خورده از 0.1 برای ارزیابی | داده‌ی 0.1 |
-| تصمیم دسترسی به LLM (مستقیم، واسط ریالی، یا سرور واسط) — فرض A4 | software-architect، ai-engineer، بنیان‌گذار |
-| اینماد و درگاه، یا پذیرش کارت‌به‌کارت دستی — فرض A6 | بنیان‌گذار |
-| قیمت آزمایشی پلن‌ها (`01-discovery/business-model.md`) | بنیان‌گذار + product-strategist |
+| Proposal review and job analysis rubrics (`tool-rubrics/`) | upwork-domain-expert + founder |
+| ≥ 30 labeled samples from 0.1 for evaluation | 0.1 data |
+| LLM access decision (direct, rial intermediary, or proxy server) — assumption A4 | software-architect, ai-engineer, founder |
+| Enamad and payment gateway, or acceptance of manual card-to-card — assumption A6 | Founder |
+| Trial plan prices (`01-discovery/business-model.md`) | Founder + product-strategist |
 
-### امتیاز RICE نامزدهای 1.0
-Reach = هنرجوی اثرپذیر در یک فصل (فرض: ۸۰ هنرجوی فعال)؛ Impact: ۰٫۲۵ تا ۳؛ Confidence: درصد؛ Effort: نفر-هفته.
+### RICE scores for 1.0 candidates
+Reach = students affected in one quarter (assumption: 80 active students); Impact: 0.25 to 3; Confidence: percent; Effort: person-weeks.
 
-| شناسه | امکان | R | I | C | E | RICE | تصمیم |
+| ID | Feature | R | I | C | E | RICE | Decision |
 |---|---|---|---|---|---|---|---|
-| F18 | اعلان پیامکی/تلگرامی | 80 | 1 | 70٪ | 1 | **56** | Must |
-| F12 | ثبت اپلای‌ها (قیف) | 80 | 1 | 80٪ | 1.5 | **43** | Must |
-| F13 | بررسی پروپوزال AI | 80 | 2 | 70٪ | 3 | **37** | Must |
-| F14 | بررسی جاب + اسکم AI | 80 | 1.5 | 60٪ | 2.5 | **29** | Must |
-| F15 | ارجاع خروجی AI به مشاور | 40 | 1 | 70٪ | 1 | **28** | Should |
-| — | بررسی پروفایل AI (Upwork + Fiverr gig) | 40 | 1.5 | 60٪ | 1.5 | **24** | Should |
-| — | محاسبه‌گر نرخ و قیمت پروژه (بدون LLM) | 30 | 0.5 | 80٪ | 0.5 | **24** | Could |
-| F16 | ثبت‌نام عمومی + آنبوردینگ | 50 | 1 | 50٪ | 1.5 | **17** | Must (پیش‌نیاز تجاری) |
-| — | آماده‌سازی مصاحبه AI | 30 | 1 | 50٪ | 1.5 | 10 | Won't (1.x) |
-| — | پیش‌پاسخ AI برای سؤال‌ها | 60 | 0.5 | 50٪ | 2 | 7.5 | Won't (1.x) |
-| — | نیچ‌یاب AI | 30 | 2 | 30٪ | 4 | 4.5 | Won't (1.x) |
+| F18 | SMS/Telegram notifications | 80 | 1 | 70% | 1 | **56** | Must |
+| F12 | Application tracking (funnel) | 80 | 1 | 80% | 1.5 | **43** | Must |
+| F13 | AI proposal review | 80 | 2 | 70% | 3 | **37** | Must |
+| F14 | AI job analysis + scam detection | 80 | 1.5 | 60% | 2.5 | **29** | Must |
+| F15 | Referring AI output to a mentor | 40 | 1 | 70% | 1 | **28** | Should |
+| — | AI profile review (Upwork + Fiverr gig) | 40 | 1.5 | 60% | 1.5 | **24** | Should |
+| — | Rate and project price calculator (no LLM) | 30 | 0.5 | 80% | 0.5 | **24** | Could |
+| F16 | Public sign-up + onboarding | 50 | 1 | 50% | 1.5 | **17** | Must (business prerequisite) |
+| — | AI interview preparation | 30 | 1 | 50% | 1.5 | 10 | Won't (1.x) |
+| — | AI draft answers to questions | 60 | 0.5 | 50% | 2 | 7.5 | Won't (1.x) |
+| — | AI niche finder | 30 | 2 | 30% | 4 | 4.5 | Won't (1.x) |
 
-**بیرون از RICE:** F17 فقط «سهمیه‌ی ابزارها و فعال‌سازی دستی دسترسی» (Must، برای کنترل هزینه‌ی AI). **پرداخت و درگاه به تصمیم بنیان‌گذار معلق است** (۱۴۰۵/۰۷/۲۷) تا مدل درآمد مشخص شود؛ تا آن موقع ثبت‌نام عمومی (F16) هم فقط با فعال‌سازی دستی مدیر کار می‌کند.
-**Should بدون امتیاز:** F19 گزارش مدیریتی (فقط برای یک نفر است و RICE معنا ندارد؛ ولی برای اثبات نتیجه و فروش مهم است).
+**Outside RICE:** F17 is only "tool quotas and manual access activation" (Must, to control AI cost). **Payment and the gateway are suspended by the founder's decision** (1405/07/27) until the revenue model is defined; until then public sign-up (F16) also works only with manual activation by the admin.
+**Should without a score:** F19 management reporting (it is for one person only, so RICE is meaningless; but it matters for proving outcomes and for sales).
 
-### خلاصه‌ی 1.0
-| اولویت | امکان‌ها |
+### 1.0 summary
+| Priority | Features |
 |---|---|
-| Must | F12، F13، F14، F16، F17، F18 |
-| Should | F15، F19، بررسی پروفایل AI |
-| Could | محاسبه‌گر نرخ |
-| Won't (1.x) | نیچ‌یاب، آماده‌سازی مصاحبه، پیش‌پاسخ AI |
+| Must | F12, F13, F14, F16, F17, F18 |
+| Should | F15, F19, AI profile review |
+| Could | Rate calculator |
+| Won't (1.x) | Niche finder, interview preparation, AI draft answers |
 
-تخمین Mustهای 1.0: حدود ۸ تا ۱۰ نفر-هفته (بیشترش AI، ارزیابی و پرداخت).
-
----
-
-## ۴. بیرون از دامنه (هر دو نسخه)
-مدیر پروژه این فهرست را به `docs/backlog.md` منتقل می‌کند.
-
-| امکان | چرا بیرون است | کی دوباره بررسی شود |
-|---|---|---|
-| نیچ‌یاب AI | داده‌ی بازار نداریم؛ کیفیت به ورودی دستی هنرجو وابسته است؛ C پایین | بعد از ۳ ماه داده‌ی نیچ و نتیجه از 0.1 و 1.0 |
-| آماده‌سازی مصاحبه با AI | ارزش متوسط؛ تعداد هنرجوی در مرحله‌ی مصاحبه کم است | وقتی ≥ ۲۰٪ هنرجوها در مرحله‌ی مصاحبه باشند |
-| پیش‌پاسخ AI برای سؤال‌ها | ریسک پاسخ غلط به اسم مشاور؛ اول باید حجم سؤال‌ها دیده شود | اگر بار مشاورها از ظرفیت بیشتر شد |
-| پیش‌نویس پیام پیگیری | ارزش کم | 1.x |
-| rubric اختصاصی برای Fiverr، Contra، LinkedIn | در 1.0 فقط Upwork + «عمومی» | وقتی ≥ ۲۰٪ اپلای‌ها از پلتفرم دیگری باشند (داده‌ی F12) |
-| LMS (میزبانی ویدئو، آزمون، گواهی) | گران؛ محتوا جای دیگری هست (فرض A5) | اگر لینک دادن به محتوا اصطکاک جدی بسازد |
-| چت لحظه‌ای و گروه/انجمن هنرجوها | تلگرام همین کار را می‌کند؛ نگهداری و مدیریت محتوا سنگین است | بعد از 1.0 |
-| ربات کامل تلگرام (ثبت کار، تحویل، ابزار از داخل تلگرام) | دو رابط هم‌زمان برای تیم کوچک زیاد است؛ 1.0 فقط اعلان تلگرامی دارد | اگر نرخ ورود به وب‌اپ پایین بود (فرض A2) |
-| اپلیکیشن بومی اندروید/iOS | PWA کافی است؛ انتشار در فروشگاه‌ها برای ایران دردسر دارد | بعد از ۶ ماه |
-| جلسه‌ی ویدئویی و رزرو وقت مشاوره | اسکای‌روم/Meet کافی است؛ رزرو را دستی انجام می‌دهند | با پکیج مشاوره‌ی پولی |
-| پرداخت به مشاورها و گزارش حق‌الزحمه | مدل پرداخت مشاورها نامعلوم است (سؤال باز ۴) | پس از پاسخ بنیان‌گذار |
-| تمدید خودکار اشتراک | در درگاه‌های ایرانی رایج نیست | — |
-| درصد از درآمد هنرجو | قابل‌سنجش و وصول نیست | — |
-| نسخه‌ی چندمربی / فروش پلتفرم به مربی‌های دیگر (SaaS) | فرصت جذاب ولی منحرف‌کننده؛ اول باید برای یک مربی کار کند | بعد از ۶ ماه، اگر هسته موفق بود |
-| داشبورد پیشرفته‌ی کوهورت و BI | 0.1 فقط دو عدد لازم دارد | 1.0 (F19) و بعد |
-| رابط انگلیسی | کاربران فارسی‌زبان‌اند | — |
-| گیمیفیکیشن (امتیاز، نشان، جدول رتبه) | ارزش اثبات‌نشده | بعد از 1.0 |
-| افزونه‌ی مرورگر، اسکرپ، اتصال به API پلتفرم‌ها | **ممنوع** (ToS، R3) | هرگز |
-| خدمات اکانت، احراز واسط، نقد کردن درآمد | **ممنوع** (R4، R11) | هرگز |
+Estimate for the 1.0 Musts: about 8 to 10 person-weeks (mostly AI, evaluation and payment).
 
 ---
 
-## ۵. ریسک‌های دامنه
-| ریسک | نشانه | واکنش |
+## 4. Out of scope (both versions)
+The project lead moves this list to `docs/backlog.md`.
+
+| Feature | Why it is out | When to revisit |
 |---|---|---|
-| هنرجوها وارد وب‌اپ نمی‌شوند (A2) | ورود هفتگی < ۳۰٪ در هفته‌ی ۲ | پیامک یادآور (F18) را به 0.1 بیاور؛ اگر کمک نکرد، ربات تلگرام سبک برای دیدن کارها |
-| مربی فقط هفته‌ی اول استفاده می‌کند | استفاده از «امروز» < ۲ روز در هفته | جلسه‌ی مشاهده‌ی کار مربی؛ حذف اصطکاک ورود داده (ورود گروهی، قالب‌ها) |
-| دامنه‌ی 0.1 بزرگ شود | تخمین > ۶ هفته | اول Shouldها حذف شوند؛ بعد F8 به «لینک به تلگرام» ساده شود |
-| داده‌ی کافی برای AI جمع نشود | < ۱۵ نمونه تا هفته‌ی ۴ | یک تکلیف «پروپوزال برای بررسی» برای همه‌ی هنرجوهای مرحله‌ی اپلای |
+| AI niche finder | We have no market data; quality depends on the student's manual input; low C | After 3 months of niche and outcome data from 0.1 and 1.0 |
+| AI interview preparation | Medium value; few students are at the interview stage | When ≥ 20% of students are at the interview stage |
+| AI draft answers to questions | Risk of wrong answers in the mentor's name; question volume must be seen first | If mentor load exceeds capacity |
+| Follow-up message draft | Low value | 1.x |
+| Dedicated rubrics for Fiverr, Contra, LinkedIn | In 1.0 only Upwork + "general" | When ≥ 20% of applications are on another platform (F12 data) |
+| LMS (video hosting, quizzes, certificates) | Expensive; content lives elsewhere (assumption A5) | If linking to content creates serious friction |
+| Real-time chat and student groups/forum | Telegram already does this; maintenance and content moderation are heavy | After 1.0 |
+| Full Telegram bot (recording tasks, submissions, tools from inside Telegram) | Two simultaneous interfaces is too much for a small team; 1.0 has Telegram notifications only | If the web app login rate is low (assumption A2) |
+| Native Android/iOS app | PWA is enough; publishing in app stores is a hassle for Iran | After 6 months |
+| Video sessions and mentoring appointment booking | Skyroom/Meet is enough; booking is done manually | With a paid mentoring package |
+| Paying mentors and fee reporting | The mentor payment model is unknown (open question 4) | After the founder's answer |
+| Automatic subscription renewal | Not common in Iranian payment gateways | — |
+| Percentage of student income | Not measurable or collectible | — |
+| Multi-coach version / selling the platform to other coaches (SaaS) | Attractive but distracting; it must work for one coach first | After 6 months, if the core succeeds |
+| Advanced cohort dashboard and BI | 0.1 needs only two numbers | 1.0 (F19) and later |
+| English interface | Users are Persian-speaking | — |
+| Gamification (points, badges, leaderboard) | Unproven value | After 1.0 |
+| Browser extension, scraping, platform API integration | **Forbidden** (ToS, R3) | Never |
+| Account services, proxy identity verification, cashing out income | **Forbidden** (R4, R11) | Never |
+
+---
+
+## 5. Scope risks
+| Risk | Signal | Response |
+|---|---|---|
+| Students do not log in to the web app (A2) | Weekly login < 30% in week 2 | Bring SMS reminders (F18) into 0.1; if that does not help, a lightweight Telegram bot for viewing tasks |
+| The coach uses it only in the first week | "Today" usage < 2 days a week | Session observing the coach's work; remove data-entry friction (bulk import, templates) |
+| 0.1 scope grows | Estimate > 6 weeks | Drop the Shoulds first; then simplify F8 to "link to Telegram" |
+| Not enough data collected for AI | < 15 samples by week 4 | One "proposal for review" task for all students at the applying stage |

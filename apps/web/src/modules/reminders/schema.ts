@@ -10,7 +10,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import { uuidv7 } from '../../lib/uuid';
-import { users } from '../identity/schema';
+import { organizationId, users } from '../identity/schema';
 import { students } from '../students/schema';
 
 /**
@@ -29,6 +29,8 @@ const ts = () => timestamp({ withTimezone: true });
 export const reminders = pgTable(
   'reminders',
   {
+    /** Set by the service; for a reminder about a student the trigger copies the student's. */
+    organizationId: organizationId(),
     id: uuid()
       .primaryKey()
       .$defaultFn(() => uuidv7()),

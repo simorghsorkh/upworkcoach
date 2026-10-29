@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 import { faNumber } from '@/components/format/fa';
 import { attentionRank } from '@/components/health/reasons';
 import { Icon } from '@/components/icons/icon';
@@ -16,6 +17,7 @@ import { ChipLink, SegNav } from '@/components/ui/seg';
 import { Alert, EmptyState } from '@/components/ui/states';
 import { getStaffSettings, listPlatforms, listStages } from '@/modules/catalog/service';
 import { listMentors } from '@/modules/identity/service';
+import { listCourseOptions } from '@/modules/programs/service';
 import {
   type ListStudentsQuery,
   listStudentsQuery,
@@ -89,11 +91,16 @@ export default async function StudentsPage({ searchParams }: { searchParams: Sea
     // Mentors only ever see their own students: no mentor filter for them.
     if (value && !(key === 'mentorId' && !isAdmin)) raw[key] = value;
   }
+  // Course filter (sprint 5c): `runId` or `runId.phaseId` in one select.
+  const [courseRun, coursePhase] = param(sp.course).split('.');
+  if (courseRun) raw.runId = courseRun;
+  if (courseRun && coursePhase) raw.phaseId = coursePhase;
   const parsed = listStudentsQuery.safeParse(raw);
   const query: ListStudentsQuery = parsed.success ? parsed.data : {};
   const values: FilterValues = {
     q: parsed.success ? (raw.q ?? '') : '',
     stageId: parsed.success ? (raw.stageId ?? '') : '',
+    course: parsed.success ? param(sp.course) : '',
     mentorId: parsed.success ? (raw.mentorId ?? '') : '',
     platformId: parsed.success ? (raw.platformId ?? '') : '',
     tag: parsed.success ? (raw.tag ?? '') : '',
@@ -103,14 +110,18 @@ export default async function StudentsPage({ searchParams }: { searchParams: Sea
   };
   const sort = (query.sort ?? DEFAULT_SORT) as NonNullable<ListStudentsQuery['sort']>;
 
-  const [stages, platforms, mentors, tags, waiting, staffSettings] = await Promise.all([
-    listStages(actor),
-    listPlatforms(actor),
-    listMentors(actor),
-    listStudentTags(actor, { lifecycle: ['active', 'paused', 'graduated', 'dropped'] }),
-    getReviewQueue(actor).catch(() => []),
-    getStaffSettings(actor).catch(() => null),
-  ]);
+  const [tb, courses, stages, platforms, mentors, tags, waiting, staffSettings] = await Promise.all(
+    [
+      getTranslations('courseBoard'),
+      listCourseOptions(actor),
+      listStages(actor),
+      listPlatforms(actor),
+      listMentors(actor),
+      listStudentTags(actor, { lifecycle: ['active', 'paused', 'graduated', 'dropped'] }),
+      getReviewQueue(actor).catch(() => []),
+      getStaffSettings(actor).catch(() => null),
+    ],
+  );
   const waitingIds = new Set(waiting.map((w) => w.student.id));
 
   let list: Awaited<ReturnType<typeof listStudents>> = { items: [], nextCursor: null };
@@ -151,6 +162,7 @@ export default async function StudentsPage({ searchParams }: { searchParams: Sea
   const hasFilters = Boolean(
     values.q ||
       values.stageId ||
+      values.course ||
       values.mentorId ||
       values.platformId ||
       values.tag ||
@@ -225,7 +237,11 @@ export default async function StudentsPage({ searchParams }: { searchParams: Sea
             />
             {isAdmin ? (
               <>
-                <ImportStudentsButton />
+                <ImportStudentsButton
+                  courses={courses
+                    .filter((c) => c.mode === 'group')
+                    .map((c) => ({ id: c.id, title: c.title }))}
+                />
                 <ExportButton />
               </>
             ) : null}
@@ -246,6 +262,25 @@ export default async function StudentsPage({ searchParams }: { searchParams: Sea
         values={values}
         options={{
           stages: stages.map((s) => ({ id: s.id, label: `${s.displayCode} — ${s.name}` })),
+          courses: courses.length
+            ? {
+                label: tb('course'),
+                all: tb('allCourses'),
+                allPhases: tb('allPhases'),
+                groups: courses.map((c) => ({
+                  id: c.id,
+                  title: c.title,
+                  phases: c.phases.map((p, i) => ({
+                    id: p.id,
+                    label: tb('phaseLabel', {
+                      position: i + 1,
+                      count: c.phases.length,
+                      title: p.title,
+                    }),
+                  })),
+                })),
+              }
+            : null,
           mentors: isAdmin
             ? mentors.map((m) => ({ id: m.id, label: m.id === user.id ? 'خودم' : m.displayName }))
             : null,

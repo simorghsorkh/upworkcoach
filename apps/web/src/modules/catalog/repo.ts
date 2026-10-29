@@ -12,7 +12,10 @@ import {
   tracks,
 } from './schema';
 
-/** catalog — queries. Only used inside the module. Columns are selected explicitly (SEC-A9). */
+/**
+ * catalog — queries. Only used inside the module. Columns are selected explicitly (SEC-A9).
+ * Every query takes the organization (ADR-0011): catalog rows and settings are per tenant.
+ */
 
 const trackColumns = {
   id: tracks.id,
@@ -49,50 +52,65 @@ export type StageRow = Awaited<ReturnType<typeof listStages>>[number];
 
 // ---- tracks --------------------------------------------------------------------------
 
-export async function listTracks(db: DbOrTx, includeInactive: boolean) {
+export async function listTracks(db: DbOrTx, org: string, includeInactive: boolean) {
   return db
     .select(trackColumns)
     .from(tracks)
-    .where(includeInactive ? undefined : eq(tracks.isActive, true))
+    .where(
+      includeInactive
+        ? eq(tracks.organizationId, org)
+        : and(eq(tracks.organizationId, org), eq(tracks.isActive, true)),
+    )
     .orderBy(asc(tracks.sortOrder), asc(tracks.name));
 }
 
-export async function findTrack(db: DbOrTx, id: string) {
-  const [row] = await db.select(trackColumns).from(tracks).where(eq(tracks.id, id));
+export async function findTrack(db: DbOrTx, org: string, id: string) {
+  const [row] = await db
+    .select(trackColumns)
+    .from(tracks)
+    .where(and(eq(tracks.organizationId, org), eq(tracks.id, id)));
   return row ?? null;
 }
 
 // ---- platforms -----------------------------------------------------------------------
 
-export async function listPlatforms(db: DbOrTx, includeInactive: boolean) {
+export async function listPlatforms(db: DbOrTx, org: string, includeInactive: boolean) {
   return db
     .select(platformColumns)
     .from(platforms)
-    .where(includeInactive ? undefined : eq(platforms.isActive, true))
+    .where(
+      includeInactive
+        ? eq(platforms.organizationId, org)
+        : and(eq(platforms.organizationId, org), eq(platforms.isActive, true)),
+    )
     .orderBy(asc(platforms.sortOrder), asc(platforms.name));
 }
 
-export async function findPlatform(db: DbOrTx, id: string) {
-  const [row] = await db.select(platformColumns).from(platforms).where(eq(platforms.id, id));
-  return row ?? null;
-}
-
-export async function findPlatformByName(db: DbOrTx, name: string) {
+export async function findPlatform(db: DbOrTx, org: string, id: string) {
   const [row] = await db
     .select(platformColumns)
     .from(platforms)
-    .where(sql`lower(${platforms.name}) = lower(${name})`);
+    .where(and(eq(platforms.organizationId, org), eq(platforms.id, id)));
+  return row ?? null;
+}
+
+export async function findPlatformByName(db: DbOrTx, org: string, name: string) {
+  const [row] = await db
+    .select(platformColumns)
+    .from(platforms)
+    .where(and(eq(platforms.organizationId, org), sql`lower(${platforms.name}) = lower(${name})`));
   return row ?? null;
 }
 
 export async function insertPlatform(
   db: DbOrTx,
+  org: string,
   values: { name: string; trackId: string | null; sortOrder: number; isActive: boolean },
 ) {
   const now = new Date();
   const [row] = await db
     .insert(platforms)
-    .values({ ...values, createdAt: now, updatedAt: now })
+    .values({ ...values, organizationId: org, createdAt: now, updatedAt: now })
     .returning(platformColumns);
   if (!row) throw new Error('insertPlatform returned no row');
   return row;
@@ -100,31 +118,33 @@ export async function insertPlatform(
 
 export async function updatePlatform(
   db: DbOrTx,
+  org: string,
   id: string,
   values: Partial<{ name: string; trackId: string | null; sortOrder: number; isActive: boolean }>,
 ) {
   const [row] = await db
     .update(platforms)
     .set({ ...values, updatedAt: new Date() })
-    .where(eq(platforms.id, id))
+    .where(and(eq(platforms.organizationId, org), eq(platforms.id, id)))
     .returning(platformColumns);
   return row ?? null;
 }
 
-export async function maxPlatformSortOrder(db: DbOrTx): Promise<number> {
+export async function maxPlatformSortOrder(db: DbOrTx, org: string): Promise<number> {
   const [row] = await db
     .select({ max: sql<number | null>`max(${platforms.sortOrder})` })
-    .from(platforms);
+    .from(platforms)
+    .where(eq(platforms.organizationId, org));
   return row?.max ?? 0;
 }
 
 // ---- paths and stages ----------------------------------------------------------------
 
-export async function findDefaultPathId(db: DbOrTx): Promise<string | null> {
+export async function findDefaultPathId(db: DbOrTx, org: string): Promise<string | null> {
   const [row] = await db
     .select({ id: learningPaths.id })
     .from(learningPaths)
-    .where(eq(learningPaths.isDefault, true));
+    .where(and(eq(learningPaths.organizationId, org), eq(learningPaths.isDefault, true)));
   return row?.id ?? null;
 }
 
@@ -140,17 +160,20 @@ export async function listStages(db: DbOrTx, pathId: string, includeInactive: bo
     .orderBy(asc(stages.sortOrder), asc(stages.createdAt));
 }
 
-export async function findStage(db: DbOrTx, id: string) {
-  const [row] = await db.select(stageColumns).from(stages).where(eq(stages.id, id));
+export async function findStage(db: DbOrTx, org: string, id: string) {
+  const [row] = await db
+    .select(stageColumns)
+    .from(stages)
+    .where(and(eq(stages.organizationId, org), eq(stages.id, id)));
   return row ?? null;
 }
 
-export async function findStages(db: DbOrTx, ids: readonly string[]) {
+export async function findStages(db: DbOrTx, org: string, ids: readonly string[]) {
   if (ids.length === 0) return [];
   return db
     .select(stageColumns)
     .from(stages)
-    .where(inArray(stages.id, [...ids]));
+    .where(and(eq(stages.organizationId, org), inArray(stages.id, [...ids])));
 }
 
 export async function maxStageSortOrder(db: DbOrTx, pathId: string): Promise<number> {
@@ -182,11 +205,16 @@ export async function insertStage(db: DbOrTx, pathId: string, values: StageValue
   return row;
 }
 
-export async function updateStage(db: DbOrTx, id: string, values: Partial<StageValues>) {
+export async function updateStage(
+  db: DbOrTx,
+  org: string,
+  id: string,
+  values: Partial<StageValues>,
+) {
   const [row] = await db
     .update(stages)
     .set({ ...values, updatedAt: new Date() })
-    .where(eq(stages.id, id))
+    .where(and(eq(stages.organizationId, org), eq(stages.id, id)))
     .returning(stageColumns);
   return row ?? null;
 }
@@ -208,7 +236,12 @@ export type CatalogRefKind =
   | 'milestoneType'
   | 'cannedResponse';
 
-export async function isActiveRef(db: DbOrTx, kind: CatalogRefKind, id: string): Promise<boolean> {
+export async function isActiveRef(
+  db: DbOrTx,
+  org: string,
+  kind: CatalogRefKind,
+  id: string,
+): Promise<boolean> {
   const table =
     kind === 'stage'
       ? stages
@@ -224,7 +257,7 @@ export async function isActiveRef(db: DbOrTx, kind: CatalogRefKind, id: string):
   const [row] = await db
     .select({ id: table.id })
     .from(table)
-    .where(and(eq(table.id, id), eq(table.isActive, true)));
+    .where(and(eq(table.organizationId, org), eq(table.id, id), eq(table.isActive, true)));
   return row !== undefined;
 }
 
@@ -249,24 +282,25 @@ export type TaskTemplateRow = Awaited<ReturnType<typeof listTaskTemplates>>[numb
 
 export async function listTaskTemplates(
   db: DbOrTx,
+  org: string,
   filter: { stageId?: string; includeInactive: boolean; suggestOnly?: boolean },
 ) {
-  const conditions = [];
+  const conditions = [eq(taskTemplates.organizationId, org)];
   if (!filter.includeInactive) conditions.push(eq(taskTemplates.isActive, true));
   if (filter.stageId) conditions.push(eq(taskTemplates.stageId, filter.stageId));
   if (filter.suggestOnly) conditions.push(eq(taskTemplates.suggestOnStageEntry, true));
   return db
     .select(templateColumns)
     .from(taskTemplates)
-    .where(conditions.length > 0 ? and(...conditions) : undefined)
+    .where(and(...conditions))
     .orderBy(asc(taskTemplates.sortOrder), asc(taskTemplates.createdAt));
 }
 
-export async function findTaskTemplate(db: DbOrTx, id: string) {
+export async function findTaskTemplate(db: DbOrTx, org: string, id: string) {
   const [row] = await db
     .select(templateColumns)
     .from(taskTemplates)
-    .where(eq(taskTemplates.id, id));
+    .where(and(eq(taskTemplates.organizationId, org), eq(taskTemplates.id, id)));
   return row ?? null;
 }
 
@@ -283,11 +317,11 @@ export type TaskTemplateValues = {
   isActive: boolean;
 };
 
-export async function insertTaskTemplate(db: DbOrTx, values: TaskTemplateValues) {
+export async function insertTaskTemplate(db: DbOrTx, org: string, values: TaskTemplateValues) {
   const now = new Date();
   const [row] = await db
     .insert(taskTemplates)
-    .values({ ...values, createdAt: now, updatedAt: now })
+    .values({ ...values, organizationId: org, createdAt: now, updatedAt: now })
     .returning(templateColumns);
   if (!row) throw new Error('insertTaskTemplate returned no row');
   return row;
@@ -295,29 +329,38 @@ export async function insertTaskTemplate(db: DbOrTx, values: TaskTemplateValues)
 
 export async function updateTaskTemplate(
   db: DbOrTx,
+  org: string,
   id: string,
   values: Partial<TaskTemplateValues>,
 ) {
   const [row] = await db
     .update(taskTemplates)
     .set({ ...values, updatedAt: new Date() })
-    .where(eq(taskTemplates.id, id))
+    .where(and(eq(taskTemplates.organizationId, org), eq(taskTemplates.id, id)))
     .returning(templateColumns);
   return row ?? null;
 }
 
 // ---- settings ------------------------------------------------------------------------
 
-export async function findSettingValue(db: DbOrTx, key: string): Promise<unknown | undefined> {
+function settingKey(org: string, key: string) {
+  return and(eq(settings.organizationId, org), eq(settings.key, key));
+}
+
+export async function findSettingValue(
+  db: DbOrTx,
+  org: string,
+  key: string,
+): Promise<unknown | undefined> {
   const [row] = await db
     .select({ value: settings.value })
     .from(settings)
-    .where(eq(settings.key, key));
+    .where(settingKey(org, key));
   return row?.value;
 }
 
 /** All settings rows (GET /settings). */
-export async function listSettingRows(db: DbOrTx) {
+export async function listSettingRows(db: DbOrTx, org: string) {
   return db
     .select({
       key: settings.key,
@@ -325,44 +368,48 @@ export async function listSettingRows(db: DbOrTx) {
       version: settings.version,
       updatedAt: settings.updatedAt,
     })
-    .from(settings);
+    .from(settings)
+    .where(eq(settings.organizationId, org));
 }
 
-export async function findSettingRow(db: DbOrTx, key: string) {
+export async function findSettingRow(db: DbOrTx, org: string, key: string) {
   const [row] = await db
     .select({ value: settings.value, version: settings.version, updatedAt: settings.updatedAt })
     .from(settings)
-    .where(eq(settings.key, key));
+    .where(settingKey(org, key));
   return row ?? null;
 }
 
 /** Row lock of one key (creates the row lazily inside the caller's transaction). */
-export async function lockSettingRow(db: DbOrTx, key: string) {
+export async function lockSettingRow(db: DbOrTx, org: string, key: string) {
   const [row] = await db
     .select({ version: settings.version })
     .from(settings)
-    .where(eq(settings.key, key))
+    .where(settingKey(org, key))
     .for('update');
   return row ?? null;
 }
 
 export async function writeSetting(
   db: DbOrTx,
+  org: string,
   key: string,
   value: unknown,
   updatedBy: string | null,
   now: Date,
 ): Promise<{ version: number; updatedAt: Date }> {
-  const existing = await lockSettingRow(db, key);
+  const existing = await lockSettingRow(db, org, key);
   if (existing) {
     const version = existing.version + 1;
     await db
       .update(settings)
       .set({ value, version, updatedBy, updatedAt: now })
-      .where(eq(settings.key, key));
+      .where(settingKey(org, key));
     return { version, updatedAt: now };
   }
-  await db.insert(settings).values({ key, value, version: 1, updatedBy, updatedAt: now });
+  await db
+    .insert(settings)
+    .values({ organizationId: org, key, value, version: 1, updatedBy, updatedAt: now });
   return { version: 1, updatedAt: now };
 }
 
@@ -380,19 +427,23 @@ const milestoneTypeColumns = {
 
 export type MilestoneTypeRow = Awaited<ReturnType<typeof listMilestoneTypes>>[number];
 
-export async function listMilestoneTypes(db: DbOrTx, includeInactive: boolean) {
+export async function listMilestoneTypes(db: DbOrTx, org: string, includeInactive: boolean) {
   return db
     .select(milestoneTypeColumns)
     .from(milestoneTypes)
-    .where(includeInactive ? undefined : eq(milestoneTypes.isActive, true))
+    .where(
+      includeInactive
+        ? eq(milestoneTypes.organizationId, org)
+        : and(eq(milestoneTypes.organizationId, org), eq(milestoneTypes.isActive, true)),
+    )
     .orderBy(asc(milestoneTypes.sortOrder), asc(milestoneTypes.createdAt));
 }
 
-export async function findMilestoneType(db: DbOrTx, id: string) {
+export async function findMilestoneType(db: DbOrTx, org: string, id: string) {
   const [row] = await db
     .select(milestoneTypeColumns)
     .from(milestoneTypes)
-    .where(eq(milestoneTypes.id, id));
+    .where(and(eq(milestoneTypes.organizationId, org), eq(milestoneTypes.id, id)));
   return row ?? null;
 }
 
@@ -405,11 +456,11 @@ export type MilestoneTypeValues = {
   isActive: boolean;
 };
 
-export async function insertMilestoneType(db: DbOrTx, values: MilestoneTypeValues) {
+export async function insertMilestoneType(db: DbOrTx, org: string, values: MilestoneTypeValues) {
   const now = new Date();
   const [row] = await db
     .insert(milestoneTypes)
-    .values({ ...values, createdAt: now, updatedAt: now })
+    .values({ ...values, organizationId: org, createdAt: now, updatedAt: now })
     .returning(milestoneTypeColumns);
   if (!row) throw new Error('insertMilestoneType returned no row');
   return row;
@@ -417,21 +468,23 @@ export async function insertMilestoneType(db: DbOrTx, values: MilestoneTypeValue
 
 export async function updateMilestoneType(
   db: DbOrTx,
+  org: string,
   id: string,
   values: Partial<MilestoneTypeValues>,
 ) {
   const [row] = await db
     .update(milestoneTypes)
     .set({ ...values, updatedAt: new Date() })
-    .where(eq(milestoneTypes.id, id))
+    .where(and(eq(milestoneTypes.organizationId, org), eq(milestoneTypes.id, id)))
     .returning(milestoneTypeColumns);
   return row ?? null;
 }
 
-export async function maxMilestoneTypeSortOrder(db: DbOrTx): Promise<number> {
+export async function maxMilestoneTypeSortOrder(db: DbOrTx, org: string): Promise<number> {
   const [row] = await db
     .select({ max: sql<number>`coalesce(max(${milestoneTypes.sortOrder}), 0)::int` })
-    .from(milestoneTypes);
+    .from(milestoneTypes)
+    .where(eq(milestoneTypes.organizationId, org));
   return row?.max ?? 0;
 }
 
@@ -448,19 +501,23 @@ const cannedColumns = {
 
 export type CannedResponseRow = Awaited<ReturnType<typeof listCannedResponses>>[number];
 
-export async function listCannedResponses(db: DbOrTx, includeInactive: boolean) {
+export async function listCannedResponses(db: DbOrTx, org: string, includeInactive: boolean) {
   return db
     .select(cannedColumns)
     .from(cannedResponses)
-    .where(includeInactive ? undefined : eq(cannedResponses.isActive, true))
+    .where(
+      includeInactive
+        ? eq(cannedResponses.organizationId, org)
+        : and(eq(cannedResponses.organizationId, org), eq(cannedResponses.isActive, true)),
+    )
     .orderBy(asc(cannedResponses.category), asc(cannedResponses.title));
 }
 
-export async function findCannedResponse(db: DbOrTx, id: string) {
+export async function findCannedResponse(db: DbOrTx, org: string, id: string) {
   const [row] = await db
     .select(cannedColumns)
     .from(cannedResponses)
-    .where(eq(cannedResponses.id, id));
+    .where(and(eq(cannedResponses.organizationId, org), eq(cannedResponses.id, id)));
   return row ?? null;
 }
 
@@ -473,12 +530,13 @@ export type CannedResponseValues = {
 
 export async function insertCannedResponse(
   db: DbOrTx,
+  org: string,
   values: CannedResponseValues & { createdBy: string },
 ) {
   const now = new Date();
   const [row] = await db
     .insert(cannedResponses)
-    .values({ ...values, createdAt: now, updatedAt: now })
+    .values({ ...values, organizationId: org, createdAt: now, updatedAt: now })
     .returning(cannedColumns);
   if (!row) throw new Error('insertCannedResponse returned no row');
   return row;
@@ -486,13 +544,14 @@ export async function insertCannedResponse(
 
 export async function updateCannedResponse(
   db: DbOrTx,
+  org: string,
   id: string,
   values: Partial<CannedResponseValues>,
 ) {
   const [row] = await db
     .update(cannedResponses)
     .set({ ...values, updatedAt: new Date() })
-    .where(eq(cannedResponses.id, id))
+    .where(and(eq(cannedResponses.organizationId, org), eq(cannedResponses.id, id)))
     .returning(cannedColumns);
   return row ?? null;
 }

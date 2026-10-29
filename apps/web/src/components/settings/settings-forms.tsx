@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { type FormEvent, type ReactNode, useState } from 'react';
 import { apiPut } from '@/components/api/client';
 import { faNumber, toLatinDigits } from '@/components/format/fa';
@@ -104,6 +105,8 @@ function SaveRow({ saving, error }: { saving: boolean; error: string | null }) {
 export function AccessSettingsForm({ value }: { value: AccessSettings }) {
   const [scope, setScope] = useState(value.mentorScope);
   const [invite, setInvite] = useState(value.mentorsCanInviteStudents);
+  const [groupRuns, setGroupRuns] = useState(value.mentorsCanCreateGroupRuns ?? false);
+  const t = useTranslations('settingsAccess');
   const s = useSave('access', 'دسترسی مشاورها ذخیره شد.');
   return (
     <Section id="h-access" title="دسترسی مشاورها">
@@ -111,7 +114,11 @@ export function AccessSettingsForm({ value }: { value: AccessSettings }) {
         noValidate
         onSubmit={(e) => {
           e.preventDefault();
-          void s.save({ mentorScope: scope, mentorsCanInviteStudents: invite });
+          void s.save({
+            mentorScope: scope,
+            mentorsCanInviteStudents: invite,
+            mentorsCanCreateGroupRuns: groupRuns,
+          });
         }}
       >
         <RadioCards
@@ -129,6 +136,12 @@ export function AccessSettingsForm({ value }: { value: AccessSettings }) {
           checked={invite}
           onChange={(e) => setInvite(e.target.checked)}
           hint="خاموش باشد، دکمه‌ی «هنرجوی جدید» برای مشاورها نمایش داده نمی‌شود."
+        />
+        <CheckboxField
+          label={t('groupRuns')}
+          checked={groupRuns}
+          onChange={(e) => setGroupRuns(e.target.checked)}
+          hint={t('groupRunsHint')}
         />
         <SaveRow saving={s.saving} error={s.error} />
       </form>

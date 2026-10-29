@@ -1,45 +1,45 @@
-# ADR-0010 — نگه‌داری داده و حذف حساب در 0.1: درخواست با پیام، اجرا با CLI مدیر، ناشناس‌سازی
+# ADR-0010 — Data retention and account deletion in 0.1: request by message, execution by admin CLI, anonymization
 
-- **وضعیت:** پیشنهادشده (منتظر گیت بنیان‌گذار؛ سؤال S1 در `security.md` بخش ۱۰)
-- **تاریخ:** ۲۸ مهر ۱۴۰۵ (2026-10-20)
-- **نویسنده:** software-architect
-- **منبع:** `security.md` C5، R5 و بخش ۷؛ PRD بخش ۸ («امکان حذف حساب»)؛ `sitemap.md` S10
-- **(امنیت C5)**
+- **Status:** Proposed (awaiting the founder gate; question S1 in `security.md` section 10)
+- **Date:** 28 Mehr 1405 (2026-10-20)
+- **Author:** software-architect
+- **Source:** `security.md` C5, R5 and section 7; PRD section 8 ("ability to delete the account"); `sitemap.md` S10
+- **(Security C5)**
 
-## زمینه
-- PRD «امکان حذف حساب» را الزام می‌کند، ولی طراحی قبلی فقط `disabled` داشت. صفحه‌ی S10 دکمه‌ی «درخواست حذف حساب» دارد که هیچ API یا فرایندی پشتش نیست.
-- داده‌ی واقعی ۳۰ تا ۸۰ نفر از روز اول وارد می‌شود و در دو پشتیبان (Azure و داخل ایران) تکثیر می‌شود. ترکیب «نام + موبایل + لینک پروفایل آپورک» ح۳ است (`security.md` R1).
-- مربی برای کارش به **تاریخچه** نیاز دارد: آمار North Star، زمان پاسخ، تعداد بازبینی‌ها، مسیر مرحله‌ها. این‌ها نباید با حذف یک هنرجو خراب شوند.
-- در 0.1 **هیچ سیستم اعلانی نداریم** (F18 در 1.0 است). یک درخواست ثبت‌شده در دیتابیس را کسی نمی‌بیند، مگر صفی برایش ساخته شود.
-- درخواست حذف در کل عمر 0.1 احتمالاً چند بار بیشتر رخ نمی‌دهد.
+## Context
+- The PRD requires "ability to delete the account", but the earlier design only had `disabled`. Page S10 has a "Request account deletion" button with no API or process behind it.
+- Real data for 30 to 80 people is entered from day one and replicated in two backups (Azure and inside Iran). The combination "name + mobile + Upwork profile link" is sensitivity level 3 (`security.md` R1).
+- The coach needs **history** for their work: North Star metrics, response time, number of reviews, the path through stages. These must not break when a student is deleted.
+- In 0.1 **we have no notification system** (F18 is in 1.0). A request recorded in the database is seen by no one unless a queue is built for it.
+- A deletion request will probably happen only a few times over the whole lifetime of 0.1.
 
-## گزینه‌ها
-| گزینه | ارزیابی |
+## Options
+| Option | Assessment |
 |---|---|
-| A. حذف سلف‌سرویس با دکمه (endpoint `DELETE /me`) | یک عمل ویرانگر و برگشت‌ناپذیر از راه وب؛ با نشست دزدیده‌شده یا گوشی باز قابل‌سوءاستفاده است؛ تاریخچه‌ی مربی بی‌اطلاع او پاک می‌شود. رد |
-| B. دکمه‌ی «درخواست حذف» + endpoint + صف درخواست‌ها در تنظیمات مدیر | endpoint، ستون وضعیت، صفحه‌ی صف، و چون اعلان نداریم، نشانگر در منو. برای چند رخداد در سال زیاد است |
-| **C. درخواست با پیام به مربی (همان کانالی که «فراموشی رمز» دارد) + اجرا با CLI مدیر + ناشناس‌سازی** | صفر endpoint و صفر صفحه‌ی تازه؛ ویرانگر بودن عمل پشت دسترسی کنسول سرور است؛ تاریخچه‌ی ساختاری می‌ماند |
-| D. حذف فیزیکی همه‌ی ردیف‌ها (`ON DELETE CASCADE`) | آمار North Star، زمان پاسخ و مسیر مرحله‌ها خراب می‌شوند؛ پیام‌های مشاور در رشته‌ها بی‌والد می‌شوند. رد |
+| A. Self-service deletion with a button (endpoint `DELETE /me`) | A destructive, irreversible action via the web; can be abused with a stolen session or an unlocked phone; the coach's history is wiped without their knowledge. Rejected |
+| B. A "Request deletion" button + endpoint + a request queue in admin settings | Endpoint, status column, queue page, and, since we have no notifications, an indicator in the menu. Too much for a few occurrences a year |
+| **C. Request by message to the coach (the same channel as "Forgot password") + execution by admin CLI + anonymization** | Zero endpoints and zero new pages; the destructive action sits behind server-console access; structural history is kept |
+| D. Physical deletion of all rows (`ON DELETE CASCADE`) | North Star metrics, response time and stage paths break; mentor messages in threads become orphaned. Rejected |
 
-## تصمیم: گزینه‌ی C
-1. **درخواست:** کاربر به مربی پیام می‌دهد (تلگرام، یا یک سؤال در خود برنامه). مربی کاربر را می‌شناسد، پس احراز هویت درخواست مسئله نیست. **مهلت اجرا: حداکثر ۳۰ روز** از درخواست (منتظر تأیید بنیان‌گذار، S1).
-2. **اجرا:** `pnpm admin:erase-user --id <uuid> --confirm "<displayName>" --requested-on YYYY-MM-DD` از کنسول سرور. تابع `identity.service.eraseUser` در یک تراکنش **ناشناس‌سازی** می‌کند: متن آزاد و هر داده‌ی هویتی یا مربوط به اکانت پلتفرم پاک یا حذف می‌شود؛ ساختار (شناسه‌ها، وضعیت‌ها، تاریخ‌ها، شمارنده‌ها، مرحله‌ها، نوع نقطه‌ی عطف) می‌ماند. نگاشت دقیق جدول‌به‌جدول در `data-model.md` بخش ۶-۲.
-3. **کارکنان:** همان CLI؛ پیش‌شرط: آخرین مدیر نباشد و هیچ هنرجو، یادآور باز یا سؤال بازی به نامش نمانده باشد. نوشته‌هایش در پرونده‌ی هنرجوها می‌مانند با نویسنده‌ی «کاربر حذف‌شده».
-4. **ممیزی:** ردیف `user.erased` (با `requestedOn`) در `audit_log` که هرگز پاک نمی‌شود و منبع «فهرست حذف‌ها» برای اجرای دوباره پس از restore پشتیبان است.
-5. **مدت نگه‌داری** (جدول کامل در `data-model.md` بخش ۶-۱): نشست و توکن تا انقضا + ۷ روز؛ `audit_log` ۲۴ ماه و IP آن ۹۰ روز؛ پیوست `pending` ۲۴ ساعت؛ پشتیبان حداکثر ۸ هفته؛ داده‌ی هنرجو تا حذف حساب. اجرای خودکار با گسترش `auth.cleanup` (ADR-0007)، بدون job تازه.
-6. **S10 در 0.1: دکمه‌ی «درخواست حذف حساب» برداشته شود** و جایش یک متن راهنما بیاید، مثل G4 («فراموشی رمز»): «برای حذف حسابت به مربی پیام بده. ظرف حداکثر ۳۰ روز داده‌هایت پاک می‌شود؛ آمار بی‌نام می‌ماند.» + لینک صفحه‌ی حریم خصوصی. **دلیل:** (الف) دکمه‌ای که کاری نمی‌کند کاربر را گمراه می‌کند و فکر می‌کند درخواستش ثبت شده؛ (ب) دکمه‌ای که کاری بکند به endpoint و صف مدیر نیاز دارد (گزینه‌ی B)، و چون در 0.1 اعلان نداریم، درخواست دیده نمی‌شود و مهلت ۳۰ روزه می‌گذرد؛ (ج) کانال پیام همان کانالی است که مربی هر روز می‌بیند. اصلاح ردیف S10 در `sitemap.md` با ux-designer است (این ADR فقط تصمیم را ثبت می‌کند).
-7. **صفحه‌ی حریم خصوصی** (کوتاه، SEC-F4): محل نگه‌داری داده (سرور بیرون از ایران + پشتیبان رمزشده در داخل)، چه چیزی ذخیره می‌شود، مهلت حذف، و این‌که داده‌ی حذف‌شده تا ۸ هفته در پشتیبان‌های رمزشده می‌ماند.
+## Decision: option C
+1. **Request:** The user messages the coach (Telegram, or a question in the app itself). The coach knows the user, so authenticating the request is not an issue. **Execution deadline: at most 30 days** from the request (awaiting founder approval, S1).
+2. **Execution:** `pnpm admin:erase-user --id <uuid> --confirm "<displayName>" --requested-on YYYY-MM-DD` from the server console. The function `identity.service.eraseUser` **anonymizes** in one transaction: free text and any identifying or platform-account-related data is cleared or deleted; structure (IDs, statuses, dates, counters, stages, milestone type) is kept. The exact table-by-table mapping is in `data-model.md` section 6-2.
+3. **Staff:** The same CLI; preconditions: not the last admin, and no student, open reminder or open question remains assigned to them. Their writing stays in student records with the author "Deleted user".
+4. **Audit:** A `user.erased` row (with `requestedOn`) in `audit_log`, which is never deleted and is the source of the "deletions list" for re-running after a backup restore.
+5. **Retention periods** (full table in `data-model.md` section 6-1): sessions and tokens until expiry + 7 days; `audit_log` 24 months and its IP 90 days; `pending` attachment 24 hours; backups at most 8 weeks; student data until account deletion. Automatic enforcement by extending `auth.cleanup` (ADR-0007), with no new job.
+6. **S10 in 0.1: remove the "Request account deletion" button** and put a help text in its place, like G4 ("Forgot password"): «برای حذف حسابت به مربی پیام بده. ظرف حداکثر ۳۰ روز داده‌هایت پاک می‌شود؛ آمار بی‌نام می‌ماند.» ("To delete your account, message the coach. Your data will be erased within at most 30 days; statistics remain anonymous.") + a link to the privacy page. **Reason:** (a) a button that does nothing misleads the user into thinking their request was recorded; (b) a button that does something needs an endpoint and an admin queue (option B), and since 0.1 has no notifications, the request is not seen and the 30-day deadline passes; (c) the message channel is the same channel the coach checks every day. Updating the S10 row in `sitemap.md` is up to ux-designer (this ADR only records the decision).
+7. **Privacy page** (short, SEC-F4): where data is stored (a server outside Iran + an encrypted backup inside), what is stored, the deletion deadline, and the fact that deleted data remains in encrypted backups for up to 8 weeks.
 
-### تطبیق با پیاده‌سازی (هماهنگ با کد، اسپرینت ۱ تا ۴؛ ۳۰ مهر ۱۴۰۵)
-- **CLI:** `pnpm admin:erase-user --id … --confirm "…" --requested-on YYYY-MM-DD` ساخته شد (اسپرینت ۱) و هر اسپرینت جدول‌های تازه‌اش را به `eraseUser` اضافه کرد؛ هر ماژول فایل `erasure.ts` خودش را دارد تا نوشتن در ماژول صاحب جدول بماند (اسپرینت ۲ تا ۴). نگاشت نهایی جدول‌به‌جدول در `data-model.md` ۶-۲ با کد یکی است.
-- **مقدار ثابت به‌جای `null`:** هر ستونی که CHECK «الزامی» دارد (`stage_transitions.note`، `task_extensions.reason`، `mentor_assignments.reason`، و (اسپرینت ۳) `tasks.cancel_reason`) به‌جای `null` مقدار `'[حذف شد]'` می‌گیرد.
-- **پیش‌شرط حذف کارکنان (اسپرینت ۲ تا ۴):** رد اگر آخرین مدیر فعال است، یا مشاور اصلی هنرجوی حذف‌نشده‌ای است، یا یادآور باز دارد، یا assignee سؤال بازی است.
-- **فایل‌ها:** پس از commit حذف می‌شوند؛ اگر حذف فایلی شکست خورد، ردیفش `pending` قدیمی می‌ماند و `files.cleanup` دوباره امتحان می‌کند (به‌جای «اجرای دوباره‌ی CLI» در بند ۲). پذیرفته: خودکار است و به مدیر وابسته نیست.
-- **نگه‌داری توکن‌ها (سؤال باز اسپرینت ۱):** مدت «انقضا یا مصرف + ۷ روز» **بی‌تغییر** می‌ماند. برای SEC-T5 دو ستون `users.invite_accepted_at` و `users.invite_accepted_user_agent` اضافه می‌شود (ADR-0003 بند 9-9؛ F-01) و `eraseUser` ستون User-Agent را `null` می‌کند.
-- **باقی‌مانده:** صفحه‌ی حریم خصوصی (بند ۷، SEC-F4) هنوز ساخته نشده است و `/invite` فقط یک خط درباره‌ی دیدن اطلاعات دارد (F-12).
+### Reconciliation with implementation (aligned with the code, sprints 1 to 4; 30 Mehr 1405 (2026-10-22))
+- **CLI:** `pnpm admin:erase-user --id … --confirm "…" --requested-on YYYY-MM-DD` was built (sprint 1), and each sprint added its new tables to `eraseUser`; each module has its own `erasure.ts` file so that writes stay in the module that owns the table (sprints 2 to 4). The final table-by-table mapping in `data-model.md` 6-2 matches the code.
+- **Constant value instead of `null`:** every column with a "required" CHECK (`stage_transitions.note`, `task_extensions.reason`, `mentor_assignments.reason`, and (sprint 3) `tasks.cancel_reason`) gets the value `'[حذف شد]'` ("[deleted]") instead of `null`.
+- **Staff deletion preconditions (sprints 2 to 4):** rejected if they are the last active admin, or the primary mentor of a non-deleted student, or have an open reminder, or are the assignee of an open question.
+- **Files:** deleted after commit; if a file deletion fails, its row remains as an old `pending` row and `files.cleanup` retries (instead of "re-running the CLI" in item 2). Accepted: it is automatic and does not depend on the admin.
+- **Token retention (sprint 1 open question):** the "expiry or consumption + 7 days" period remains **unchanged**. For SEC-T5, two columns `users.invite_accepted_at` and `users.invite_accepted_user_agent` are added (ADR-0003 item 9-9; F-01), and `eraseUser` sets the User-Agent column to `null`.
+- **Remaining:** the privacy page (item 7, SEC-F4) has not been built yet, and `/invite` has only one line about seeing the information (F-12).
 
-## پیامدها
-- **مثبت:** الزام PRD با کمترین کد برآورده می‌شود (یک CLI و یک تابع service)؛ هیچ عمل ویرانگری از وب در دسترس نیست؛ آمار و تاریخچه‌ی مربی سالم می‌ماند؛ ستون `users.erased_at` و قرارداد ناشناس‌سازی برای 1.0 آماده است.
-- **منفی:** مدیر باید CLI را از کنسول سرور اجرا کند (نیاز به دسترسی فنی). ثبت درخواست بیرون از سیستم است و پیگیری مهلت ۳۰ روزه با خود مدیر است. داده‌ی حذف‌شده تا ۸ هفته در پشتیبان‌ها می‌ماند.
-- **تست (مالک: backend-engineer، qa-engineer):** پس از `eraseUser`، تست قناری با موبایل، نام، لینک پروفایل و متن تحویل هنرجو روی همه‌ی جدول‌ها (`SELECT` روی همه‌ی ستون‌های متنی) هیچ موردی پیدا نکند؛ داشبورد North Star همان عدد قبل را بدهد؛ اجرای دوباره idempotent باشد؛ CLI برای مشاوری که هنوز هنرجو دارد خطا بدهد.
-- **1.0:** اگر تعداد کاربران بالا رفت یا ثبت‌نام عمومی آمد (F16)، گزینه‌ی B (درخواست از داخل برنامه + صف مدیر + اعلان) با ADR تازه جایگزین می‌شود. `eraseUser` همان می‌ماند. ابزارهای AI باید پیش از هر استفاده از داده‌ی `ai_use_consent`، `erased_at` و لغو رضایت را رعایت کنند.
+## Consequences
+- **Positive:** The PRD requirement is met with minimal code (one CLI and one service function); no destructive action is available from the web; the coach's statistics and history stay intact; the `users.erased_at` column and the anonymization contract are ready for 1.0.
+- **Negative:** The admin must run the CLI from the server console (requires technical access). Requests are recorded outside the system, and tracking the 30-day deadline is up to the admin. Deleted data remains in backups for up to 8 weeks.
+- **Testing (owners: backend-engineer, qa-engineer):** after `eraseUser`, a canary test with the mobile number, name, profile link and student submission text across all tables (`SELECT` over all text columns) finds nothing; the North Star dashboard shows the same number as before; re-running is idempotent; the CLI errors for a mentor who still has students.
+- **1.0:** If the number of users grows or public sign-up arrives (F16), option B (request from inside the app + admin queue + notification) replaces this with a new ADR. `eraseUser` stays the same. AI tools must respect `ai_use_consent`, `erased_at` and consent withdrawal before any use of data.

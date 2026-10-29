@@ -20,7 +20,7 @@ import { students } from '@/modules/students/schema';
 import { createStudent } from '@/modules/students/service';
 import type { Actor } from '@/server/auth/current-user';
 import { ApiError } from '@/server/http/errors';
-import { call, createUser, loginAs, uniquePhone } from './helpers';
+import { actorOf, addMembership, call, createUser, loginAs, uniquePhone } from './helpers';
 import { createIsolatedDb } from './isolated-db';
 
 /**
@@ -45,7 +45,8 @@ async function user(role: 'admin' | 'mentor'): Promise<Actor> {
       passwordHash: await hashPassword('irrelevant-long-pass-1'),
     })
     .returning({ id: users.id });
-  return { userId: row?.id ?? '', role };
+  await addMembership(iso.db, row?.id ?? '', role);
+  return actorOf(row?.id ?? '', role);
 }
 
 async function codeOf(promise: Promise<unknown>): Promise<string | null> {
@@ -67,7 +68,7 @@ beforeAll(async () => {
     {},
     iso.db,
   );
-  studentActor = { userId: created.student.id, role: 'student' };
+  studentActor = actorOf(created.student.id, 'student');
 });
 
 afterAll(async () => {
@@ -90,7 +91,11 @@ describe('GET /settings and the read-only views', () => {
     expect(await getStaffSettings(mentor, iso.db)).toEqual({
       questions: { expectedResponseText: 'معمولاً تا ۲۴ ساعت' },
       checkin: { enabled: true, weekday: 'thu' },
-      access: { mentorScope: 'assigned', mentorsCanInviteStudents: true },
+      access: {
+        mentorScope: 'assigned',
+        mentorsCanInviteStudents: true,
+        mentorsCanCreateGroupRuns: false,
+      },
       sla: {
         questionHours: 24,
         urgentQuestionHours: 4,

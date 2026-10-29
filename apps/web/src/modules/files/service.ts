@@ -66,10 +66,12 @@ export async function uploadAttachment(
     throw new ApiError('TOO_MANY_ATTEMPTS', { message: QUOTA_MESSAGE });
   }
   const image = await processImage(file.bytes);
-  const storageKey = `attachments/${randomUUID()}`;
+  // Keys are grouped per organization (ADR-0011): `org/<id>/attachments/<uuid>`.
+  const storageKey = `org/${actor.organizationId}/attachments/${randomUUID()}`;
   await storage.put(storageKey, image.data, { contentType: image.mimeType });
   try {
     const row = await repo.insertAttachment(db, {
+      organizationId: actor.organizationId,
       storageKey,
       originalName: sanitizeFileName(file.name),
       mimeType: image.mimeType,
@@ -104,6 +106,8 @@ export async function getAttachmentFile(
   } else if (actor.role === 'student') {
     const root = await findAttachmentRoot(db, attachmentId);
     if (!root || root.studentId !== actor.userId) throw errors.notFound();
+  } else if (row.organizationId !== actor.organizationId) {
+    throw errors.notFound();
   } else {
     try {
       await loadInScope(db, actor, 'attachment', attachmentId);

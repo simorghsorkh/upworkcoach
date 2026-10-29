@@ -2,14 +2,18 @@
  * Minimal browser client for the JSON API (docs/04-architecture/api.md §1).
  * Never throws: every outcome becomes an ApiResult so forms can map it to a message.
  * Same-origin fetch sends the session cookie and the Origin header the CSRF check needs.
+ * `Accept-Language` carries the page language so error messages come back in it (ADR-0013).
  */
+
+import { type Locale, pickLocale } from '@/i18n/config';
+import { translate } from '@/i18n/translate';
 
 export type ApiError = {
   /** HTTP status; 0 = network failure (offline, DNS, blocked). */
   status: number;
   /** api.md error code, e.g. INVALID_CREDENTIALS, VALIDATION_FAILED, TOO_MANY_ATTEMPTS. */
   code: string;
-  /** Persian message from the server, or our fallback for the status. */
+  /** Message from the server in the page's language, or our fallback for the status. */
   message: string;
   /** Per-field messages for 422 VALIDATION_FAILED. */
   fields: Record<string, string>;
@@ -19,20 +23,16 @@ export type ApiError = {
 
 export type ApiResult<T> = { ok: true; status: number; data: T } | { ok: false; error: ApiError };
 
-const FALLBACK: Record<number, string> = {
-  0: 'اتصال برقرار نشد. اینترنتت را بررسی کن و دوباره بزن.',
-  401: 'نشست تو تمام شده است. دوباره وارد شو.',
-  403: 'اجازه‌ی این کار را نداری.',
-  404: 'پیدا نشد.',
-  409: 'این تغییر با وضعیت فعلی هم‌خوانی ندارد. صفحه را تازه کن.',
-  410: 'این لینک دیگر کار نمی‌کند.',
-  422: 'چند مورد را باید درست کنی.',
-  429: 'تلاش‌ها زیاد بود. کمی صبر کن.',
-  503: 'سرور الان شلوغ است. چند ثانیه‌ی دیگر دوباره بزن.',
-};
+const FALLBACK_STATUSES = new Set([0, 401, 403, 404, 409, 410, 422, 429, 503]);
+
+/** Language of the page (`<html lang>`, set by the root layout from the user's locale). */
+export function pageLocale(): Locale {
+  return typeof document === 'undefined' ? 'fa' : pickLocale(document.documentElement.lang);
+}
 
 export function fallbackMessage(status: number): string {
-  return FALLBACK[status] ?? 'مشکلی پیش آمد. دوباره امتحان کن.';
+  const key = FALLBACK_STATUSES.has(status) ? `s${status}` : 'default';
+  return translate(pageLocale(), `apiClient.fallback.${key}`);
 }
 
 type ErrorBody = {
@@ -68,9 +68,10 @@ export async function apiRequest<T>(
       // FormData: the browser sets the multipart Content-Type with its boundary.
       headers:
         body === undefined || form
-          ? { Accept: 'application/json' }
+          ? { Accept: 'application/json', 'Accept-Language': pageLocale() }
           : {
               Accept: 'application/json',
+              'Accept-Language': pageLocale(),
               'Content-Type': 'application/json',
             },
       body: body === undefined ? undefined : form ? (body as FormData) : JSON.stringify(body),

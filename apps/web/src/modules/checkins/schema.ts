@@ -12,6 +12,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import { uuidv7 } from '../../lib/uuid';
+import { inheritedOrganizationId } from '../identity/schema';
 import { questionThreads } from '../questions/schema';
 import { students } from '../students/schema';
 
@@ -26,6 +27,7 @@ const ts = () => timestamp({ withTimezone: true });
 export const checkins = pgTable(
   'checkins',
   {
+    organizationId: inheritedOrganizationId(),
     id: uuid()
       .primaryKey()
       .$defaultFn(() => uuidv7()),

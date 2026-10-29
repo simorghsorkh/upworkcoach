@@ -6,6 +6,7 @@ import { CheckinList } from '@/components/checkins/checkin-list';
 import { faDate, faDayMonth, faDays, faNumber, faRelativeDay } from '@/components/format/fa';
 import { FlagsList } from '@/components/health/health-dialogs';
 import { Icon, type IconName } from '@/components/icons/icon';
+import { StudentProgramsCard } from '@/components/mentors/student-programs-card';
 import { StaffMilestones } from '@/components/milestones/staff-milestones';
 import { NoteForm } from '@/components/notes/note-form';
 import { Timeline } from '@/components/notes/timeline';
@@ -47,8 +48,10 @@ import type { CheckinListDTO } from '@/modules/checkins/contracts';
 import { listStudentCheckins } from '@/modules/checkins/service';
 import { getStudentHealth, listFlags } from '@/modules/health/service';
 import { listMentors } from '@/modules/identity/service';
+import { listMentorDirectory } from '@/modules/mentors/service';
 import { listStudentMilestones } from '@/modules/milestones/service';
 import { getStageHistory } from '@/modules/path/service';
+import { listStudentEnrollments } from '@/modules/programs/service';
 import { listQuestions } from '@/modules/questions/service';
 import { listReminders } from '@/modules/reminders/service';
 import type { StaffStudentDTO } from '@/modules/students/contracts';
@@ -84,6 +87,8 @@ async function load(id: string) {
       checkins,
       milestones,
       milestoneTypes,
+      enrollments,
+      mentorCards,
     ] = await Promise.all([
       listStudentProfiles(actor, id),
       getStageHistory(actor, id),
@@ -108,6 +113,8 @@ async function load(id: string) {
       listStudentCheckins(actor, id, { limit: 4 }).catch((): CheckinListDTO | null => null),
       listStudentMilestones(actor, id).catch(() => []),
       listMilestoneTypes(actor).catch(() => []),
+      listStudentEnrollments(actor, id),
+      user.role === 'admin' ? listMentorDirectory(actor).then((d) => d.items) : Promise.resolve([]),
     ]);
     return {
       user,
@@ -128,6 +135,8 @@ async function load(id: string) {
       checkins,
       milestones,
       milestoneTypes,
+      enrollments,
+      mentorCards,
     };
   } catch (err) {
     // Missing and out-of-scope look the same (ADR-0004): one «پیدا نشد» page.
@@ -204,6 +213,8 @@ export default async function StudentPage({
     checkins,
     milestones,
     milestoneTypes,
+    enrollments,
+    mentorCards,
   } = await load(id);
   const sp = await searchParams;
   const add = param(sp.add);
@@ -538,6 +549,13 @@ export default async function StudentPage({
         </div>
 
         <div className="flex min-w-0 flex-col gap-4 md:gap-5 lg:sticky lg:top-6">
+          <StudentProgramsCard
+            studentName={s.displayName}
+            enrollments={enrollments}
+            mentors={mentorCards}
+            canAssign={user.role === 'admin'}
+          />
+
           {reminders.length ? (
             <Card id="reminders" aria-labelledby="h-rm" className="scroll-mt-28">
               <CardHead

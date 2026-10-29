@@ -23,7 +23,11 @@
     "admin:create": "tsx scripts/admin-create.ts",
     "admin:bootstrap": "tsx scripts/admin-create.ts",
     "admin:reset-link": "tsx scripts/admin-reset-link.ts",
-    "admin:erase-user": "tsx scripts/admin-erase-user.ts"
+    "admin:erase-user": "tsx scripts/admin-erase-user.ts",
+    "org:list": "tsx scripts/org-list.ts",
+    "org:create": "tsx scripts/org-create.ts",
+    "org:rename": "tsx scripts/org-rename.ts",
+    "org:add-member": "tsx scripts/org-add-member.ts"
   },
   "dependencies": {
     "@next/env": "16.4.2",
@@ -31,6 +35,7 @@
     "@supabase/supabase-js": "^2.118.0",
     "drizzle-orm": "^0.45.4",
     "next": "16.4.2",
+    "next-intl": "4.14.9",
     "papaparse": "^5.7.0",
     "pg": "^8.23.1",
     "pg-boss": "^12.38.0",

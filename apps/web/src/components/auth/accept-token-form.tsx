@@ -1,11 +1,13 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { type FormEvent, useCallback, useEffect, useRef, useState } from 'react';
-import { apiGet, apiPost } from '@/components/api/client';
-import { faDayMonth, faDuration } from '@/components/format/fa';
+import { apiGet, apiPost, pageLocale } from '@/components/api/client';
+import { useFormat } from '@/components/format/use-format';
 import { Button, ButtonLink } from '@/components/ui/button';
 import { TextField } from '@/components/ui/field';
 import { Alert, EmptyState, ErrorState, SkeletonRows } from '@/components/ui/states';
+import { translate } from '@/i18n/translate';
 import type { MeDTO } from '@/server/auth/current-user';
 import { PasswordField } from './password-field';
 import { cleanPhoneInput, phoneError } from './phone';
@@ -48,12 +50,13 @@ export function takeTokenFromLocation(): string | null {
 }
 
 export function validateNewPassword(password: string, confirm: string, min = PASSWORD_MIN) {
+  const t = (key: string, params?: Record<string, number>) =>
+    translate(pageLocale(), `auth.${key}`, params);
   const errors: { password?: string; confirm?: string } = {};
-  if (!password) errors.password = 'یک رمز بگذار.';
-  else if (Array.from(password).length < min)
-    errors.password = `رمز باید دست‌کم ${min.toLocaleString('fa-IR')} نویسه باشد.`;
-  else if (Array.from(password).length > PASSWORD_MAX) errors.password = 'رمز خیلی بلند است.';
-  if (!errors.password && password !== confirm) errors.confirm = 'تکرار رمز با خود رمز یکی نیست.';
+  if (!password) errors.password = t('newPasswordRequired');
+  else if (Array.from(password).length < min) errors.password = t('passwordTooShort', { min });
+  else if (Array.from(password).length > PASSWORD_MAX) errors.password = t('passwordTooLong');
+  if (!errors.password && password !== confirm) errors.confirm = t('confirmMismatch');
   return errors;
 }
 
@@ -63,6 +66,8 @@ export function AcceptTokenForm({
   /** Navigation after success; injectable for tests. */
   onAccepted?: (path: string) => void;
 }) {
+  const t = useTranslations('accept');
+  const format = useFormat();
   const tokenRef = useRef<string | null | undefined>(undefined);
   const [phase, setPhase] = useState<Phase>({ kind: 'checking' });
   const [signedInAs, setSignedInAs] = useState<string | null>(null);
@@ -81,10 +86,12 @@ export function AcceptTokenForm({
     else if (result.error.status === 429)
       setPhase({
         kind: 'lookup-failed',
-        message: `تلاش‌ها زیاد بود. ${faDuration(result.error.retryAfterSeconds ?? 15 * 60)} دیگر دوباره باز کن.`,
+        message: t('lookupTooMany', {
+          wait: format.duration(result.error.retryAfterSeconds ?? 15 * 60),
+        }),
       });
     else setPhase({ kind: 'lookup-failed', message: result.error.message });
-  }, []);
+  }, [t, format]);
 
   useEffect(() => {
     // Read once (StrictMode runs effects twice; the hash is already gone the second time).
@@ -98,11 +105,8 @@ export function AcceptTokenForm({
   if (phase.kind === 'checking' || phase.kind === 'done') {
     return (
       <div>
-        <h1 className="sr-only">بررسی لینک</h1>
-        <SkeletonRows
-          rows={2}
-          label={phase.kind === 'done' ? 'در حال ورود…' : 'در حال بررسی لینک…'}
-        />
+        <h1 className="sr-only">{t('checkingTitle')}</h1>
+        <SkeletonRows rows={2} label={phase.kind === 'done' ? t('signingIn') : t('checking')} />
       </div>
     );
   }
@@ -112,8 +116,8 @@ export function AcceptTokenForm({
   if (phase.kind === 'lookup-failed') {
     return (
       <>
-        <h1 className="sr-only">بررسی لینک</h1>
-        <ErrorState title="لینک بررسی نشد" onRetry={() => void lookup()}>
+        <h1 className="sr-only">{t('checkingTitle')}</h1>
+        <ErrorState title={t('lookupFailed')} onRetry={() => void lookup()}>
           {phase.message}
         </ErrorState>
       </>
@@ -135,20 +139,21 @@ export function AcceptTokenForm({
 }
 
 export function InvalidLink() {
+  const t = useTranslations('accept');
   return (
     <EmptyState
       icon="link"
       tone="error"
       headingLevel={1}
-      title="این لینک دیگر کار نمی‌کند"
+      title={t('invalidTitle')}
       action={
         <ButtonLink href="/login" variant="ghost">
-          ورود با رمز
+          {t('signInWithPassword')}
         </ButtonLink>
       }
       className="py-4"
     >
-      ممکن است منقضی شده یا قبلاً استفاده شده باشد. از مربی‌ات یک لینک تازه بخواه.
+      {t('invalidBody')}
     </EmptyState>
   );
 }
@@ -166,6 +171,9 @@ function AcceptForm({
   onInvalid: () => void;
   onAccepted: (path: string) => void;
 }) {
+  const t = useTranslations('accept');
+  const tAuth = useTranslations('auth');
+  const format = useFormat();
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
@@ -215,9 +223,7 @@ function AcceptForm({
     }
     if (error.status === 429 || error.status === 503) {
       setLock(Date.now() + (error.retryAfterSeconds ?? (error.status === 429 ? 900 : 10)) * 1000);
-      setFormError(
-        error.status === 429 ? 'تلاش‌ها زیاد بود و این لینک موقتاً بسته شد.' : 'سرور الان شلوغ است.',
-      );
+      setFormError(error.status === 429 ? t('linkLocked') : tAuth('busy'));
       return;
     }
     setFormError(error.message);
@@ -226,32 +232,30 @@ function AcceptForm({
   return (
     <form noValidate onSubmit={onSubmit} aria-labelledby="accept-title">
       <h1 id="accept-title" className="mb-1 text-xl">
-        {isInvite ? `سلام ${info.displayName}` : 'رمز تازه بگذار'}
+        {isInvite ? t('inviteTitle', { name: info.displayName }) : t('resetTitle')}
       </h1>
       <p className="mb-6 text-ui text-fg-2">
-        {isInvite
-          ? 'برای ورود به دفتر کار، شماره‌ی موبایلت را بنویس و یک رمز بگذار.'
-          : `${info.displayName}، شماره‌ی موبایلت را بنویس و رمز تازه‌ات را تعیین کن.`}
+        {isInvite ? t('inviteIntro') : t('resetIntro', { name: info.displayName })}
         <span className="mt-1 block text-sm text-fg-3">
-          این لینک تا {faDayMonth(new Date(info.expiresAt))} معتبر است.
+          {t('validUntil', { date: format.dayMonth(new Date(info.expiresAt)) })}
         </span>
       </p>
 
       {signedInAs ? (
-        <Alert tone="warn" title="الان با حساب دیگری وارد شده‌ای.">
-          {`(${signedInAs}) با ادامه، از آن حساب خارج می‌شوی.`}
+        <Alert tone="warn" title={t('otherAccountTitle')}>
+          {t('otherAccountBody', { name: signedInAs })}
         </Alert>
       ) : null}
 
       {formError ? (
         <Alert tone="error" role="alert" title={formError}>
-          {waitSeconds > 0 ? `${faDuration(waitSeconds)} دیگر دوباره امتحان کن.` : null}
+          {waitSeconds > 0 ? tAuth('tryAgainIn', { wait: format.duration(waitSeconds) }) : null}
         </Alert>
       ) : null}
 
       <TextField
         ref={phoneRef}
-        label="شماره‌ی موبایلت"
+        label={t('phone')}
         name="phone"
         type="tel"
         inputMode="tel"
@@ -261,21 +265,21 @@ function AcceptForm({
         value={phone}
         onChange={(e) => setPhone(e.target.value)}
         error={errors.phone}
-        hint="همان شماره‌ای که به مربی داده‌ای."
+        hint={t('phoneHint')}
       />
       <PasswordField
         ref={passwordRef}
-        label={isInvite ? 'رمز' : 'رمز تازه'}
+        label={isInvite ? tAuth('password') : t('newPassword')}
         name="password"
         autoComplete="new-password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         error={errors.password}
-        hint="دست‌کم ۸ نویسه (برای مربی و مشاور ۱۲). یک جمله‌ی کوتاه که یادت بماند کافی است."
+        hint={t('passwordHint')}
       />
       <PasswordField
         ref={confirmRef}
-        label="تکرار رمز"
+        label={t('confirm')}
         name="confirm"
         autoComplete="new-password"
         value={confirm}
@@ -291,10 +295,10 @@ function AcceptForm({
         loading={submitting}
         disabled={waitSeconds > 0}
       >
-        {submitting ? 'در حال ثبت…' : isInvite ? 'ثبت رمز و ورود' : 'ثبت رمز تازه و ورود'}
+        {submitting ? tAuth('submitting') : isInvite ? t('submitInvite') : t('submitReset')}
       </Button>
 
-      <p className="mt-5 text-center text-sm text-fg-3">اطلاعاتت را فقط مربی و مشاورت می‌بینند.</p>
+      <p className="mt-5 text-center text-sm text-fg-3">{t('privacy')}</p>
     </form>
   );
 }

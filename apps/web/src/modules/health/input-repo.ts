@@ -1,17 +1,18 @@
 import { and, desc, eq, gt, inArray, isNull, max, notInArray, or, sql } from 'drizzle-orm';
 import { addDays, tehranDay } from '@/lib/tehran-day';
 import type { DbOrTx } from '@/server/db';
-import { stages } from '../catalog/schema';
 import { checkins } from '../checkins/schema';
+import { enrollments, programRuns, runNodes } from '../programs/schema';
 import { students } from '../students/schema';
 import { tasks } from '../tasks/schema';
 import { timelineEvents } from '../timeline/schema';
-import type { HealthTaskInput, StudentHealthInput } from './rules';
+import type { HealthPhaseInput, HealthTaskInput, StudentHealthInput } from './rules';
 import { studentFlags } from './schema';
 
 /**
  * health — read-model inputs of `evaluateHealth` (ADR-0005: "input.repo"). Read-only SQL over
- * students, stages, tasks, flags, check-ins and timeline events (tech-stack.md section 3,
+ * students, enrollments and their current phases (sprint 5c), tasks, flags, check-ins and
+ * timeline events (tech-stack.md section 3,
  * rule 3: health is a read-model). A fixed number of aggregate queries for any number of
  * students (no N+1).
  */
@@ -29,20 +30,37 @@ export async function loadHealthInputs(
   const ids = [...new Set(studentIds)];
   if (ids.length === 0) return out;
 
-  const [rows, openTasks, closed, flags, recentCheckins, resumes] = await Promise.all([
+  const [rows, phases, openTasks, closed, flags, recentCheckins, resumes] = await Promise.all([
     db
       .select({
         id: students.userId,
         lifecycleStatus: students.lifecycleStatus,
         joinedAt: students.joinedAt,
         lastActivityAt: students.lastActivityAt,
-        stageEnteredAt: students.stageEnteredAt,
-        expectedDays: stages.expectedDays,
-        isOpenEnded: stages.isOpenEnded,
       })
       .from(students)
-      .innerJoin(stages, eq(stages.id, students.currentStageId))
       .where(inArray(students.userId, ids)),
+    // Current phase of each active enrollment in a run that is still open.
+    db
+      .select({
+        studentId: enrollments.studentId,
+        enteredAt:
+          sql<Date>`coalesce(${enrollments.phaseEnteredAt}, ${enrollments.enrolledAt})`.mapWith(
+            (v: string | Date) => new Date(v),
+          ),
+        expectedDays: runNodes.expectedDays,
+        isOpenEnded: runNodes.isOpenEnded,
+      })
+      .from(enrollments)
+      .innerJoin(runNodes, eq(runNodes.id, enrollments.currentPhaseNodeId))
+      .innerJoin(programRuns, eq(programRuns.id, enrollments.runId))
+      .where(
+        and(
+          inArray(enrollments.studentId, ids),
+          eq(enrollments.status, 'active'),
+          inArray(programRuns.status, ['draft', 'active']),
+        ),
+      ),
     db
       .select({
         studentId: tasks.studentId,
@@ -122,6 +140,12 @@ export async function loadHealthInputs(
     checkinsBy.set(c.studentId, list);
   }
   const resumedBy = new Map(resumes.map((r) => [r.studentId, r.at]));
+  const phasesBy = new Map<string, HealthPhaseInput[]>();
+  for (const p of phases) {
+    const list = phasesBy.get(p.studentId) ?? [];
+    list.push({ enteredAt: p.enteredAt, expectedDays: p.expectedDays, isOpenEnded: p.isOpenEnded });
+    phasesBy.set(p.studentId, list);
+  }
 
   for (const row of rows) {
     const resumed = resumedBy.get(row.id) ?? null;
@@ -129,8 +153,7 @@ export async function loadHealthInputs(
       lifecycleStatus: row.lifecycleStatus,
       joinedAt: row.joinedAt,
       lastActivityAt: row.lastActivityAt,
-      stageEnteredAt: row.stageEnteredAt,
-      stage: { expectedDays: row.expectedDays, isOpenEnded: row.isOpenEnded },
+      phases: phasesBy.get(row.id) ?? [],
       openTasks: tasksBy.get(row.id) ?? [],
       lastTaskClosedAt: closedBy.get(row.id) ?? null,
       flags: flagsBy.get(row.id) ?? [],
@@ -142,10 +165,16 @@ export async function loadHealthInputs(
 }
 
 /** Students the hourly sweep evaluates: `active` and `paused` (ADR-0005). */
-export async function listSweepStudentIds(db: DbOrTx): Promise<string[]> {
-  const rows = await db
-    .select({ id: students.userId })
+/** Students the sweep evaluates, with their organization (all, or one organization's). */
+export async function listSweepStudents(
+  db: DbOrTx,
+  organizationId?: string,
+): Promise<{ id: string; organizationId: string }[]> {
+  const lifecycle = inArray(students.lifecycleStatus, ['active', 'paused']);
+  return db
+    .select({ id: students.userId, organizationId: students.organizationId })
     .from(students)
-    .where(inArray(students.lifecycleStatus, ['active', 'paused']));
-  return rows.map((r) => r.id);
+    .where(
+      organizationId ? and(lifecycle, eq(students.organizationId, organizationId)) : lifecycle,
+    );
 }

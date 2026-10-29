@@ -2,7 +2,7 @@ import { sql } from 'drizzle-orm';
 import { check, index, jsonb, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { uuidv7 } from '../../lib/uuid';
 import { cannedResponses } from '../catalog/schema';
-import { users } from '../identity/schema';
+import { inheritedOrganizationId, users } from '../identity/schema';
 import { students } from '../students/schema';
 import { tasks } from '../tasks/schema';
 
@@ -27,6 +27,7 @@ export type MessageLink = { url: string; label: string | null };
 export const questionThreads = pgTable(
   'question_threads',
   {
+    organizationId: inheritedOrganizationId(),
     id: uuid()
       .primaryKey()
       .$defaultFn(() => uuidv7()),
@@ -77,6 +78,7 @@ export const questionThreads = pgTable(
 export const questionMessages = pgTable(
   'question_messages',
   {
+    organizationId: inheritedOrganizationId(),
     id: uuid()
       .primaryKey()
       .$defaultFn(() => uuidv7()),

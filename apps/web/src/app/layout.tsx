@@ -1,7 +1,10 @@
 import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
 import { connection } from 'next/server';
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale, getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
+import { directionOf, isLocale } from '@/i18n/config';
 import './globals.css';
 
 // Vazirmatn 33.0.3 (variable, 100–900, OFL — see src/fonts/OFL.txt).
@@ -16,14 +19,16 @@ const vazirmatn = localFont({
   fallback: ['Tahoma', 'Segoe UI', 'system-ui', 'sans-serif'],
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: 'UpworkCoach',
-    template: '%s | UpworkCoach',
-  },
-  description: 'دفتر مربی فریلنسری',
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: {
+      default: 'UpworkCoach',
+      template: '%s | UpworkCoach',
+    },
+    description: (await getTranslations('meta'))('description'),
+    robots: { index: false, follow: false },
+  };
+}
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -42,9 +47,14 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   // dynamically rendered pages; a prerendered page would have all its scripts blocked.
   // Waiting for the request here makes every route (including 404) render per request.
   await connection();
+  // ADR-0013: language and direction from src/i18n/request.ts (user → organization → cookie).
+  const raw = await getLocale();
+  const locale = isLocale(raw) ? raw : 'fa';
   return (
-    <html lang="fa" dir="rtl" className={vazirmatn.variable}>
-      <body className="min-h-dvh font-sans antialiased">{children}</body>
+    <html lang={locale} dir={directionOf(locale)} className={vazirmatn.variable}>
+      <body className="min-h-dvh font-sans antialiased">
+        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+      </body>
     </html>
   );
 }

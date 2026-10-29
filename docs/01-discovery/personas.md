@@ -1,74 +1,74 @@
-# پرسوناها — UpworkCoach
+# Personas — UpworkCoach
 
-> فاز ۰ — ۲۷ مهر ۱۴۰۵ — پرسوناها **فرضی**‌اند و باید با مصاحبه‌ی ۵ تا ۱۰ هنرجوی واقعی تأیید شوند.
+> Phase 0 — 27 Mehr 1405 (2026-10-19) — the personas are **hypothetical** and must be validated by interviewing 5 to 10 real students.
 
-## خلاصه
-| # | پرسونا | نقش در سیستم | اولویت MVP |
+## Summary
+| # | Persona | Role in the system | MVP priority |
 |---|---|---|---|
-| ۱ | سارا — تازه‌کار بدون پروفایل | هنرجو | بالا |
-| ۲ | امیر — در حال اپلای، بی‌جواب | هنرجو | **بالاترین** (بیشترین درد + بیشترین استفاده از ابزار) |
-| ۳ | نیلوفر — فریلنسر فعال | هنرجو/مشتری پیشرفته | متوسط |
-| ۴ | رضا — مشاور | مشاور | بالا |
-| ۵ | بنیان‌گذار — مربی/مدیر | ادمین | بالا |
+| 1 | Sara — newcomer without a profile | Student | High |
+| 2 | Amir — applying, no replies | Student | **Highest** (most pain + most tool usage) |
+| 3 | Niloufar — active freelancer | Student/advanced customer | Medium |
+| 4 | Reza — mentor | Mentor | High |
+| 5 | Founder — coach/admin | Admin | High |
 
 ---
 
-## ۱. سارا — هنرجوی تازه‌کار (هنوز پروفایل ندارد)
-| بخش | شرح |
+## 1. Sara — newcomer student (no profile yet)
+| Section | Description |
 |---|---|
-| مشخصات | ۲۴ ساله، مهارت متوسط (مثلاً طراحی UI یا تولید محتوا)، انگلیسی متوسط، اولین تجربه‌ی بین‌المللی |
-| هدف | انتخاب نیچ درست و ساخت پروفایلی که اولین دعوت/جواب را بیاورد |
-| درد | نمی‌داند در چه نیچی رقابت کند؛ بین ویدئوهای دوره گم می‌شود؛ نمی‌داند پروفایلش «به اندازه‌ی کافی خوب» است یا نه؛ نگرانی ساخت اکانت و تحریم |
-| رفتار فعلی | ویدئوهای دوره را تماشا می‌کند، در گروه تلگرامی سؤال می‌پرسد، از ChatGPT متن پروفایل می‌گیرد |
-| موفقیت | پروفایل کامل و تأییدشده توسط مشاور + نیچ انتخاب‌شده + اولین ۵ پروپوزال ارسال‌شده |
-| ابزارهای مرتبط | نیچ‌یاب، بررسی پروفایل، مسیر آموزشی گام‌به‌گام |
+| Profile | 24 years old, intermediate skill (e.g. UI design or content creation), intermediate English, first international experience |
+| Goal | Choose the right niche and build a profile that brings the first invite/reply |
+| Pain | Doesn't know which niche to compete in; gets lost among the course videos; doesn't know whether her profile is "good enough"; worries about creating an account and sanctions |
+| Current behavior | Watches the course videos, asks questions in the Telegram group, gets profile text from ChatGPT |
+| Success | A complete profile approved by a mentor + a chosen niche + the first 5 proposals sent |
+| Related tools | Niche finder, profile review, step-by-step learning path |
 
-## ۲. امیر — هنرجوی در حال اپلای (پروپوزال می‌فرستد، جواب نمی‌گیرد)
-| بخش | شرح |
+## 2. Amir — student who is applying (sends proposals, gets no replies)
+| Section | Description |
 |---|---|
-| مشخصات | ۲۹ ساله، برنامه‌نویس/دیجیتال مارکتر، ۳۰+ پروپوزال فرستاده، ۰ یا ۱ مصاحبه |
-| هدف | اولین قرارداد، با هزینه‌ی Connects کمتر |
-| درد | نمی‌داند ایراد از انتخاب جاب است، از پروپوزال یا از پروفایل؛ Connects (حدود ۰٫۱۵ دلار هرکدام) می‌سوزد؛ ناامیدی و ریزش |
-| رفتار فعلی | روزانه فید آپورک را نگاه می‌کند، پروپوزال را با ChatGPT/Uma می‌نویسد، گاهی برای مشاور در تلگرام می‌فرستد و ساعت‌ها منتظر می‌ماند |
-| موفقیت | نرخ مشاهده/پاسخ پروپوزال بالا برود؛ اولین مصاحبه و قرارداد |
-| ابزارهای مرتبط | **بررسی جاب** (اپلای کنم یا نه؟)، **بررسی پروپوزال**، داشبورد آمار پروپوزال‌ها |
+| Profile | 29 years old, programmer/digital marketer, 30+ proposals sent, 0 or 1 interviews |
+| Goal | First contract, with lower Connects spend |
+| Pain | Doesn't know whether the problem is job selection, the proposal or the profile; Connects (about $0.15 each) burn away; discouragement and churn |
+| Current behavior | Checks the Upwork feed daily, writes proposals with ChatGPT/Uma, sometimes sends them to a mentor on Telegram and waits for hours |
+| Success | Proposal view/reply rate goes up; first interview and contract |
+| Related tools | **Job review** (should I apply or not?), **proposal review**, proposal statistics dashboard |
 
-## ۳. نیلوفر — فریلنسر فعال (می‌خواهد درآمدش را بالا ببرد)
-| بخش | شرح |
+## 3. Niloufar — active freelancer (wants to increase her income)
+| Section | Description |
 |---|---|
-| مشخصات | ۳۲ ساله، ۵ تا ۱۵ قرارداد، JSS خوب، نرخ ساعتی پایین (مثلاً ۱۵ تا ۲۰ دلار) |
-| هدف | افزایش نرخ، کارفرمای بلندمدت، رسیدن به Top Rated |
-| درد | نمی‌داند کی و چقدر نرخ را بالا ببرد؛ پروفایل برای جاب‌های گران‌تر بهینه نیست؛ زمان کم |
-| رفتار فعلی | کمتر در دوره فعال است؛ فقط برای سؤال‌های خاص به مربی پیام می‌دهد |
-| موفقیت | افزایش نرخ ساعتی/درآمد ماهانه بدون افت نرخ برد |
-| ابزارهای مرتبط | قیمت‌گذاری، بررسی پروفایل پیشرفته، بررسی جاب‌های گران‌تر، مشاوره‌ی ۱:۱ |
-| نکته | کمتر به آموزش و بیشتر به ابزار + مشاوره‌ی تخصصی نیاز دارد → کاندید پلن «پرو» |
+| Profile | 32 years old, 5 to 15 contracts, good JSS, low hourly rate (e.g. $15 to $20) |
+| Goal | Raise her rate, long-term clients, reach Top Rated |
+| Pain | Doesn't know when and by how much to raise her rate; profile is not optimized for higher-priced jobs; little time |
+| Current behavior | Less active in the course; only messages the coach for specific questions |
+| Success | Higher hourly rate/monthly income without a drop in win rate |
+| Related tools | Pricing, advanced profile review, review of higher-priced jobs, 1:1 consulting |
+| Note | Needs less training and more tools + specialized consulting → candidate for the "Pro" plan |
 
-## ۴. رضا — مشاور
-| بخش | شرح |
+## 4. Reza — mentor
+| Section | Description |
 |---|---|
-| مشخصات | فریلنسر موفق یا هنرجوی ارشد سابق، پاره‌وقت، احتمالاً مزد به ازای ساعت/هنرجو (← سؤال بنیان‌گذار) |
-| هدف | جواب سریع و باکیفیت با کمترین زمان؛ دیده شدن کارش؛ درآمد منظم |
-| درد | سؤال‌های تکراری؛ پیام‌های پراکنده در تلگرام؛ نمی‌داند هنرجو قبلاً چه کرده؛ پیگیری دستی |
-| رفتار فعلی | تلگرام/واتس‌اپ، اسکای‌روم برای جلسه، یادداشت شخصی |
-| موفقیت | صف واحد سؤال‌ها، تاریخچه‌ی هر هنرجو، پیش‌نویس پاسخ AI که فقط ویرایش کند، کاهش زمان هر پاسخ |
-| ابزارهای مرتبط | صندوق سؤال‌ها، پرونده‌ی هنرجو، دیدن خروجی ابزارهای AI هنرجو، یادآور پیگیری |
+| Profile | Successful freelancer or former senior student, part-time, probably paid per hour/per student (→ founder question) |
+| Goal | Fast, high-quality answers in the least time; his work being visible; steady income |
+| Pain | Repetitive questions; scattered messages on Telegram; doesn't know what the student has already done; manual follow-up |
+| Current behavior | Telegram/WhatsApp, Skyroom for sessions, personal notes |
+| Success | A single question queue, each student's history, an AI draft answer he only needs to edit, less time per answer |
+| Related tools | Question inbox, student file, viewing the student's AI tool outputs, follow-up reminder |
 
-## ۵. بنیان‌گذار — مربی/مدیر
-| بخش | شرح |
+## 5. Founder — coach/admin
+| Section | Description |
 |---|---|
-| هدف | مقیاس دادن به آموزش بدون افت کیفیت؛ درآمد تکرارشونده؛ اثبات نتیجه‌ی هنرجوها (برای فروش دوره‌های بعدی) |
-| درد | وقتش صرف سؤال‌های تکراری می‌شود؛ دید کلی از پیشرفت هنرجوها و عملکرد مشاورها ندارد؛ روشش در ذهن خودش است و منتقل نمی‌شود |
-| رفتار فعلی | دوره + گروه تلگرامی + جلسات آنلاین (فرض — ← سؤال‌های بنیان‌گذار) |
-| موفقیت | داشبورد قیف هنرجوها (ثبت‌نام ← پروفایل ← پروپوزال ← قرارداد)، کیفیت/سرعت مشاورها، داستان‌های موفقیت قابل‌استناد |
-| ابزارهای مرتبط | داشبورد مدیریتی، مدیریت مشاورها و تخصیص هنرجو، ویرایش rubric ابزارهای AI، مدیریت محتوا |
+| Goal | Scale training without losing quality; recurring revenue; proof of students' results (to sell future courses) |
+| Pain | His time goes to repetitive questions; has no overview of students' progress and mentors' performance; his method lives in his head and isn't transferred |
+| Current behavior | Course + Telegram group + online sessions (assumption — → founder questions) |
+| Success | Student funnel dashboard (sign-up → profile → proposal → contract), mentor quality/speed, citable success stories |
+| Related tools | Admin dashboard, mentor management and student assignment, editing AI tool rubrics, content management |
 
-## نقشه‌ی درد ← امکان (برای فاز ۱)
-| درد | پرسونا | امکان کاندید |
+## Pain → feature map (for Phase 1)
+| Pain | Persona | Candidate feature |
 |---|---|---|
-| «این جاب ارزش Connects دارد؟» | امیر | بررسی جاب |
-| «چرا جواب نمی‌گیرم؟» | امیر | بررسی پروپوزال + آمار پروپوزال‌ها |
-| «چه نیچی؟» | سارا | نیچ‌یاب |
-| «پروفایلم خوب است؟» | سارا، نیلوفر | بررسی پروفایل |
-| «جواب سؤالم کی می‌آید؟» | همه‌ی هنرجوها | صف سؤال + پیش‌پاسخ AI + مشاور |
-| «هنرجوها کجا گیر کرده‌اند؟» | بنیان‌گذار | قیف پیشرفت |
+| "Is this job worth the Connects?" | Amir | Job review |
+| "Why am I not getting replies?" | Amir | Proposal review + proposal statistics |
+| "Which niche?" | Sara | Niche finder |
+| "Is my profile good?" | Sara, Niloufar | Profile review |
+| "When will my question be answered?" | All students | Question queue + AI pre-answer + mentor |
+| "Where are students getting stuck?" | Founder | Progress funnel |

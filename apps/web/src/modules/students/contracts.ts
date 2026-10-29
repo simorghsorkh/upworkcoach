@@ -14,6 +14,7 @@ import {
 import type { PlatformRef, StageRef, TrackRef } from '../catalog/contracts';
 import type { HealthSummary } from '../health/summary';
 import { displayNameInput, phoneInput } from '../identity/contracts';
+import type { CoursePhaseDTO } from '../programs/contracts';
 import {
   LIFECYCLE_STATUSES,
   PRIOR_EXPERIENCES,
@@ -87,6 +88,9 @@ function commaList<T extends string>(allowed: readonly T[]) {
 export const listStudentsQuery = z.strictObject({
   q: z.string().max(100).optional(),
   stageId: uuidInput.optional(),
+  /** Members of one course (seat held), optionally in one of its phases (sprint 5c). */
+  runId: uuidInput.optional(),
+  phaseId: uuidInput.optional(),
   /** A uuid, or `none` for unassigned students (only admins ever see them). */
   mentorId: z.union([uuidInput, z.literal('none')]).optional(),
   tag: z.string().max(160).optional(),
@@ -295,6 +299,8 @@ export type StudentListItemDTO = {
   tags: string[];
   cohort: string | null;
   primaryProfile: PrimaryProfileDTO | null;
+  /** Current phase in each course other than the main path (sprint 5c). */
+  courses: CoursePhaseDTO[];
 };
 
 /**

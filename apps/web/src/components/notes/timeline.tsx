@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { type FormEvent, type ReactNode, useEffect, useState } from 'react';
 import { apiDelete, apiGet, apiPatch } from '@/components/api/client';
 import { faDayMonth, faDayTime, faNumber } from '@/components/format/fa';
@@ -401,16 +402,19 @@ function QuestionLink({ id }: { id: string | undefined }) {
   );
 }
 
-function VisTag({ shared }: { shared: boolean }) {
+const VIS_ICON = { internal: 'lock', shared: 'eye', private: 'user' } as const;
+
+function VisTag({ visibility }: { visibility: NoteDTO['visibility'] }) {
+  const t = useTranslations('notes.tag');
   return (
     <span
       className={cn(
         'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-2xs font-bold',
-        shared ? 'bg-primary-weak-2 text-primary-text' : 'bg-fg text-surface',
+        visibility === 'shared' ? 'bg-primary-weak-2 text-primary-text' : 'bg-fg text-surface',
       )}
     >
-      <Icon name={shared ? 'eye' : 'lock'} size={12} strokeWidth={2.6} />
-      {shared ? 'اشتراکی — هنرجو می‌بیند' : 'داخلی — هنرجو نمی‌بیند'}
+      <Icon name={VIS_ICON[visibility]} size={12} strokeWidth={2.6} />
+      {t(visibility)}
     </span>
   );
 }
@@ -426,6 +430,7 @@ function NoteRow({
 }) {
   const router = useRouter();
   const toast = useToast();
+  const t = useTranslations('notes');
   const shared = note.visibility === 'shared';
   const [panel, setPanel] = useState<'edit' | 'share' | 'delete' | null>(null);
   const [busy, setBusy] = useState(false);
@@ -477,12 +482,12 @@ function NoteRow({
             : 'border-fg bg-fg text-surface',
         )}
       >
-        <Icon name={shared ? 'eye' : 'lock'} size={14} strokeWidth={2.5} />
+        <Icon name={VIS_ICON[note.visibility]} size={14} strokeWidth={2.5} />
       </span>
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 text-sm text-fg-3">
         <strong className="font-semibold text-fg">{note.author.displayName}</strong>
         <span>{`${noteKindLabel[note.kind]} · ${when}`}</span>
-        <VisTag shared={shared} />
+        <VisTag visibility={note.visibility} />
         {note.canEdit ? (
           <span className="ms-auto">
             <MenuButton
@@ -495,15 +500,28 @@ function NoteRow({
               buttonClassName="inline-grid size-8 cursor-pointer place-items-center rounded-sm text-fg-2 hover:bg-surface-2"
               items={[
                 { label: 'ویرایش', onSelect: () => setPanel('edit') },
-                shared
+                note.visibility === 'private'
                   ? {
-                      label: 'داخلی کن',
-                      onSelect: () => void patch({ visibility: 'internal' }, 'یادداشت داخلی شد.'),
+                      label: t('makeInternal'),
+                      onSelect: () => void patch({ visibility: 'internal' }, t('madeInternal')),
                     }
-                  : {
-                      label: `اشتراکی کن (${studentFirstName} می‌بیند)`,
-                      onSelect: () => setPanel('share'),
-                    },
+                  : shared
+                    ? {
+                        label: 'داخلی کن',
+                        onSelect: () => void patch({ visibility: 'internal' }, t('madeInternal')),
+                      }
+                    : {
+                        label: `اشتراکی کن (${studentFirstName} می‌بیند)`,
+                        onSelect: () => setPanel('share'),
+                      },
+                ...(note.isAuthor && note.visibility !== 'private'
+                  ? [
+                      {
+                        label: t('makePrivate'),
+                        onSelect: () => void patch({ visibility: 'private' }, t('madePrivate')),
+                      },
+                    ]
+                  : []),
                 { label: 'حذف', onSelect: () => setPanel('delete') },
               ]}
             />

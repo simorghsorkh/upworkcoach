@@ -1,301 +1,301 @@
-# جریان‌های کاربری — نسخه‌ی 0.1 («دفتر مربی»)
+# User Flows — Version 0.1 ("Coach Office")
 
-> فاز ۲ — نویسنده: ux-designer — ۲۷ مهر ۱۴۰۵ — وضعیت: پیش‌نویس برای گیت بنیان‌گذار
-> کد صفحه‌ها (G، M، S) از `sitemap.md` است. امکان‌ها از `docs/02-product/prd.md`.
-> نمودارها Mermaid هستند و در GitHub، VS Code (با افزونه‌ی Mermaid) و بیشتر ویرایشگرهای Markdown نمایش داده می‌شوند.
+> Phase 2 — Author: ux-designer — 27 Mehr 1405 (2026-10-19) — Status: draft for the founder gate
+> Page codes (G, M, S) come from `sitemap.md`. Features come from `docs/02-product/prd.md`.
+> The diagrams are Mermaid and render in GitHub, VS Code (with the Mermaid extension) and most Markdown editors.
 
-## فهرست
+## Contents
 
-| # | جریان | نقش | امکان | اصل کلیدی |
+| # | Flow | Role | Feature | Key principle |
 |---|---|---|---|---|
-| ۱ | دعوت هنرجو و اولین ورود | مدیر → هنرجو | F1، F10 | زیر ۱ دقیقه برای مدیر؛ «برد کوچک» زیر ۵ دقیقه برای هنرجو |
-| ۲ | ساخت و پر کردن پرونده | مدیر/مشاور + هنرجو | F2 | فقط نام و موبایل اجباری؛ بقیه تدریجی |
-| ۳ | تغییر مرحله | مدیر/مشاور | F3 | یک کلیک + یادداشت اختیاری |
-| ۴ | کار ← تحویل ← بازبینی ← اصلاح | هر سه | F4 | هیچ کاری گم نشود |
-| ۵ | یادداشت بعد از جلسه | مدیر/مشاور | F5 | < ۳ کلیک، روی موبایل |
-| ۶ | روال صبح با «امروز» | مدیر/مشاور | F6، F7، F8 | یک صفحه، همه‌ی کارهای روز |
-| ۷ | رسیدگی به هنرجوی قرمز | مدیر/مشاور | F7، F5 | اقدام ثبت‌شده در ۴۸ ساعت |
-| ۸ | سؤال و پاسخ | هنرجو ↔ مشاور | F8 | هنرجو بداند کی جواب می‌آید |
-| ۹ | check-in هفتگی (Should) | هنرجو → مشاور | F7 | ۳ دقیقه، پنجشنبه |
+| 1 | Student invite and first login | Admin → student | F1, F10 | Under 1 minute for the admin; a "small win" under 5 minutes for the student |
+| 2 | Creating and filling in the record | Admin/mentor + student | F2 | Only name and mobile are required; the rest gradually |
+| 3 | Stage change | Admin/mentor | F3 | One click + optional note |
+| 4 | Task ← submission ← review ← revision | All three | F4 | No task gets lost |
+| 5 | Note after a session | Admin/mentor | F5 | < 3 clicks, on mobile |
+| 6 | Morning routine with "Today" | Admin/mentor | F6, F7, F8 | One page, all of the day's work |
+| 7 | Handling a red student | Admin/mentor | F7, F5 | Action recorded within 48 hours |
+| 8 | Questions and answers | Student ↔ mentor | F8 | The student knows when the answer will come |
+| 9 | Weekly check-in (Should) | Student → mentor | F7 | 3 minutes, Thursday |
 
 ---
 
-## ۱. دعوت هنرجو و اولین ورود (F1، F10)
+## 1. Student invite and first login (F1, F10)
 
-**هدف:** مدیر در کمتر از ۱ دقیقه هنرجو را بسازد و لینک بفرستد. هنرجو بدون فرم طولانی وارد شود و در کمتر از ۵ دقیقه **یک کار واقعی را تمام کند** (برد کوچک: تکمیل «فرم ورود» یا «لینک پروفایلت را اضافه کن» که مستقیم «پذیرفته» یا «تحویل‌شده» می‌شود).
+**Goal:** The admin creates the student and sends the link in under 1 minute. The student logs in without a long form and in under 5 minutes **completes one real task** (small win: completing the "Intake form" or "Add your profile link", which goes directly to "Accepted" or "Submitted").
 
 ```mermaid
 flowchart TD
-    A["مدیر در «هنرجوها» روی «+ هنرجوی جدید» می‌زند (M2a)"] --> B["نام + موبایل؛ مشاور و مرحله اختیاری"]
-    B --> C{"موبایل تکراری است؟"}
-    C -->|بله| C1["پیام: «این شماره قبلاً ثبت شده» + لینک به پرونده‌ی موجود"]
-    C -->|نه| D["پرونده ساخته می‌شود + لینک دعوت یک‌بارمصرف ۷ روزه"]
-    D --> E["دکمه‌ی «کپی لینک» + متن آماده‌ی پیام برای تلگرام"]
-    E --> F["مدیر خودش لینک را در تلگرام می‌فرستد"]
-    F --> G["هنرجو لینک را روی گوشی باز می‌کند (G2)"]
-    G --> H{"لینک معتبر است؟"}
-    H -->|منقضی یا استفاده‌شده| H1["G3: «این لینک دیگر کار نمی‌کند؛ از مربی‌ات لینک تازه بخواه»"]
-    H1 --> H2["مدیر در پرونده: «ارسال دوباره‌ی دعوت»"] --> F
-    H -->|بله| I["نام و موبایل از قبل نوشته شده؛ هنرجو فقط رمز و تکرار رمز می‌گذارد"]
-    I --> J["ورود خودکار ← خانه (S1) با کارت خوش‌آمد"]
-    J --> K["کارت خوش‌آمد: «۳ قدم تا شروع» + مرحله‌ی ۰ + کارهای پیش‌فرض با مهلت"]
-    K --> L["هنرجو اولین کار را باز می‌کند: «لینک پروفایل‌هایت را اضافه کن» یا «فرم ورود»"]
-    L --> M["تحویل در ۲ تا ۳ دقیقه ← پیام تأیید: «تحویل شد؛ مشاورت تا ۴۸ ساعت نگاه می‌کند»"]
-    M --> N["در پرونده: رویداد «اولین ورود» + «تحویل» در تایم‌لاین؛ R-INACT صفر می‌شود"]
+    A["Admin clicks «+ New student» in «Students» (M2a)"] --> B["Name + mobile; mentor and stage optional"]
+    B --> C{"Is the mobile number a duplicate?"}
+    C -->|Yes| C1["Message: «This number is already registered» + link to the existing record"]
+    C -->|No| D["Record is created + one-time 7-day invite link"]
+    D --> E["«Copy link» button + ready-made message text for Telegram"]
+    E --> F["The admin sends the link via Telegram themselves"]
+    F --> G["Student opens the link on their phone (G2)"]
+    G --> H{"Is the link valid?"}
+    H -->|Expired or used| H1["G3: «This link no longer works; ask your coach for a new link»"]
+    H1 --> H2["Admin in the record: «Resend invite»"] --> F
+    H -->|Yes| I["Name and mobile already filled in; the student only sets a password and confirms it"]
+    I --> J["Automatic login ← Home (S1) with a welcome card"]
+    J --> K["Welcome card: «3 steps to get started» + stage 0 + default tasks with deadlines"]
+    K --> L["Student opens the first task: «Add your profile links» or «Intake form»"]
+    L --> M["Submission in 2 to 3 minutes ← confirmation message: «Submitted; your mentor will look within 48 hours»"]
+    M --> N["In the record: «First login» + «Submission» events in the timeline; R-INACT resets to zero"]
 ```
 
-**نکته‌ها**
-- در 0.1 پیامک نداریم؛ لینک فقط با تلگرام یا هر پیام‌رسانی که مربی استفاده می‌کند می‌رود. متن آماده‌ی پیام در M2a: «سلام [نام]، این لینک ورود تو به دفتر کار ماست: [لینک] (تا ۷ روز معتبر)».
-- لینک دعوت مشاور همین جریان را دارد، با این تفاوت که فقط مدیر از «تنظیمات ← کاربران» می‌سازد و مقصد بعد از ورود «امروز» (M1) است.
-- **فرض U7:** کارهای پیش‌فرض مرحله‌ی ۰ (`progress-tracking.md` بخش ۴-۳) با ساخت پرونده خودکار ساخته می‌شوند تا هنرجو هیچ‌وقت با خانه‌ی خالی روبه‌رو نشود. اگر بنیان‌گذار نخواهد، کارت خوش‌آمد فقط «پروفایلت را کامل کن» را نشان می‌دهد.
+**Notes**
+- There is no SMS in 0.1; the link is sent only via Telegram or whatever messenger the coach uses. Ready-made message text in M2a: "Hi [name], this is your login link to our office: [link] (valid for 7 days)".
+- The mentor invite link follows the same flow, except that only the admin creates it, from "Settings ← Users", and the destination after login is "Today" (M1).
+- **Assumption U7:** The default stage 0 tasks (`progress-tracking.md` section 4-3) are created automatically when the record is created, so the student never faces an empty Home. If the founder does not want this, the welcome card only shows "Complete your profile".
 
 ---
 
-## ۲. ساخت و پر کردن پرونده (F2)
+## 2. Creating and filling in the record (F2)
 
-**هدف:** پرونده تدریجی پر شود. مربی فقط چیزی را که در ذهن دارد ثبت کند، هنرجو بخش خودش را.
+**Goal:** The record is filled in gradually. The coach only records what they have in mind; the student fills in their own part.
 
 ```mermaid
 flowchart TD
-    A["پرونده با نام + موبایل ساخته شد (جریان ۱)"] --> B["سربرگ پرونده نشانگر «پرونده ۲۰٪ کامل» و فهرست جاهای خالی را نشان می‌دهد"]
-    B --> C{"چه کسی پر می‌کند؟"}
-    C -->|مربی/مشاور| D["M3 ← «اطلاعات» یا «ویترین‌ها» ← ویرایش درجا"]
-    D --> D1["مرحله‌ی فعلی (تخمین)، شاخه و پلتفرم اصلی، نیچ، سطح، برچسب‌ها"]
-    D1 --> D2["افزودن ویترین: پلتفرم از فهرست تنظیمات + لینک + تیتر + وضعیت"]
-    D2 --> D3["آخرین کار خواسته‌شده + مهلت (جریان ۴)"]
-    D3 --> D4["یک یادداشت آزاد: «هر چیزی که در ذهنم است» (جریان ۵)"]
-    C -->|هنرجو| E["S7 «من» ← افزودن پروفایل پلتفرم"]
-    E --> E1["فرم: پلتفرم، لینک عمومی، تیتر؛ هشدار ثابت: «رمز یا کد ورود هیچ حسابی را این‌جا ننویس»"]
-    E1 --> E2{"لینک معتبر است؟ (فقط شکل آدرس؛ سیستم لینک را باز نمی‌کند)"}
-    E2 -->|نه| E3["خطای درجا: «آدرس کامل را با https بنویس»"] --> E1
-    E2 -->|بله| E4["ذخیره ← در پرونده‌ی مربی با نام تغییردهنده دیده می‌شود"]
-    D4 --> F["هر تغییر = رویداد تایم‌لاین با نام و زمان"]
+    A["Record created with name + mobile (flow 1)"] --> B["The record header shows a «Record 20% complete» indicator and a list of empty fields"]
+    B --> C{"Who fills it in?"}
+    C -->|Coach/mentor| D["M3 ← «Info» or «Showcases» ← inline editing"]
+    D --> D1["Current stage (estimate), main track and platform, niche, level, tags"]
+    D1 --> D2["Add showcase: platform from the settings list + link + headline + status"]
+    D2 --> D3["Last requested task + deadline (flow 4)"]
+    D3 --> D4["A free-form note: «whatever is on my mind» (flow 5)"]
+    C -->|Student| E["S7 «Me» ← add platform profile"]
+    E --> E1["Form: platform, public link, headline; persistent warning: «Never write the password or login code of any account here»"]
+    E1 --> E2{"Is the link valid? (URL shape only; the system does not open the link)"}
+    E2 -->|No| E3["Inline error: «Write the full address with https»"] --> E1
+    E2 -->|Yes| E4["Save ← visible in the coach's record with the name of whoever changed it"]
+    D4 --> F["Every change = a timeline event with name and time"]
     E4 --> F
-    F --> G["نشانگر کامل بودن بالا می‌رود؛ وقتی ≥ ۸۰٪ شد، نشانگر پنهان می‌شود"]
+    F --> G["The completeness indicator goes up; once it reaches ≥ 80%, the indicator is hidden"]
 ```
 
-**نکته‌ها**
-- «کامل بودن» فقط برای مربی و فقط بر اساس فیلدهای مهاجرت (`progress-tracking.md` بخش ۲-۹) حساب می‌شود: مرحله، شاخه/پلتفرم، یک ویترین، یک کار باز، مشاور. این مستقیم به معیار G1 (پرونده‌ی کامل برای ≥ ۹۰٪) وصل است. **فرض U8.**
-- ورود گروهی (M2b، Should) همین فیلدها را از اکسل می‌گیرد و قبل از ثبت، پیش‌نمایش ردیف‌های خطادار را نشان می‌دهد.
+**Notes**
+- "Completeness" is shown only to the coach and is calculated only from the migration fields (`progress-tracking.md` section 2-9): stage, track/platform, one showcase, one open task, mentor. This ties directly to criterion G1 (complete record for ≥ 90%). **Assumption U8.**
+- Bulk import (M2b, Should) takes these same fields from Excel and, before saving, shows a preview of the rows with errors.
 
 ---
 
-## ۳. تغییر مرحله (F3)
+## 3. Stage change (F3)
 
 ```mermaid
 flowchart TD
-    A{"از کجا؟"} -->|پرونده M3| B["دکمه‌ی «تغییر مرحله» کنار مرحله‌ی فعلی در سربرگ"]
-    A -->|کانبان M4| C["منوی «انتقال» روی کارت (روی دسکتاپ کشیدن و رها کردن هم هست)"]
-    B --> D["پنجره: فهرست ۹ مرحله؛ فعلی علامت‌دار؛ مرحله‌ی بعدی از پیش انتخاب شده"]
+    A{"From where?"} -->|Record M3| B["«Change stage» button next to the current stage in the header"]
+    A -->|Kanban M4| C["«Move» menu on the card (drag and drop is also available on desktop)"]
+    B --> D["Dialog: list of 9 stages; current one marked; next stage preselected"]
     C --> D
-    D --> E["یادداشت اختیاری: «چرا؟»"]
-    E --> F{"برگشت به مرحله‌ی قبل یا پرش بیش از یک مرحله؟"}
-    F -->|بله| F1["یادداشت اجباری می‌شود: «دلیل برگشت/پرش»"] --> G
-    F -->|نه| G{"کارهای باز مرحله‌ی قبل وجود دارد؟"}
-    G -->|بله| G1["پرسش: «۲ کار باز مرحله‌ی قبل: باز بمانند / لغو شوند»"] --> H
-    G -->|نه| H["(Should) کارهای قالب مرحله‌ی جدید با چک‌باکس و مهلت پیش‌فرض"]
-    H --> I["«ثبت» ← تاریخ ورود به مرحله = امروز؛ رویداد تایم‌لاین"]
-    I --> J["پیام کوتاه پایین صفحه: «سارا به مرحله‌ی ۶ رفت» + «برگرداندن» تا ۱۰ ثانیه"]
-    J --> K["هنرجو در خانه مرحله‌ی جدید و لینک محتوایش را می‌بیند"]
+    D --> E["Optional note: «Why?»"]
+    E --> F{"Going back to a previous stage or skipping more than one stage?"}
+    F -->|Yes| F1["The note becomes required: «Reason for going back/skipping»"] --> G
+    F -->|No| G{"Are there open tasks from the previous stage?"}
+    G -->|Yes| G1["Prompt: «2 open tasks from the previous stage: keep open / cancel»"] --> H
+    G -->|No| H["(Should) The new stage's template tasks with checkboxes and default deadlines"]
+    H --> I["«Save» ← stage entry date = today; timeline event"]
+    I --> J["Short message at the bottom of the screen: «Sara moved to stage 6» + «Undo» for 10 seconds"]
+    J --> K["The student sees the new stage and its content link on Home"]
 ```
 
-**نکته‌ها**
-- «گیت» در 0.1 تأیید دستی مشاور است و وضعیت جدا در رابط ندارد. وقتی همه‌ی کارهای «اجباری برای گیت» یک مرحله «پذیرفته» شدند، در سربرگ پرونده یک راهنمای کوچک می‌آید: «همه‌ی کارهای این مرحله پذیرفته شد. آماده‌ی عبور؟» با دکمه‌ی «تغییر مرحله». **فرض U9.**
-- مرحله‌های هم‌زمان ۲ و ۳: سربرگ هر دو را نشان می‌دهد («۲ ویترین + ۳ نمونه‌کار») و در کانبان کارت در ستون پایین‌تر (۲) با برچسب «+۳» است.
+**Notes**
+- In 0.1 a "gate" is a manual mentor confirmation and has no separate status in the UI. When all of a stage's "required for gate" tasks are "Accepted", a small hint appears in the record header: "All tasks in this stage are accepted. Ready to move on?" with a "Change stage" button. **Assumption U9.**
+- Concurrent stages 2 and 3: the header shows both ("2 showcase + 3 portfolio") and in the kanban the card sits in the lower column (2) with a "+3" tag.
 
 ---
 
-## ۴. تعریف کار ← تحویل ← بازبینی ← اصلاح (F4)
+## 4. Task definition ← submission ← review ← revision (F4)
 
 ```mermaid
 flowchart TD
-    A["مربی: «+ کار» از پرونده، از فهرست کارها یا از افزودن سریع"] --> B["عنوان (فعل‌محور)، شرح + «وقتی قبول است که…»، نوع، مهلت شمسی (میان‌بُر: ۳ روز / ۱ هفته)، مرحله، فوری؟"]
-    B --> B1{"نوع کار"}
-    B1 -->|عمومی / لینک-فایل| C["ثبت ← وضعیت «باز»"]
-    B1 -->|پروپوزال برای بررسی| B2["فرم تحویل هنرجو فیلدهای جدا خواهد داشت: پلتفرم، متن آگهی، متن پروپوزال، رضایت"] --> C
-    C --> D["هنرجو در خانه و «کارهای من» می‌بیند؛ نشان «جدید»"]
-    D --> E{"هنرجو"}
-    E -->|اختیاری| E1["«شروع کردم» ← در حال انجام"] --> F
-    E -->|مستقیم| F["فرم تحویل (S3): متن + لینک؛ برای پروپوزال، متن انگلیسی در کادر چپ‌به‌راست"]
-    E -->|نیاز به وقت بیشتر| E2["«درخواست تمدید» با دلیل ← یک سؤال در صف مشاور"]
-    F --> G["«تحویل» ← وضعیت «تحویل‌شده»؛ پیام: «بازبینی معمولاً تا ۴۸ ساعت»"]
-    G --> H["در «امروز» مربی: بخش «تحویل‌های منتظر بازبینی»؛ بعد از ۴۸ ساعت برچسب «دیر»"]
-    H --> I["M6: تحویل کنار شرح کار و خلاصه‌ی پرونده؛ نسخه‌های قبلی و بازخوردهای قبلی تاشده"]
-    I --> J["فرم بازبینی با قالب: حکم، نقطه‌ی قوت، حداکثر ۳ اصلاح، قدم بعدی؛ امتیاز ۱ تا ۵ اختیاری"]
-    J --> K{"نتیجه"}
-    K -->|پذیرفته| L["وضعیت «پذیرفته» ← هنرجو نشان «بازخورد جدید» می‌گیرد"]
-    L --> L1{"هنرجو کار باز دیگری دارد؟"}
-    L1 -->|نه| L2["هشدار درجا به مربی: «سارا کار بازی ندارد» + «+ کار بعدی» (پیشگیری از R-NOTASK)"]
-    L1 -->|بله| Z["پایان"]
-    K -->|نیاز به اصلاح| M["وضعیت «نیاز به اصلاح» + مهلت تازه (اختیاری)؛ شمارنده‌ی دور +۱"]
-    M --> N["هنرجو بازخورد را بالای فرم تحویل می‌بیند ← نسخه‌ی بعد"]
+    A["Coach: «+ Task» from the record, from the task list or from Quick add"] --> B["Title (verb-led), description + «Accepted when…», type, Jalali deadline (shortcut: 3 days / 1 week), stage, urgent?"]
+    B --> B1{"Task type"}
+    B1 -->|General / link-file| C["Save ← status «Open»"]
+    B1 -->|Proposal for review| B2["The student's submission form will have separate fields: platform, job post text, proposal text, consent"] --> C
+    C --> D["The student sees it on Home and in «My tasks»; «New» badge"]
+    D --> E{"Student"}
+    E -->|Optional| E1["«I started» ← In progress"] --> F
+    E -->|Directly| F["Submission form (S3): text + link; for a proposal, English text in a left-to-right box"]
+    E -->|Needs more time| E2["«Request extension» with a reason ← a question in the mentor's queue"]
+    F --> G["«Submit» ← status «Submitted»; message: «Review usually within 48 hours»"]
+    G --> H["In the coach's «Today»: «Submissions awaiting review» section; after 48 hours a «Late» tag"]
+    H --> I["M6: submission beside the task description and record summary; previous versions and previous feedback collapsed"]
+    I --> J["Review form with template: verdict, strength, at most 3 revisions, next step; optional 1 to 5 score"]
+    J --> K{"Result"}
+    K -->|Accepted| L["Status «Accepted» ← the student gets a «New feedback» badge"]
+    L --> L1{"Does the student have another open task?"}
+    L1 -->|No| L2["Inline alert to the coach: «Sara has no open task» + «+ Next task» (prevents R-NOTASK)"]
+    L1 -->|Yes| Z["End"]
+    K -->|Needs revision| M["Status «Needs revision» + new deadline (optional); round counter +1"]
+    M --> N["The student sees the feedback above the submission form ← next version"]
     N --> G
-    M --> O{"دور اصلاح ≥ ۳؟"}
-    O -->|بله| O1["برچسب R-LOOP روی کار و سلامت هنرجو؛ پیشنهاد «به‌جای بازخورد مکتوب، تماس ۱۵ دقیقه‌ای»"]
-    K -->|لغو| P["«لغوشده» با دلیل اجباری"]
+    M --> O{"Revision round ≥ 3?"}
+    O -->|Yes| O1["R-LOOP tag on the task and the student's health; suggestion: «Instead of written feedback, a 15-minute call»"]
+    K -->|Cancel| P["«Cancelled» with a required reason"]
 ```
 
-**نکته‌ها**
-- «عقب‌افتاده» وضعیت نیست؛ برچسب قرمز «معوق · ۴ روز» روی کارهای باز/در حال انجام/نیاز به اصلاح که از مهلت گذشته‌اند (F4).
-- تمدید مهلت را مربی در M6 با «تمدید مهلت» و دلیل انجام می‌دهد؛ تاریخچه‌ی تمدیدها زیر مهلت دیده می‌شود و تمدید سوم برچسب R-EXTEND می‌دهد. **فرض U10:** هنرجو در 0.1 خودش مهلت را تمدید نمی‌کند، فقط درخواست می‌دهد.
-- کارهای «فقط تیک» (مثلاً «جلسه‌ی آشنایی را رزرو کن») با «انجام دادم» مستقیم «پذیرفته» می‌شوند و در صف بازبینی نمی‌آیند.
-- (Should) واگذاری گروهی: در فرم کار، فیلد «هنرجو» چندانتخابی است؛ برای هر هنرجو یک کار مستقل ساخته می‌شود.
+**Notes**
+- "Overdue" is not a status; it is a red "Overdue · 4 days" tag on open/in-progress/needs-revision tasks that are past their deadline (F4).
+- The coach extends a deadline in M6 with "Extend deadline" and a reason; the extension history is visible under the deadline, and the third extension triggers an R-EXTEND tag. **Assumption U10:** In 0.1 the student does not extend the deadline themselves; they only request it.
+- "Tick-only" tasks (e.g. "Book the intro session") go directly to "Accepted" with "Done" and do not enter the review queue.
+- (Should) Bulk assignment: in the task form, the "Student" field is multi-select; an independent task is created for each student.
 
 ---
 
-## ۵. ثبت یادداشت بعد از جلسه (F5)
+## 5. Recording a note after a session (F5)
 
-**هدف:** < ۳ کلیک از هر جای پرونده؛ روی موبایل با یک دست.
+**Goal:** < 3 clicks from anywhere in the record; one-handed on mobile.
 
 ```mermaid
 flowchart TD
-    A{"مربی کجاست؟"} -->|پرونده باز است (دسکتاپ)| B["کادر «یادداشت تازه» بالای تایم‌لاین — همیشه باز"]
-    A -->|پرونده باز است (موبایل)| C["دکمه‌ی ثابت پایین: «+ یادداشت» ← برگه‌ی پایین‌صفحه"]
-    A -->|جای دیگری است (موبایل)| D["دکمه‌ی وسط نوار پایین «+» ← «یادداشت» ← جستجوی نام هنرجو (۳ حرف کافی است)"]
-    B --> E["نوع: یادداشت / جلسه / تماس / پیام بیرونی (پیش‌فرض: آخرین نوع استفاده‌شده)"]
+    A{"Where is the coach?"} -->|Record open (desktop)| B["«New note» box above the timeline — always open"]
+    A -->|Record open (mobile)| C["Fixed bottom button: «+ Note» ← bottom sheet"]
+    A -->|Somewhere else (mobile)| D["Middle bottom-bar button «+» ← «Note» ← search student name (3 letters is enough)"]
+    B --> E["Type: note / session / call / external message (default: the last type used)"]
     C --> E
     D --> E
-    E --> F["متن"]
-    F --> G["حالت: داخلی (پیش‌فرض) / اشتراکی — با برچسب روشن «هنرجو این را می‌بیند»"]
-    G --> H{"قدم بعدی دارد؟ (اختیاری)"}
-    H -->|کار| H1["«+ کار از این یادداشت» ← فرم کار با عنوان پیشنهادی از متن"]
-    H -->|یادآور| H2["«یادآور» با میان‌بُر: فردا / ۳ روز / ۱ هفته"]
-    H -->|نه| I["«ثبت»"]
+    E --> F["Text"]
+    F --> G["Visibility: internal (default) / shared — with a clear label «The student sees this»"]
+    G --> H{"Is there a next step? (optional)"}
+    H -->|Task| H1["«+ Task from this note» ← task form with a title suggested from the text"]
+    H -->|Reminder| H2["«Reminder» with shortcuts: tomorrow / 3 days / 1 week"]
+    H -->|No| I["«Save»"]
     H1 --> I
     H2 --> I
-    I --> J["در تایم‌لاین بالای فهرست؛ اگر اشتراکی است، هنرجو در خانه «یادداشت تازه از مشاور» می‌بیند"]
-    I --> K{"هنرجو قرمز بود؟"}
-    K -->|بله| K1["این یادداشت = «اقدام ثبت‌شده» ← هشدار «قرمز بدون اقدام» در امروز پاک می‌شود"]
+    I --> J["At the top of the timeline; if shared, the student sees «New note from your mentor» on Home"]
+    I --> K{"Was the student red?"}
+    K -->|Yes| K1["This note = «recorded action» ← the «Red without action» alert on Today is cleared"]
 ```
 
-**نکته‌ها**
-- برای «جلسه»، متن با قالب کوتاه پیش‌فرض باز می‌شود: «خلاصه / تصمیم‌ها / کارهای بعدی». قالب پاک‌شدنی است.
-- اگر اتصال قطع شد، متن در مرورگر نگه داشته می‌شود و پیام «ذخیره نشد؛ دوباره تلاش کن» با دکمه‌ی «تلاش دوباره» می‌آید (یادداشت هیچ‌وقت گم نمی‌شود).
+**Notes**
+- For a "session", the text opens with a short default template: "Summary / Decisions / Next tasks". The template can be deleted.
+- If the connection drops, the text is kept in the browser and a "Not saved; try again" message appears with a "Retry" button (a note is never lost).
 
 ---
 
-## ۶. روال صبح مربی با صفحه‌ی «امروز» (F6، F7، F8)
+## 6. The coach's morning routine with the "Today" page (F6, F7, F8)
 
-**هدف:** ۳۰ تا ۶۰ دقیقه کار روزانه (`mentor-workflow.md` بخش ۵-۱) از یک صفحه؛ هر مورد یک کلیک تا مقصد.
+**Goal:** 30 to 60 minutes of daily work (`mentor-workflow.md` section 5-1) from one page; each item is one click from its destination.
 
 ```mermaid
 flowchart TD
-    A["ورود ← «امروز» (M1)"] --> B["نوار خلاصه: ۴ یادآور · ۵ تحویل · ۳ سؤال · ۶ گیرکرده؛ و «۲ مورد از زمان پاسخ گذشته»"]
-    B --> B1{"مدیر است؟"}
-    B1 -->|بله| B2["فیلتر مشاور: همه / خودم / هر مشاور"] --> C
-    B1 -->|نه| C["بخش ۱: یادآورهای امروز و گذشته"]
-    C --> C1{"برای هر یادآور"}
-    C1 -->|انجام شد| C2["تیک ← از فهرست می‌رود؛ «برگرداندن» تا ۱۰ ثانیه"]
-    C1 -->|بعداً| C3["تعویق: ۱ روز / ۳ روز / ۱ هفته"]
-    C1 -->|نیاز به پرونده| C4["کلیک روی نام ← پرونده؛ «بازگشت به امروز» در بالای پرونده"]
-    C2 --> D["بخش ۲: تحویل‌های منتظر بازبینی (دیرها و فوری‌ها اول، بعد قدیمی‌ترین)"]
+    A["Login ← «Today» (M1)"] --> B["Summary bar: 4 reminders · 5 submissions · 3 questions · 6 stuck; and «2 items past response time»"]
+    B --> B1{"Is it the admin?"}
+    B1 -->|Yes| B2["Mentor filter: all / me / any mentor"] --> C
+    B1 -->|No| C["Section 1: today's and overdue reminders"]
+    C --> C1{"For each reminder"}
+    C1 -->|Done| C2["Tick ← removed from the list; «Undo» for 10 seconds"]
+    C1 -->|Later| C3["Snooze: 1 day / 3 days / 1 week"]
+    C1 -->|Needs the record| C4["Click the name ← record; «Back to Today» at the top of the record"]
+    C2 --> D["Section 2: submissions awaiting review (late and urgent first, then oldest)"]
     C3 --> D
     C4 --> D
-    D --> D1["«بازبینی» ← M6 ← ثبت ← برمی‌گردد به امروز با مورد بعدی"]
-    D1 --> E["بخش ۳: سؤال‌های بی‌پاسخ (نزدیک‌ترین به ۲۴ ساعت اول)"]
-    E --> E1["«پاسخ» ← M8 ← ثبت ← بازگشت"]
-    E1 --> F["بخش ۴: هنرجوهای گیرکرده (قرمز، بعد زرد؛ قدیمی‌تر اول)"]
-    F --> F1["هر ردیف: دلیل + «توپ در زمین چه کسی» + «اقدام ثبت‌شده؟»"]
-    F1 --> G["جریان ۷ برای قرمزها؛ زردها برای مرور هفتگی می‌مانند"]
-    G --> H{"همه‌ی بخش‌ها خالی شد؟"}
-    H -->|بله| H1["حالت خالی: «امروز کار عقب‌مانده‌ای نیست» + «مرور هفتگی: ۱۲ هنرجو تا شنبه»"]
-    H -->|نه| I["باقی‌مانده‌ها فردا با برچسب «از دیروز» بالا می‌آیند"]
+    D --> D1["«Review» ← M6 ← save ← returns to Today with the next item"]
+    D1 --> E["Section 3: unanswered questions (closest to 24 hours first)"]
+    E --> E1["«Reply» ← M8 ← save ← return"]
+    E1 --> F["Section 4: stuck students (red, then yellow; older first)"]
+    F --> F1["Each row: reason + «whose court the ball is in» + «action recorded?»"]
+    F1 --> G["Flow 7 for the reds; the yellows wait for the weekly review"]
+    G --> H{"Are all sections empty?"}
+    H -->|Yes| H1["Empty state: «Nothing overdue today» + «Weekly review: 12 students by Saturday»"]
+    H -->|No| I["Leftovers come up tomorrow with a «From yesterday» tag"]
 ```
 
-**نکته‌ها**
-- روی دسکتاپ چهار بخش در دو ستون کنار هم‌اند؛ روی موبایل زیر هم با پرش سریع از نوار خلاصه (هر عدد یک لینک به بخش خودش).
-- برگشت از M6 یا M8 به «امروز» موقعیت اسکرول و فیلتر را حفظ می‌کند.
+**Notes**
+- On desktop the four sections sit side by side in two columns; on mobile they are stacked, with quick jumps from the summary bar (each number is a link to its own section).
+- Returning from M6 or M8 to "Today" preserves the scroll position and filter.
 
 ---
 
-## ۷. رسیدگی به هنرجوی قرمز (F7، F5)
+## 7. Handling a red student (F7, F5)
 
-**قاعده‌ها از PRD F7 و `progress-tracking.md` بخش ۷-۳:** قرمز = تماس شخصی در ۴۸ ساعت کاری؛ ۷ روز قرمز بدون اقدام = گزارش به بنیان‌گذار.
+**Rules from PRD F7 and `progress-tracking.md` section 7-3:** red = personal contact within 48 business hours; 7 days red without action = report to the founder.
 
 ```mermaid
 flowchart TD
-    A["هنرجو قرمز شد (مثلاً R-OVERDUE: ۲ کار معوق)"] --> B["در «امروز» بخش گیرکرده‌ها: «تازه قرمز» + دلیل + «توپ: هنرجو»"]
-    B --> C["مربی ← پرونده؛ سربرگ: نشان قرمز + فهرست قاعده‌های فعال با توضیح فارسی"]
-    C --> D{"دلیل واقعی است؟"}
-    D -->|نه، خطای داده یا موقعیت خاص| D1{"کدام؟"}
-    D1 -->|در سفر/مریضی| D2["«نادیده گرفتن هشدار تا تاریخ…» + دلیل ← نشان «هشدار تا ۵ آبان خاموش»"]
-    D1 -->|می‌خواهد مدتی کنار برود| D3["«توقف موقت» با تاریخ بازگشت ← وضعیت «متوقف»؛ یک روز قبل یادآور"]
-    D1 -->|مهلت غیرواقعی بود| D4["تمدید مهلت کار با دلیل"]
-    D -->|بله| E{"توپ در زمین کیست؟"}
-    E -->|هنرجو| F["تماس یا پیام شخصی (بیرون از سیستم، مثلاً تلگرام)"]
-    E -->|ما| G["همان لحظه: بازبینی تحویل مانده یا تعریف کار بعدی (R-NOTASK)"]
-    E -->|هر دو| H["تماس ۱۵ دقیقه‌ای + شکستن کار به کارهای کوچک‌تر"]
-    F --> I["ثبت یادداشت «تماس» یا «پیام بیرونی» (جریان ۵) = اقدام ثبت‌شده"]
+    A["Student turned red (e.g. R-OVERDUE: 2 overdue tasks)"] --> B["In «Today», the stuck section: «Newly red» + reason + «Ball: student»"]
+    B --> C["Coach ← record; header: red badge + list of active rules with Persian explanations"]
+    C --> D{"Is the reason real?"}
+    D -->|No, a data error or special situation| D1{"Which one?"}
+    D1 -->|Traveling/sick| D2["«Ignore alert until date…» + reason ← «Alert muted until 5 Aban» badge"]
+    D1 -->|Wants to step away for a while| D3["«Pause» with a return date ← status «Paused»; reminder one day before"]
+    D1 -->|The deadline was unrealistic| D4["Extend the task deadline with a reason"]
+    D -->|Yes| E{"Whose court is the ball in?"}
+    E -->|Student| F["Personal call or message (outside the system, e.g. Telegram)"]
+    E -->|Us| G["Right away: review the pending submission or define the next task (R-NOTASK)"]
+    E -->|Both| H["15-minute call + break the task into smaller tasks"]
+    F --> I["Record a «Call» or «External message» note (flow 5) = recorded action"]
     G --> I
     H --> I
     D2 --> I
     D3 --> I
     D4 --> I
-    I --> J["ردیف از «قرمز بدون اقدام» خارج می‌شود ولی تا رفع قاعده قرمز می‌ماند"]
-    J --> K{"۷ روز گذشت و هنوز قرمز است؟"}
-    K -->|بله| K1["در «امروز» بنیان‌گذار: بخش گیرکرده‌ها با برچسب «ارجاع: ۷ روز قرمز»"]
-    K -->|قاعده رفع شد| L["سلامت برمی‌گردد؛ رویداد «تغییر سلامت» در تایم‌لاین"]
+    I --> J["The row leaves «Red without action» but stays red until the rule is resolved"]
+    J --> K{"7 days passed and still red?"}
+    K -->|Yes| K1["In the founder's «Today»: stuck section with an «Escalation: 7 days red» tag"]
+    K -->|Rule resolved| L["Health returns; «Health change» event in the timeline"]
 ```
 
-**نکته‌ها**
-- «خطر ریزش» (دو قاعده از R-INACT، R-CHECKIN، R-MOOD) برچسب جدا و پررنگ‌تر دارد و همیشه بالای بخش گیرکرده‌ها است.
-- هنرجو هیچ‌جا «قرمز» نمی‌بیند. پیام مربی باید شخصی باشد (`mentor-workflow.md` بخش ۶-۳)؛ سیستم در 0.1 پیام خودکار نمی‌فرستد.
+**Notes**
+- "Churn risk" (two rules out of R-INACT, R-CHECKIN, R-MOOD) has a separate, bolder tag and is always at the top of the stuck section.
+- The student never sees "red" anywhere. The coach's message must be personal (`mentor-workflow.md` section 6-3); in 0.1 the system does not send automatic messages.
 
 ---
 
-## ۸. سؤال و پاسخ (F8)
+## 8. Questions and answers (F8)
 
 ```mermaid
 flowchart TD
-    A["هنرجو: «سؤال‌ها» یا «سؤال درباره‌ی این کار» در صفحه‌ی کار"] --> B["فرم: موضوع، متن، لینک اختیاری؛ اگر از صفحه‌ی کار آمده، کار پیوست است"]
-    B --> C["زیر دکمه: «معمولاً تا ۲۴ ساعت کاری جواب می‌گیری» + یادآوری خطوط قرمز در یک خط"]
-    C --> D["ارسال ← وضعیت «باز»؛ به مشاور اصلی می‌رود"]
-    D --> E["هنرجو: «پاسخ مشاور تا فردا ظهر» (زمان تقریبی، نه وعده‌ی مبهم)"]
-    D --> F["«امروز» مشاور: بخش سؤال‌ها؛ مدیر می‌تواند «واگذاری به…» بزند"]
-    F --> G["M8: رشته‌ی پیام‌ها + کنارش خلاصه‌ی پرونده (مرحله، ویترین‌ها، کارهای باز)"]
-    G --> H{"موضوع حساس است؟ (خرید/اجاره‌ی اکانت، دور زدن احراز هویت)"}
-    H -->|بله| H1["«درج پاسخ استاندارد» از متن‌های تنظیمات + پرچم دستی در پرونده"] --> I
-    H -->|نه| I["پاسخ با قالب: جواب کوتاه / توضیح / برای موقعیت تو"]
-    I --> J["وضعیت «پاسخ‌داده» ← نشان «پاسخ جدید» در خانه‌ی هنرجو"]
-    J --> K{"هنرجو"}
-    K -->|سؤال تکمیلی| L["پیام بعدی در همان رشته ← دوباره «باز»"] --> F
-    K -->|«ممنون، حل شد»| M["«بسته»"]
-    J --> N["بعد از ۷ روز بدون پیام، خودکار «بسته» (فرض U11)"]
+    A["Student: «Questions» or «Question about this task» on the task page"] --> B["Form: topic, text, optional link; if it came from the task page, the task is attached"]
+    B --> C["Under the button: «You usually get an answer within 24 business hours» + a one-line reminder of the red lines"]
+    C --> D["Send ← status «Open»; goes to the primary mentor"]
+    D --> E["Student: «Mentor's answer by tomorrow noon» (approximate time, not a vague promise)"]
+    D --> F["Mentor's «Today»: questions section; the admin can click «Assign to…»"]
+    F --> G["M8: message thread + record summary beside it (stage, showcases, open tasks)"]
+    G --> H{"Is the topic sensitive? (buying/renting an account, bypassing identity verification)"}
+    H -->|Yes| H1["«Insert canned reply» from the settings texts + manual flag in the record"] --> I
+    H -->|No| I["Answer with template: short answer / explanation / for your situation"]
+    I --> J["Status «Answered» ← «New answer» badge on the student's Home"]
+    J --> K{"Student"}
+    K -->|Follow-up question| L["Next message in the same thread ← «Open» again"] --> F
+    K -->|«Thanks, solved»| M["«Closed»"]
+    J --> N["After 7 days without a message, automatically «Closed» (assumption U11)"]
 ```
 
 ---
 
-## ۹. check-in هفتگی هنرجو (F7 — Should)
+## 9. Student weekly check-in (F7 — Should)
 
 ```mermaid
 flowchart TD
-    A["پنجشنبه صبح: کارت «check-in این هفته — ۳ دقیقه» بالای خانه‌ی هنرجو + نشان روی «خانه»"] --> B["S9: یک صفحه، ۵ سؤال کوتاه"]
-    B --> B1["۱. این هفته چه کردی؟ (کارهای تحویل‌شده‌ی هفته از پیش نوشته شده)"]
-    B1 --> B2["۲. بزرگ‌ترین مانع؟ (متن کوتاه)"]
-    B2 --> B3["۳. حالت چطور است؟ ۱ تا ۵ (دکمه‌های بزرگ با برچسب متنی)"]
-    B3 --> B4["۴. هفته‌ی بعد چه می‌کنی؟"]
-    B4 --> B5{"۵. به کمک مشاور نیاز داری؟"}
-    B5 -->|بله| C["یک سؤال در صف مشاور با متن مانع ساخته می‌شود (SLA ۲۴ ساعت)"]
-    B5 -->|نه| D["ثبت"]
+    A["Thursday morning: «This week's check-in — 3 minutes» card at the top of the student's Home + badge on «Home»"] --> B["S9: one page, 5 short questions"]
+    B --> B1["1. What did you do this week? (the week's submitted tasks prefilled)"]
+    B1 --> B2["2. Biggest obstacle? (short text)"]
+    B2 --> B3["3. How are you feeling? 1 to 5 (large buttons with text labels)"]
+    B3 --> B4["4. What will you do next week?"]
+    B4 --> B5{"5. Do you need help from your mentor?"}
+    B5 -->|Yes| C["A question is created in the mentor's queue with the obstacle text (SLA 24 hours)"]
+    B5 -->|No| D["Save"]
     C --> D
-    D --> E["پیام: «ثبت شد. مشاورت شنبه مرورش می‌کند»؛ کارت check-in تا هفته‌ی بعد می‌رود"]
-    D --> F{"حال ≤ ۲؟"}
-    F -->|بله| F1["R-MOOD زرد؛ اگر هفته‌ی دوم هم شد، قرمز"]
-    A --> G{"تا جمعه عصر پر نشد؟"}
-    G -->|بله| G1["یادآور درون‌برنامه‌ی دوم؛ پس از ۱ هفته R-CHECKIN زرد"]
-    E --> H["در پرونده: ردیف «check-in» در تایم‌لاین؛ در مرور هفتگی شنبه دیده می‌شود"]
+    D --> E["Message: «Saved. Your mentor will review it on Saturday»; the check-in card goes away until next week"]
+    D --> F{"Mood ≤ 2?"}
+    F -->|Yes| F1["R-MOOD yellow; if it happens a second week too, red"]
+    A --> G{"Not filled in by Friday evening?"}
+    G -->|Yes| G1["A second in-app reminder; after 1 week, R-CHECKIN yellow"]
+    E --> H["In the record: a «check-in» row in the timeline; visible in Saturday's weekly review"]
 ```
 
-**نکته:** اگر check-in در 0.1 ساخته نشود، کارت آن از خانه حذف می‌شود و R-CHECKIN و R-MOOD هم غیرفعال‌اند (PRD F7).
+**Note:** If check-in is not built in 0.1, its card is removed from Home and R-CHECKIN and R-MOOD are disabled too (PRD F7).
 
 ---
 
-## فرض‌های این سند
+## Assumptions of this document
 
-| # | فرض |
+| # | Assumption |
 |---|---|
-| U7 | کارهای پیش‌فرض مرحله‌ی ورود با ساخت پرونده خودکار ساخته می‌شوند |
-| U8 | «کامل بودن پرونده» فقط برای مربی و بر اساس فیلدهای مهاجرت محاسبه می‌شود |
-| U9 | گیت مرحله در 0.1 وضعیت جدا ندارد؛ فقط راهنمای «آماده‌ی عبور؟» |
-| U10 | هنرجو مهلت را خودش تمدید نمی‌کند؛ درخواست تمدید = یک سؤال |
-| U11 | سؤال «پاسخ‌داده» بعد از ۷ روز بدون پیام خودکار بسته می‌شود |
+| U7 | The default intake-stage tasks are created automatically when the record is created |
+| U8 | "Record completeness" is calculated only for the coach and based on the migration fields |
+| U9 | The stage gate has no separate status in 0.1; only the "Ready to move on?" hint |
+| U10 | The student does not extend deadlines themselves; an extension request = a question |
+| U11 | An "Answered" question is closed automatically after 7 days without a message |

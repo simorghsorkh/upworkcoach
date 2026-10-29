@@ -17,12 +17,12 @@ import { notes } from '../timeline/schema';
  * (students → identity → access). It never writes.
  */
 
-export async function findPrimaryMentor(
+export async function findStudentOrganization(
   db: DbOrTx,
   studentId: string,
-): Promise<{ primaryMentorId: string | null } | null> {
+): Promise<{ organizationId: string } | null> {
   const [row] = await db
-    .select({ primaryMentorId: students.primaryMentorId })
+    .select({ organizationId: students.organizationId })
     .from(students)
     .where(eq(students.userId, studentId));
   return row ?? null;
@@ -31,9 +31,12 @@ export async function findPrimaryMentor(
 export async function findProfileRoot(
   db: DbOrTx,
   profileId: string,
-): Promise<{ studentId: string; primaryMentorId: string | null } | null> {
+): Promise<{ studentId: string; organizationId: string } | null> {
   const [row] = await db
-    .select({ studentId: platformProfiles.studentId, primaryMentorId: students.primaryMentorId })
+    .select({
+      studentId: platformProfiles.studentId,
+      organizationId: students.organizationId,
+    })
     .from(platformProfiles)
     .innerJoin(students, eq(students.userId, platformProfiles.studentId))
     .where(and(eq(platformProfiles.id, profileId), isNull(platformProfiles.deletedAt)));
@@ -65,9 +68,12 @@ export async function isProfileOfStudent(
 export async function findTaskRoot(
   db: DbOrTx,
   taskId: string,
-): Promise<{ studentId: string; primaryMentorId: string | null } | null> {
+): Promise<{ studentId: string; organizationId: string } | null> {
   const [row] = await db
-    .select({ studentId: tasks.studentId, primaryMentorId: students.primaryMentorId })
+    .select({
+      studentId: tasks.studentId,
+      organizationId: students.organizationId,
+    })
     .from(tasks)
     .innerJoin(students, eq(students.userId, tasks.studentId))
     .where(eq(tasks.id, taskId));
@@ -77,11 +83,16 @@ export async function findTaskRoot(
 export async function findSubmissionRoot(
   db: DbOrTx,
   submissionId: string,
-): Promise<{ studentId: string; primaryMentorId: string | null; taskId: string } | null> {
+): Promise<{
+  studentId: string;
+
+  organizationId: string;
+  taskId: string;
+} | null> {
   const [row] = await db
     .select({
       studentId: tasks.studentId,
-      primaryMentorId: students.primaryMentorId,
+      organizationId: students.organizationId,
       taskId: tasks.id,
     })
     .from(submissions)
@@ -95,11 +106,16 @@ export async function findSubmissionRoot(
 export async function findReviewRoot(
   db: DbOrTx,
   reviewId: string,
-): Promise<{ studentId: string; primaryMentorId: string | null; reviewerId: string } | null> {
+): Promise<{
+  studentId: string;
+
+  organizationId: string;
+  reviewerId: string;
+} | null> {
   const [row] = await db
     .select({
       studentId: tasks.studentId,
-      primaryMentorId: students.primaryMentorId,
+      organizationId: students.organizationId,
       reviewerId: reviews.reviewerId,
     })
     .from(reviews)
@@ -114,11 +130,16 @@ export async function findReviewRoot(
 export async function findNoteRoot(
   db: DbOrTx,
   noteId: string,
-): Promise<{ studentId: string; primaryMentorId: string | null; authorId: string } | null> {
+): Promise<{
+  studentId: string;
+
+  organizationId: string;
+  authorId: string;
+} | null> {
   const [row] = await db
     .select({
       studentId: notes.studentId,
-      primaryMentorId: students.primaryMentorId,
+      organizationId: students.organizationId,
       authorId: notes.authorId,
     })
     .from(notes)
@@ -138,14 +159,15 @@ export async function findAttachmentRoot(
   attachmentId: string,
 ): Promise<{
   studentId: string;
-  primaryMentorId: string | null;
+
+  organizationId: string;
   thread: { id: string; assigneeId: string; status: string } | null;
 } | null> {
   const studentOf = sql<string>`coalesce(${tasks.studentId}, ${questionThreads.studentId}, ${milestones.studentId})`;
   const [row] = await db
     .select({
       studentId: students.userId,
-      primaryMentorId: students.primaryMentorId,
+      organizationId: students.organizationId,
       threadId: questionThreads.id,
       assigneeId: questionThreads.assigneeId,
       threadStatus: questionThreads.status,
@@ -161,7 +183,7 @@ export async function findAttachmentRoot(
   if (!row) return null;
   return {
     studentId: row.studentId,
-    primaryMentorId: row.primaryMentorId,
+    organizationId: row.organizationId,
     thread:
       row.threadId && row.assigneeId && row.threadStatus
         ? { id: row.threadId, assigneeId: row.assigneeId, status: row.threadStatus }
@@ -176,14 +198,15 @@ export async function findQuestionRoot(
   threadId: string,
 ): Promise<{
   studentId: string;
-  primaryMentorId: string | null;
+
+  organizationId: string;
   assigneeId: string;
   status: 'open' | 'answered' | 'closed';
 } | null> {
   const [row] = await db
     .select({
       studentId: questionThreads.studentId,
-      primaryMentorId: students.primaryMentorId,
+      organizationId: students.organizationId,
       assigneeId: questionThreads.assigneeId,
       status: questionThreads.status,
     })
@@ -216,9 +239,12 @@ export async function isAssigneeOfOpenThread(
 export async function findMilestoneRoot(
   db: DbOrTx,
   milestoneId: string,
-): Promise<{ studentId: string; primaryMentorId: string | null } | null> {
+): Promise<{ studentId: string; organizationId: string } | null> {
   const [row] = await db
-    .select({ studentId: milestones.studentId, primaryMentorId: students.primaryMentorId })
+    .select({
+      studentId: milestones.studentId,
+      organizationId: students.organizationId,
+    })
     .from(milestones)
     .innerJoin(students, eq(students.userId, milestones.studentId))
     .where(eq(milestones.id, milestoneId));
@@ -228,9 +254,12 @@ export async function findMilestoneRoot(
 export async function findCheckinRoot(
   db: DbOrTx,
   checkinId: string,
-): Promise<{ studentId: string; primaryMentorId: string | null } | null> {
+): Promise<{ studentId: string; organizationId: string } | null> {
   const [row] = await db
-    .select({ studentId: checkins.studentId, primaryMentorId: students.primaryMentorId })
+    .select({
+      studentId: checkins.studentId,
+      organizationId: students.organizationId,
+    })
     .from(checkins)
     .innerJoin(students, eq(students.userId, checkins.studentId))
     .where(eq(checkins.id, checkinId));
@@ -240,9 +269,12 @@ export async function findCheckinRoot(
 export async function findFlagRoot(
   db: DbOrTx,
   flagId: string,
-): Promise<{ studentId: string; primaryMentorId: string | null } | null> {
+): Promise<{ studentId: string; organizationId: string } | null> {
   const [row] = await db
-    .select({ studentId: studentFlags.studentId, primaryMentorId: students.primaryMentorId })
+    .select({
+      studentId: studentFlags.studentId,
+      organizationId: students.organizationId,
+    })
     .from(studentFlags)
     .innerJoin(students, eq(students.userId, studentFlags.studentId))
     .where(eq(studentFlags.id, flagId));

@@ -12,7 +12,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { uuidv7 } from '../../lib/uuid';
 import { milestoneTypes, platforms } from '../catalog/schema';
-import { users } from '../identity/schema';
+import { inheritedOrganizationId, users } from '../identity/schema';
 import { students } from '../students/schema';
 
 /**
@@ -31,6 +31,7 @@ const inList = (values: readonly string[]) => sql.raw(values.map((v) => `'${v}'`
 export const milestones = pgTable(
   'milestones',
   {
+    organizationId: inheritedOrganizationId(),
     id: uuid()
       .primaryKey()
       .$defaultFn(() => uuidv7()),

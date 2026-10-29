@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm';
 import {
   type AnyPgColumn,
+  boolean,
   check,
   index,
   integer,
@@ -11,10 +12,12 @@ import {
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
+import { SUPPORTED_LOCALES } from '../../i18n/config';
 import { uuidv7 } from '../../lib/uuid';
 
 /**
- * identity — users, invite/reset tokens, sessions, login throttling.
+ * identity — organizations and memberships (ADR-0011), users, invite/reset tokens,
+ * sessions, login throttling.
  * data-model.md section 2-1; ADR-0003 (with security changes C1, C2); ADR-0010 (erased_at).
  * Relative imports only: drizzle-kit does not resolve the `@/` alias.
  */
@@ -22,9 +25,59 @@ import { uuidv7 } from '../../lib/uuid';
 export const USER_ROLES = ['admin', 'mentor', 'student'] as const;
 export const USER_STATUSES = ['invited', 'active', 'disabled'] as const;
 export const TOKEN_PURPOSES = ['invite', 'password_reset'] as const;
+export const ORGANIZATION_STATUSES = ['active', 'suspended'] as const;
+export const ORGANIZATION_ROLES = ['owner', 'admin', 'mentor', 'mentee'] as const;
+export const MEMBERSHIP_STATUSES = ['active', 'disabled'] as const;
+
+/** The organization migration 0006 created and filed all 0.1 data under. */
+export const DEFAULT_ORGANIZATION_ID = '01920000-0000-7000-8000-00000000f001';
 
 const ts = (name?: string) =>
   name ? timestamp(name, { withTimezone: true }) : timestamp({ withTimezone: true });
+
+/** A tenant (ADR-0011): every row of organization data belongs to exactly one. */
+export const organizations = pgTable(
+  'organizations',
+  {
+    id: uuid()
+      .primaryKey()
+      .$defaultFn(() => uuidv7()),
+    /** Lower-case latin, digits and dashes; used by the CLI scripts. */
+    slug: text().notNull(),
+    name: text().notNull(),
+    defaultLocale: text().notNull().default('fa'),
+    /** IANA time zone; deadlines and "today" follow it (ADR-0013; 0.1 data is Tehran). */
+    timezone: text().notNull().default('Asia/Tehran'),
+    status: text({ enum: ORGANIZATION_STATUSES }).notNull().default('active'),
+    createdAt: ts().notNull().defaultNow(),
+    updatedAt: ts().notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex('organizations_slug_key').on(t.slug),
+    check('organizations_slug_format', sql`${t.slug} ~ '^[a-z0-9][a-z0-9-]{1,62}$'`),
+    check('organizations_status_check', sql`${t.status} IN ('active', 'suspended')`),
+  ],
+);
+
+/**
+ * `organization_id` of a root row (students, catalog rows, settings, attachments…): the
+ * service sets it from the actor.
+ */
+export const organizationId = () =>
+  uuid()
+    .notNull()
+    .references(() => organizations.id);
+
+/**
+ * `organization_id` of a child row. The `set_organization_id` trigger (migration 0006)
+ * always copies it from the parent row, so callers never pass it and a child can never sit
+ * in another organization than its parent (ADR-0011 section 3).
+ */
+export const inheritedOrganizationId = () =>
+  uuid()
+    .notNull()
+    .references(() => organizations.id)
+    .$defaultFn(() => sql`default`);
 
 export const users = pgTable(
   'users',
@@ -35,7 +88,13 @@ export const users = pgTable(
     /** E.164 (`+989121234567`); `erased:<id>` after account erasure (ADR-0010). */
     phone: text().notNull(),
     displayName: text().notNull(),
+    /**
+     * Deprecated (ADR-0011): the role of the first membership, still written for the
+     * contract migration that drops it. Read the role from `organization_memberships`.
+     */
     role: text({ enum: USER_ROLES }).notNull(),
+    /** Platform operator (CLI only in the MVP); grants no access to organization data. */
+    isPlatformAdmin: boolean().notNull().default(false),
     status: text({ enum: USER_STATUSES }).notNull().default('invited'),
     /** argon2id PHC string of the *normalised* password; null until the invite is accepted. */
     passwordHash: text(),
@@ -66,6 +125,57 @@ export const users = pgTable(
       sql`char_length(${t.inviteAcceptedUserAgent}) <= 512`,
     ),
   ],
+);
+
+/**
+ * A user's role in one organization (ADR-0011 section 1). One row per user and
+ * organization; `users.status` stays the account state (invited / active / erased).
+ */
+export const organizationMemberships = pgTable(
+  'organization_memberships',
+  {
+    id: uuid()
+      .primaryKey()
+      .$defaultFn(() => uuidv7()),
+    organizationId: uuid()
+      .notNull()
+      .references(() => organizations.id),
+    userId: uuid()
+      .notNull()
+      .references(() => users.id),
+    role: text({ enum: ORGANIZATION_ROLES }).notNull(),
+    status: text({ enum: MEMBERSHIP_STATUSES }).notNull().default('active'),
+    invitedBy: uuid().references(() => users.id, { onDelete: 'set null' }),
+    disabledAt: ts(),
+    createdAt: ts().notNull().defaultNow(),
+    updatedAt: ts().notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex('organization_memberships_org_user_key').on(t.organizationId, t.userId),
+    index('organization_memberships_user_idx').on(t.userId),
+    index('organization_memberships_org_role_idx').on(t.organizationId, t.role, t.status),
+    check(
+      'organization_memberships_role_check',
+      sql`${t.role} IN ('owner', 'admin', 'mentor', 'mentee')`,
+    ),
+    check('organization_memberships_status_check', sql`${t.status} IN ('active', 'disabled')`),
+  ],
+);
+
+/**
+ * Per-account settings (ADR-0013): the interface language for now. No row = the
+ * organization's default language. Account-wide, so the same in every organization.
+ */
+export const userPreferences = pgTable(
+  'user_preferences',
+  {
+    userId: uuid()
+      .primaryKey()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    locale: text({ enum: SUPPORTED_LOCALES }).notNull(),
+    updatedAt: ts().notNull().defaultNow(),
+  },
+  (t) => [check('user_preferences_locale_check', sql`${t.locale} IN ('fa', 'en')`)],
 );
 
 export const authTokens = pgTable(
@@ -107,6 +217,10 @@ export const sessions = pgTable(
     userId: uuid()
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
+    /** The organization this session works in; the role comes from that membership. */
+    organizationId: uuid()
+      .notNull()
+      .references(() => organizations.id),
     /** SHA-256 (hex) of the cookie token. */
     tokenHash: text().notNull(),
     createdAt: ts().notNull().defaultNow(),

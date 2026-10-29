@@ -1,7 +1,7 @@
 import { and, eq } from 'drizzle-orm';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { auditLog } from '@/modules/admin/schema';
-import { sessions, users } from '@/modules/identity/schema';
+import { DEFAULT_ORGANIZATION_ID, sessions, users } from '@/modules/identity/schema';
 import { getDb } from '@/server/db';
 import { logger } from '@/server/logger';
 import {
@@ -103,6 +103,13 @@ describe('invite → accept → login → me → logout (ADR-0003)', () => {
       displayName: 'مریم کاظمی',
       role: 'mentor',
       phone,
+      locale: 'fa',
+      organization: {
+        id: DEFAULT_ORGANIZATION_ID,
+        name: expect.any(String),
+        role: 'mentor',
+        timeZone: 'Asia/Tehran',
+      },
     });
     const sessionCookie = accepted.setCookies.find((c) => c.startsWith(`${SESSION_COOKIE}=`));
     expect(sessionCookie).toMatch(/; Path=\/; Max-Age=\d+; HttpOnly; SameSite=Lax; Secure$/);

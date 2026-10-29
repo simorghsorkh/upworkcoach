@@ -1,33 +1,33 @@
-# فایل‌های خصوصی روی Supabase Storage
+# Private files on Supabase Storage
 
-دیتابیس و ورود فعلی برنامه تغییری نمی‌کند. آداپتور `supabase` فقط ذخیره و دریافت و حذف تصویرها را انجام می‌دهد؛ دسترسی هر فایل همچنان در سرویس فایل برنامه بررسی می‌شود. کلید مدیریتی فقط روی سرور است.
+The app's current database and sign-in do not change. The `supabase` adapter only stores, retrieves and deletes images; access to each file is still checked in the app's file service. The admin key lives only on the server.
 
-## تنظیم Supabase
+## Supabase setup
 
-1. در Storage یک bucket به نام `uploads` بسازید؛ Public خاموش باشد.
-2. فرمت‌های مجاز را `image/jpeg`، `image/png` و `image/webp` قرار دهید. برنامه فعلاً فقط تصویر می‌پذیرد.
-3. در Settings → API Keys کلید سروری `service_role` را بردارید. کلید publishable یا anon مناسب این اتصال نیست. کلید را در چت، Git یا متغیرهای `NEXT_PUBLIC_*` قرار ندهید.
-4. برای مرورگر یا کاربران ناشناس policy عمومی نسازید. سیستم ورود برنامه از Supabase Auth استفاده نمی‌کند؛ درخواست‌ها پس از بررسی مجوزهای برنامه، با کلید سروری اجرا می‌شوند.
+1. In Storage, create a bucket named `uploads`; Public must be off.
+2. Set the allowed formats to `image/jpeg`, `image/png` and `image/webp`. The app currently accepts only images.
+3. In Settings → API Keys, take the server key `service_role`. A publishable or anon key is not suitable for this connection. Do not put the key in chat, Git or `NEXT_PUBLIC_*` variables.
+4. Do not create a public policy for the browser or anonymous users. The app's sign-in system does not use Supabase Auth; requests run with the server key after the app's permission checks.
 
-## متغیرهای Vercel
+## Vercel variables
 
-| نام | مقدار | نوع |
+| Name | Value | Type |
 |---|---|---|
 | `STORAGE_DRIVER` | `supabase` | Config |
 | `SUPABASE_URL` | `https://mzobuelymeskvqvfxwqi.supabase.co` | Config |
 | `SUPABASE_STORAGE_BUCKET` | `uploads` | Config |
-| `SUPABASE_SERVICE_ROLE_KEY` | کلید سروری از داشبورد | Secret |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server key from the dashboard | Secret |
 
-متغیرها را برای Production ذخیره کنید و پس از انتشار کد جدید، Redeploy کنید. در توسعه محلی همین متغیرها در `.env` ریشه قرار می‌گیرند. فایل‌های قبلی ذخیره‌شده روی دیسک با تغییر آداپتور خودکار منتقل نمی‌شوند.
+Save the variables for Production and Redeploy after releasing the new code. In local development the same variables go in the root `.env`. Files previously stored on disk are not migrated automatically when the adapter changes.
 
-پس از تنظیم متغیرها در `.env`، دستور `pnpm storage:check` خصوصی بودن bucket و رفت‌وبرگشت یک تصویر موقت را بررسی می‌کند و تصویر آزمایشی را حذف می‌کند. هیچ رکورد پیوست یا دادهٔ کاربر تغییر نمی‌کند.
+After setting the variables in `.env`, the command `pnpm storage:check` verifies that the bucket is private and round-trips a temporary image, then deletes the test image. No attachment record or user data is changed.
 
-## محدودیت‌ها و بررسی
+## Limits and verification
 
-در پلن رایگان، فضای Storage یک گیگابایت است و انتقال داده نیز سهمیه دارد. این اتصال سقف کل فضای حساب را اعمال نمی‌کند؛ مصرف را در داشبورد Supabase بررسی کنید. هیچ تنظیم پرداختی برای این اتصال لازم نیست.
+On the free plan, Storage space is one gigabyte and data transfer also has a quota. This connection does not enforce a cap on the account's total space; check usage in the Supabase dashboard. No payment setting is needed for this connection.
 
-مسیر آپلود فعلی از Vercel Function عبور می‌کند. سقف بدنه درخواست Vercel برابر ۴٫۵ مگابایت و شامل سربار multipart است؛ برای استقرار فعلی `MAX_UPLOAD_BYTES=4000000` تنظیم کنید. پیام رابط فعلی هنوز سقف عمومی ۵ مگابایت برنامه را نشان می‌دهد؛ فایل‌های بزرگ‌تر ممکن است پیش از رسیدن به برنامه رد شوند.
+The current upload path goes through a Vercel Function. Vercel's request body limit is 4.5 MB and includes the multipart overhead; for the current deployment set `MAX_UPLOAD_BYTES=4000000`. The current UI message still shows the app's general 5 MB limit; larger files may be rejected before reaching the app.
 
-پس از انتشار، با حساب مدیر یک تصویر کوچک به یک تکلیف یا سؤال اضافه کنید، ذخیره و دوباره باز کنید. با حساب هنرجوی دیگر مطمئن شوید فایل خصوصی قابل مشاهده نیست. حذف واقعی فایل در پاک‌سازی پیوست‌ها انجام می‌شود؛ با `JOBS_MODE=off` پاک‌سازی خودکار پیوست‌های استفاده‌نشده اجرا نمی‌شود و برای جلوگیری از مصرف تدریجی فضا باید زمان‌بندی آن جداگانه فعال شود.
+After release, with an admin account add a small image to a task or question, save, and open it again. With another student's account make sure the private file is not visible. Actual file deletion happens in the attachment cleanup; with `JOBS_MODE=off` the automatic cleanup of unused attachments does not run, and its schedule must be enabled separately to prevent gradual space consumption.
 
-منابع: [خصوصی بودن bucket](https://supabase.com/docs/guides/storage/buckets/fundamentals)، [تعرفه Supabase](https://supabase.com/pricing)، [محدودیت Vercel Functions](https://vercel.com/docs/functions/limitations).
+Sources: [bucket privacy](https://supabase.com/docs/guides/storage/buckets/fundamentals), [Supabase pricing](https://supabase.com/pricing), [Vercel Functions limits](https://vercel.com/docs/functions/limitations).

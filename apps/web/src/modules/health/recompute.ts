@@ -1,4 +1,4 @@
-import { eq, inArray, max, min, sql } from 'drizzle-orm';
+import { and, eq, inArray, max, min, sql } from 'drizzle-orm';
 import { tehranDay } from '@/lib/tehran-day';
 import { type DbOrTx, getDb } from '@/server/db';
 import { logger, safeError } from '@/server/logger';
@@ -7,7 +7,7 @@ import { getCheckinSettings, getHealthRules } from '../catalog/service';
 import { resumeExpiredPauses } from '../students/lifecycle-auto';
 import { students } from '../students/schema';
 import { recordTimelineEvent } from '../timeline/events';
-import { listSweepStudentIds, loadHealthInputs } from './input-repo';
+import { listSweepStudents, loadHealthInputs } from './input-repo';
 import {
   evaluateHealth,
   type HealthResult,
@@ -27,12 +27,27 @@ import { studentHealth } from './schema';
 
 type Config = { rules: HealthRules; version: number; checkin: CheckinSettings };
 
-async function loadConfig(db: DbOrTx): Promise<Config> {
-  const [{ rules, version }, checkin] = await Promise.all([
-    getHealthRules(db),
-    getCheckinSettings(db),
-  ]);
-  return { rules, version, checkin };
+/** Thresholds are per organization (ADR-0011): one config per organization, loaded once. */
+function configLoader(db: DbOrTx): (org: string) => Promise<Config> {
+  const cache = new Map<string, Promise<Config>>();
+  return (org) => {
+    let config = cache.get(org);
+    if (!config) {
+      config = Promise.all([getHealthRules(db, org), getCheckinSettings(db, org)]).then(
+        ([{ rules, version }, checkin]) => ({ rules, version, checkin }),
+      );
+      cache.set(org, config);
+    }
+    return config;
+  };
+}
+
+async function organizationsOf(db: DbOrTx, ids: readonly string[]): Promise<Map<string, string>> {
+  const rows = await db
+    .select({ id: students.userId, organizationId: students.organizationId })
+    .from(students)
+    .where(inArray(students.userId, [...ids]));
+  return new Map(rows.map((r) => [r.id, r.organizationId]));
 }
 
 /** Writes one result (inside the caller's transaction, under the student's lock). */
@@ -103,9 +118,13 @@ export async function recomputeHealth(
 ): Promise<number> {
   const ids = [...new Set(studentIds)];
   if (ids.length === 0) return 0;
-  const config = await loadConfig(db);
+  const loadConfig = configLoader(db);
+  const orgOf = await organizationsOf(db, ids);
   let stored = 0;
   for (const id of ids) {
+    const org = orgOf.get(id);
+    if (!org) continue;
+    const config = await loadConfig(org);
     await db.transaction(async (tx) => {
       await lockStudent(tx, id);
       const input = (await loadHealthInputs(tx, [id], now)).get(id);
@@ -143,20 +162,30 @@ export async function recomputeHealthSafe(
 }
 
 /**
- * Job `health.sweep` (hourly, minute 5 Tehran; also right after a threshold change):
- * returns paused students whose date has come to `active`, then evaluates every `active` and
- * `paused` student with batched inputs (no N+1) and stores each under its lock.
+ * Job `health.sweep` (hourly, minute 5 Tehran; also right after a threshold change, then
+ * only for that organization): returns paused students whose date has come to `active`, then
+ * evaluates every `active` and `paused` student with batched inputs (no N+1) and stores each
+ * under its lock, with the thresholds of the student's organization.
  */
 export async function sweepAllHealth(
   db: DbOrTx = getDb(),
+  organizationId?: string,
   now: Date = new Date(),
 ): Promise<{ recomputed: number; resumed: number }> {
   const resumed = await resumeExpiredPauses(db, tehranDay(now), now);
-  const config = await loadConfig(db);
-  const ids = await listSweepStudentIds(db);
-  const inputs = await loadHealthInputs(db, ids, now);
+  const loadConfig = configLoader(db);
+  const sweep = await listSweepStudents(db, organizationId);
+  const orgOf = new Map(sweep.map((s) => [s.id, s.organizationId]));
+  const inputs = await loadHealthInputs(
+    db,
+    sweep.map((s) => s.id),
+    now,
+  );
   let recomputed = 0;
   for (const [id, input] of inputs) {
+    const org = orgOf.get(id);
+    if (!org) continue;
+    const config = await loadConfig(org);
     await db.transaction(async (tx) => {
       await lockStudent(tx, id);
       await storeResult(tx, id, evaluateFor(input, config, now), config, now);
@@ -200,16 +229,20 @@ export function isHealthStale(oldestComputedAt: Date | null, now: Date): boolean
   );
 }
 
-/** `/healthz` (F-08) and the admin's «امروز» (F-14). */
+/** `/healthz` (F-08, every organization) and the admin's «امروز» (F-14, their organization). */
 export async function getHealthFreshness(
   db: DbOrTx = getDb(),
   now: Date = new Date(),
+  organizationId?: string,
 ): Promise<HealthFreshness> {
+  const lifecycle = inArray(students.lifecycleStatus, ['active', 'paused']);
   const [row] = await db
     .select({ latest: max(studentHealth.computedAt), oldest: min(studentHealth.computedAt) })
     .from(studentHealth)
     .innerJoin(students, eq(students.userId, studentHealth.studentId))
-    .where(inArray(students.lifecycleStatus, ['active', 'paused']));
+    .where(
+      organizationId ? and(lifecycle, eq(students.organizationId, organizationId)) : lifecycle,
+    );
   const lastHealthSweepAt = (await getLastHealthSweepAt(db)) ?? row?.latest ?? null;
   const oldestComputedAt = row?.oldest ?? null;
   return { lastHealthSweepAt, oldestComputedAt, stale: isHealthStale(oldestComputedAt, now) };

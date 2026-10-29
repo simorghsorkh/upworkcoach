@@ -13,7 +13,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { initCluster, startCluster, stopCluster } from '../../../scripts/lib/embedded-pg';
-import { E2E_ADMIN, E2E_PORT, type E2EState, stateFile } from './state';
+import { E2E_ADMIN, E2E_OTHER_ADMIN, E2E_PORT, type E2EState, stateFile } from './state';
 
 const webRoot = fileURLToPath(new URL('../../../', import.meta.url));
 
@@ -60,7 +60,13 @@ for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP'] as const) {
 try {
   await initCluster({ dataDir: clusterDir, user, password });
   await startCluster({ dataDir: clusterDir, port, logFile: path.join(dataDir, 'pg.log') });
-  const state: E2EState = { dataDir, clusterDir, databaseUrl, admin: E2E_ADMIN };
+  const state: E2EState = {
+    dataDir,
+    clusterDir,
+    databaseUrl,
+    admin: E2E_ADMIN,
+    otherAdmin: E2E_OTHER_ADMIN,
+  };
   fs.writeFileSync(stateFile, JSON.stringify(state));
 
   process.env.DATABASE_URL = databaseUrl;
@@ -73,18 +79,27 @@ try {
   await runMigrations(databaseUrl);
   await runSeed(databaseUrl);
 
-  // First admin through the real services: bootstrap (invite) + accept with a known password.
+  // First admins through the real services: bootstrap (invite) + accept with a known password.
+  // The second organization is made as `pnpm org:create` does (Coach Office scenario, step 12).
   const identity = await import('../../../src/modules/identity/service');
+  const { createOrganization } = await import('../../../src/modules/identity/organizations');
   const { closeDb } = await import('../../../src/server/db');
-  const boot = await identity.bootstrapAdmin({
-    phone: E2E_ADMIN.phone,
-    displayName: E2E_ADMIN.displayName,
-  });
-  const token = new URL(boot.setupUrl).hash.replace(/^#t=/, '');
-  await identity.acceptToken(
-    { token, phone: E2E_ADMIN.phone, password: E2E_ADMIN.password },
-    { ip: '127.0.0.1', userAgent: 'e2e-setup' },
-  );
+  const other = await createOrganization({ slug: E2E_OTHER_ADMIN.orgSlug, name: 'سازمان دوم' });
+  for (const [who, organizationId] of [
+    [E2E_ADMIN, undefined],
+    [E2E_OTHER_ADMIN, other.id],
+  ] as const) {
+    const boot = await identity.bootstrapAdmin({
+      phone: who.phone,
+      displayName: who.displayName,
+      organizationId,
+    });
+    const token = new URL(boot.setupUrl).hash.replace(/^#t=/, '');
+    await identity.acceptToken(
+      { token, phone: who.phone, password: who.password },
+      { ip: '127.0.0.1', userAgent: 'e2e-setup' },
+    );
+  }
   await closeDb();
 } catch (err) {
   console.error('[e2e] setup failed', err);
@@ -101,10 +116,15 @@ const nextBin = path.join(webRoot, 'node_modules', 'next', 'dist', 'bin', 'next'
 let appDir = webRoot;
 if (process.env.E2E_ISOLATED === '1') {
   appDir = path.join(webRoot, '.next', 'e2e-app');
-  fs.rmSync(path.join(appDir, 'src'), { recursive: true, force: true });
+  // The copy's own `.next` cache goes too: Tailwind scans the copy and would read class
+  // candidates out of the binary cache files of an earlier run.
+  for (const dir of ['src', 'messages', '.next']) {
+    fs.rmSync(path.join(appDir, dir), { recursive: true, force: true });
+  }
   fs.mkdirSync(appDir, { recursive: true });
   for (const entry of [
     'src',
+    'messages',
     'public',
     'next.config.ts',
     'tsconfig.json',

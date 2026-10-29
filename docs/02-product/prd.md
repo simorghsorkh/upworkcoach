@@ -1,371 +1,371 @@
-# PRD — UpworkCoach (نام کاری)
+# PRD — UpworkCoach (working name)
 
-> فاز ۱ — ۲۷ مهر ۱۴۰۵ — نویسنده: product-strategist — وضعیت: پیش‌نویس برای گیت بنیان‌گذار
-> ورودی‌ها: `docs/STATUS.md` (پاسخ‌های بنیان‌گذار)، `docs/01-discovery/*`
-> اسناد هم‌راستا (در حال نگارش توسط ایجنت‌های دیگر):
-> - مراحل مسیر و تکالیف: `learning/learning-path.md` (curriculum-designer)
-> - rubric ابزارها: `tool-rubrics/` (upwork-domain-expert)، مثلاً `tool-rubrics/proposal-review.md` و `tool-rubrics/job-analysis.md`
-> - دامنه و اولویت‌بندی: `mvp-scope.md` — معیارها: `metrics.md`
+> Phase 1 — 27 Mehr 1405 (2026-10-19) — Author: product-strategist — Status: draft for the founder gate
+> Inputs: `docs/STATUS.md` (founder's answers), `docs/01-discovery/*`
+> Aligned documents (being written by other agents):
+> - Path stages and tasks: `learning/learning-path.md` (curriculum-designer)
+> - Tool rubrics: `tool-rubrics/` (upwork-domain-expert), e.g. `tool-rubrics/proposal-review.md` and `tool-rubrics/job-analysis.md`
+> - Scope and prioritization: `mvp-scope.md` — Metrics: `metrics.md`
 
 ---
 
-## ۱. خلاصه در سه خط
-1. **هسته:** یک «پرونده‌ی زنده‌ی هنرجو» برای مربی و مشاور: پروفایل‌ها در هر پلتفرم، مرحله‌ی مسیر، کارهای خواسته‌شده با مهلت و وضعیت، تاریخچه‌ی تعامل، یادآور، و نمای «چه کسی گیر کرده».
-2. **سمت هنرجو:** دیدن کارهایش، تحویل، پرسیدن سؤال.
-3. **روی هسته:** ابزارهای AI (بررسی پروپوزال و بررسی جاب) و پرداخت، در نسخه‌ی 1.0.
+## 1. Summary in three lines
+1. **Core:** a "live student file" for the coach and mentors: profiles on each platform, path stage, requested tasks with due dates and status, interaction history, reminders, and a "who is stuck" view.
+2. **Student side:** see their tasks, submit work, ask questions.
+3. **On top of the core:** AI tools (proposal review and job analysis) and payments, in version 1.0.
 
-محصول **مستقل** و **چندپلتفرمی** است: Upwork اولین پلتفرم است، ولی Fiverr، Contra، LinkedIn و مشتری مستقیم هم در مدل داده هم‌ارزند.
+The product is **independent** and **multi-platform**: Upwork is the first platform, but Fiverr, Contra, LinkedIn and direct clients are equal peers in the data model.
 
-## ۲. مسئله (بازتعریف بعد از پاسخ بنیان‌گذار)
-| ذی‌نفع | مسئله‌ی امروز | شاهد |
+## 2. Problem (redefined after the founder's answers)
+| Stakeholder | Today's problem | Evidence |
 |---|---|---|
-| مربی (بنیان‌گذار) | یادش می‌رود هر هنرجو چه پروفایلی دارد، چه کاری از او خواسته و در چه مرحله‌ای است. اطلاعات در تلگرام و ذهنش پخش است | گفته‌ی مستقیم بنیان‌گذار (۱۴۰۵/۰۷/۲۷) |
-| مشاور | نمی‌داند هنرجو قبلاً چه کرده و چه گفته شده؛ پیگیری دستی است | پرسونای رضا (فرضی) |
-| هنرجو | نمی‌داند الان دقیقاً چه کاری باید بکند و جواب سؤالش کی می‌آید | پرسوناهای سارا و امیر (فرضی) |
+| Coach (founder) | Forgets which profiles each student has, what was asked of them and which stage they are in. Information is scattered across Telegram and their memory | Founder's direct statement (1405/07/27) |
+| Mentor | Does not know what the student has already done or what was said; follow-up is manual | Reza persona (hypothetical) |
+| Student | Does not know exactly what to do right now or when their question will be answered | Sara and Amir personas (hypothetical) |
 
-**تغییر مهم نسبت به فاز ۰:** مسئله‌ی شماره‌ی یک دیگر «کیفیت پروپوزال» نیست، بلکه **«مربی کنترل کار هنرجوها را از دست می‌دهد»** است. این مسئله واقعی، فوری و قابل‌ساخت بدون AI است. ابزارهای AI همچنان مهم‌اند ولی روی این هسته سوار می‌شوند.
+**Key change from Phase 0:** problem number one is no longer "proposal quality" but **"the coach loses control over students' work"**. This problem is real, urgent and buildable without AI. AI tools are still important, but they sit on top of this core.
 
-## ۳. اهداف و غیراهداف
+## 3. Goals and non-goals
 
-### اهداف
-| # | هدف | نسخه | معیار (جزئیات در `metrics.md`) |
+### Goals
+| # | Goal | Version | Metric (details in `metrics.md`) |
 |---|---|---|---|
-| G1 | مربی در یک نگاه ببیند هر هنرجو کجاست و کدام‌ها عقب یا گیرکرده‌اند | 0.1 | پرونده‌ی کامل برای ≥ ۹۰٪ هنرجوهای فعال؛ مربی ≥ ۴ روز در هفته از نمای «امروز» استفاده کند |
-| G2 | هیچ کار خواسته‌شده یا سؤالی گم نشود | 0.1 | ۱۰۰٪ کارها در سیستم ثبت شوند؛ میانه‌ی زمان پاسخ سؤال < ۲۴ ساعت |
-| G3 | هنرجو بداند قدم بعدی‌اش چیست و آن را تحویل دهد | 0.1 | ≥ ۶۰٪ کارها تا مهلت تحویل شوند |
-| G4 | داده‌ی واقعی برای ساخت ابزارهای AI جمع شود (پروپوزال + نقد مربی) | 0.1 | ≥ ۳۰ نمونه‌ی برچسب‌خورده تا پایان 0.1 |
-| G5 | بازخورد سریع و فارسی AI روی پروپوزال و جاب، هم‌خوان با روش مربی | 1.0 | توافق AI و مربی ≥ ۸۰٪ |
-| G6 | درآمد تکرارشونده و ثبت‌نام عمومی | 1.0 | اولین پرداخت آنلاین؛ تبدیل به پولی (هدف در `metrics.md`) |
-| G7 | افزایش تعداد هنرجوهایی که به اولین درآمد فریلنسری می‌رسند | هر دو | North Star |
+| G1 | The coach sees at a glance where each student is and which ones are behind or stuck | 0.1 | Complete file for ≥ 90% of active students; coach uses the "Today" view ≥ 4 days a week |
+| G2 | No requested task or question gets lost | 0.1 | 100% of tasks recorded in the system; median question response time < 24 hours |
+| G3 | The student knows their next step and submits it | 0.1 | ≥ 60% of tasks submitted by the due date |
+| G4 | Real data is collected for building the AI tools (proposal + coach critique) | 0.1 | ≥ 30 labeled samples by the end of 0.1 |
+| G5 | Fast, Persian AI feedback on proposals and jobs, consistent with the coach's method | 1.0 | AI–coach agreement ≥ 80% |
+| G6 | Recurring revenue and public sign-up | 1.0 | First online payment; paid conversion (target in `metrics.md`) |
+| G7 | Increase the number of students who reach their first freelance income | Both | North Star |
 
-### غیراهداف (عمداً نه)
-| غیرهدف | دلیل |
+### Non-goals (deliberately not)
+| Non-goal | Reason |
 |---|---|
-| LMS کامل (میزبانی ویدئو، آزمون، گواهی) | محتوا احتمالاً جای دیگری هست؛ ساختش گران است. فقط لینک به محتوا (فرض A5) |
-| اتصال، اسکرپ یا افزونه‌ی مرورگر روی Upwork و پلتفرم‌های دیگر | خلاف ToS (R3)؛ ورودی همیشه paste دستی است |
-| تولید خودکار پروپوزال آماده‌ی ارسال انبوه | Uma رایگان می‌نویسد؛ جایگاه ما نقد و آموزش است |
-| ساخت، خرید، اجاره یا معرفی اکانت و نقد کردن درآمد | ریسک R4 و R11؛ خط قرمز |
-| چت لحظه‌ای و جایگزینی کامل تلگرام | 0.1 باید کوچک باشد؛ سؤال و پاسخ ناهمزمان کافی است |
-| بازارگاه مشاوران مستقل یا پرداخت به مشاور | مدل مشاورها هنوز نامعلوم است (سؤال باز ۴) |
-| اپلیکیشن بومی موبایل | وب‌اپ موبایل‌اول (PWA) کافی است |
-| تضمین یا ادعای درآمد | اصل حرفه‌ای؛ فقط آمار واقعی |
+| Full LMS (video hosting, quizzes, certificates) | Content probably lives elsewhere; building it is expensive. Only links to content (assumption A5) |
+| Integration, scraping or browser extension on Upwork and other platforms | Against ToS (R3); input is always manual paste |
+| Automatic generation of ready-to-send proposals in bulk | Uma writes them for free; our position is critique and teaching |
+| Creating, buying, renting or brokering accounts, or cashing out income | Risks R4 and R11; red line |
+| Real-time chat and full replacement of Telegram | 0.1 must stay small; asynchronous Q&A is enough |
+| Marketplace of independent mentors or paying mentors | The mentor model is still unknown (open question 4) |
+| Native mobile app | Mobile-first web app (PWA) is enough |
+| Income guarantees or claims | Professional principle; only real statistics |
 
-## ۴. فرض‌ها (جایگزین سؤال‌های بی‌جواب)
-هر فرض تا وقتی بنیان‌گذار جواب ندهد معتبر است. اگر جواب فرق کرد، بخش‌های مرتبط بازبینی می‌شوند.
+## 4. Assumptions (replacing unanswered questions)
+Each assumption holds until the founder answers. If the answer differs, the related sections are revised.
 
-| # | موضوع (سؤال باز) | فرض ما | اگر غلط باشد | چطور اعتبارسنجی کنیم |
+| # | Topic (open question) | Our assumption | If wrong | How to validate |
 |---|---|---|---|---|
-| A1 | تعداد هنرجو (۳) | ۳۰ تا ۸۰ هنرجوی فعال، ۱ مربی + ۲ تا ۴ مشاور؛ رشد کمتر از ۲۰۰ نفر در ۶ ماه | اگر بیش از ۲۰۰ باشد: ورود گروهی (import) و تخصیص خودکار به Must می‌روند | یک عدد از بنیان‌گذار؛ شمارش اعضای گروه‌های فعلی |
-| A2 | تلگرام یا وب‌اپ (۷) | **وب‌اپ موبایل‌اول (PWA)** برای 0.1. تلگرام در 1.0 فقط کانال اعلان است | اگر هنرجوها وارد نشوند، سمت هنرجو بی‌استفاده می‌ماند (سمت مربی همچنان ارزش دارد) | پایلوت با ۵ هنرجو در هفته‌ی اول 0.1؛ نرخ ورود هفتگی |
-| A3 | بودجه و زمان (۱۰) | تیم کوچک: ۱ توسعه‌دهنده‌ی فول‌استک تمام‌وقت + کمک پاره‌وقت طراحی؛ 0.1 در ۴ تا ۶ هفته | با منابع کمتر، Should‌های 0.1 حذف می‌شوند | تأیید بنیان‌گذار |
-| A4 | پرداخت ارزی (۶) | پرداخت ارزی مستقیم نداریم. 0.1 هیچ وابستگی خارجی ندارد (بدون AI، قابل‌میزبانی در ایران). در 1.0، دسترسی به LLM از لایه‌ی انتزاع و از طریق واسط ریالی یا سرور واسط (تصمیم معمار در فاز ۳) | اگر پرداخت ارزی داریم، 1.0 ساده‌تر و ارزان‌تر می‌شود | پاسخ بنیان‌گذار؛ آزمون کیفیت فارسی واسط‌ها در فاز ۳ |
-| A5 | محتوای آموزشی (۸) | محتوا (ویدئو و جزوه) جای دیگری میزبانی می‌شود؛ پلتفرم فقط **لینک** به آن می‌دهد | اگر محتوا نیست، curriculum-designer و بنیان‌گذار باید محتوا بسازند؛ دامنه‌ی محصول تغییر نمی‌کند | فهرست محتوای موجود از بنیان‌گذار |
-| A6 | درگاه و اینماد (۱۰) | 0.1 بدون پرداخت آنلاین. 1.0 با زرین‌پال یا IDPay در صورت داشتن اینماد؛ وگرنه «کارت‌به‌کارت + آپلود رسید + تأیید دستی» | تأخیر در درآمد آنلاین | شروع فرایند اینماد از همین حالا |
-| A7 | نیچ‌ها (۹) | هنرجوها در چند حوزه‌ی پراکنده‌اند (برنامه‌نویسی، طراحی، محتوا، مارکتینگ). نیچ و مهارت فیلد آزاد + برچسب است، نه فهرست بسته | کم‌اثر | گزارش نیچ‌ها از داده‌ی 0.1 |
-| A8 | مشاورها (۴) | مشاورها همکار بنیان‌گذارند؛ هر هنرجو یک مشاور اصلی دارد؛ مشاور فقط هنرجوهای خودش را می‌بیند | اگر مشاورها همه‌ی هنرجوها را پوشش می‌دهند، دسترسی به «همه» باز می‌شود (یک تنظیم) | پاسخ بنیان‌گذار |
-| A9 | پرداخت فعلی هنرجوها | هنرجوهای فعلی قبلاً پول دوره را داده‌اند؛ 0.1 برایشان رایگان است | — | — |
-| A10 | گلوگاه هنرجو (R8) | گلوگاه در مراحل مختلف است؛ دقیقاً به همین دلیل «مرحله» و «گیرکرده» در 0.1 داده‌ی واقعی گلوگاه را تولید می‌کند | — | توزیع هنرجوها در مراحل پس از ۴ هفته |
+| A1 | Number of students (3) | 30 to 80 active students, 1 coach + 2 to 4 mentors; growth under 200 people in 6 months | If more than 200: bulk import and automatic assignment move to Must | One number from the founder; count members of current groups |
+| A2 | Telegram or web app (7) | **Mobile-first web app (PWA)** for 0.1. In 1.0 Telegram is only a notification channel | If students do not log in, the student side goes unused (the coach side still has value) | Pilot with 5 students in the first week of 0.1; weekly login rate |
+| A3 | Budget and time (10) | Small team: 1 full-time full-stack developer + part-time design help; 0.1 in 4 to 6 weeks | With fewer resources, 0.1 Shoulds are dropped | Founder confirmation |
+| A4 | Foreign-currency payment (6) | We have no direct foreign-currency payment. 0.1 has no foreign dependency (no AI, hostable in Iran). In 1.0, LLM access goes through an abstraction layer via a rial-based intermediary or a proxy server (architect's decision in Phase 3) | If we do have foreign-currency payment, 1.0 becomes simpler and cheaper | Founder's answer; Persian-quality test of intermediaries in Phase 3 |
+| A5 | Educational content (8) | Content (videos and handouts) is hosted elsewhere; the platform only **links** to it | If there is no content, curriculum-designer and the founder must create it; product scope does not change | List of existing content from the founder |
+| A6 | Payment gateway and Enamad (10) | 0.1 without online payment. 1.0 with Zarinpal or IDPay if we have Enamad; otherwise "card-to-card + receipt upload + manual approval" | Delay in online revenue | Start the Enamad process now |
+| A7 | Niches (9) | Students are spread across several fields (programming, design, content, marketing). Niche and skill are a free field + tags, not a closed list | Low impact | Niche report from 0.1 data |
+| A8 | Mentors (4) | Mentors are the founder's colleagues; each student has one primary mentor; a mentor sees only their own students | If mentors cover all students, access to "all" is opened (one setting) | Founder's answer |
+| A9 | Current students' payment | Current students have already paid for the course; 0.1 is free for them | — | — |
+| A10 | Student bottleneck (R8) | The bottleneck is at different stages; precisely for this reason "stage" and "stuck" in 0.1 produce real bottleneck data | — | Distribution of students across stages after 4 weeks |
 
-## ۵. نقش‌ها و دسترسی‌ها
+## 5. Roles and permissions
 
-| نقش | کیست | خلاصه |
+| Role | Who | Summary |
 |---|---|---|
-| مدیر (مربی) | بنیان‌گذار | همه‌چیز را می‌بیند و تنظیم می‌کند |
-| مشاور | همکاران مربی | هنرجوهای تخصیص‌یافته به خودش (فرض A8) |
-| هنرجو | فراگیر | فقط پرونده‌ی خودش، با بخش‌هایی که «اشتراکی» علامت خورده‌اند |
+| Admin (coach) | Founder | Sees and configures everything |
+| Mentor | Coach's colleagues | Students assigned to them (assumption A8) |
+| Student | Learner | Only their own file, with the sections marked "shared" |
 
-| عمل | مدیر | مشاور | هنرجو |
+| Action | Admin | Mentor | Student |
 |---|---|---|---|
-| ساخت یا دعوت هنرجو | ✓ | ✓ (فقط با تخصیص به خودش، قابل‌خاموش‌کردن) | — |
-| دعوت مشاور، تعیین نقش | ✓ | — | — |
-| دیدن فهرست هنرجوها | همه | تخصیص‌یافته‌ها | — |
-| ویرایش پرونده (پروفایل‌ها، نیچ، سطح) | ✓ | ✓ | فیلدهای خودش (پروفایل‌ها، لینک‌ها، مهارت) |
-| تغییر مرحله‌ی مسیر | ✓ | ✓ | — (فقط می‌بیند) |
-| تعریف کار، مهلت، بازبینی تحویل | ✓ | ✓ | — |
-| تحویل کار | — | — | ✓ |
-| یادداشت **داخلی** | خواندن و نوشتن | خواندن و نوشتن | **نمی‌بیند** |
-| یادداشت **اشتراکی** | ✓ | ✓ | می‌بیند |
-| پرسیدن سؤال / پاسخ | پاسخ | پاسخ | پرسیدن و ادامه‌ی گفت‌وگو |
-| یادآور | برای خودش و هر کس | برای خودش | — (در 0.1) |
-| ثبت نقطه‌ی عطف (مثلاً اولین قرارداد) | ثبت و تأیید | ثبت و تأیید | پیشنهاد با مدرک |
-| تنظیم مراحل مسیر، قالب کارها، آستانه‌های «گیرکرده» | ✓ | — | — |
-| خروجی CSV | ✓ | — | — |
-| ابزارهای AI (1.0) | ✓ | ✓ (و دیدن خروجی‌های هنرجوهای خودش) | ✓ (در حد سهمیه) |
-| پرداخت و اشتراک (1.0) | مدیریت | — | خرید |
+| Create or invite a student | ✓ | ✓ (only with assignment to themselves; can be turned off) | — |
+| Invite a mentor, set role | ✓ | — | — |
+| See the student list | All | Assigned ones | — |
+| Edit file (profiles, niche, level) | ✓ | ✓ | Their own fields (profiles, links, skills) |
+| Change path stage | ✓ | ✓ | — (view only) |
+| Define tasks, due dates, review submissions | ✓ | ✓ | — |
+| Submit a task | — | — | ✓ |
+| **Internal** note | Read and write | Read and write | **Cannot see** |
+| **Shared** note | ✓ | ✓ | Sees |
+| Ask a question / answer | Answer | Answer | Ask and continue the conversation |
+| Reminder | For themselves and anyone | For themselves | — (in 0.1) |
+| Record a milestone (e.g. first contract) | Record and approve | Record and approve | Propose with evidence |
+| Configure path stages, task templates, "stuck" thresholds | ✓ | — | — |
+| CSV export | ✓ | — | — |
+| AI tools (1.0) | ✓ | ✓ (and see their own students' outputs) | ✓ (within quota) |
+| Payment and subscription (1.0) | Manage | — | Purchase |
 
-## ۶. مدل مفهومی داده (پلتفرم‌مستقل)
-فقط مفهومی است؛ طراحی نهایی با software-architect در فاز ۳.
+## 6. Conceptual data model (platform-independent)
+Conceptual only; final design with software-architect in Phase 3.
 
-| موجودیت | فیلدهای کلیدی | نکته‌ی چندپلتفرمی |
+| Entity | Key fields | Multi-platform note |
 |---|---|---|
-| کاربر (User) | نام، موبایل/ایمیل، نقش | — |
-| هنرجو (Student) | مشاور اصلی، سطح (تازه‌کار/در حال اپلای/فعال/پیشرفته)، مهارت‌ها، نیچ(ها)، سطح انگلیسی، هدف درآمدی، مرحله‌ی فعلی، تاریخ ورود به مرحله، برچسب‌ها، وضعیت (فعال/متوقف/فارغ‌التحصیل) | — |
-| پروفایل پلتفرم (PlatformProfile) | پلتفرم، لینک، عنوان/تیتر، وضعیت (در حال ساخت/فعال/محدود/معلق)، نیچ این پروفایل، یادداشت | **پلتفرم یک فهرست قابل‌گسترش است:** Upwork، Fiverr، Contra، LinkedIn، Freelancer، Behance/Dribbble، مشتری مستقیم، سایر. هر هنرجو چند پروفایل دارد |
-| مسیر و مرحله (Path / Stage) | نام مرحله، ترتیب، مدت مورد انتظار (روز)، قالب کارهای پیش‌فرض | از `learning/learning-path.md` می‌آید و قابل‌ویرایش است؛ کد به اسم مرحله‌ها وابسته نیست |
-| کار (Task) | عنوان، شرح، نوع، مرحله‌ی مرتبط، مهلت، وضعیت، واگذارکننده، اولویت | نوع‌ها: عمومی، لینک/فایل، «پروپوزال برای بررسی»، «پروفایل برای بررسی» |
-| تحویل (Submission) | متن، لینک‌ها، پیوست (تصویر)، فیلدهای ساختاریافته (پلتفرم، متن آگهی، متن پروپوزال)، بازخورد بازبین، نتیجه | فیلد پلتفرم در همه‌ی تحویل‌ها |
-| تعامل (Interaction) | نوع (یادداشت، جلسه، تماس، پیام بیرونی)، متن، داخلی/اشتراکی، نویسنده، تاریخ | — |
-| رویداد خودکار (Activity) | تغییر مرحله، تغییر وضعیت کار، ورود هنرجو | تایم‌لاین پرونده را می‌سازد |
-| یادآور (Reminder) | برای چه کسی، درباره‌ی کدام هنرجو، زمان، متن، انجام‌شده | — |
-| سؤال (Question/Thread) | پرسنده، موضوع، پیام‌ها، وضعیت (باز/پاسخ‌داده/بسته)، مسئول پاسخ | — |
-| نقطه‌ی عطف (Milestone) | نوع، تاریخ، پلتفرم، مبلغ (اختیاری، با ارز)، مدرک، تأییدکننده | انواع: پروفایل آماده، اولین اپلای، اولین مصاحبه، **اولین قرارداد/سفارش پولی**، اولین ۱۰۰۰ دلار، … |
-| فرصت/اپلای (Opportunity) — 1.0 | پلتفرم، عنوان، لینک، هزینه‌ی اپلای (مثلاً Connects؛ اختیاری)، وضعیت (ارسال‌شده/دیده‌شده/مصاحبه/قرارداد/رد) | «Connects» فقط یک نوع هزینه است، نه فیلد مرکزی |
-| بررسی AI (AIReview) — 1.0 | ابزار، ورودی، خروجی، نسخه‌ی rubric، امتیاز کاربر، ارجاع به مشاور | rubric بر اساس پلتفرم انتخاب می‌شود (Upwork یا «عمومی») |
+| User | Name, mobile/email, role | — |
+| Student | Primary mentor, level (beginner/applying/active/advanced), skills, niche(s), English level, income goal, current stage, date entered stage, tags, status (active/paused/graduated) | — |
+| PlatformProfile | Platform, link, title/headline, status (in progress/active/restricted/suspended), niche of this profile, note | **Platform is an extensible list:** Upwork, Fiverr, Contra, LinkedIn, Freelancer, Behance/Dribbble, direct client, other. Each student has several profiles |
+| Path / Stage | Stage name, order, expected duration (days), default task templates | Comes from `learning/learning-path.md` and is editable; code does not depend on stage names |
+| Task | Title, description, type, related stage, due date, status, assigner, priority | Types: general, link/file, "proposal for review", "profile for review" |
+| Submission | Text, links, attachment (image), structured fields (platform, job post text, proposal text), reviewer feedback, result | Platform field in all submissions |
+| Interaction | Type (note, session, call, external message), text, internal/shared, author, date | — |
+| Activity (automatic event) | Stage change, task status change, student login | Builds the file timeline |
+| Reminder | For whom, about which student, time, text, done | — |
+| Question/Thread | Asker, subject, messages, status (open/answered/closed), responsible responder | — |
+| Milestone | Type, date, platform, amount (optional, with currency), evidence, approver | Types: profile ready, first application, first interview, **first paid contract/order**, first $1,000, … |
+| Opportunity/Application — 1.0 | Platform, title, link, application cost (e.g. Connects; optional), status (sent/viewed/interview/contract/rejected) | "Connects" is just one type of cost, not a central field |
+| AIReview — 1.0 | Tool, input, output, rubric version, user rating, referral to mentor | Rubric is selected by platform (Upwork or "general") |
 
-**قاعده‌ی امنیتی:** سیستم هیچ‌وقت رمز عبور یا اطلاعات ورود اکانت پلتفرم‌ها را نمی‌گیرد و ذخیره نمی‌کند. فیلدی به اسم «رمز» وجود ندارد و فرم‌ها هشدار می‌دهند.
+**Security rule:** the system never asks for or stores passwords or login credentials of platform accounts. There is no field called "password", and forms show a warning.
 
-## ۷. امکانات، user story و معیار پذیرش
-شناسه‌ها در `mvp-scope.md` استفاده می‌شوند. «نسخه» یعنی اولین نسخه‌ای که امکان در آن عرضه می‌شود.
+## 7. Features, user stories and acceptance criteria
+The IDs are used in `mvp-scope.md`. "Version" means the first version in which the feature ships.
 
-### نسخه‌ی 0.1 — هسته‌ی مدیریت هنرجو
+### Version 0.1 — Student management core
 
-#### F1. حساب، دعوت و ورود — 0.1
-- **مدیر:** می‌خواهم مشاور و هنرجو را با لینک دعوت اضافه کنم تا ثبت‌نام عمومی لازم نباشد.
-- **هنرجو:** می‌خواهم با یک لینک وارد شوم و رمز بگذارم، بدون فرم طولانی.
+#### F1. Account, invitation and login — 0.1
+- **Admin:** I want to add mentors and students via an invite link so that public sign-up is not needed.
+- **Student:** I want to log in with a link and set a password, without a long form.
 
-| معیار پذیرش |
+| Acceptance criteria |
 |---|
-| مدیر هنرجو را با نام و موبایل می‌سازد؛ سیستم لینک دعوت یک‌بارمصرف با انقضای ۷ روزه می‌دهد که مدیر خودش (مثلاً در تلگرام) می‌فرستد |
-| ورود با موبایل + رمز؛ بازیابی رمز با تأیید مدیر یا OTP پیامکی (اگر سرویس پیامک در 0.1 فعال شود) |
-| مشاور فقط بعد از دعوت مدیر نقش مشاور می‌گیرد |
-| بدون دعوت، صفحه‌ی ثبت‌نام عمومی وجود ندارد |
+| Admin creates a student with name and mobile; the system gives a one-time invite link with 7-day expiry, which the admin sends themselves (e.g. on Telegram) |
+| Login with mobile + password; password recovery via admin approval or SMS OTP (if the SMS service is enabled in 0.1) |
+| A mentor gets the mentor role only after an admin invitation |
+| Without an invitation, there is no public sign-up page |
 
-#### F2. پرونده‌ی هنرجو — 0.1
-- **مربی:** می‌خواهم در یک صفحه ببینم این هنرجو کیست، در چه پلتفرم‌هایی چه پروفایلی دارد، نیچ و سطحش چیست، تا مجبور نباشم از حافظه یا تلگرام پیدا کنم.
-- **هنرجو:** می‌خواهم لینک پروفایل‌هایم را خودم اضافه یا به‌روز کنم.
+#### F2. Student file — 0.1
+- **Coach:** I want to see on one page who this student is, which profiles they have on which platforms, and what their niche and level are, so I don't have to find it from memory or Telegram.
+- **Student:** I want to add or update my profile links myself.
 
-| معیار پذیرش |
+| Acceptance criteria |
 |---|
-| بالای پرونده: نام، مشاور اصلی، مرحله‌ی فعلی و چند روز در آن، سطح، نیچ، برچسب‌ها، آخرین فعالیت، تعداد کارهای باز و عقب‌افتاده |
-| بخش پروفایل‌ها: چند پروفایل در پلتفرم‌های مختلف، هرکدام با لینک قابل‌کلیک، وضعیت و نیچ. افزودن پلتفرم جدید بدون تغییر کد (از تنظیمات مدیر) |
-| ساخت پرونده‌ی جدید با فیلدهای حداقلی (نام، موبایل) کمتر از ۱ دقیقه طول بکشد؛ بقیه‌ی فیلدها اختیاری‌اند |
-| هر تغییر در پرونده با نام تغییردهنده و زمان در تایم‌لاین ثبت شود |
-| جستجو و فیلتر فهرست هنرجوها بر اساس نام، مرحله، مشاور، برچسب، پلتفرم و وضعیت «گیرکرده» |
+| Top of the file: name, primary mentor, current stage and days in it, level, niche, tags, last activity, number of open and overdue tasks |
+| Profiles section: several profiles on different platforms, each with a clickable link, status and niche. Adding a new platform without a code change (from admin settings) |
+| Creating a new file with minimal fields (name, mobile) takes less than 1 minute; the other fields are optional |
+| Every change to the file is recorded in the timeline with the editor's name and time |
+| Search and filter the student list by name, stage, mentor, tag, platform and "stuck" status |
 
-#### F3. مسیر و مرحله — 0.1
-- **مربی:** می‌خواهم مرحله‌ی هر هنرجو را تعیین کنم و ببینم چند نفر در هر مرحله‌اند.
+#### F3. Path and stage — 0.1
+- **Coach:** I want to set each student's stage and see how many people are in each stage.
 
-| معیار پذیرش |
+| Acceptance criteria |
 |---|
-| مراحل از `learning/learning-path.md` در تنظیمات تعریف می‌شوند (نام، ترتیب، مدت مورد انتظار) و قابل‌ویرایش‌اند |
-| تغییر مرحله یک کلیک است و اختیاری یک یادداشت می‌گیرد؛ تاریخ ورود به مرحله ثبت می‌شود |
-| نمای قیف/کانبان: ستون به ازای هر مرحله، کارت هر هنرجو با روزهای ماندن در مرحله؛ رنگ هشدار اگر از مدت مورد انتظار گذشته |
-| هنرجو مرحله‌ی فعلی، مرحله‌ی بعد و لینک محتوای مرتبط را می‌بیند |
-| (Should) با تغییر مرحله، کارهای قالب آن مرحله پیشنهاد شوند و با یک کلیک ساخته شوند |
+| Stages from `learning/learning-path.md` are defined in settings (name, order, expected duration) and are editable |
+| Changing the stage is one click and optionally takes a note; the date of entering the stage is recorded |
+| Funnel/kanban view: one column per stage, each student's card with days spent in the stage; warning color if the expected duration has passed |
+| The student sees their current stage, the next stage and the link to related content |
+| (Should) On stage change, the stage's template tasks are suggested and created with one click |
 
-#### F4. کارها و تحویل — 0.1
-- **مربی/مشاور:** می‌خواهم برای هنرجو کار با مهلت تعریف کنم و بعداً ببینم تحویل داده یا نه.
-- **هنرجو:** می‌خواهم فهرست کارهایم را با مهلت ببینم، تحویل بدهم و بازخورد بگیرم.
+#### F4. Tasks and submission — 0.1
+- **Coach/mentor:** I want to define a task with a due date for a student and later see whether they submitted it.
+- **Student:** I want to see my task list with due dates, submit, and get feedback.
 
-| معیار پذیرش |
+| Acceptance criteria |
 |---|
-| کار: عنوان، شرح، نوع، مهلت (تاریخ شمسی)، مرحله‌ی مرتبط (اختیاری) |
-| چرخه‌ی وضعیت: باز ← (در حال انجام، اختیاری و با انتخاب هنرجو) ← تحویل‌شده ← (نیاز به اصلاح ← تحویل‌شده)* ← تأییدشده؛ یا لغوشده. «عقب‌افتاده» وضعیت جدا نیست، از «مهلت گذشته و تأییدنشده» محاسبه می‌شود. تعداد دور اصلاح و تاریخچه‌ی تمدید مهلت ثبت می‌شود (برای R-LOOP و R-EXTEND). هماهنگ با `learning/progress-tracking.md` |
-| تحویل: متن + لینک؛ (Should) پیوست تصویر تا ۵ مگابایت |
-| نوع «پروپوزال برای بررسی»: فیلدهای جدا برای پلتفرم، متن آگهی (انگلیسی) و متن پروپوزال (انگلیسی) + چک‌باکس رضایت برای استفاده‌ی بی‌نام در بهبود ابزارها |
-| بازبین بازخورد فارسی می‌نویسد و (اختیاری) امتیاز ۱ تا ۵ می‌دهد؛ این جفت «ورودی + نقد مربی» داده‌ی ارزیابی ابزارهای 1.0 است |
-| هنرجو کارهایش را به ترتیب مهلت می‌بیند؛ کارهای عقب‌افتاده بالای فهرست و قرمز |
-| (Should) قالب کار: کارهای تکراری یک‌بار تعریف و برای چند هنرجو هم‌زمان واگذار شوند |
+| Task: title, description, type, due date (Jalali date), related stage (optional) |
+| Status cycle: open → (in progress, optional and chosen by the student) → submitted → (needs revision → submitted)* → approved; or cancelled. "Overdue" is not a separate status; it is computed from "past due and not approved". The number of revision rounds and the history of due-date extensions are recorded (for R-LOOP and R-EXTEND). Aligned with `learning/progress-tracking.md` |
+| Submission: text + link; (Should) image attachment up to 5 MB |
+| "Proposal for review" type: separate fields for platform, job post text (English) and proposal text (English) + a consent checkbox for anonymous use in improving the tools |
+| The reviewer writes Persian feedback and (optionally) gives a score of 1 to 5; this "input + coach critique" pair is the evaluation data for the 1.0 tools |
+| The student sees their tasks ordered by due date; overdue tasks at the top and in red |
+| (Should) Task template: recurring tasks are defined once and assigned to several students at the same time |
 
-#### F5. تاریخچه‌ی یادداشت و تعامل — 0.1
-- **مربی:** می‌خواهم بعد از هر جلسه یا پیام تلگرامی یک یادداشت کوتاه بگذارم تا دفعه‌ی بعد یادم باشد چه گفتیم.
+#### F5. Note and interaction history — 0.1
+- **Coach:** I want to leave a short note after each session or Telegram message so I remember next time what we said.
 
-| معیار پذیرش |
+| Acceptance criteria |
 |---|
-| یادداشت با نوع (یادداشت، جلسه، تماس، پیام بیرونی) و حالت **داخلی** (پیش‌فرض) یا **اشتراکی** |
-| تایم‌لاین واحد پرونده: یادداشت‌ها + رویدادهای خودکار (تغییر مرحله، تحویل، بازبینی، سؤال، نقطه‌ی عطف) به ترتیب زمان، با فیلتر نوع |
-| ثبت یادداشت از هر جای پرونده کمتر از ۳ کلیک و روی موبایل راحت باشد |
-| هنرجو یادداشت داخلی را در هیچ صفحه و API نمی‌بیند (تست دسترسی الزامی) |
+| Note with a type (note, session, call, external message) and mode **internal** (default) or **shared** |
+| Single file timeline: notes + automatic events (stage change, submission, review, question, milestone) in chronological order, with a type filter |
+| Adding a note from anywhere in the file takes fewer than 3 clicks and is easy on mobile |
+| The student never sees internal notes on any page or API (access test mandatory) |
 
-#### F6. یادآور و نمای «امروز» — 0.1
-- **مربی/مشاور:** می‌خواهم صبح یک فهرست ببینم: امروز چه کسی را پیگیری کنم، چه تحویلی منتظر بازبینی من است، چه سؤالی بی‌جواب مانده.
+#### F6. Reminders and the "Today" view — 0.1
+- **Coach/mentor:** In the morning I want to see a list: whom to follow up with today, which submissions are waiting for my review, which questions are unanswered.
 
-| معیار پذیرش |
+| Acceptance criteria |
 |---|
-| یادآور روی یک هنرجو با زمان و متن؛ مثلاً «پنجشنبه پیگیری پروفایل Fiverr» |
-| صفحه‌ی «امروز» (صفحه‌ی اول مربی و مشاور) چهار بخش دارد: یادآورهای امروز و گذشته، تحویل‌های منتظر بازبینی، سؤال‌های بی‌پاسخ، هنرجوهای گیرکرده |
-| هر مورد یک کلیک تا پرونده یا کار مربوط |
-| یادآور «انجام شد» یا «تعویق» (۱ روز، ۳ روز، ۱ هفته) می‌خورد |
-| مشاور فقط موارد هنرجوهای خودش را می‌بیند؛ مدیر همه را با فیلتر مشاور |
+| Reminder on a student with time and text; e.g. "Thursday: follow up on Fiverr profile" |
+| The "Today" page (the coach's and mentor's home page) has four sections: today's and past reminders, submissions waiting for review, unanswered questions, stuck students |
+| Each item is one click away from the related file or task |
+| A reminder can be marked "Done" or "Snooze" (1 day, 3 days, 1 week) |
+| A mentor sees only items for their own students; the admin sees all, with a mentor filter |
 
-#### F7. نمای «گیرکرده / عقب» — 0.1
-- **مربی:** می‌خواهم بدون گشتن بفهمم کدام هنرجو گیر کرده و «توپ در زمین کیست» (هنرجو یا ما).
+#### F7. "Stuck / behind" view — 0.1
+- **Coach:** I want to know, without searching, which student is stuck and "whose court the ball is in" (the student's or ours).
 
-> **هماهنگ‌شده با `learning/progress-tracking.md` بخش ۷ (مدیر پروژه، ۱۴۰۵/۰۷/۲۷):** منبع حقیقت قواعد و آستانه‌ها آن فایل است. هر هنرجو یک **وضعیت سلامت** (سبز / زرد / قرمز / متوقف) دارد که برابر **بدترین قاعده‌ی فعال** است و کد قاعده کنارش نمایش داده می‌شود. «توپ در زمین» یک ویژگی هر قاعده است.
+> **Aligned with `learning/progress-tracking.md` section 7 (project lead, 1405/07/27):** that file is the source of truth for rules and thresholds. Each student has a **health status** (green / yellow / red / paused) equal to the **worst active rule**, and the rule code is shown next to it. "Ball in court" is a property of each rule.
 
-**قواعد سمت هنرجو در 0.1** (فقط قواعدی که داده‌شان در 0.1 وجود دارد):
+**Student-side rules in 0.1** (only rules whose data exists in 0.1):
 
-| کد | نشانه | زرد | قرمز | توپ در زمین |
+| Code | Signal | Yellow | Red | Ball in court |
 |---|---|---|---|---|
-| R-INACT | بی‌فعالیتی هنرجو (ورود، تحویل، سؤال، check-in) | ۷ روز | ۱۴ روز | هنرجو |
-| R-STALL | ماندن در مرحله | > ۱٫۵ برابر مدت معمول مرحله | > ۲ برابر | هر دو |
-| R-OVERDUE | کار معوق | یک کار > ۳ روز | ۲ کار، یا یکی > ۷ روز | هنرجو |
-| R-LOOP | دور اصلاح یک کار | ۳ دور | ۴ دور یا بیشتر | هر دو |
-| R-NOTASK | نبود هیچ کار باز (جز مرحله‌ی ۸) | ۳ روز | ۷ روز | مربی/مشاور |
-| R-EXTEND | تمدید سوم مهلت یک کار | ✓ | — | هنرجو |
-| R-FLAG | پرچم دستی مشاور | به انتخاب | به انتخاب | — |
-| R-CHECKIN / R-MOOD | جا انداختن check-in هفتگی / حال ≤ ۲ | طبق progress-tracking | طبق progress-tracking | هنرجو |
+| R-INACT | Student inactivity (login, submission, question, check-in) | 7 days | 14 days | Student |
+| R-STALL | Staying in a stage | > 1.5× the stage's usual duration | > 2× | Both |
+| R-OVERDUE | Overdue task | One task > 3 days | 2 tasks, or one > 7 days | Student |
+| R-LOOP | Revision rounds on one task | 3 rounds | 4 rounds or more | Both |
+| R-NOTASK | No open task at all (except stage 8) | 3 days | 7 days | Coach/mentor |
+| R-EXTEND | Third due-date extension on one task | ✓ | — | Student |
+| R-FLAG | Manual mentor flag | By choice | By choice | — |
+| R-CHECKIN / R-MOOD | Missed weekly check-in / mood ≤ 2 | Per progress-tracking | Per progress-tracking | Student |
 
-**قواعد سمت تیم** (در فهرست «منتظر ما» صفحه‌ی «امروز» می‌آیند و رنگ سلامت هنرجو را تغییر نمی‌دهند):
+**Team-side rules** (appear in the "Waiting on us" list on the "Today" page and do not change the student's health color):
 
-| نشانه | آستانه | توپ در زمین |
+| Signal | Threshold | Ball in court |
 |---|---|---|
-| تحویلی که بازبینی نشده | ۴۸ ساعت | مربی/مشاور |
-| سؤالی که پاسخ نگرفته | ۲۴ ساعت | مربی/مشاور |
-| هنرجوی قرمز بدون اقدام ثبت‌شده | ۴۸ ساعت کاری؛ بعد از ۷ روز به بنیان‌گذار گزارش می‌شود | مربی/مشاور |
+| Submission not reviewed | 48 hours | Coach/mentor |
+| Question not answered | 24 hours | Coach/mentor |
+| Red student with no recorded action | 48 working hours; after 7 days, reported to the founder | Coach/mentor |
 
-**خطر ریزش:** اگر دو قاعده از R-INACT، R-CHECKIN و R-MOOD هم‌زمان فعال باشند، وضعیت مستقیم قرمز با برچسب «خطر ریزش» می‌شود.
+**Churn risk:** if two of R-INACT, R-CHECKIN and R-MOOD are active at the same time, the status goes straight to red with the label "Churn risk".
 
-**به 1.0 منتقل شد** (نیاز به ثبت اپلای‌ها، F12): R-LOWVOL، R-NOREPLY (ممیزی سه‌لایه)، R-BADJOBS، R-SKIPREVIEW، R-INTERVIEW، R-POSTCONTRACT.
+**Moved to 1.0** (requires application tracking, F12): R-LOWVOL, R-NOREPLY (three-layer audit), R-BADJOBS, R-SKIPREVIEW, R-INTERVIEW, R-POSTCONTRACT.
 
-**check-in هفتگی هنرجو** (فرم کوتاه پنجشنبه: کارهای هفته، حال ۱ تا ۵، «به کمک مشاور نیاز داری؟») طبق `learning/progress-tracking.md` در 0.1 «Should» است. اگر در 0.1 ساخته نشود، R-CHECKIN و R-MOOD هم با آن به 1.0 می‌روند.
+**Weekly student check-in** (short Thursday form: this week's tasks, mood 1 to 5, "Do you need help from your mentor?") is a "Should" in 0.1 per `learning/progress-tracking.md`. If it is not built in 0.1, R-CHECKIN and R-MOOD move to 1.0 with it.
 
-| معیار پذیرش |
+| Acceptance criteria |
 |---|
-| فهرست با مرتب‌سازی بر اساس شدت و قدیمی‌بودن؛ هر ردیف دلیل برچسب را نشان می‌دهد (مثلاً «۲ کار عقب، ۹ روز بی‌فعالیت») |
-| آستانه‌ها در تنظیمات مدیر قابل‌تغییرند؛ برچسب‌ها به‌صورت خودکار و بدون دخالت دستی محاسبه می‌شوند |
-| هنرجوی «متوقف» یا «فارغ‌التحصیل» در این فهرست نمی‌آید |
-| مربی می‌تواند برای یک هنرجو برچسب را تا تاریخی «نادیده» بگیرد (مثلاً در سفر است) |
+| List sorted by severity and age; each row shows the reason for the label (e.g. "2 tasks overdue, 9 days inactive") |
+| Thresholds are configurable in admin settings; labels are computed automatically without manual intervention |
+| A "paused" or "graduated" student does not appear in this list |
+| The coach can "ignore" the label for a student until a date (e.g. they are traveling) |
 
-#### F8. سؤال و پاسخ — 0.1
-- **هنرجو:** می‌خواهم سؤالم را در یک جا بپرسم و بدانم کی جواب می‌گیرم.
-- **مشاور:** می‌خواهم سؤال‌ها را در یک صف ببینم و پاسخ بدهم، با دیدن پرونده‌ی هنرجو کنار سؤال.
+#### F8. Questions and answers — 0.1
+- **Student:** I want to ask my question in one place and know when I will get an answer.
+- **Mentor:** I want to see questions in one queue and answer them, with the student's file visible next to the question.
 
-| معیار پذیرش |
+| Acceptance criteria |
 |---|
-| هنرجو سؤال با موضوع و متن (و اختیاری لینک یا تصویر) می‌فرستد؛ پیش‌فرض به مشاور اصلی‌اش می‌رود؛ مدیر می‌تواند واگذاری را تغییر دهد |
-| گفت‌وگوی رشته‌ای ناهمزمان (نه چت لحظه‌ای)؛ وضعیت باز/پاسخ‌داده/بسته |
-| کنار سؤال، خلاصه‌ی پرونده (مرحله، پروفایل‌ها، کارهای باز) دیده شود |
-| هنرجو زمان پاسخ مورد انتظار را می‌بیند (مثلاً «معمولاً تا ۲۴ ساعت») |
-| محتوای مربوط به خرید/اجاره‌ی اکانت یا دور زدن احراز هویت پاسخ داده نمی‌شود؛ پاسخ استاندارد از پیش‌نوشته موجود است (خطوط قرمز، بخش ۹) |
+| The student sends a question with a subject and text (and optionally a link or image); by default it goes to their primary mentor; the admin can change the assignment |
+| Asynchronous threaded conversation (not real-time chat); status open/answered/closed |
+| A summary of the file (stage, profiles, open tasks) is visible next to the question |
+| The student sees the expected response time (e.g. "usually within 24 hours") |
+| Content about buying/renting accounts or bypassing identity verification is not answered; a pre-written standard reply exists (red lines, section 9) |
 
-#### F9. نقاط عطف و نتیجه — 0.1
-- **مربی:** می‌خواهم ثبت کنم چه کسی اولین قرارداد یا سفارش پولی‌اش را گرفت، در کدام پلتفرم و کی، تا نتیجه‌ی واقعی داشته باشم.
+#### F9. Milestones and outcomes — 0.1
+- **Coach:** I want to record who got their first paid contract or order, on which platform and when, so I have real outcomes.
 
-| معیار پذیرش |
+| Acceptance criteria |
 |---|
-| انواع نقطه‌ی عطف قابل‌تنظیم؛ پیش‌فرض: پروفایل آماده، اولین اپلای، اولین پاسخ/مصاحبه، **اولین قرارداد یا سفارش پولی**، اولین درآمد بالای ۵۰۰ دلار |
-| هنرجو می‌تواند پیشنهاد ثبت بدهد (با مدرک: تصویر یا متن)؛ مربی یا مشاور تأیید می‌کند. فقط موارد تأییدشده در North Star شمرده می‌شوند |
-| مبلغ و ارز اختیاری است |
-| داشبورد ساده‌ی مدیر: تعداد تأییدشده در این ماه و تجمعی، و میانه‌ی روز از ورود تا اولین قرارداد |
+| Configurable milestone types; defaults: profile ready, first application, first reply/interview, **first paid contract or order**, first income above $500 |
+| The student can propose a record (with evidence: image or text); the coach or mentor approves. Only approved items count toward the North Star |
+| Amount and currency are optional |
+| Simple admin dashboard: number approved this month and cumulatively, and the median days from joining to first contract |
 
-#### F10. خانه‌ی هنرجو — 0.1
-- **هنرجو:** می‌خواهم با باز کردن برنامه ببینم کجای مسیرم، چه کاری با چه مهلتی دارم و جواب سؤال‌هایم آمده یا نه.
+#### F10. Student home — 0.1
+- **Student:** When I open the app I want to see where I am on my path, which tasks I have with which due dates, and whether my questions have been answered.
 
-| معیار پذیرش |
+| Acceptance criteria |
 |---|
-| خانه: مرحله‌ی فعلی و پیشرفت در مسیر، کارهای باز به ترتیب مهلت، سؤال‌های اخیر، یادداشت‌های اشتراکی تازه |
-| نشان (badge) درون‌برنامه برای بازخورد یا پاسخ جدید |
-| روی گوشی با اینترنت ضعیف در کمتر از ۳ ثانیه باز شود |
+| Home: current stage and progress along the path, open tasks ordered by due date, recent questions, new shared notes |
+| In-app badge for new feedback or replies |
+| Opens in under 3 seconds on a phone with a weak connection |
 
-#### F11. تنظیمات و خروجی — 0.1
-| معیار پذیرش |
+#### F11. Settings and export — 0.1
+| Acceptance criteria |
 |---|
-| مدیر: ویرایش مراحل، فهرست پلتفرم‌ها، انواع نقطه‌ی عطف، قالب کارها، آستانه‌های «گیرکرده»، متن‌های استاندارد |
-| (Should) خروجی CSV هنرجوها، کارها و نقاط عطف (اعتماد و عدم قفل‌شدگی) |
-| (Should) ورود گروهی هنرجوهای فعلی از CSV/اکسل با ستون‌های نام، موبایل، مشاور، مرحله، لینک پروفایل‌ها |
+| Admin: edit stages, platform list, milestone types, task templates, "stuck" thresholds, standard texts |
+| (Should) CSV export of students, tasks and milestones (trust and no lock-in) |
+| (Should) Bulk import of current students from CSV/Excel with columns name, mobile, mentor, stage, profile links |
 
-### نسخه‌ی 1.0 — ابزارهای AI، پرداخت، ثبت‌نام عمومی
+### Version 1.0 — AI tools, payments, public sign-up
 
-#### F12. ثبت اپلای‌ها (قیف فرصت) — 1.0
-- **هنرجو:** می‌خواهم هر اپلای را در ۲۰ ثانیه ثبت کنم و نرخ پاسخم را ببینم.
-- **مشاور:** می‌خواهم ببینم هنرجو چند اپلای فرستاده و کجا ریزش دارد.
+#### F12. Application tracking (opportunity funnel) — 1.0
+- **Student:** I want to log each application in 20 seconds and see my response rate.
+- **Mentor:** I want to see how many applications the student has sent and where they drop off.
 
-| معیار پذیرش |
+| Acceptance criteria |
 |---|
-| ثبت: پلتفرم، عنوان، لینک (اختیاری)، هزینه‌ی اپلای (اختیاری، مثلاً Connects)، تاریخ؛ وضعیت قابل‌تغییر: ارسال‌شده ← دیده‌شده ← پاسخ/مصاحبه ← قرارداد / رد |
-| آمار هنرجو: تعداد اپلای در هفته و نرخ تبدیل هر مرحله؛ در پرونده برای مشاور هم دیده شود |
-| رسیدن به «قرارداد» پیشنهاد ثبت نقطه‌ی عطف را می‌دهد |
-| هیچ دریافت خودکاری از پلتفرم‌ها نیست |
+| Record: platform, title, link (optional), application cost (optional, e.g. Connects), date; changeable status: sent → viewed → reply/interview → contract / rejected |
+| Student stats: number of applications per week and conversion rate at each stage; also visible to the mentor in the file |
+| Reaching "contract" suggests recording a milestone |
+| No automatic fetching from platforms |
 
-#### F13. بررسی پروپوزال با AI — 1.0
-- **هنرجو:** می‌خواهم متن آگهی و پروپوزالم را paste کنم و در کمتر از یک دقیقه به فارسی بفهمم چه ایرادی دارد و چطور خودم بهترش کنم.
+#### F13. AI proposal review — 1.0
+- **Student:** I want to paste the job post and my proposal and, in under a minute, understand in Persian what is wrong with it and how I can improve it myself.
 
-| معیار پذیرش |
+| Acceptance criteria |
 |---|
-| ورودی: پلتفرم، متن آگهی، متن پروپوزال (انگلیسی)؛ خروجی فارسی |
-| ساختار خروجی طبق `tool-rubrics/proposal-review.md`: امتیاز کلی، ۳ ایراد مهم به ترتیب اثر، پیشنهاد اصلاح برای هر ایراد با نمونه‌ی کوتاه، نقاط قوت |
-| ابزار پروپوزال کامل جدید نمی‌نویسد؛ فقط اصلاح بخش‌ها را نشان می‌دهد (جایگاه «نقد و آموزش») |
-| rubric برای Upwork و یک نسخه‌ی «عمومی» (پیام اولیه به مشتری در پلتفرم‌های دیگر یا مستقیم) |
-| زمان پاسخ: میانه < ۳۰ ثانیه؛ در خطای سرویس پیام فارسی روشن و بدون کسر سهمیه |
-| امتیاز کاربر (مفید بود؟ ۱ تا ۵) و دکمه‌ی «ارجاع به مشاور» (F15) |
-| کیفیت پیش از عرضه: توافق ≥ ۸۰٪ با نقد مربی روی مجموعه‌ی داده‌ی جمع‌شده در 0.1 |
+| Input: platform, job post text, proposal text (English); Persian output |
+| Output structure per `tool-rubrics/proposal-review.md`: overall score, 3 main issues ordered by impact, a fix suggestion for each issue with a short example, strengths |
+| The tool does not write a complete new proposal; it only shows how to fix parts (the "critique and teaching" position) |
+| Rubric for Upwork and a "general" version (first message to a client on other platforms or direct) |
+| Response time: median < 30 seconds; on service error, a clear Persian message and no quota deduction |
+| User rating (Was it useful? 1 to 5) and a "Refer to mentor" button (F15) |
+| Quality before release: ≥ 80% agreement with the coach's critique on the dataset collected in 0.1 |
 
-#### F14. بررسی جاب و تشخیص اسکم با AI — 1.0
-- **هنرجو:** می‌خواهم قبل از خرج کردن Connects یا وقت بدانم این آگهی ارزش اپلای دارد یا نه.
+#### F14. AI job analysis and scam detection — 1.0
+- **Student:** Before spending Connects or time, I want to know whether this job post is worth applying to.
 
-| معیار پذیرش |
+| Acceptance criteria |
 |---|
-| ورودی: متن آگهی + فیلدهای ساختاریافته‌ی کارفرما (بر اساس پلتفرم؛ برای Upwork طبق `tool-rubrics/job-analysis.md`: payment verified، کل خرج، hire rate، تعداد پروپوزال، …) |
-| خروجی فارسی: توصیه (اپلای کن / با احتیاط / نه)، دلیل‌ها، نشانه‌های اسکم، تناسب با پروفایل هنرجو (از پرونده)، نکته‌ی قیمت |
-| قواعد قطعی اسکم (مثلاً درخواست پرداخت یا ارتباط بیرون از پلتفرم) بدون LLM هم اعمال شوند |
-| همان معیارهای زمان، امتیاز و ارجاع F13 |
+| Input: job post text + structured client fields (by platform; for Upwork per `tool-rubrics/job-analysis.md`: payment verified, total spent, hire rate, number of proposals, …) |
+| Persian output: recommendation (apply / with caution / no), reasons, scam signals, fit with the student's profile (from the file), pricing tip |
+| Deterministic scam rules (e.g. a request for payment or communication off the platform) are applied even without the LLM |
+| Same time, rating and referral criteria as F13 |
 
-#### F15. ارجاع خروجی AI به مشاور — 1.0
-| معیار پذیرش |
+#### F15. Referring AI output to a mentor — 1.0
+| Acceptance criteria |
 |---|
-| هنرجو خروجی AI را با یک سؤال به مشاور ارجاع می‌دهد؛ در صف سؤال‌ها (F8) با ورودی و خروجی AI پیوست می‌آید |
-| مشاور می‌تواند با «موافقم / اصلاح می‌کنم» پاسخ دهد؛ اختلاف‌ها برای بهبود rubric ثبت می‌شوند |
-| همه‌ی بررسی‌های AI هنرجو در تایم‌لاین پرونده دیده شوند |
+| The student refers AI output to a mentor with a question; it arrives in the question queue (F8) with the AI input and output attached |
+| The mentor can reply with "I agree / I'll correct it"; disagreements are recorded to improve the rubric |
+| All of the student's AI reviews are visible in the file timeline |
 
-#### F16. ثبت‌نام عمومی و آنبوردینگ — 1.0
-| معیار پذیرش |
+#### F16. Public sign-up and onboarding — 1.0
+| Acceptance criteria |
 |---|
-| ثبت‌نام با موبایل + OTP پیامکی (سرویس پیامک داخلی) |
-| پرسش‌نامه‌ی کوتاه آغاز (۵ تا ۷ سؤال: مهارت، پلتفرم‌ها، تجربه، هدف) که مرحله‌ی شروع را پیشنهاد می‌دهد و پرونده را پر می‌کند |
-| کاربر عمومی بدون مشاور هم کار می‌کند (فقط ابزارها و مسیر)؛ تخصیص مشاور وابسته به پلن |
+| Sign-up with mobile + SMS OTP (domestic SMS service) |
+| Short onboarding questionnaire (5 to 7 questions: skills, platforms, experience, goal) that suggests the starting stage and fills in the file |
+| A public user without a mentor also works (tools and path only); mentor assignment depends on the plan |
 
-#### F17. سهمیه‌ی ابزارها (پرداخت: معلق) — 1.0
-> **تصمیم بنیان‌گذار (۱۴۰۵/۰۷/۲۷):** درگاه پرداخت و مدل دریافت پول **فعلاً در دامنه نیست** تا بنیان‌گذار درباره‌ی مدل درآمد تصمیم بگیرد. معماری فقط باید جای اضافه کردن آن را باز بگذارد.
+#### F17. Tool quotas (payment: suspended) — 1.0
+> **Founder's decision (1405/07/27):** the payment gateway and the way money is collected are **out of scope for now** until the founder decides on the revenue model. The architecture only needs to leave room to add it.
 
-| معیار پذیرش |
+| Acceptance criteria |
 |---|
-| سهمیه‌ی مصرف هر ابزار AI به ازای کاربر قابل‌تنظیم توسط مدیر (برای کنترل هزینه‌ی AI، مستقل از پرداخت) |
-| شمارنده‌ی سهمیه برای کاربر قابل‌دیدن |
-| دسترسی کاربر به ابزارها و مشاور را مدیر دستی فعال یا غیرفعال می‌کند (با تاریخ پایان اختیاری) |
-| ~~پلن، درگاه ریالی، کارت‌به‌کارت، فاکتور~~ → معلق تا تصمیم مدل درآمد (`docs/backlog.md`) |
+| Per-user usage quota for each AI tool, configurable by the admin (to control AI cost, independent of payment) |
+| Quota counter visible to the user |
+| The admin manually enables or disables a user's access to tools and mentor (with an optional end date) |
+| ~~Plans, rial gateway, card-to-card, invoice~~ → suspended until the revenue model is decided (`docs/backlog.md`) |
 
-#### F18. اعلان‌ها — 1.0
-| معیار پذیرش |
+#### F18. Notifications — 1.0
+| Acceptance criteria |
 |---|
-| پیامک یا پیام تلگرام (انتخاب کاربر) برای: کار جدید، ۲۴ ساعت مانده به مهلت، بازخورد یا پاسخ جدید |
-| خلاصه‌ی روزانه‌ی «امروز» برای مربی و مشاور |
-| سقف اعلان روزانه برای هر کاربر؛ امکان خاموش کردن |
+| SMS or Telegram message (user's choice) for: new task, 24 hours before due date, new feedback or reply |
+| Daily "Today" digest for the coach and mentors |
+| Daily notification cap per user; option to turn off |
 
-#### F19. گزارش مدیریتی — 1.0
-| معیار پذیرش |
+#### F19. Management reporting — 1.0
+| Acceptance criteria |
 |---|
-| قیف کوهورت: ورود ← پروفایل آماده ← اولین اپلای ← اولین مصاحبه ← اولین قرارداد، به تفکیک ماه ورود و پلتفرم |
-| عملکرد مشاورها: زمان پاسخ، تعداد بازبینی، هنرجوهای گیرکرده |
-| هزینه‌ی AI به ازای کاربر و به‌نسبت درآمد |
+| Cohort funnel: joined → profile ready → first application → first interview → first contract, broken down by joining month and platform |
+| Mentor performance: response time, number of reviews, stuck students |
+| AI cost per user and relative to revenue |
 
-## ۸. الزامات غیرعملکردی
-| حوزه | الزام |
+## 8. Non-functional requirements
+| Area | Requirement |
 |---|---|
-| زبان و نگارش | رابط کاملاً فارسی و RTL؛ تاریخ شمسی؛ فونت Vazirmatn؛ اعداد فارسی در رابط؛ متن‌های انگلیسی (آگهی، پروپوزال، لینک) داخل بلوک LTR |
-| دسکتاپ و موبایل | وب‌اپ واکنش‌گرا که **روی دسکتاپ و موبایل هر دو خوب کار کند** (تصمیم بنیان‌گذار). نماهای پرداده‌ی مربی (کانبان، فهرست هنرجوها، «امروز») روی دسکتاپ از عرض صفحه استفاده کنند؛ همه‌ی کارهای مربی (یادداشت، تغییر مرحله، بازبینی) روی گوشی هم شدنی باشد |
-| شبکه | سبک؛ کار روی اینترنت ضعیف؛ میزبانی 0.1 روی Azure یا Vercel (تصمیم بنیان‌گذار، ۱۴۰۵/۰۷/۲۷؛ ر.ک. `04-architecture/adr/0002-hosting-0.1.md`) ولی **قابل‌انتقال به میزبان ایرانی** (یک image داکر، Postgres استاندارد)؛ بدون CDN و فونت از سرویس‌های خارجی |
-| حریم خصوصی | حداقل‌سازی داده؛ عدم ذخیره‌ی رمز اکانت‌ها؛ یادداشت داخلی جدا از هنرجو؛ رضایت صریح برای استفاده از نمونه‌ها؛ امکان حذف حساب. بازبینی با security-reviewer |
-| در دسترس بودن | ۹۹٪ در ساعت‌های کاری کافی است؛ پشتیبان‌گیری روزانه |
-| مقیاس | تا ۵۰۰ کاربر بدون تغییر معماری (فرض A1) |
-| قابلیت گسترش | پلتفرم‌ها، مراحل، انواع کار و نقطه‌ی عطف، و rubricها داده‌اند نه کد |
+| Language and script | Fully Persian, RTL interface; Jalali dates; Vazirmatn font; Persian digits in the UI; English text (job posts, proposals, links) inside LTR blocks |
+| Desktop and mobile | Responsive web app that **works well on both desktop and mobile** (founder's decision). The coach's data-dense views (kanban, student list, "Today") use the screen width on desktop; all of the coach's tasks (notes, stage change, review) are also doable on a phone |
+| Network | Lightweight; works on a weak connection; 0.1 hosted on Azure or Vercel (founder's decision, 1405/07/27; see `04-architecture/adr/0002-hosting-0.1.md`) but **portable to an Iranian host** (one Docker image, standard Postgres); no CDN or fonts from external services |
+| Privacy | Data minimization; no storage of account passwords; internal notes separated from the student; explicit consent for using samples; account deletion possible. Review with security-reviewer |
+| Availability | 99% during working hours is enough; daily backups |
+| Scale | Up to 500 users without an architecture change (assumption A1) |
+| Extensibility | Platforms, stages, task and milestone types, and rubrics are data, not code |
 
-## ۹. خطوط قرمز محصول
-از `01-discovery/domain-notes.md` بخش ۴ و `risks.md`:
-- بدون اسکرپ، لاگین، افزونه یا ارسال خودکار در هیچ پلتفرمی؛ ورودی فقط paste دستی.
-- بدون ذخیره‌ی رمز یا کوکی اکانت‌ها.
-- بدون معرفی یا آموزش خرید/اجاره‌ی اکانت، هویت دیگران یا دور زدن احراز هویت (در محتوا، ابزارها و پاسخ مشاورها).
-- بدون قالب یا توصیه برای ارتباط و پرداخت بیرون از پلتفرم (circumvention).
-- بدون ادعای تضمین درآمد.
+## 9. Product red lines
+From `01-discovery/domain-notes.md` section 4 and `risks.md`:
+- No scraping, logging in, extensions or automatic submission on any platform; input is manual paste only.
+- No storage of account passwords or cookies.
+- No brokering of or teaching about buying/renting accounts, using other people's identities, or bypassing identity verification (in content, tools and mentor answers).
+- No templates or advice for communicating or paying outside the platform (circumvention).
+- No income-guarantee claims.
 
-## ۱۰. تصمیم‌هایی که بنیان‌گذار باید بگیرد
-| # | تصمیم | پیش‌فرض ما | اثر |
+## 10. Decisions the founder must make
+| # | Decision | Our default | Impact |
 |---|---|---|---|
-| D1 | وب‌اپ (PWA) یا ربات تلگرام برای 0.1 | ✅ **وب‌اپ، خوب روی دسکتاپ و موبایل** (بنیان‌گذار، ۱۴۰۵/۰۷/۲۷) | کل 0.1 |
-| D2 | مشاور فقط هنرجوهای خودش را ببیند یا همه را | فقط خودش | دسترسی‌ها |
-| D3 | فهرست مراحل مسیر و مدت مورد انتظار هر مرحله | از `learning/learning-path.md` | F3، F7 |
-| D4 | آستانه‌های وضعیت سلامت (زرد/قرمز) و SLA تیم (۴۸ ساعت بازبینی، ۲۴ ساعت سؤال) | جدول‌های F7 (هماهنگ با `learning/progress-tracking.md` بخش ۷) | F7 |
-| D5 | تعریف دقیق North Star: «اولین قرارداد/سفارش پولی در هر پلتفرم یا مشتری مستقیم»، با مدرک | همین | `metrics.md` |
-| D6 | رضایت هنرجوها برای استفاده‌ی بی‌نام از پروپوزال‌ها در ساخت ابزار AI | با چک‌باکس رضایت | G4، F13 |
-| D7 | اینماد/درگاه یا کارت‌به‌کارت در 1.0 | ✅ **معلق**: پرداخت فعلاً در دامنه نیست تا مدل درآمد تصمیم گرفته شود (بنیان‌گذار، ۱۴۰۵/۰۷/۲۷) | F17 |
-| D8 | پرداخت ارزی یا واسط ریالی برای LLM | واسط (A4) | معماری 1.0 |
+| D1 | Web app (PWA) or Telegram bot for 0.1 | ✅ **Web app, good on both desktop and mobile** (founder, 1405/07/27) | All of 0.1 |
+| D2 | Does a mentor see only their own students or everyone | Only their own | Permissions |
+| D3 | List of path stages and the expected duration of each stage | From `learning/learning-path.md` | F3, F7 |
+| D4 | Health-status thresholds (yellow/red) and team SLA (48-hour review, 24-hour question) | F7 tables (aligned with `learning/progress-tracking.md` section 7) | F7 |
+| D5 | Exact definition of the North Star: "first paid contract/order on any platform or with a direct client", with evidence | As stated | `metrics.md` |
+| D6 | Student consent for anonymous use of proposals in building the AI tool | With a consent checkbox | G4, F13 |
+| D7 | Enamad/gateway or card-to-card in 1.0 | ✅ **Suspended**: payment is out of scope for now until the revenue model is decided (founder, 1405/07/27) | F17 |
+| D8 | Foreign-currency payment or rial intermediary for the LLM | Intermediary (A4) | 1.0 architecture |

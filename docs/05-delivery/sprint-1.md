@@ -1,150 +1,150 @@
-# اسپرینت ۱ — یادداشت تحویل
+# Sprint 1 — Delivery notes
 
-> فاز ۴، نسخه‌ی 0.1 «دفتر مربی». هر نقش بخش خودش را می‌نویسد.
+> Phase 4, version 0.1 "Coach Office". Each role writes its own section.
 
 ---
 
-## بک‌اند (backend-engineer) — ۲۸ مهر ۱۴۰۵
+## Backend (backend-engineer) — 28 Mehr 1405 (2026-10-20)
 
-**دامنه:** پایه‌ی داده، احراز هویت و دسترسی (ADR-0003 با C1 و C2، ADR-0004 با C3، ADR-0008، ADR-0010). امکانات محصول (هنرجو، کار، یادداشت، …) در اسپرینت‌های بعد است.
+**Scope:** Data foundation, authentication and access (ADR-0003 with C1 and C2, ADR-0004 with C3, ADR-0008, ADR-0010). Product features (students, tasks, notes, …) come in later sprints.
 
-### endpointها (`/api/v1`)
-| متد و مسیر | نقش | نکته |
+### Endpoints (`/api/v1`)
+| Method and path | Role | Note |
 |---|---|---|
-| `POST /auth/login` | عمومی | قفل سه‌لایه (`pi` ۵/۱۵د، `p` ۲۰/۱س با عبور کوکی دستگاه، `ip` ۳۰/۱۵د)؛ هش ساختگی برای کاربر ناموجود، `invited` و `disabled`؛ کوکی نشست و کوکی دستگاه |
-| `POST /auth/logout` | * | `204`، کوکی با `Max-Age=0`، `Clear-Site-Data: "cache"`؛ کوکی دستگاه می‌ماند |
+| `POST /auth/login` | Public | Three-layer lockout (`pi` 5/15m, `p` 20/1h with device-cookie bypass, `ip` 30/15m); dummy hash for non-existent, `invited` and `disabled` users; session cookie and device cookie |
+| `POST /auth/logout` | * | `204`, cookie with `Max-Age=0`, `Clear-Site-Data: "cache"`; the device cookie stays |
 | `GET /auth/me` | * | `MeDTO` |
-| `POST /auth/change-password` | * | رمز فعلی غلط ← `422 fields.currentPassword` و قفل `pwchange:u` ۵/۱۵د؛ همه‌ی نشست‌ها باطل و نشست جاری چرخانده می‌شود |
-| `GET /auth/sessions`، `DELETE /auth/sessions/:id` | * | فقط نشست‌های خود؛ نشست دیگران ← `404` |
-| `POST /auth/tokens/lookup` | عمومی | C1: توکن فقط در بدنه؛ موبایل برنمی‌گردد؛ همه‌ی حالت‌های نامعتبر ← `410`؛ محدودیت `token:ip` ۳۰/۱۵د |
-| `POST /auth/tokens/accept` | عمومی | موبایل کامل لازم؛ ۵ موبایل غلط ← ابطال توکن + `audit_log`؛ مصرف اتمی؛ ابطال همه‌ی نشست‌ها و نشست کوکی همان مرورگر |
-| `GET /users` | A | با `inviteAcceptedAt`، `inviteAcceptedDevice`، `erasedAt` |
-| `GET /mentors` | A، M | کارکنان فعال |
-| `POST /invitations` | A | فقط `mentor` و `admin`؛ لینک `…/invite#t=…` یک بار، `no-store` |
-| `POST /users/:id/invite-link` | A؛ M فقط هنرجوی `invited` در دامنه (C3) | مشاور برای مدیر یا مشاور `invited` ← `404` (همان بدنه‌ی شناسه‌ی ناموجود) |
-| `POST /users/:id/reset-link` | A | ۲۴ ساعت؛ `…/reset#t=…` |
+| `POST /auth/change-password` | * | Wrong current password → `422 fields.currentPassword` and a `pwchange:u` lock of 5/15m; all sessions are revoked and the current session is rotated |
+| `GET /auth/sessions`, `DELETE /auth/sessions/:id` | * | Own sessions only; someone else's session → `404` |
+| `POST /auth/tokens/lookup` | Public | C1: token only in the body; the phone number is not returned; all invalid states → `410`; `token:ip` limit 30/15m |
+| `POST /auth/tokens/accept` | Public | Full phone number required; 5 wrong phone numbers → token revoked + `audit_log`; atomic consumption; revokes all sessions and the cookie session of the same browser |
+| `GET /users` | A | With `inviteAcceptedAt`, `inviteAcceptedDevice`, `erasedAt` |
+| `GET /mentors` | A, M | Active staff |
+| `POST /invitations` | A | `mentor` and `admin` only; link `…/invite#t=…` returned once, `no-store` |
+| `POST /users/:id/invite-link` | A; M only for an `invited` student in scope (C3) | A mentor requesting it for an `invited` admin or mentor → `404` (same body as a non-existent ID) |
+| `POST /users/:id/reset-link` | A | 24 hours; `…/reset#t=…` |
 
-همه در `src/server/http/routes.manifest.ts` ثبت‌اند. هیچ مسیری `:token` ندارد.
+All are registered in `src/server/http/routes.manifest.ts`. No route has `:token`.
 
-### جدول‌ها و migration
-`apps/web/drizzle/0001_identity_auth.sql` (تولید با drizzle-kit و بازبینی‌شده): `users` (نقش، وضعیت، `erased_at`، CHECKها)، `auth_tokens` (فقط SHA-256، `phone_mismatch_count`، `used_user_agent`، index جزئی)، `sessions` (فقط SHA-256)، `auth_throttle`، `audit_log` (ماژول admin)، `settings` (ماژول catalog؛ ردیف نبود = پیش‌فرض).
+### Tables and migration
+`apps/web/drizzle/0001_identity_auth.sql` (generated with drizzle-kit and reviewed): `users` (role, status, `erased_at`, CHECKs), `auth_tokens` (SHA-256 only, `phone_mismatch_count`, `used_user_agent`, partial index), `sessions` (SHA-256 only), `auth_throttle`, `audit_log` (admin module), `settings` (catalog module; a missing row = default).
 
-### ساختار کد
-- `src/lib`: `phone` (نرمال‌سازی موبایل ایران، `maskPhone`؛ **در مرورگر هم قابل‌استفاده است**)، `text-fa` (ADR-0008 و SEC-X5)، `uuid` (UUIDv7).
-- `src/modules/identity`: schema، contracts، policy، service، repo، `password` (SEC-P1..P5، صف ۲تایی، `503` بعد از ۵ ثانیه)، `throttle`، `tokens`، `session-policy`.
-- `src/modules/access`: `staffStudentScope`، `scopeCondition`، `isStudentInScope`، `loadInScope` (رجیستری resolver)، `assertRefs`.
-- `src/modules/admin` (`recordAudit`؛ کلید ممنوع مثل token/url/password را رد می‌کند) و `src/modules/catalog` (`getAccessSettings`).
-- `src/server/http`: `route()` (CSRF ← نشست ← zod ← service؛ سقف ۲۵۶KB پیش از parse)، خطاهای فارسی، `getClientIp`، هدرها و CSP. `src/proxy.ts`: CSP با nonce. `next.config.ts`: هدرهای SEC-H2 و `no-referrer`/`no-store` روی `/invite` و `/reset`.
-- `src/server/auth/current-user.ts`: بدنه‌ها پیاده شد، امضاها همان است. `requireUser` بی‌نشست ← `/login`؛ نقش نامجاز ← `/today` (کارکنان) یا `/home` (هنرجو).
-- job `auth.cleanup` (هر روز ۳:۳۰ تهران) طبق data-model ۶-۱.
-- CLI: `pnpm admin:create --phone … --name …` (نام دیگر: `admin:bootstrap`)، `pnpm admin:reset-link --phone …`، `pnpm admin:erase-user --id … --confirm "…" --requested-on YYYY-MM-DD`.
+### Code structure
+- `src/lib`: `phone` (Iranian mobile number normalization, `maskPhone`; **also usable in the browser**), `text-fa` (ADR-0008 and SEC-X5), `uuid` (UUIDv7).
+- `src/modules/identity`: schema, contracts, policy, service, repo, `password` (SEC-P1..P5, queue of 2, `503` after 5 seconds), `throttle`, `tokens`, `session-policy`.
+- `src/modules/access`: `staffStudentScope`, `scopeCondition`, `isStudentInScope`, `loadInScope` (resolver registry), `assertRefs`.
+- `src/modules/admin` (`recordAudit`; rejects forbidden keys such as token/url/password) and `src/modules/catalog` (`getAccessSettings`).
+- `src/server/http`: `route()` (CSRF → session → zod → service; 256KB cap before parsing), Persian error messages, `getClientIp`, headers and CSP. `src/proxy.ts`: CSP with nonce. `next.config.ts`: SEC-H2 headers and `no-referrer`/`no-store` on `/invite` and `/reset`.
+- `src/server/auth/current-user.ts`: bodies implemented, signatures unchanged. `requireUser` without a session → `/login`; disallowed role → `/today` (staff) or `/home` (student).
+- `auth.cleanup` job (daily at 3:30 Tehran time) per data-model 6-1.
+- CLI: `pnpm admin:create --phone … --name …` (alias: `admin:bootstrap`), `pnpm admin:reset-link --phone …`, `pnpm admin:erase-user --id … --confirm "…" --requested-on YYYY-MM-DD`.
 
-### نتیجه‌ی فرمان‌ها (اجرای واقعی، پس از آخرین تغییر)
-| فرمان | نتیجه |
+### Command results (real run, after the last change)
+| Command | Result |
 |---|---|
-| `pnpm lint` | تمیز (۱۷۴ فایل) |
-| `pnpm typecheck` | تمیز |
-| `pnpm test` | ۲۶ فایل، **۳۱۳ تست سبز**: واحد ۱۷۴ (۱۴۸ تای آن این بخش) و یکپارچه ۱۳۹ روی Postgres جاسازی‌شده (۱۳۶ تای آن این بخش) |
-| `pnpm build` | موفق؛ همه‌ی مسیرها dynamic |
-| دود واقعی | `next start` + Postgres موقت: دعوت CLI ← lookup ← accept (ارقام فارسی) ← login ← me ← users ← invitations ← invite-link ← POST بی‌`Origin` = `403`. nonce روی همه‌ی اسکریپت‌های `/invite` بود. CLIها هم روی Postgres موقت اجرا شدند. هیچ پردازه‌ای باز نماند |
+| `pnpm lint` | Clean (174 files) |
+| `pnpm typecheck` | Clean |
+| `pnpm test` | 26 files, **313 tests green**: 174 unit (148 of them from this section) and 139 integration on embedded Postgres (136 of them from this section) |
+| `pnpm build` | Success; all routes dynamic |
+| Real smoke test | `next start` + temporary Postgres: CLI invite → lookup → accept (Persian digits) → login → me → users → invitations → invite-link → POST without `Origin` = `403`. The nonce was present on all `/invite` scripts. The CLIs were also run against the temporary Postgres. No process was left running |
 
-تست‌های یکپارچه: جریان کامل دعوت ← پذیرش ← ورود ← me ← خروج؛ بازنشانی رمز؛ T-AUTH (قفل دقیق، موبایل ناموجود، spy هش ساختگی، کوکی دستگاه خود/دیگری/جعلی، XFF جعلی)؛ T-TOKEN (منقضی، مصرف‌شده، ساخت دوباره، ۵ موبایل غلط، دو پذیرش هم‌زمان)؛ T-SESSION (سقف مطلق، password_changed_at، نقش از دیتابیس، لغزنده هر ۱۵ دقیقه، توکن فقط از کوکی)؛ T-MATRIX برای ۱۳ endpoint × ۶ حالت (A، M، S، بی‌نشست، غیرفعال با کوکی قدیمی، `invited` با نشست جعلی) و کامل بودن manifest؛ T-ESC؛ T-CSRF روی همه‌ی endpointهای نوشتنی؛ نبود Server Action؛ T-LOG بخشی (موبایل کامل، توکن، کوکی و `$argon2id$` در لاگ نیست)؛ CLIها، حذف حساب و نگه‌داری.
+Integration tests: the full invite → accept → login → me → logout flow; password reset; T-AUTH (exact lockout, non-existent phone number, dummy-hash spy, own/other/forged device cookie, forged XFF); T-TOKEN (expired, consumed, regenerated, 5 wrong phone numbers, two concurrent accepts); T-SESSION (absolute cap, password_changed_at, role from the database, sliding every 15 minutes, token only from the cookie); T-MATRIX for 13 endpoints × 6 states (A, M, S, no session, disabled with an old cookie, `invited` with a forged session) and manifest completeness; T-ESC; T-CSRF on all write endpoints; absence of Server Actions; partial T-LOG (full phone number, token, cookie and `$argon2id$` are not in the logs); the CLIs, account erasure and retention.
 
-### فرض‌ها (برای بازبینی software-architect و security-reviewer)
-1. **موبایل فقط ایران** (`9` + ۹ رقم). CHECK دیتابیس شماره‌ی بین‌المللی را هم می‌پذیرد تا بعداً باز شود.
-2. **کوکی نشست تا سقف مطلق نشست زنده است** (هنرجو ۹۰، کارکنان ۳۰ روز)، نه تا انقضای لغزنده (SEC-S1). دلیل: RSC نمی‌تواند کوکی بنویسد و هنرجویی که فقط صفحه می‌بیند پس از ۳۰ روز بیرون می‌افتاد. انقضای لغزنده در سرور در هر درخواست اعمال می‌شود، پس کوکی کهنه بی‌اثر است.
-3. **POST بدون بدنه** (logout، invite-link، reset-link) می‌تواند `Content-Type` نداشته باشد؛ بدنه‌دار فقط `application/json`. فرم بین‌سایتی همیشه `Content-Type` می‌فرستد، پس نیت SEC-C3 حفظ است.
-4. **ساخت هنرجو** با `POST /students` در اسپرینت ۲ است (جدول `students` و مرحله‌ی فعلی لازم است). `identity.createInvitedUser(tx, …)` آماده است. `POST /invitations` فقط مدیر و مشاور می‌سازد (api.md).
-5. **دامنه‌ی مشاور** تا ساخت `students` خالی است (deny by default): مشاور برای هیچ هنرجویی لینک دعوت نمی‌گیرد. جای اتصال با TODO مشخص است.
-6. ساخت دوباره‌ی لینک دعوت توسط مشاور به `mentorsCanInviteStudents` وابسته نشد (ADR فقط برای ساخت هنرجو گفته است).
-7. `reset-link` فقط برای کاربر `active` (برای `invited` و `disabled` ← `409`). `admin:reset-link` برای کاربر `invited` (لینک راه‌اندازی منقضی‌شده) لینک دعوت ۱ ساعته می‌دهد تا اولین مدیر هرگز بیرون نماند.
-8. اسکریپت با نام `admin:create` (درخواست project-lead) و نام ADR (`admin:bootstrap`) هر دو هست.
-9. بدون `DEVICE_COOKIE_SECRET` در غیر production یک راز تصادفی در حافظه ساخته می‌شود (با هر ری‌استارت کوکی‌های دستگاه بی‌اعتبار می‌شوند).
-10. پاسخ `429` علاوه بر `retryAfterSeconds`، `code` و پیام فارسی ثابت (با دقیقه‌ی مانده) دارد؛ چیزی درباره‌ی لایه یا وجود حساب نمی‌گوید.
-11. `auth.locked` در `audit_log` فقط برای لایه‌های موبایل حساب موجود ثبت می‌شود؛ قفل IP فقط لاگ می‌شود.
-12. `GET /users` صفحه‌بندی ندارد (حداکثر ۱۰۰۰ ردیف) و `{ items, nextCursor: null }` برمی‌گرداند.
+### Assumptions (for review by software-architect and security-reviewer)
+1. **Iranian mobile numbers only** (`9` + 9 digits). The database CHECK also accepts international numbers so this can be opened up later.
+2. **The session cookie lives until the session's absolute cap** (student 90, staff 30 days), not until the sliding expiry (SEC-S1). Reason: RSC cannot write cookies, and a student who only views pages would be logged out after 30 days. Sliding expiry is enforced on the server on every request, so a stale cookie has no effect.
+3. **Bodyless POSTs** (logout, invite-link, reset-link) may omit `Content-Type`; those with a body accept only `application/json`. A cross-site form always sends a `Content-Type`, so the intent of SEC-C3 is preserved.
+4. **Student creation** via `POST /students` is in sprint 2 (it needs the `students` table and the current stage). `identity.createInvitedUser(tx, …)` is ready. `POST /invitations` creates only admins and mentors (api.md).
+5. **A mentor's scope** is empty until `students` exists (deny by default): a mentor cannot get an invite link for any student. The hook-up point is marked with a TODO.
+6. Regenerating an invite link by a mentor was not made dependent on `mentorsCanInviteStudents` (the ADR only mentions it for creating students).
+7. `reset-link` only for `active` users (for `invited` and `disabled` → `409`). `admin:reset-link` for an `invited` user (expired setup link) issues a 1-hour invite link so the first admin is never locked out.
+8. The script exists under both the name `admin:create` (project-lead's request) and the ADR's name (`admin:bootstrap`).
+9. Without `DEVICE_COOKIE_SECRET` outside production, a random in-memory secret is generated (device cookies become invalid on every restart).
+10. A `429` response has, besides `retryAfterSeconds`, a `code` and a fixed Persian message (with the minutes remaining); it says nothing about the layer or whether the account exists.
+11. `auth.locked` is recorded in `audit_log` only for the phone layers of an existing account; an IP lockout is only logged.
+12. `GET /users` has no pagination (max 1000 rows) and returns `{ items, nextCursor: null }`.
 
-### سؤال‌های باز (برای software-architect)
-- **SEC-T5 در برابر نگه‌داری توکن:** `auth.cleanup` توکن‌ها را ۷ روز پس از مصرف حذف می‌کند (data-model ۶-۱)، پس «دعوت پذیرفته شد: زمان، دستگاه» در `GET /users` پس از ۷ روز خالی می‌شود. اگر باید بماند، ستون روی `users` یا استثنا در cleanup لازم است.
-- **بالا نیامدن با env نامعتبر (SEC-S8، SEC-J1):** `getEnv()` تنبل است؛ در production با env ناقص برنامه بالا می‌آید و هر درخواست `500` می‌دهد (در `next start` دیده شد). پیشنهاد: فراخوانی `getEnv()` در `src/instrumentation.ts` (بیرون از مرز این کار؛ تصمیم با devops-engineer).
+### Open questions (for software-architect)
+- **SEC-T5 vs. token retention:** `auth.cleanup` deletes tokens 7 days after they are used (data-model 6-1), so "Invite accepted: time, device" in `GET /users` becomes empty after 7 days. If it must persist, a column on `users` or an exception in cleanup is needed.
+- **Refusing to start with an invalid env (SEC-S8, SEC-J1):** `getEnv()` is lazy; in production with an incomplete env the app starts and every request returns `500` (observed with `next start`). Proposal: call `getEnv()` in `src/instrumentation.ts` (outside this task's boundary; devops-engineer's decision).
 
-### کارهای باقی‌مانده
-- [ ] اسپرینت ۲ (students): `PrimaryMentorLookup` واقعی، resolverهای `loadInScope`، `isExistingStudent` در `assertRefs`، `students.last_activity_at`، `timeline_events(invite.accepted)`، `POST /students`، و نقش‌های M-مالک، M-سابق، S-دیگر و M-assignee در ماتریس.
-- [ ] `PATCH /users/:id` و `PATCH /users/:id/role` (ابطال نشست‌ها، آخرین مدیر `409`)، `GET/PUT /settings`.
-- [ ] `admin:erase-user` برای جدول‌های ماژول‌های بعدی (فهرست TODO در `identity/service.ts`) و پیش‌شرط «مشاور اصلی هنرجو نباشد».
-- [ ] SEC-P3: فهرست محلی حدود ۱۰۰ هزار رمز لورفته (فعلاً حدود ۲۰۰ مورد رایج و ایرانی).
-- [ ] SEC-S7 (`/auth/reauth`) پیش از دعوت دومین مدیر.
-- [ ] قاعده‌ی Biome `noRestrictedImports` برای مسیرهای هنرجو، و T-LOG کامل (همراه آپلود و CSV).
-- [ ] اندازه‌گیری زمان argon2 روی App Service B1 (محلی حدود ۲۵ میلی‌ثانیه؛ هدف ۵۰ تا ۲۵۰).
-- [ ] مسیر `POST /api/internal/jobs/:name` برای `JOBS_MODE=http-trigger` (SEC-J1..J3).
-- [ ] README ریشه: افزودن فرمان‌های `admin:*` (بیرون از مرز این کار).
+### Remaining work
+- [ ] Sprint 2 (students): real `PrimaryMentorLookup`, `loadInScope` resolvers, `isExistingStudent` in `assertRefs`, `students.last_activity_at`, `timeline_events(invite.accepted)`, `POST /students`, and the M-owner, M-former, S-other and M-assignee roles in the matrix.
+- [ ] `PATCH /users/:id` and `PATCH /users/:id/role` (session revocation, last admin `409`), `GET/PUT /settings`.
+- [ ] `admin:erase-user` for the tables of later modules (TODO list in `identity/service.ts`) and the precondition "must not be a student's primary mentor".
+- [ ] SEC-P3: a local list of about 100k leaked passwords (currently about 200 common and Iranian ones).
+- [ ] SEC-S7 (`/auth/reauth`) before inviting a second admin.
+- [ ] Biome `noRestrictedImports` rule for student routes, and full T-LOG (together with upload and CSV).
+- [ ] Measure argon2 time on App Service B1 (about 25 ms locally; target 50 to 250).
+- [ ] `POST /api/internal/jobs/:name` route for `JOBS_MODE=http-trigger` (SEC-J1..J3).
+- [ ] Root README: add the `admin:*` commands (outside this task's boundary).
 
 ---
 
-## فرانت‌اند (frontend-engineer) — ۲۸ مهر ۱۴۰۵
+## Frontend (frontend-engineer) — 28 Mehr 1405 (2026-10-20)
 
-**دامنه:** سیستم طراحی، قاب برنامه، صفحه‌های ورود و «حساب من». مرجع ظاهر: ماکاپ‌های تأییدشده‌ی `docs/03-ux/mockups/`.
+**Scope:** Design system, app shell, login pages and "My account". Visual reference: the approved mockups in `docs/03-ux/mockups/`.
 
-### ساخته شد
+### Built
 
-| بخش | مسیر | توضیح |
+| Area | Path | Description |
 |---|---|---|
-| توکن‌ها | `apps/web/src/app/globals.css` | همه‌ی توکن‌های `mockups/styles.css` با همان نام‌ها (`--c-*`، `--h-*`، `--st-*`، `--av-*`، `--side-*`، `--brand-*`) + حالت تاریک خودکار با `prefers-color-scheme`. نگاشت به تم Tailwind 4 با `@theme inline` (مثلاً `bg-surface`، `text-fg-2`، `border-line-strong`، `bg-h-red-bg`، `shadow-ring`). پالت پیش‌فرض Tailwind حذف شد (`--color-*: initial`) تا رنگ بیرون از سیستم وارد نشود. نقطه‌های شکست: `md` = ۷۶۸، `lg` = ۱۲۰۰، `xl` = ۱۲۸۰ |
-| فونت | `apps/web/src/app/layout.tsx` | Vazirmatn متغیر با `next/font/local` (محلی، preload خودکار)؛ بررسی شد که در همه‌ی صفحه‌ها واقعاً بار می‌شود |
-| کامپوننت‌های پایه | `apps/web/src/components/ui/` | `Button`/`ButtonLink` (۷ نوع، ۳ اندازه، loading و disabled با `aria-disabled`)؛ `TextField`/`TextareaField`/`SelectField` با label، hint، خطا، `aria-invalid` و `aria-describedby`؛ `Card`/`CardHead`؛ `Tag`، `Count`، `TaskStatusChip`، `HealthBadge` (رنگ + شکل + متن)، `Ball`، `RuleCode`؛ `Avatar` (۸ رنگ ثابت، `hash(id) % 8`)؛ `PathBar` ۹ مرحله‌ای؛ `EmptyState`، `ErrorState`، `SkeletonRows` (پس از ۱۰ ثانیه «اتصال کند است…»)، `Alert`؛ `ToastProvider`/`useToast`؛ `Dialog` (پنجره در دسکتاپ، برگه‌ی پایین در موبایل)؛ `PageHead`؛ `ComingSoon` |
-| آیکن‌ها | `apps/web/src/components/icons/` | همان ۵۷ آیکن ماکاپ‌ها، به‌صورت کامپوننت `Icon`؛ ضخامت خط بر اساس اندازه (۲٫۱ در ۲۰px، ۲٫۴ در ۱۶px، …)؛ آیکن‌های جهت‌دار در RTL آینه می‌شوند |
-| قاب مربی/مشاور | `components/shell/staff-*.tsx` | سایدبار جوهری دسکتاپ (۲۵۶px؛ تبلت ۲۲۴px) با جستجو، ناوبری، گروه «مدیر» فقط برای admin، و کاربر پایین. موبایل: نوار بالا (منو، عنوان + تاریخ شمسی، جستجو)، نوار پایین با «+» وسط، برگه‌ی «افزودن سریع» (۲×۲) و برگه‌ی «منو» (مراحل، یادآورها، نتایج و تنظیمات فقط برای مدیر، حساب من، خروج) |
-| قاب هنرجو | `components/shell/student-*.tsx` | دسکتاپ: نوار بالای نیمه‌شفاف ۶۴px با پنج قرص و ستون ۷۶۰px. موبایل: نوار بالا + نوار پایین پنج‌تایی |
-| layoutها | `app/(staff)/layout.tsx`، `app/(staff)/(admin)/layout.tsx`، `app/(student)/layout.tsx`، `app/(account)/layout.tsx` | با `requireUser([...])` از `server/auth/current-user.ts` |
-| صفحه‌های «به‌زودی» | `/today`، `/students`، `/students/new`، `/stages`، `/tasks`، `/tasks/new`، `/questions`، `/reminders`، `/results`، `/settings`، `/home`، `/my/tasks`، `/my/questions`، `/my/path`، `/my/profile` | فقط برای کار کردن ناوبری |
-| G1 ورود | `/login` | موبایل (ارقام فارسی و عربی پذیرفته و به لاتین تبدیل می‌شوند، `dir="ltr"`، `inputmode="tel"`، `autocomplete="username"`) + رمز با دکمه‌ی نمایش. خطاها: ۴۰۱ پیام یکسان، ۴۲۲ کنار فیلد، ۴۲۹ و ۵۰۳ با شمارش معکوس و قفل دکمه، قطع شبکه. `?next=` فقط مسیر نسبی همین سایت |
-| G2/G3 دعوت و بازنشانی | `/invite`، `/reset` | امنیت C1: توکن فقط از `#t=` خوانده و بلافاصله با `history.replaceState` از نوار آدرس پاک می‌شود؛ lookup و accept با POST و توکن در بدنه؛ موبایل خالی است و کاربر خودش وارد می‌کند؛ هشدار «با حساب دیگری وارد شده‌ای»؛ حالت «این لینک دیگر کار نمی‌کند» برای نبود توکن و ۴۱۰؛ `referrer: no-referrer` و `noindex` |
-| G4 فراموشی رمز | `/forgot` | فقط راهنما: به مربی پیام بده؛ بدون فرم |
-| M12/S10 حساب من | `/account` | مشخصات، تغییر رمز (حداقل ۸ برای هنرجو و ۱۲ برای کارکنان، ADR-0003)، خروج، و یک خط راهنما برای حذف حساب **بدون دکمه** (C5) |
-| پیش‌نمایش توسعه | `/dev/shell?role=admin\|mentor\|student[&view=account]` | قاب‌ها با کاربر ساختگی + گالری همه‌ی کامپوننت‌ها. در production `notFound()` (بررسی شد: ۴۰۴) |
+| Tokens | `apps/web/src/app/globals.css` | All tokens from `mockups/styles.css` with the same names (`--c-*`, `--h-*`, `--st-*`, `--av-*`, `--side-*`, `--brand-*`) + automatic dark mode via `prefers-color-scheme`. Mapped to the Tailwind 4 theme with `@theme inline` (e.g. `bg-surface`, `text-fg-2`, `border-line-strong`, `bg-h-red-bg`, `shadow-ring`). Tailwind's default palette was removed (`--color-*: initial`) so no colors from outside the system creep in. Breakpoints: `md` = 768, `lg` = 1200, `xl` = 1280 |
+| Font | `apps/web/src/app/layout.tsx` | Variable Vazirmatn via `next/font/local` (local, automatic preload); verified that it actually loads on every page |
+| Base components | `apps/web/src/components/ui/` | `Button`/`ButtonLink` (7 variants, 3 sizes, loading and disabled with `aria-disabled`); `TextField`/`TextareaField`/`SelectField` with label, hint, error, `aria-invalid` and `aria-describedby`; `Card`/`CardHead`; `Tag`, `Count`, `TaskStatusChip`, `HealthBadge` (color + shape + text), `Ball`, `RuleCode`; `Avatar` (8 fixed colors, `hash(id) % 8`); 9-stage `PathBar`; `EmptyState`, `ErrorState`, `SkeletonRows` (after 10 seconds "Connection is slow…"), `Alert`; `ToastProvider`/`useToast`; `Dialog` (modal on desktop, bottom sheet on mobile); `PageHead`; `ComingSoon` |
+| Icons | `apps/web/src/components/icons/` | The same 57 icons as the mockups, as an `Icon` component; stroke width depends on size (2.1 at 20px, 2.4 at 16px, …); directional icons are mirrored in RTL |
+| Coach/mentor shell | `components/shell/staff-*.tsx` | Ink-colored desktop sidebar (256px; 224px on tablet) with search, navigation, an "Admin" group shown only to admins, and the user at the bottom. Mobile: top bar (menu, title + Jalali date, search), bottom bar with a "+" in the middle, a "Quick add" sheet (2×2) and a "Menu" sheet (stages, reminders, results and settings for admins only, my account, log out) |
+| Student shell | `components/shell/student-*.tsx` | Desktop: semi-transparent 64px top bar with five pills and a 760px column. Mobile: top bar + five-item bottom bar |
+| Layouts | `app/(staff)/layout.tsx`, `app/(staff)/(admin)/layout.tsx`, `app/(student)/layout.tsx`, `app/(account)/layout.tsx` | With `requireUser([...])` from `server/auth/current-user.ts` |
+| "Coming soon" pages | `/today`, `/students`, `/students/new`, `/stages`, `/tasks`, `/tasks/new`, `/questions`, `/reminders`, `/results`, `/settings`, `/home`, `/my/tasks`, `/my/questions`, `/my/path`, `/my/profile` | Only so that navigation works |
+| G1 Login | `/login` | Phone number (Persian and Arabic digits accepted and converted to Latin, `dir="ltr"`, `inputmode="tel"`, `autocomplete="username"`) + password with a show button. Errors: 401 with a uniform message, 422 next to the field, 429 and 503 with a countdown and a locked button, network loss. `?next=` only accepts a relative path on this site |
+| G2/G3 Invite and reset | `/invite`, `/reset` | C1 security: the token is read only from `#t=` and immediately removed from the address bar with `history.replaceState`; lookup and accept use POST with the token in the body; the phone field is empty and the user types it themselves; a "You're signed in with another account" warning; a "This link no longer works" state for a missing token and for 410; `referrer: no-referrer` and `noindex` |
+| G4 Forgot password | `/forgot` | Guidance only: message your coach; no form |
+| M12/S10 My account | `/account` | Profile details, password change (minimum 8 for students and 12 for staff, ADR-0003), log out, and a one-line guide to account deletion **with no button** (C5) |
+| Dev preview | `/dev/shell?role=admin\|mentor\|student[&view=account]` | Shells with a fake user + a gallery of all components. `notFound()` in production (verified: 404) |
 
-### تست‌ها
-- **کامپوننت (Vitest + Testing Library، jsdom):** `components/auth/login-form.test.ts` (۹ تست) و `components/auth/accept-token-form.test.ts` (۱۰ تست): اعتبارسنجی، ارقام فارسی، `?next=` امن، ۴۰۱، ۴۲۲، ۴۲۹ (از بدنه و از `Retry-After`)، قطع شبکه، خواندن و پاک کردن توکن از fragment، ۴۱۰، عدم هم‌خوانی موبایل، هشدار حساب دیگر، متن بازنشانی.
-- **e2e (Playwright، ۱۴۴۰ و ۳۷۵):** `tests/e2e/home.spec.ts`، `auth.spec.ts`، `shell.spec.ts` و کمکی `helpers.ts` که در هر صفحه RTL، `lang="fa"`، نبود سرریز افقی و بارگذاری واقعی Vazirmatn را چک می‌کند.
+### Tests
+- **Component (Vitest + Testing Library, jsdom):** `components/auth/login-form.test.ts` (9 tests) and `components/auth/accept-token-form.test.ts` (10 tests): validation, Persian digits, safe `?next=`, 401, 422, 429 (from the body and from `Retry-After`), network loss, reading and clearing the token from the fragment, 410, phone mismatch, other-account warning, reset copy.
+- **e2e (Playwright, 1440 and 375):** `tests/e2e/home.spec.ts`, `auth.spec.ts`, `shell.spec.ts` and the `helpers.ts` helper, which checks RTL, `lang="fa"`, absence of horizontal overflow and actual loading of Vazirmatn on every page.
 
-### نتیجه‌ی فرمان‌ها (اجرای واقعی)
-| فرمان | نتیجه |
+### Command results (real run)
+| Command | Result |
 |---|---|
-| `pnpm test` | ۲۶ فایل، ۲۹۰ تست سبز (شامل ۱۹ تست کامپوننت این بخش و تست‌های بک‌اند) |
-| `pnpm test:e2e` | ۲۲ از ۲۲ سبز (۱۱ تست × دو اندازه) |
-| `pnpm build` | موفق؛ همه‌ی مسیرها dynamic |
-| `pnpm lint` | فایل‌های این بخش تمیز. خطاهای باقی‌مانده همه در فایل‌های بک‌اند در حال کار است (بیشترشان پایان خط CRLF، از جمله `apps/web/package.json`) |
-| `pnpm typecheck` | فایل‌های این بخش تمیز. ۶ خطا در `src/modules/identity/throttle.test.ts` و `tests/integration/access-matrix.test.ts` (بک‌اند، در حال کار) |
+| `pnpm test` | 26 files, 290 tests green (including this section's 19 component tests and the backend tests) |
+| `pnpm test:e2e` | 22 of 22 green (11 tests × two sizes) |
+| `pnpm build` | Success; all routes dynamic |
+| `pnpm lint` | This section's files are clean. The remaining errors are all in backend files still in progress (mostly CRLF line endings, including `apps/web/package.json`) |
+| `pnpm typecheck` | This section's files are clean. 6 errors in `src/modules/identity/throttle.test.ts` and `tests/integration/access-matrix.test.ts` (backend, in progress) |
 
-بررسی در مرورگر: همه‌ی صفحه‌ها در ۱۴۴۰ و ۳۷۵، روشن و تاریک، دیده شدند (برگه‌ها، پنجره، toast و حالت خطا هم).
+Browser check: all pages were viewed at 1440 and 375, in light and dark (sheets, dialog, toast and error state too).
 
-### یافته‌ی یکپارچه‌سازی: CSP با nonce و صفحه‌های ایستا
-`src/proxy.ts` (بک‌اند) CSP با nonce برای هر درخواست می‌گذارد. Next.js nonce را فقط به صفحه‌های dynamic می‌دهد؛ در build اول `/forgot` و صفحه‌ی ۴۰۴ ایستا ساخته شدند و در production **همه‌ی اسکریپت‌هایشان مسدود شد** (دیده شد در کنسول). راه‌حل: `await connection()` در `app/layout.tsx` تا همه‌ی مسیرها per-request رندر شوند (توصیه‌ی مستند Next.js برای nonce). پس از آن هیچ خطای CSP نماند.
+### Integration finding: nonce-based CSP and static pages
+`src/proxy.ts` (backend) sets a nonce-based CSP on every request. Next.js only gives the nonce to dynamic pages; in the first build `/forgot` and the 404 page were built statically, and in production **all of their scripts were blocked** (seen in the console). Fix: `await connection()` in `app/layout.tsx` so that all routes are rendered per request (the documented Next.js recommendation for nonces). After that, no CSP errors remained.
 
-### فاصله از ماکاپ و دلیلش
-| مورد | تصمیم | دلیل |
+### Deviations from the mockups and why
+| Item | Decision | Reason |
 |---|---|---|
-| زنگ اعلان در نوار بالای هنرجو | با آواتار هنرجو که به «حساب من» می‌رود جایگزین شد | صفحه‌ی اعلان در sitemap 0.1 نیست؛ زنگ بدون مقصد گمراه‌کننده است |
-| مسیر `/account` | گروه مسیر تازه‌ی `(account)` که قاب را بر اساس نقش انتخاب می‌کند | M12 و S10 یک آدرس دارند و در `(staff)` یا `(student)` جا نمی‌شوند. **بیرون از فهرست پوشه‌های واگذارشده است**؛ با کسی تداخل ندارد |
-| shadcn/Radix | استفاده نشد؛ `<dialog>` بومی و toast داخلی | ماکاپ‌ها ظاهر سفارشی دارند؛ `showModal()` قفل فوکوس و Esc را خودش دارد؛ JS کمتر برای اینترنت ضعیف (F10). بدون وابستگی تازه‌ی runtime |
-| حالت تاریک | فقط خودکار (مطابق سیستم) | design-system §۲-۸ امکان انتخاب دستی را هم گفته؛ به بک‌لاگ |
-| صفحه‌های ورود | ماکاپ نداشتند؛ کارت وسط صفحه با همان توکن‌ها ساخته شد | — |
-| فونت | از `src/fonts` با `next/font/local`، نه `public/fonts` + preload دستی | همان فایل؛ next/font خودش preload و `font-display: swap` می‌گذارد |
-| عدد شمارنده‌ها و میان‌بُرهای `/`، `N`، `G T` | ساختار شمارنده آماده است ولی داده ندارد؛ میان‌بُرها هنوز نه | داده و صفحه‌ی جستجو در اسپرینت‌های بعد |
-| لینک صفحه‌ی حریم خصوصی در `/invite` (SEC-F4) | فقط یک خط «اطلاعاتت را فقط مربی و مشاورت می‌بینند» | صفحه‌ی حریم خصوصی هنوز نیست و محل میزبانی (E1) قطعی نشده |
-| چند اندازه‌ی ریز (خط ۳px نشانگر، قرص ۱۸px، دکمه‌ی شناور ۵۲px) | به‌صورت مقدار دلخواه Tailwind با همان عدد ماکاپ | اندازه‌ی هندسی یک‌باره‌اند، نه رنگ یا فاصله‌ی سیستم |
+| Notification bell in the student top bar | Replaced with the student's avatar, which links to "My account" | There is no notifications page in the 0.1 sitemap; a bell with no destination is misleading |
+| `/account` route | A new `(account)` route group that picks the shell based on role | M12 and S10 share one URL and fit in neither `(staff)` nor `(student)`. **It is outside the list of assigned folders**; it does not conflict with anyone |
+| shadcn/Radix | Not used; native `<dialog>` and an in-house toast | The mockups have a custom look; `showModal()` provides focus trapping and Esc on its own; less JS for weak internet connections (F10). No new runtime dependency |
+| Dark mode | Automatic only (follows the system) | design-system §2-8 also mentions manual selection; moved to the backlog |
+| Login pages | Had no mockups; built as a centered card with the same tokens | — |
+| Font | From `src/fonts` via `next/font/local`, not `public/fonts` + manual preload | Same file; next/font adds the preload and `font-display: swap` itself |
+| Counter numbers and the `/`, `N`, `G T` shortcuts | The counter structure is ready but has no data; shortcuts not yet | Data and the search page come in later sprints |
+| Privacy page link on `/invite` (SEC-F4) | Only one line: "Only your coach and your mentor see your information" | The privacy page does not exist yet and the hosting location (E1) is not final |
+| A few small sizes (3px indicator line, 18px pill, 52px floating button) | As Tailwind arbitrary values with the same numbers as the mockup | They are one-off geometric sizes, not system colors or spacing |
 
-### قرارداد با بک‌اند (فرض‌های فرانت)
-- خطای ۴۲۹ و ۵۰۳: زمان انتظار از `retryAfterSeconds` (در بدنه یا داخل `error`) یا سرآیند `Retry-After` خوانده می‌شود؛ اگر هیچ‌کدام نبود ۱۵ دقیقه فرض می‌شود.
-- نام فیلدهای خطای ۴۲۲: `phone`، `password` (ورود و پذیرش)، `currentPassword`، `newPassword` (تغییر رمز).
-- تغییر رمز با رمز فعلی غلط: ۴۰۱ یا کد `INVALID_CREDENTIALS` ← پیام کنار «رمز فعلی».
-- `/invite` و `/reset` برای هشدار «حساب دیگر» `GET /api/v1/auth/me` را صدا می‌زنند؛ ۴۰۱ طبیعی است (در کنسول مرورگر دیده می‌شود).
+### Contract with the backend (frontend assumptions)
+- 429 and 503 errors: the wait time is read from `retryAfterSeconds` (in the body or inside `error`) or the `Retry-After` header; if neither is present, 15 minutes is assumed.
+- 422 error field names: `phone`, `password` (login and accept), `currentPassword`, `newPassword` (password change).
+- Password change with a wrong current password: 401 or code `INVALID_CREDENTIALS` → message next to "Current password".
+- `/invite` and `/reset` call `GET /api/v1/auth/me` for the "other account" warning; a 401 is normal (it shows in the browser console).
 
-### کارهای باقی‌مانده
-- [ ] لینک صفحه‌ی حریم خصوصی در `/invite` و `/reset` پس از ساخت آن صفحه (SEC-F4).
-- [ ] تست e2e ورود و پذیرش دعوت **با بک‌اند واقعی** (فعلاً API در e2e شبیه‌سازی شده) وقتی seed و راه‌اندازی دیتابیس در Playwright آماده شد.
-- [ ] میان‌بُرهای کیبورد مربی (`/`، `N`، `G T`، `?`).
-- [ ] انتخاب دستی حالت تاریک/روشن (بک‌لاگ).
-- [ ] شمارنده‌های ناوبری از داده‌ی واقعی (امروز، سؤال‌ها) در اسپرینت «امروز».
-- [ ] جایگزینی `components/auth/phone.ts` (پیش‌بررسی سمت کلاینت) با `src/lib/phone` اگر بک‌اند نسخه‌ی قابل‌استفاده در مرورگر داد.
-- [ ] بلوک LTR محتوای آپورک (`.ltr-block`)، جدول واکنش‌گرا، کانبان، تایم‌لاین و KPI همراه صفحه‌هایشان ساخته می‌شوند.
+### Remaining work
+- [ ] Privacy page link on `/invite` and `/reset` once that page is built (SEC-F4).
+- [ ] e2e test for login and invite acceptance **against the real backend** (the API is currently mocked in e2e) once seeding and database setup in Playwright are ready.
+- [ ] Coach keyboard shortcuts (`/`, `N`, `G T`, `?`).
+- [ ] Manual dark/light mode selection (backlog).
+- [ ] Navigation counters from real data (today, questions) in the "Today" sprint.
+- [ ] Replace `components/auth/phone.ts` (client-side pre-check) with `src/lib/phone` if the backend provides a browser-usable version.
+- [ ] The LTR block for Upwork content (`.ltr-block`), the responsive table, kanban, timeline and KPI are built together with their pages.

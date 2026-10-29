@@ -9,6 +9,7 @@ import {
   sortStudentQuestions,
 } from '@/components/questions/student-question-rows';
 import { PathCard, stageLine } from '@/components/student/path-card';
+import { ProgramsSummary } from '@/components/student/programs-summary';
 import { WelcomeCard, type WelcomeStep } from '@/components/student/welcome-card';
 import { noteKindLabel } from '@/components/tasks/labels';
 import { StudentTaskItem } from '@/components/tasks/student-task-bits';
@@ -19,7 +20,9 @@ import { Card, CardHead } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/states';
 import type { CurrentCheckinDTO } from '@/modules/checkins/contracts';
 import { getCurrentCheckin } from '@/modules/checkins/service';
+import { listSessions } from '@/modules/mentoring/service';
 import { listOwnMilestones } from '@/modules/milestones/service';
+import { getMyPrograms } from '@/modules/programs/service';
 import { listOwnQuestions } from '@/modules/questions/service';
 import { listOwnProfiles } from '@/modules/students/service';
 import { listOwnTasks } from '@/modules/tasks/service';
@@ -35,7 +38,8 @@ const HOME_TASKS = 5;
  * S1 — student home (mockups/student-home.html): welcome steps on the first days, the weekly
  * check-in card (Thursday–Friday until sent), path, open tasks by deadline (overdue first), my
  * questions with «پاسخ جدید», the mentor's shared notes and my milestones. Health, rules and
- * internal notes never appear: every source here is a student DTO.
+ * internal notes never appear: every source here is a student DTO. Sprint 6b: a summary of the
+ * courses and mentoring they are in (progress, current phase, next session, package use).
  */
 export default async function HomePage() {
   const { user, actor, path, student } = await loadOwn();
@@ -48,16 +52,20 @@ export default async function HomePage() {
       </>
     );
   }
-  const [tasks, notes, questions, checkin, milestones, profiles] = await Promise.all([
-    listOwnTasks(actor),
-    listOwnSharedNotes(actor, { limit: 3 }),
-    listOwnQuestions(actor),
-    // 404 = check-in turned off: no card at all.
-    getCurrentCheckin(actor).catch((): CurrentCheckinDTO | null => null),
-    listOwnMilestones(actor),
-    listOwnProfiles(actor),
-  ]);
   const now = new Date();
+  const [tasks, notes, questions, checkin, milestones, profiles, programs, sessions] =
+    await Promise.all([
+      listOwnTasks(actor),
+      listOwnSharedNotes(actor, { limit: 3 }),
+      listOwnQuestions(actor),
+      // 404 = check-in turned off: no card at all.
+      getCurrentCheckin(actor).catch((): CurrentCheckinDTO | null => null),
+      listOwnMilestones(actor),
+      listOwnProfiles(actor),
+      getMyPrograms(actor),
+      listSessions(actor, { when: 'upcoming' }, now),
+    ]);
+  const courses = programs.filter((p) => !p.run.isLegacy);
   const open = tasks.filter((t) => t.status !== 'accepted' && t.status !== 'cancelled');
   const recentQuestions = sortStudentQuestions(questions.items).slice(0, 3);
   const newReplies = questions.items.filter((q) => q.hasNewReply).length;
@@ -127,6 +135,9 @@ export default async function HomePage() {
           </section>
         ) : null}
         <PathCard path={path} />
+        {courses.length ? (
+          <ProgramsSummary programs={courses} sessions={sessions} now={now} />
+        ) : null}
 
         <Card aria-labelledby="h-my">
           <CardHead

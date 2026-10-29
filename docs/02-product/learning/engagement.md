@@ -1,193 +1,193 @@
-# درگیر نگه داشتن هنرجو — UpworkCoach
+# Keeping Students Engaged — UpworkCoach
 
-> فاز ۱ — نویسنده: curriculum-designer — ۲۷ مهر ۱۴۰۵
-> وضعیت: پیش‌نویس، منتظر تأیید بنیان‌گذار
-> پیش‌نیاز: `progress-tracking.md` (milestoneها و قواعد سلامت)، `mentor-workflow.md` (اقدام مشاور)
+> Phase 1 — Author: curriculum-designer — 27 Mehr 1405 (2026-10-19)
+> Status: draft, awaiting founder approval
+> Prerequisites: `progress-tracking.md` (milestones and health rules), `mentor-workflow.md` (mentor actions)
 
 ---
 
-## ۱. اصول
+## 1. Principles
 
-هدف engagement «بیشتر ماندن در اپ» نیست؛ این است که هنرجو **کار واقعی بعدی‌اش را انجام دهد** و در دوره‌ی سخت رد شدن‌ها رها نکند.
+The goal of engagement is not "staying longer in the app"; it is for the student to **do their next real piece of work** and not give up during the hard stretch of rejections.
 
-| انجام می‌دهیم | انجام نمی‌دهیم (گیمیفیکیشن توخالی) | چرا |
+| We do | We don't do (hollow gamification) | Why |
 |---|---|---|
-| جشن برای خروجی و نتیجه‌ی واقعی (اولین ارسال، اولین مصاحبه، اولین قرارداد) | امتیاز (XP) برای ورود روزانه یا تماشای ویدئو | تماشا کردن، کار نیست |
-| تشویق تلاش در مرحله‌ی سخت (۱۰ ارسال اول) | streak روزانه | فریلنسری ریتم هفتگی دارد؛ شکستن streak حس شکست می‌دهد |
-| نشان دادن پیشرفت خود هنرجو نسبت به گذشته‌اش | جدول رده‌بندی درآمد یا تعداد قرارداد بین هنرجوها | مقایسه‌ی ناعادلانه بین نیچ‌ها، فشار برای ارسال انبوه، و افشای اطلاعات مالی |
-| یادآور وابسته به «کار بعدی» مشخص | پیام کلی «دلمان برایت تنگ شده» | پیام کلی نادیده گرفته می‌شود |
-| پیام شخصی مشاور برای نقطه‌های عطف مهم | تبریک خودکار برای همه‌چیز | تبریک زیاد بی‌ارزش می‌شود |
-| داستان موفقیت واقعی با رضایت هنرجو | وعده‌ی درآمد یا «تضمین قرارداد» | صداقت؛ ریسک ادعای درآمدی (`risks.md`) |
-| گزینه‌ی «توقف موقت» | فشار برای ادامه به هر قیمتی | هنرجوی متوقف برمی‌گردد؛ هنرجوی تحت فشار رها می‌کند |
+| Celebrate real output and results (first submission, first interview, first contract) | Points (XP) for daily logins or watching videos | Watching is not work |
+| Encourage effort in the hard stage (the first 10 submissions) | Daily streaks | Freelancing has a weekly rhythm; breaking a streak feels like failure |
+| Show the student's own progress compared to their past | Leaderboards of income or contract count across students | Unfair comparison across niches, pressure to mass-submit, and exposure of financial information |
+| Reminders tied to a specific "next task" | Generic "we miss you" messages | Generic messages get ignored |
+| Personal mentor message for important milestones | Automatic congratulations for everything | Too much congratulation loses its value |
+| Real success stories with the student's consent | Income promises or "guaranteed contracts" | Honesty; income-claim risk (`risks.md`) |
+| A "pause" option | Pressure to continue at any cost | A paused student comes back; a pressured student quits |
 
 ---
 
-## ۲. یادآورها
+## 2. Reminders
 
-### ۲-۱. فهرست یادآورها
+### 2-1. List of reminders
 
-| یادآور | محرک | زمان | محتوا | به چه کسی | توقف |
+| Reminder | Trigger | Timing | Content | To whom | Stops when |
 |---|---|---|---|---|---|
-| مهلت نزدیک | کار باز با مهلت | ۲۴ ساعت قبل از مهلت | عنوان کار + لینک مستقیم تحویل | هنرجو | تحویل |
-| کار معوق | گذشتن مهلت | ۱ روز بعد | «می‌رسی یا مهلت را جابه‌جا کنیم؟» + دکمه‌ی درخواست تمدید | هنرجو | تحویل یا تمدید |
-| بازخورد آماده است | بازخورد AI یا مشاور | فوری | «بازخورد [عنوان کار] آماده است» | هنرجو | باز شدن |
-| جواب سؤالت آمد | پاسخ مشاور | فوری | — | هنرجو | باز شدن |
-| check-in هفتگی | هر هفته | پنجشنبه صبح؛ یادآور دوم جمعه عصر | فرم ۳ دقیقه‌ای | هنرجو | ثبت |
-| سهمیه‌ی ارسال | مرحله‌ی ۵، وسط هفته کمتر از نصف سهمیه | دوشنبه | «این هفته N از M؛ ۲ فرصت خوب پیدا کن» | هنرجو | رسیدن به سهمیه |
-| بی‌فعالیتی | ۵ روز بدون فعالیت | یک بار | یادآوری کار باز بعدی (نه پیام کلی) | هنرجو | فعالیت |
-| به‌روزرسانی قیف | ارسال‌های بیش از ۷ روز بدون تغییر وضعیت | هفتگی، همراه check-in | «این ارسال‌ها جوابی گرفتند؟» | هنرجو | به‌روزرسانی |
-| پیگیری کارفرما | شاخه‌ی D: ۴ روز بعد از پیام بی‌پاسخ. شاخه‌ی B: فقط وقتی کارفرما گفت‌وگو را شروع کرده و ۳ روز بی‌خبری | — | «وقت پیام پیگیری است» + قالب | هنرجو | — |
-| بازگشت از توقف | ۱ روز قبل از تاریخ بازگشت | — | خوش‌آمد + کار بعدی | هنرجو و مشاور | — |
-| مرور ماهانه‌ی رشد | مرحله‌ی ۸، اول ماه | — | فرم ۱۰ دقیقه‌ای | هنرجو | ثبت |
+| Deadline approaching | Open task with a deadline | 24 hours before the deadline | Task title + direct submission link | Student | Submitted |
+| Overdue task | Deadline passed | 1 day after | "Will you make it, or should we move the deadline?" + request-extension button | Student | Submitted or extended |
+| Feedback is ready | AI or mentor feedback | Immediately | "Feedback on [task title] is ready" | Student | Opened |
+| Your question was answered | Mentor reply | Immediately | — | Student | Opened |
+| Weekly check-in | Every week | Thursday morning; second reminder Friday afternoon | 3-minute form | Student | Submitted |
+| Submission quota | Stage 5, mid-week below half of the quota | Monday | "This week N of M; find 2 good opportunities" | Student | Quota reached |
+| Inactivity | 5 days without activity | Once | Reminder of the next open task (not a generic message) | Student | Activity |
+| Funnel update | Submissions with no status change for more than 7 days | Weekly, together with the check-in | "Did these submissions get a response?" | Student | Updated |
+| Client follow-up | Branch D: 4 days after an unanswered message. Branch B: only when the client started the conversation and 3 days of silence | — | "Time for a follow-up message" + template | Student | — |
+| Returning from pause | 1 day before the return date | — | Welcome + next task | Student and mentor | — |
+| Monthly growth review | Stage 8, start of the month | — | 10-minute form | Student | Submitted |
 
-در شاخه‌ی B، یادآور پیگیری هرگز پیشنهاد ارسال پیام به کارفرمایی نمی‌دهد که هنوز گفت‌وگو را شروع نکرده است.
+In branch B, the follow-up reminder never suggests messaging a client who has not yet started a conversation.
 
-### ۲-۲. قواعد ارسال
+### 2-2. Sending rules
 
-| قاعده | مقدار پیشنهادی |
+| Rule | Proposed value |
 |---|---|
-| سقف یادآور خودکار | حداکثر **۱ در روز** و **۴ در هفته** برای هر هنرجو (پیام‌های پاسخ به اقدام خود هنرجو مثل «بازخورد آماده است» جدا حساب می‌شوند) |
-| ساعت سکوت | ۲۲ تا ۹ |
-| ادغام | چند یادآور هم‌زمان در یک پیام خلاصه |
-| وضعیت «متوقف» | فقط یادآور بازگشت |
-| تنظیمات هنرجو | خاموش کردن هر دسته به‌جز «جواب سؤالت آمد» |
-| کانال‌ها | داخل برنامه (همیشه) + یک کانال بیرونی: پیامک، ربات تلگرام یا بله (تصمیم: سؤال باز ۷). به‌خاطر اختلال اینترنت (R9)، پیامک برای یادآورهای مهم پشتیبان است |
-| بی‌فعالیتی طولانی | بعد از ۱۴ روز یادآور خودکار متوقف می‌شود و **مشاور شخصاً** پیام می‌دهد (`progress-tracking.md` بخش ۷) |
+| Automatic reminder cap | At most **1 per day** and **4 per week** per student (messages responding to the student's own action, like "Feedback is ready", are counted separately) |
+| Quiet hours | 22:00 to 09:00 |
+| Merging | Several simultaneous reminders summarized in one message |
+| "Paused" status | Only the return reminder |
+| Student settings | Can turn off every category except "Your question was answered" |
+| Channels | In-app (always) + one external channel: SMS, Telegram bot or Bale (decision: open question 7). Because of internet disruptions (R9), SMS is the backup for important reminders |
+| Long inactivity | After 14 days, automatic reminders stop and the **mentor personally** sends a message (`progress-tracking.md` section 7) |
 
 ---
 
-## ۳. جشن گرفتن پیشرفت
+## 3. Celebrating progress
 
-### ۳-۱. چه چیزی و چطور
+### 3-1. What and how
 
-| milestone (کد در `progress-tracking.md`) | واکنش | چه کسی |
+| Milestone (code in `progress-tracking.md`) | Reaction | Who |
 |---|---|---|
-| M1 نیچ تأیید شد، M2 ویترین تأیید شد | پیام تأیید + نمایش «قبل و بعد» ویترین (snapshotها) | سیستم + یک جمله از مشاور |
-| M3 اولین ارسال | تبریک کوتاه: «سخت‌ترین قدم را برداشتی» | سیستم |
-| M4 ده ارسال | تبریک تلاش + نمایش قیف خودش + یادآوری اینکه رد شدن بخش عادی کار است | سیستم |
-| M5 اولین پاسخ یا مصاحبه | پیام شخصی مشاور + پیشنهاد مصاحبه‌ی تمرینی | مشاور |
-| **M6 اولین قرارداد** | پیام شخصی مشاور، و در صورت تمایل پیام یا تماس کوتاه بنیان‌گذار؛ با رضایت هنرجو، اعلام در گروه کوهورت | مشاور + بنیان‌گذار |
-| M7 اولین نظر مثبت | تبریک + پیشنهاد اضافه کردن به نمونه‌کار | مشاور |
-| M8 تا M12 (درآمد، کارفرمای تکراری، افزایش نرخ، نشان) | تبریک + دعوت به نوشتن «درس‌هایی که یاد گرفتم» برای جامعه (اختیاری) | مشاور |
+| M1 niche approved, M2 showcase approved | Approval message + "before and after" view of the showcase (snapshots) | System + one sentence from the mentor |
+| M3 first submission | Short congratulation: "You took the hardest step" | System |
+| M4 ten submissions | Congratulations on the effort + show their own funnel + reminder that rejection is a normal part of the work | System |
+| M5 first reply or interview | Personal mentor message + offer of a practice interview | Mentor |
+| **M6 first contract** | Personal mentor message, and optionally a short message or call from the founder; with the student's consent, announcement in the cohort group | Mentor + founder |
+| M7 first positive review | Congratulations + suggestion to add it to the portfolio | Mentor |
+| M8 to M12 (income, repeat client, rate increase, badge) | Congratulations + invitation to write "lessons I learned" for the community (optional) | Mentor |
 
-### ۳-۲. «کارنامه‌ی من»
+### 3-2. "My record"
 
-یک صفحه برای هنرجو که پیشرفت واقعی را نشان می‌دهد، نه امتیاز:
-- خط زمانی milestoneها با تاریخ؛
-- نسخه‌های ویترین (اولین و آخرین)؛
-- عددهای قیف خودش در طول زمان (مثلاً نرخ پاسخ ماه اول در برابر ماه دوم)؛
-- بازخوردهای مثبت کارفرماها.
+A page for the student that shows real progress, not points:
+- A timeline of milestones with dates;
+- Showcase versions (first and latest);
+- Their own funnel numbers over time (e.g. reply rate in month one vs. month two);
+- Positive client feedback.
 
-بعداً (بک‌لاگ): هنرجو بتواند کارنامه را با کسی به اشتراک بگذارد.
+Later (backlog): the student can share their record with someone.
 
-### ۳-۳. داستان‌های موفقیت
+### 3-3. Success stories
 
-| قاعده | توضیح |
+| Rule | Description |
 |---|---|
-| رضایت | فقط با رضایت صریح و مکتوب هنرجو؛ گزینه‌ی بی‌نام |
-| صداقت | عدد واقعی با زمان واقعی («اولین قرارداد بعد از ۹ هفته و ۳۴ ارسال»)، نه فقط بهترین موارد |
-| حریم خصوصی | بدون نام کارفرما و اطلاعات حساب پلتفرم |
-| استفاده‌ی بازاریابی | با تأیید بنیان‌گذار و بدون وعده‌ی تضمین (`risks.md`) |
+| Consent | Only with the student's explicit, written consent; anonymous option |
+| Honesty | Real numbers with real timelines ("first contract after 9 weeks and 34 submissions"), not just the best cases |
+| Privacy | No client names or platform account details |
+| Marketing use | With founder approval and without guarantee promises (`risks.md`) |
 
 ---
 
-## ۴. جلسات گروهی
+## 4. Group sessions
 
-| جلسه | تناوب | مدت | میزبان | آماده‌سازی | خروجی |
+| Session | Frequency | Length | Host | Preparation | Output |
 |---|---|---|---|---|---|
-| **شروع کوهورت** | هر کوهورت | ۶۰ دقیقه | بنیان‌گذار | — | هدف‌های ۹۰ روزه‌ی هنرجوها، آشنایی |
-| **پرسش و پاسخ باز** | هفتگی | ۴۵ تا ۶۰ دقیقه | مشاورها به نوبت | سؤال‌ها از قبل در فرم جمع می‌شوند | ضبط جلسه + سؤال‌های پرتکرار به کتابخانه‌ی پاسخ |
-| **کلینیک پروپوزال** | هفتگی یا دوهفتگی | ۶۰ دقیقه | مشاور | ۳ تا ۴ پروپوزال داوطلبانه و بی‌نام‌شده | نقد زنده با rubric؛ هنرجوها پیش از نظر مشاور، خودشان با rubric نقد می‌کنند |
-| **مصاحبه‌ی تمرینی دونفره** | دوهفتگی | ۴۵ دقیقه | مشاور ناظر | جفت شدن هنرجوهای مرحله‌ی ۵ و ۶ | تکلیف مصاحبه‌ی تمرینی مرحله‌ی ۶ را تأیید می‌کند |
-| **بُردها و درس‌ها** | ماهانه | ۶۰ دقیقه | بنیان‌گذار | ۲ یا ۳ هنرجو داوطلب | داستان واقعی؛ عادی‌سازی مسیر طولانی |
-| **حلقه‌ی نیچ** | ماهانه (وقتی هر نیچ دست‌کم ۵ هنرجو داشت) | ۴۵ دقیقه | مشاور متخصص | — | تبادل فرصت‌ها و قیمت‌ها |
+| **Cohort kickoff** | Every cohort | 60 minutes | Founder | — | Students' 90-day goals, introductions |
+| **Open Q&A** | Weekly | 45 to 60 minutes | Mentors in rotation | Questions collected in advance via a form | Session recording + frequently asked questions go into the answer library |
+| **Proposal clinic** | Weekly or biweekly | 60 minutes | Mentor | 3 to 4 volunteered, anonymized proposals | Live critique with the rubric; students critique with the rubric themselves before the mentor's view |
+| **Paired practice interview** | Biweekly | 45 minutes | Supervising mentor | Pairing of stage 5 and 6 students | Confirms the stage 6 practice-interview task |
+| **Wins and lessons** | Monthly | 60 minutes | Founder | 2 or 3 volunteer students | Real stories; normalizing the long road |
+| **Niche circle** | Monthly (once each niche has at least 5 students) | 45 minutes | Specialist mentor | — | Exchange of opportunities and prices |
 
-- همه‌ی جلسه‌ها ضبط می‌شوند (به‌خاطر اختلاف ساعت و قطعی اینترنت، R9) و خلاصه‌ی متنی دارند.
-- حضور در جلسه به‌خودی‌خود milestone یا معیار عبور نیست؛ فقط وقتی خروجی دارد (مثلاً مصاحبه‌ی تمرینی) در پرونده ثبت می‌شود.
-- ابزار برگزاری (اسکای‌روم یا مشابه) در فاز معماری تعیین می‌شود.
+- All sessions are recorded (because of time-zone differences and internet outages, R9) and have a written summary.
+- Attending a session is not in itself a milestone or pass criterion; it is recorded in the file only when it has an output (e.g. a practice interview).
+- The hosting tool (Skyroom or similar) is decided in the architecture phase.
 
 ---
 
-## ۵. جامعه‌ی هنرجوها
+## 5. Student community
 
-### ۵-۱. ساختار
+### 5-1. Structure
 
-| لایه | اندازه | هدف |
+| Layer | Size | Purpose |
 |---|---|---|
-| **گروه کوهورت** | هنرجوهای هم‌دوره | همراهی، حس «فقط من نیستم» |
-| **جفت هم‌مسئولیت** (اختیاری) | ۲ نفر از یک کوهورت | check-in متقابل هفتگی؛ نقد پروپوزال یکدیگر با rubric (نقد کردن خودش آموزش است) |
-| **حلقه‌ی نیچ** | هنرجوهای یک نیچ از همه‌ی کوهورت‌ها | دانش تخصصی |
-| **گروه فارغ‌التحصیلان** (بعداً) | هنرجوهای M11 | الگو و منبع مشاور آینده (ر.ک. پرسونای رضا) |
+| **Cohort group** | Students of the same cohort | Companionship, a sense of "it's not just me" |
+| **Accountability pair** (optional) | 2 people from one cohort | Mutual weekly check-in; critiquing each other's proposals with the rubric (critiquing is itself learning) |
+| **Niche circle** | Students of one niche across all cohorts | Specialist knowledge |
+| **Alumni group** (later) | M11 students | Role models and a source of future mentors (see the Reza persona) |
 
-### ۵-۲. قواعد جامعه
+### 5-2. Community rules
 
-| قاعده | دلیل |
+| Rule | Reason |
 |---|---|
-| بدون تبلیغ یا فروش اکانت، احراز هویت واسط یا نقد کردن درآمد | خطوط قرمز (`domain-notes.md` بخش ۴) |
-| بدون گذاشتن اطلاعات کارفرما و متن کامل آگهی با اطلاعات شناسایی | حریم خصوصی |
-| بدون جذب مشتری یا پروژه‌ی دیگران | اعتماد |
-| بدون مقایسه‌ی تحقیرآمیز | فضای امن برای گفتن «۳۰ ارسال، صفر جواب» |
-| ناظر: مشاورها به نوبت | — |
+| No advertising or selling of accounts, proxy identity verification, or cashing out income | Red lines (`domain-notes.md` section 4) |
+| No posting client information or full job post text with identifying details | Privacy |
+| No poaching others' clients or projects | Trust |
+| No belittling comparisons | A safe space to say "30 submissions, zero replies" |
+| Moderators: mentors in rotation | — |
 
-### ۵-۳. کجا
+### 5-3. Where
 
-| گزینه | مزیت | عیب |
+| Option | Advantage | Disadvantage |
 |---|---|---|
-| گروه تلگرامی موجود | هنرجوها همین حالا آن‌جا هستند؛ بدون هزینه‌ی ساخت | گفت‌وگوها و داده بیرون از پلتفرم؛ ریسک فیلترینگ و R5 |
-| انجمن داخل پلتفرم | داده و تاریخچه داخل پلتفرم؛ پیوند به پرونده | هزینه‌ی ساخت؛ عادت هنرجوها |
+| Existing Telegram group | Students are already there; no build cost | Conversations and data outside the platform; filtering risk and R5 |
+| In-platform forum | Data and history inside the platform; linked to the file | Build cost; student habits |
 
-**پیشنهاد MVP:** جامعه در همان گروه تلگرامی (یا پیام‌رسان فعلی) بماند؛ **ولی سؤال‌ها، تکلیف‌ها و بازخوردها فقط داخل پلتفرم.** انجمن داخلی به بک‌لاگ می‌رود. تصمیم نهایی با بنیان‌گذار (سؤال باز ۷).
+**MVP proposal:** the community stays in the same Telegram group (or current messenger); **but questions, tasks and feedback only inside the platform.** The internal forum goes to the backlog. Final decision is the founder's (open question 7).
 
 ---
 
-## ۶. مدیریت ناامیدی (بحرانی‌ترین نقطه‌ی ریزش)
+## 6. Managing discouragement (the most critical drop-off point)
 
-بیشترین ریزش احتمالاً در مرحله‌ی ۵ است: ارسال‌های بی‌پاسخ پشت سر هم (پرسونای امیر).
+The highest drop-off is probably in stage 5: unanswered submissions one after another (the Amir persona).
 
-| اقدام | کی |
+| Action | When |
 |---|---|
-| انتظار واقع‌بینانه از ابتدا: «چند ده ارسال تا اولین پاسخ طبیعی است» (عدد را بنیان‌گذار از داده‌ی هنرجوهایش می‌دهد) | مرحله‌ی ۰ و ورود به ۵ (`C-S5-05`) |
-| نمایش پیشرفت در **کیفیت**، نه فقط نتیجه: بالا رفتن امتیاز rubric پروپوزال‌ها | هر هفته در «کارنامه‌ی من» |
-| ممیزی سه‌لایه به‌جای «بیشتر بفرست» | قاعده‌ی R-NOREPLY |
-| پیام شخصی مشاور با حال پایین در check-in | قاعده‌ی R-MOOD |
-| توقف موقت به‌جای رها کردن | پیشنهاد مشاور |
-| شنیدن داستان کسانی که دیر به قرارداد رسیدند | جلسه‌ی «بُردها و درس‌ها» |
+| Realistic expectations from the start: "a few dozen submissions before the first reply is normal" (the founder provides the number from their students' data) | Stage 0 and entry to stage 5 (`C-S5-05`) |
+| Show progress in **quality**, not just results: rising rubric scores on proposals | Every week in "My record" |
+| Three-layer audit instead of "send more" | Rule R-NOREPLY |
+| Personal mentor message on a low mood in the check-in | Rule R-MOOD |
+| Pause instead of quitting | Mentor suggestion |
+| Hearing the stories of people who reached a contract late | "Wins and lessons" session |
 
 ---
 
-## ۷. سنجش اثر
+## 7. Measuring impact
 
-| شاخص | تعریف | هدف پیشنهادی (فرض) |
+| Metric | Definition | Proposed target (assumption) |
 |---|---|---|
-| هنرجوی فعال واقعی هفتگی | هنرجویی که در هفته دست‌کم **یک خروجی** (تحویل، ارسال ثبت‌شده یا check-in) داشته | ≥ ۶۰٪ (هم‌راستا با `vision.md`، ولی با تعریف خروجی‌محور به‌جای «استفاده از ابزار») |
-| نرخ check-in | check-in ثبت‌شده ÷ هنرجوهای فعال غیرمتوقف | ≥ ۷۰٪ |
-| تبدیل یادآور | یادآورهایی که در ۴۸ ساعت به اقدام مربوط منجر شدند | پایش؛ یادآورهای کم‌اثر حذف شوند |
-| خاموش کردن یادآور | ٪ هنرجوهایی که دسته‌ای از یادآورها را خاموش کردند | اگر > ۲۰٪، یادآورها زیادند |
-| بازگشت از قرمز | ٪ هنرجوهای قرمز که در ۱۴ روز سبز یا زرد شدند | پایش |
-| نگهداشت ماه دوم | — | معیار `risks.md` برای R10 |
-| روز تا اولین قرارداد | میانه در هر کوهورت | North Star |
+| Real weekly active students | A student who had at least **one output** in the week (task submission, logged proposal submission, or check-in) | ≥ 60% (aligned with `vision.md`, but with an output-based definition instead of "tool usage") |
+| Check-in rate | Check-ins recorded ÷ active, non-paused students | ≥ 70% |
+| Reminder conversion | Reminders that led to the related action within 48 hours | Monitor; remove low-impact reminders |
+| Reminder opt-out | % of students who turned off a category of reminders | If > 20%, there are too many reminders |
+| Recovery from red | % of red students who became green or yellow within 14 days | Monitor |
+| Month-two retention | — | `risks.md` criterion for R10 |
+| Days to first contract | Median per cohort | North Star |
 
-شاخص‌هایی که **دنبال نمی‌کنیم:** تعداد ورود، دقیقه‌ی حضور در اپ، ویدئوهای دیده‌شده (فقط برای تشخیص محتوای بی‌استفاده، نه به‌عنوان هدف).
+Metrics we **do not track:** number of logins, minutes in the app, videos watched (only to detect unused content, not as a goal).
 
 ---
 
-## ۸. دامنه‌ی MVP
+## 8. MVP scope
 
-| در MVP | بعداً |
+| In MVP | Later |
 |---|---|
-| یادآورهای مهلت، معوق، بازخورد آماده، جواب سؤال، check-in، بی‌فعالیتی | سهمیه‌ی ارسال، پیگیری کارفرما، به‌روزرسانی قیف |
-| سقف یادآور و ساعت سکوت | تنظیمات دقیق هنرجو برای هر دسته |
-| پیام‌های milestone (M3، M6) + پیام شخصی مشاور | «کارنامه‌ی من» کامل |
-| جلسه‌ی پرسش و پاسخ هفتگی و کلینیک پروپوزال (خارج از نرم‌افزار، با لینک) | زمان‌بندی و ثبت حضور داخل پلتفرم |
-| جامعه در پیام‌رسان فعلی | انجمن داخلی، جفت هم‌مسئولیت در سیستم |
+| Reminders for deadline, overdue, feedback ready, question answered, check-in, inactivity | Submission quota, client follow-up, funnel update |
+| Reminder cap and quiet hours | Fine-grained student settings per category |
+| Milestone messages (M3, M6) + personal mentor message | Full "My record" |
+| Weekly Q&A session and proposal clinic (outside the software, via link) | Scheduling and attendance tracking inside the platform |
+| Community in the current messenger | Internal forum, accountability pairs in the system |
 
 ---
 
-## ۹. سؤال‌های باز
+## 9. Open questions
 
-| # | سؤال | اثر |
+| # | Question | Impact |
 |---|---|---|
-| ۱ | کانال بیرونی یادآور: پیامک، ربات تلگرام یا بله؟ (سؤال باز ۷) | معماری اعلان‌ها |
-| ۲ | جلسات گروهی فعلی بنیان‌گذار چیست و با چه تناوبی؟ | تقویم جلسات |
-| ۳ | عدد واقعی «ارسال تا اولین پاسخ» در هنرجوهای فعلی؟ | پیام مدیریت ناامیدی |
-| ۴ | بنیان‌گذار مایل است برای اولین قرارداد هر هنرجو شخصاً پیام دهد؟ | تجربه‌ی M6 |
+| 1 | External reminder channel: SMS, Telegram bot or Bale? (open question 7) | Notification architecture |
+| 2 | What are the founder's current group sessions, and how often? | Session calendar |
+| 3 | The real number of "submissions until first reply" among current students? | Discouragement-management message |
+| 4 | Does the founder want to personally message each student on their first contract? | M6 experience |

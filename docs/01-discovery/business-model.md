@@ -1,75 +1,75 @@
-# مدل درآمد — UpworkCoach
+# Revenue model — UpworkCoach
 
-> فاز ۰ — ۲۷ مهر ۱۴۰۵. همه‌ی اعداد **تخمین** با فرض صریح‌اند؛ قیمت نهایی بعد از پاسخ بنیان‌گذار (قیمت فعلی دوره، تعداد هنرجو، مزد مشاورها) تعیین می‌شود.
+> Phase 0 — 27 Mehr 1405 (2026-10-19). All figures are **estimates** with explicit assumptions; final pricing will be set after the founder's answers (current course price, number of students, mentor pay).
 
-## زمینه‌ی قیمت در بازار ایران
-| داده | مقدار | منبع/تاریخ |
+## Price context in the Iranian market
+| Data | Value | Source/date |
 |---|---|---|
-| نرخ دلار آزاد | حدود **۲۶۶ هزار تومان** (۱۶ مهر ۱۴۰۵)؛ ۲۳۴ تا ۲۶۹ هزار در همین ماه → **نوسان شدید** | [اقتصادآنلاین](https://www.eghtesadonline.com/fa/news/2167759)، [SNN](https://snn.ir/fa/news/1466288/قیمت-دلار-و-طلای-18-عیار-14-مهر-1405) |
-| قیمت دوره‌های آپورک فارسی | ۹ میلیون (فقط آموزش) تا ۱۴٫۹، ۱۶٫۱، ۲۸ و ۳۰ میلیون تومان (با اکانت/خدمات) | `competitors.md` |
-| ابزارهای خارجی مشابه | Vollna از $24/ماه (≈ ۶٫۴ میلیون تومان)؛ ابزارهای پروپوزال $5 تا $35 | `competitors.md` |
-| کارمزد زرین‌پال | ۰٫۵٪ تا سقف ۱۶ هزار تومان + ۵۰۰ تومان (صفحه‌ی تعرفه بدون تاریخ) | [zarinpal.com/pricing](https://www.zarinpal.com/pricing) |
+| Free-market dollar rate | About **266 thousand toman** (16 Mehr 1405 / 2026-10-08); 234 to 269 thousand within the same month → **severe volatility** | [Eghtesad Online](https://www.eghtesadonline.com/fa/news/2167759), [SNN](https://snn.ir/fa/news/1466288/قیمت-دلار-و-طلای-18-عیار-14-مهر-1405) |
+| Price of Persian Upwork courses | 9 million (training only) up to 14.9, 16.1, 28 and 30 million toman (with account/services) | `competitors.md` |
+| Similar foreign tools | Vollna from $24/month (≈ 6.4 million toman); proposal tools $5 to $35 | `competitors.md` |
+| ZarinPal fee | 0.5% capped at 16 thousand toman + 500 toman (tariff page undated) | [zarinpal.com/pricing](https://www.zarinpal.com/pricing) |
 
-## گزینه‌های درآمد
-| گزینه | شرح | مزایا | معایب | توصیه |
+## Revenue options
+| Option | Description | Pros | Cons | Recommendation |
 |---|---|---|---|---|
-| **A. دوره + دسترسی** | خرید دوره = X ماه دسترسی به پلتفرم + سهمیه‌ی ابزار | ساده؛ با کسب‌وکار فعلی سازگار؛ ارزش دوره را بالا می‌برد | درآمد تکرارشونده نیست؛ بعد از X ماه ریزش | **بله — نقطه‌ی شروع** |
-| **B. اشتراک ماهانه** | پلن پایه/پرو با سهمیه‌ی ماهانه | درآمد تکرارشونده؛ پیش‌بینی‌پذیر | فرهنگ اشتراک در ایران ضعیف؛ تمدید ریالی دستی است (پرداخت خودکار رایج نیست) | **بله — پس از دوره‌ی دسترسی** |
-| **C. اعتبار مصرفی** | بسته‌ی اعتبار برای ابزارهای AI (مثلاً ۱۰ بررسی پروپوزال) | هزینه‌ی AI مستقیم پوشش داده می‌شود؛ برای کاربر کم‌مصرف منصفانه | اصطکاک خرید؛ کاربر از ترسِ «تمام شدن» کمتر استفاده می‌کند | **بله — به‌عنوان مکمل** |
-| **D. پکیج مشاوره** | جلسه‌ی ۱:۱ یا «بازبینی انسانی» با مشاور | حاشیه‌ی سود خوب؛ ارزش محسوس | محدود به ظرفیت مشاور؛ وابستگی به افراد | **بله — افزونه‌ی پلن پرو** |
-| **E. درصد از درآمد** | درصدی از درآمد آپورک هنرجو | هم‌سو با موفقیت هنرجو | **قابل‌سنجش نیست** (به داده‌ی آپورک دسترسی نداریم)؛ وصول دشوار؛ حس بد | **نه در MVP** |
+| **A. Course + access** | Buying the course = X months of platform access + tool quota | Simple; compatible with the current business; raises the course's value | Not recurring revenue; churn after X months | **Yes — starting point** |
+| **B. Monthly subscription** | Basic/Pro plan with a monthly quota | Recurring revenue; predictable | Subscription culture is weak in Iran; rial renewal is manual (automatic payment is not common) | **Yes — after the access period** |
+| **C. Usage credits** | Credit packs for AI tools (e.g. 10 proposal reviews) | AI cost is covered directly; fair for low-usage users | Purchase friction; users use it less for fear of "running out" | **Yes — as a complement** |
+| **D. Consulting package** | 1:1 session or "human review" with a mentor | Good profit margin; tangible value | Limited by mentor capacity; dependence on individuals | **Yes — Pro plan add-on** |
+| **E. Percentage of income** | A percentage of the student's Upwork income | Aligned with the student's success | **Not measurable** (we have no access to Upwork data); hard to collect; feels bad | **Not in the MVP** |
 
-**توصیه‌ی ترکیبی (فرضیه):** A برای هنرجوهای دوره (مثلاً ۳ ماه دسترسی رایگان) ← سپس B با دو پلن ← C برای مصرف اضافه ← D به‌عنوان افزونه.
+**Combined recommendation (hypothesis):** A for course students (e.g. 3 months of free access) → then B with two plans → C for extra usage → D as an add-on.
 
-## تخمین هزینه‌ی AI به ازای هر هنرجو در ماه
+## Estimated AI cost per student per month
 
-### فرض‌ها
-| فرض | مقدار |
+### Assumptions
+| Assumption | Value |
 |---|---|
-| مدل اصلی (بررسی جاب/پروپوزال/پروفایل/نیچ) | Claude Sonnet 5.5 — **$2 ورودی / $10 خروجی** به ازای ۱M توکن؛ خواندن از کش $0.20 |
-| مدل ارزان (چت/دسته‌بندی/پیش‌پاسخ) | Claude Haiku 5.5 — **$0.10 / $0.50** |
-| مدل گران (برای مقایسه) | Claude Opus 5.5 — **$4 / $20** |
-| منبع قیمت | جدول قیمت مدل‌های Anthropic (کش‌شده ۶ اکتبر ۲۰۲۶)؛ قیمت ارائه‌دهنده‌های دیگر/واسط ایرانی بررسی نشد |
-| حجم هر فراخوانی | بررسی جاب: ۵k ورودی / ۱٫۵k خروجی؛ بررسی پروپوزال: ۵k / ۲k؛ پروفایل: ۶k / ۳k؛ نیچ‌یابی (چندمرحله‌ای): ۲۰k / ۶k؛ هر پیام چت: ۴k / ۰٫۸k. خروجی فارسی و تفکر مدل در عدد خروجی لحاظ شده |
-| کش | حدود ۶۰٪ ورودی ابزارها (پرامپت سیستم + rubric) ثابت و کش‌شدنی |
-| حاشیه‌ی اطمینان | +۳۰٪ (تکرار، خطا، تغییرپذیری طول پاسخ) |
+| Main model (job/proposal/profile/niche review) | Claude Sonnet 5.5 — **$2 input / $10 output** per 1M tokens; cache read $0.20 |
+| Cheap model (chat/classification/pre-answer) | Claude Haiku 5.5 — **$0.10 / $0.50** |
+| Expensive model (for comparison) | Claude Opus 5.5 — **$4 / $20** |
+| Price source | Anthropic model pricing table (cached 6 October 2026); prices of other providers/Iranian intermediaries were not checked |
+| Volume per call | Job review: 5k input / 1.5k output; proposal review: 5k / 2k; profile: 6k / 3k; niche finding (multi-step): 20k / 6k; each chat message: 4k / 0.8k. Persian output and model thinking are included in the output figure |
+| Cache | About 60% of tool input (system prompt + rubric) is fixed and cacheable |
+| Safety margin | +30% (retries, errors, variability in response length) |
 
-### مصرف ماهانه
-| ابزار | کاربر سبک (معمول) | کاربر سنگین (امیرِ فعال) |
+### Monthly usage
+| Tool | Light user (typical) | Heavy user (active Amir) |
 |---|---|---|
-| بررسی جاب | ۱۵ | ۴۰ |
-| بررسی پروپوزال | ۱۰ | ۳۰ |
-| بررسی پروفایل | ۱ | ۴ |
-| نیچ‌یابی | ۱ | ۲ |
-| پیام چت/پرسش AI | ۲۰ | ۶۰ |
-| **جمع توکن** | ~۲۳۰k ورودی / ~۶۸k خروجی | ~۶۵۰k ورودی / ~۱۹۰k خروجی |
+| Job review | 15 | 40 |
+| Proposal review | 10 | 30 |
+| Profile review | 1 | 4 |
+| Niche finding | 1 | 2 |
+| Chat message/AI question | 20 | 60 |
+| **Total tokens** | ~230k input / ~68k output | ~650k input / ~190k output |
 
-### هزینه
-| سناریو | سبک | سنگین |
+### Cost
+| Scenario | Light | Heavy |
 |---|---|---|
-| همه با Opus 5.5 | ~$2.3 | ~$6.5 |
-| همه با Sonnet 5.5، بدون کش | ~$1.1 | ~$3.2 |
-| **ترکیبی: ابزارها Sonnet + کش، چت Haiku** | ~$0.7 | ~$2.0 |
-| **ترکیبی + ۳۰٪ حاشیه** | **~$0.9 ≈ ۲۴۰ هزار تومان** | **~$2.6 ≈ ۶۹۰ هزار تومان** |
-| همان، اگر از واسط با ۵۰٪ کارمزد خرید شود (فرض) | ~۳۶۰ هزار تومان | ~۱٫۰۴ میلیون تومان |
+| Everything on Opus 5.5 | ~$2.3 | ~$6.5 |
+| Everything on Sonnet 5.5, no cache | ~$1.1 | ~$3.2 |
+| **Mixed: tools on Sonnet + cache, chat on Haiku** | ~$0.7 | ~$2.0 |
+| **Mixed + 30% margin** | **~$0.9 ≈ 240 thousand toman** | **~$2.6 ≈ 690 thousand toman** |
+| Same, if bought through an intermediary with a 50% fee (assumption) | ~360 thousand toman | ~1.04 million toman |
 
-**هزینه‌ی هر بار استفاده (Sonnet، بدون کش):** بررسی جاب ≈ $0.025 (~۷ هزار تومان)؛ بررسی پروپوزال ≈ $0.03 (~۸ هزار تومان).
+**Cost per use (Sonnet, no cache):** job review ≈ $0.025 (~7 thousand toman); proposal review ≈ $0.03 (~8 thousand toman).
 
-**نکته‌ها:**
-- هزینه‌ی AI به دلار و درآمد به تومان است → با هر جهش دلار، حاشیه آب می‌رود. قیمت‌ها باید **فصلی بازبینی** شوند یا اعتبار به دلار شاخص‌گذاری شود.
-- **احتمالاً هزینه‌ی مشاور از هزینه‌ی AI بزرگ‌تر است** (مزد مشاورها نامعلوم ← سؤال بنیان‌گذار). یکی از نقش‌های AI کم کردن زمان مشاور است.
-- سهمیه (quota) لازم است؛ بدون سقف، ۵٪ کاربران پرمصرف می‌توانند حاشیه را بخورند.
+**Notes:**
+- AI cost is in dollars and revenue is in toman → with every dollar jump, the margin melts away. Prices must be **reviewed quarterly** or credits indexed to the dollar.
+- **Mentor cost is probably larger than AI cost** (mentor pay unknown → founder question). One of AI's roles is to reduce mentor time.
+- A quota is necessary; without a cap, 5% of heavy users can eat the margin.
 
-## قیمت‌گذاری پیشنهادی اولیه (برای آزمون، نه نهایی)
-| پلن | محتوا | قیمت پیشنهادی | هزینه‌ی AI سقف | سهم AI از درآمد |
+## Initial proposed pricing (for testing, not final)
+| Plan | Contents | Proposed price | Capped AI cost | AI share of revenue |
 |---|---|---|---|---|
-| همراه دوره | ۳ ماه دسترسی، سهمیه‌ی پلن پایه | داخل قیمت دوره (مثلاً +۱ تا ۲ میلیون به قیمت فعلی) | ~۲۴۰ هزار/ماه | — |
-| پایه | ۲۰ بررسی جاب، ۱۵ بررسی پروپوزال، ۲ پروفایل، چت AI محدود، پرسش از مشاور (پاسخ تا ۲۴ ساعت) | **۱٫۵ میلیون تومان/ماه** | ~۳۵۰ هزار | ~۱۵ تا ۲۳٪ |
-| پرو | سهمیه‌ی ۲ برابر + ۱ جلسه‌ی ۱:۱ ماهانه + اولویت پاسخ | **۳٫۵ تا ۴ میلیون تومان/ماه** | ~۷۰۰ هزار | ~۱۸ تا ۲۰٪ |
-| بسته‌ی اعتبار | ۱۰ بررسی پروپوزال/جاب | **۲۵۰ هزار تومان** | ~۸۰ هزار | ~۳۰٪ |
-| مشاوره‌ی ۱:۱ | جلسه‌ی ۴۵ دقیقه | بستگی به مزد مشاور (نامعلوم) | — | — |
+| With course | 3 months of access, Basic plan quota | Included in the course price (e.g. +1 to 2 million on top of the current price) | ~240 thousand/month | — |
+| Basic | 20 job reviews, 15 proposal reviews, 2 profiles, limited AI chat, ask a mentor (answer within 24 hours) | **1.5 million toman/month** | ~350 thousand | ~15 to 23% |
+| Pro | 2× quota + 1 monthly 1:1 session + priority answers | **3.5 to 4 million toman/month** | ~700 thousand | ~18 to 20% |
+| Credit pack | 10 proposal/job reviews | **250 thousand toman** | ~80 thousand | ~30% |
+| 1:1 consulting | 45-minute session | Depends on mentor pay (unknown) | — | — |
 
-**چطور اعتبارسنجی کنیم:** پیش‌فروش پلن پایه به کوهورت فعلی با ۳ قیمت (۹۹۰ هزار، ۱٫۵ میلیون، ۲ میلیون) و سنجش نرخ پذیرش؛ مقایسه با «تمایل به پرداخت» در مصاحبه‌ها.
+**How to validate:** pre-sell the Basic plan to the current cohort at 3 prices (990 thousand, 1.5 million, 2 million) and measure the acceptance rate; compare with "willingness to pay" in interviews.
 
-## هزینه‌های ثابت که باید دیده شوند (بدون عدد — فاز ۳)
-سرور واسط خارج از ایران، سرور/CDN داخل ایران، درگاه پرداخت و اینماد، پیامک (OTP)، نگهداری، و زمان مشاورها.
+## Fixed costs that must be accounted for (no figures — Phase 3)
+Intermediary server outside Iran, server/CDN inside Iran, payment gateway and eNamad, SMS (OTP), maintenance, and mentor time.

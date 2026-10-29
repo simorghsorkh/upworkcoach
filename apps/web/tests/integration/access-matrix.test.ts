@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { asc } from 'drizzle-orm';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { platforms, stages, taskTemplates } from '@/modules/catalog/schema';
-import { sessions } from '@/modules/identity/schema';
+import { DEFAULT_ORGANIZATION_ID, sessions } from '@/modules/identity/schema';
 import { slidingExpiry } from '@/modules/identity/session-policy';
 import { sha256Hex } from '@/modules/identity/tokens';
 import { platformProfiles } from '@/modules/students/schema';
@@ -83,12 +83,16 @@ beforeAll(async () => {
   matrixStageId = stage?.id ?? '';
   const [platform] = await getDb()
     .insert(platforms)
-    .values({ name: `matrix-${uniquePhone()}`, sortOrder: 9_000 })
+    .values({
+      organizationId: DEFAULT_ORGANIZATION_ID,
+      name: `matrix-${uniquePhone()}`,
+      sortOrder: 9_000,
+    })
     .returning({ id: platforms.id });
   matrixPlatformId = platform?.id ?? '';
   const [template] = await getDb()
     .insert(taskTemplates)
-    .values({ title: 'قالب ماتریس', isActive: false })
+    .values({ organizationId: DEFAULT_ORGANIZATION_ID, title: 'قالب ماتریس', isActive: false })
     .returning({ id: taskTemplates.id });
   matrixTemplateId = template?.id ?? '';
   matrixMilestoneTypeId = await milestoneTypeFixture();
@@ -105,6 +109,7 @@ beforeAll(async () => {
   await getDb()
     .insert(sessions)
     .values({
+      organizationId: DEFAULT_ORGANIZATION_ID,
       userId: invited.id,
       tokenHash: sha256Hex(forgedToken),
       createdAt: now,
@@ -147,6 +152,74 @@ async function probe(entry: RouteEntry): Promise<CallOptions> {
   switch (`${entry.method} ${entry.path}`) {
     case 'POST /students':
       return { body: { displayName: 'هنرجوی ماتریس', phone: uniquePhone() } };
+    case 'POST /program-templates':
+      return { body: { kind: 'program', title: 'قالب برنامه‌ی ماتریس' } };
+    case 'POST /program-runs':
+      return { body: { kind: 'one_on_one', mode: 'individual', title: 'اجرای ماتریس' } };
+    // Programs (ADR-0012): valid bodies, no params (the ids 404 for allowed callers).
+    case 'POST /program-templates/[id]/duplicate':
+      return { body: { title: 'کپی ماتریس' } };
+    case 'POST /program-templates/[id]/reject':
+      return { body: { reason: 'دلیل ماتریس' } };
+    case 'POST /program-templates/[id]/nodes':
+      return { body: { nodeType: 'phase', title: 'فاز ماتریس' } };
+    case 'PUT /program-templates/[id]/nodes/order':
+      return { body: { parentId: null, nodeIds: ['01900000-0000-7000-8000-0000000000fe'] } };
+    case 'POST /program-runs/[id]/staff':
+      return { body: { userId: mentorId(), role: 'mentor' } };
+    case 'POST /program-runs/[id]/enrollments':
+      return { body: { studentIds: [studentId] } };
+    case 'PATCH /enrollments/[id]':
+      return { body: { status: 'paused', pausedUntil: dayFromToday(3) } };
+    case 'PUT /enrollments/[id]/phase':
+      return { body: { toNodeId: '01900000-0000-7000-8000-0000000000fe', kind: 'advance' } };
+    // Mentor relationship and directory (Coach Office sprint 4).
+    case 'POST /enrollments/[id]/mentors':
+      return { body: { mentorId: mentorId(), role: 'secondary' } };
+    case 'PUT /mentors/[id]/profile':
+      return { body: { bio: 'معرفی ماتریس' } };
+    case 'POST /mentors/[id]/transfer':
+      return { body: { toMentorId: mentorId() } };
+    // Program assignments and progress (Coach Office sprint 5).
+    case 'POST /program-runs/[id]/nodes/[nodeId]/assign':
+      return { body: {} };
+    case 'PUT /enrollments/[id]/nodes/[nodeId]/completion':
+      return { body: { done: true } };
+    // Bookable hours and booking requests (Coach Office sprint 7).
+    case 'PUT /mentors/[id]/availability':
+      return { body: { rules: [], dates: [] } };
+    case 'PUT /mentors/[id]/offerings/[templateId]':
+      return { body: { active: false } };
+    case 'GET /mentors/[id]/slots':
+      return { query: { templateId: '00000000-0000-7000-8000-000000000000' } };
+    case 'POST /booking-requests':
+      return {
+        body: {
+          mentorId: mentorId(),
+          templateId: '00000000-0000-7000-8000-000000000000',
+          startsAt: '2026-12-01T10:00:00.000Z',
+        },
+      };
+    case 'POST /booking-requests/[id]/decline':
+      return { body: {} };
+    // Sessions and goals (Coach Office sprint 5b).
+    case 'POST /sessions':
+      return {
+        body: {
+          runId: '00000000-0000-7000-8000-000000000000',
+          day: '2026-12-01',
+          time: '10:00',
+          durationMinutes: 60,
+        },
+      };
+    case 'PATCH /sessions/[id]':
+      return { body: { status: 'held' } };
+    case 'POST /sessions/[id]/actions':
+      return { body: { title: 'x', dueDate: '2026-12-01' } };
+    case 'POST /enrollments/[id]/goals':
+      return { body: { title: 'x' } };
+    case 'PATCH /goals/[id]':
+      return { body: { status: 'achieved' } };
     case 'GET /students/[id]':
     case 'GET /students/[id]/summary':
     case 'GET /students/[id]/profiles':

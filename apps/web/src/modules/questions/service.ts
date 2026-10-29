@@ -8,7 +8,7 @@ import { errors } from '@/server/http/errors';
 import { decodeCursor, encodeCursor } from '@/server/http/schemas';
 import { assertRefs, type RefCheck } from '../access/refs';
 import { findQuestionRoot } from '../access/repo';
-import { isInScope, scopeCondition, staffStudentScope } from '../access/scope';
+import { scopeCondition, staffStudentScope, studentInScope } from '../access/scope';
 import { recordAudit } from '../admin/service';
 import type { SlaSettings } from '../catalog/contracts';
 import {
@@ -20,6 +20,7 @@ import {
 import { attachmentsByParent, linkAttachmentsToQuestionMessage } from '../files/service';
 import { recomputeHealthSafe } from '../health/recompute';
 import { isActiveStaffUser } from '../identity/service';
+import { notify } from '../notifications/service';
 import { touchStudentActivity } from '../students/activity';
 import { students } from '../students/schema';
 import { loadStudentSummary } from '../students/service';
@@ -63,8 +64,8 @@ function assertStaff(actor: Actor): void {
 
 type SlaContext = { sla: SlaSettings; hours: BusinessHoursConfig; now: Date };
 
-async function slaContext(db: DbOrTx, now = new Date()): Promise<SlaContext> {
-  const [sla, hours] = await Promise.all([getSlaSettings(db), getBusinessHours(db)]);
+async function slaContext(db: DbOrTx, org: string, now = new Date()): Promise<SlaContext> {
+  const [sla, hours] = await Promise.all([getSlaSettings(db, org), getBusinessHours(db, org)]);
   return { sla, hours: hours as BusinessHoursConfig, now };
 }
 
@@ -124,7 +125,7 @@ function toStudentItem(row: repo.ThreadRow): StudentQuestionDTO {
 
 // ---- access ---------------------------------------------------------------------------
 
-type StaffAccess = { studentId: string; viaAssignment: boolean };
+type StaffAccess = { studentId: string; organizationId: string; viaAssignment: boolean };
 
 /**
  * Staff access to one thread: inside the scope, or its assignee while open/answered.
@@ -134,13 +135,15 @@ async function staffThreadAccess(db: DbOrTx, actor: Actor, threadId: string): Pr
   assertStaff(actor);
   if (!isUuid(threadId)) throw errors.notFound();
   const root = await findQuestionRoot(db, threadId);
-  if (!root) throw errors.notFound();
+  // Another organization's thread does not exist here, even for its assignee (ADR-0011).
+  if (!root || root.organizationId !== actor.organizationId) throw errors.notFound();
   const scope = await staffStudentScope(db, actor);
-  if (isInScope(scope, root.primaryMentorId)) {
-    return { studentId: root.studentId, viaAssignment: false };
+  const base = { studentId: root.studentId, organizationId: root.organizationId };
+  if (await studentInScope(db, scope, root.studentId, root.organizationId)) {
+    return { ...base, viaAssignment: false };
   }
   if (root.assigneeId === actor.userId && root.status !== 'closed') {
-    return { studentId: root.studentId, viaAssignment: true };
+    return { ...base, viaAssignment: true };
   }
   throw errors.notFound();
 }
@@ -165,8 +168,10 @@ export async function listQuestions(
   if (offset < 0) throw errors.validation({ cursor: 'مقدار نامعتبر است' });
   const limit = query.limit ?? DEFAULT_LIMIT;
   const scope = await staffStudentScope(db, actor);
+  const inScope = scopeCondition(scope, students.userId, students.organizationId);
   const conditions = [
-    repo.staffVisibility(scopeCondition(scope, students.primaryMentorId), actor.userId),
+    eq(questionThreads.organizationId, actor.organizationId),
+    repo.staffVisibility(inScope, actor.userId),
   ];
   if (query.status) conditions.push(eqText(questionThreads.status, query.status));
   if (query.awaiting) conditions.push(eqText(questionThreads.awaiting, query.awaiting));
@@ -175,13 +180,11 @@ export async function listQuestions(
     conditions.push(eqText(questionThreads.assigneeId, query.assigneeId));
   }
   const [rows, ctx] = await Promise.all([
-    repo.listThreads(db, conditions, limit + 1, offset),
-    slaContext(db),
+    repo.listThreads(db, conditions, inScope, limit + 1, offset),
+    slaContext(db, actor.organizationId),
   ]);
   return {
-    items: rows
-      .slice(0, limit)
-      .map((r) => toStaffItem(r, ctx, !isInScope(scope, r.primaryMentorId))),
+    items: rows.slice(0, limit).map((r) => toStaffItem(r, ctx, !r.inScope)),
     nextCursor: rows.length > limit ? encodeCursor(offset + limit) : null,
   };
 }
@@ -201,20 +204,20 @@ export async function unansweredQuestionsFor(
   now: Date,
 ): Promise<StaffQuestionListItemDTO[]> {
   const scope = await staffStudentScope(db, actor);
+  const inScope = scopeCondition(scope, students.userId, students.organizationId);
   const conditions = [
-    repo.staffVisibility(scopeCondition(scope, students.primaryMentorId), actor.userId),
+    eq(questionThreads.organizationId, actor.organizationId),
+    repo.staffVisibility(inScope, actor.userId),
     eqText(questionThreads.awaiting, 'team'),
   ];
   if (assigneeId && actor.role === 'admin') {
     conditions.push(eqText(questionThreads.assigneeId, assigneeId));
   }
   const [rows, ctx] = await Promise.all([
-    repo.listThreads(db, conditions, 200, 0),
-    slaContext(db, now),
+    repo.listThreads(db, conditions, inScope, 200, 0),
+    slaContext(db, actor.organizationId, now),
   ]);
-  return rows
-    .map((r) => toStaffItem(r, ctx, !isInScope(scope, r.primaryMentorId)))
-    .sort((a, b) => urgency(a) - urgency(b));
+  return rows.map((r) => toStaffItem(r, ctx, !r.inScope)).sort((a, b) => urgency(a) - urgency(b));
 }
 
 /** Breached first, then the least time left. */
@@ -233,7 +236,7 @@ async function staffDetail(
   if (!row) throw errors.notFound();
   const [messages, ctx, summary] = await Promise.all([
     repo.listMessages(db, threadId),
-    slaContext(db),
+    slaContext(db, access.organizationId),
     loadStudentSummary(db, access.studentId),
   ]);
   const files = await attachmentsByParent(
@@ -268,7 +271,7 @@ async function studentDetail(
   if (!row || row.studentId !== actor.userId) throw errors.notFound();
   const [messages, settings] = await Promise.all([
     repo.listMessages(db, threadId),
-    getQuestionsSettings(db),
+    getQuestionsSettings(db, actor.organizationId),
   ]);
   const files = await attachmentsByParent(
     db,
@@ -342,7 +345,7 @@ export async function listOwnQuestions(
   if (actor.role !== 'student') throw errors.forbidden();
   const [rows, settings] = await Promise.all([
     repo.listThreadsOfStudent(db, actor.userId, query.status),
-    getQuestionsSettings(db),
+    getQuestionsSettings(db, actor.organizationId),
   ]);
   return { items: rows.map(toStudentItem), expectedResponseText: settings.expectedResponseText };
 }
@@ -350,11 +353,14 @@ export async function listOwnQuestions(
 /** Assignee of a new thread: the active primary mentor, otherwise the first active admin. */
 async function defaultAssignee(tx: DbOrTx, studentId: string): Promise<string> {
   const [row] = await tx
-    .select({ mentorId: students.primaryMentorId })
+    .select({ mentorId: students.primaryMentorId, organizationId: students.organizationId })
     .from(students)
     .where(eq(students.userId, studentId));
-  if (row?.mentorId && (await isActiveStaffUser(tx, row.mentorId))) return row.mentorId;
-  const admin = await repo.firstActiveAdmin(tx);
+  if (!row) throw errors.notFound();
+  if (row.mentorId && (await isActiveStaffUser(tx, row.organizationId, row.mentorId))) {
+    return row.mentorId;
+  }
+  const admin = await repo.firstActiveAdmin(tx, row.organizationId);
   if (!admin) throw errors.conflict('فعلاً کسی برای پاسخ نیست؛ بعداً دوباره امتحان کن.');
   return admin;
 }
@@ -374,12 +380,13 @@ export async function createThreadForStudent(
   if (input.taskId)
     refs.push({ field: 'taskId', kind: 'taskOfStudent', id: input.taskId, studentId });
   await assertRefs(tx, actor, refs);
+  const assigneeId = await defaultAssignee(tx, studentId);
   const threadId = await repo.insertThread(
     tx,
     {
       studentId,
       subject: input.subject,
-      assigneeId: await defaultAssignee(tx, studentId),
+      assigneeId,
       taskId: input.taskId ?? null,
       priority: input.priority ?? 'normal',
       source: input.source ?? 'student',
@@ -411,6 +418,20 @@ export async function createThreadForStudent(
     },
     occurredAt: now,
   });
+  await notify(
+    tx,
+    actor,
+    [
+      {
+        userId: assigneeId,
+        kind: 'question_new',
+        studentId,
+        subjectId: threadId,
+        data: { title: input.subject },
+      },
+    ],
+    now,
+  );
   await touchStudentActivity(tx, studentId, now);
   return threadId;
 }
@@ -492,6 +513,20 @@ export async function postMessage(
         },
         now,
       );
+      await notify(
+        tx,
+        actor,
+        [
+          {
+            userId: locked.assigneeId,
+            kind: 'question_new',
+            studentId: locked.studentId,
+            subjectId: threadId,
+            data: { title: locked.subject },
+          },
+        ],
+        now,
+      );
       await touchStudentActivity(tx, actor.userId, now);
     } else {
       await repo.updateThread(
@@ -515,6 +550,20 @@ export async function postMessage(
         data: { first: locked.firstResponseAt === null },
         occurredAt: now,
       });
+      await notify(
+        tx,
+        actor,
+        [
+          {
+            userId: locked.studentId,
+            kind: 'question_reply',
+            studentId: locked.studentId,
+            subjectId: threadId,
+            data: { title: locked.subject },
+          },
+        ],
+        now,
+      );
     }
   });
   if (student) {

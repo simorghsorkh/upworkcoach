@@ -1,6 +1,7 @@
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';
-import { faAgo } from '@/components/format/fa';
+import { useFormat } from '@/components/format/use-format';
 import { Icon } from '@/components/icons/icon';
 import { Avatar } from '@/components/ui/avatar';
 import { Tag } from '@/components/ui/badge';
@@ -8,8 +9,9 @@ import { buttonClass } from '@/components/ui/button';
 import { cn } from '@/components/ui/cn';
 import type { SubmissionType } from '@/modules/catalog/contracts';
 import type { TaskPriority, TaskStatus } from '@/modules/tasks/contracts';
-import { submissionTypeIcon, submissionTypeLabel } from './labels';
+import { submissionTypeIcon } from './labels';
 import { DueText, SlaText, TaskStatusBadge } from './task-bits';
+import { useTaskLabels } from './use-task-labels';
 
 export type TaskRow = {
   id: string;
@@ -26,6 +28,8 @@ export type TaskRow = {
   revisionCount: number;
   version: number | null;
   lastSubmittedAt: string | null;
+  /** Program run the task came from (sprint 5), when it came from one. */
+  program?: string | null;
   sla: {
     breached: boolean;
     warning: boolean;
@@ -67,6 +71,9 @@ export function TasksTable({
   caption: string;
   now: Date;
 }) {
+  const tr = useTranslations('tasks');
+  const labels = useTaskLabels();
+  const format = useFormat();
   return (
     <div className="overflow-hidden rounded-md border border-line bg-surface shadow-sm max-md:overflow-visible max-md:rounded-none max-md:border-0 max-md:bg-transparent max-md:shadow-none">
       <table className="w-full border-collapse text-ui leading-[22px] max-md:block">
@@ -74,25 +81,25 @@ export function TasksTable({
         <thead className="max-md:hidden">
           <tr>
             <th scope="col" className={th}>
-              کار
+              {tr('colTask')}
             </th>
             <th scope="col" className={th}>
-              هنرجو
+              {tr('colStudent')}
             </th>
             <th scope="col" className={th}>
-              وضعیت
+              {tr('colStatus')}
             </th>
             <th scope="col" className={th}>
-              تحویل
+              {tr('colSubmission')}
             </th>
             <th scope="col" className={cn(th, 'max-lg:hidden')}>
-              نوع
+              {tr('colType')}
             </th>
             <th scope="col" className={th}>
-              مهلت
+              {tr('colDue')}
             </th>
             <th scope="col" className={th}>
-              <span className="sr-only">اقدام</span>
+              <span className="sr-only">{tr('colAction')}</span>
             </th>
           </tr>
         </thead>
@@ -113,11 +120,16 @@ export function TasksTable({
                     <Link href={`/tasks/${t.id}`} className="font-bold text-fg hover:text-link">
                       <bdi>{t.title}</bdi>
                     </Link>
-                    {t.priority === 'urgent' ? <Tag variant="urgent">فوری</Tag> : null}
-                    {t.requiredForGate ? <Tag variant="gate">اجباری برای عبور</Tag> : null}
+                    {t.priority === 'urgent' ? <Tag variant="urgent">{tr('urgent')}</Tag> : null}
+                    {t.requiredForGate ? <Tag variant="gate">{tr('gate')}</Tag> : null}
+                    {t.program ? (
+                      <Tag variant="outline" icon="flag">
+                        <bdi>{t.program}</bdi>
+                      </Tag>
+                    ) : null}
                   </div>
                 </td>
-                <Cell label="هنرجو" className="md:whitespace-nowrap">
+                <Cell label={tr('colStudent')} className="md:whitespace-nowrap">
                   <Link
                     href={`/students/${t.student.id}`}
                     className="inline-flex items-center gap-2 font-medium text-fg hover:text-link"
@@ -126,23 +138,23 @@ export function TasksTable({
                     {t.student.displayName}
                   </Link>
                 </Cell>
-                <Cell label="وضعیت">
+                <Cell label={tr('colStatus')}>
                   <TaskStatusBadge
                     status={t.status}
                     version={t.version ?? undefined}
                     round={t.status === 'changes_requested' ? t.revisionCount : undefined}
                   />
                 </Cell>
-                <Cell label="تحویل" className="md:whitespace-nowrap">
+                <Cell label={tr('colSubmission')} className="md:whitespace-nowrap">
                   {t.sla && t.lastSubmittedAt ? (
                     <SlaText {...t.sla} lastSubmittedAt={t.lastSubmittedAt} now={now} />
                   ) : t.lastSubmittedAt ? (
-                    faAgo(new Date(t.lastSubmittedAt), now)
+                    format.ago(new Date(t.lastSubmittedAt), now)
                   ) : (
-                    <span className="text-fg-3">هنوز نه</span>
+                    <span className="text-fg-3">{tr('notYet')}</span>
                   )}
                 </Cell>
-                <Cell label="نوع" className="max-lg:hidden md:whitespace-nowrap">
+                <Cell label={tr('colType')} className="max-lg:hidden md:whitespace-nowrap">
                   {t.submissionType ? (
                     <span className="inline-flex items-center gap-1.5">
                       <Icon
@@ -150,13 +162,13 @@ export function TasksTable({
                         size={16}
                         className="text-fg-3"
                       />
-                      {submissionTypeLabel[t.submissionType]}
+                      {labels.submissionType[t.submissionType]}
                     </span>
                   ) : (
                     '—'
                   )}
                 </Cell>
-                <Cell label="مهلت" className="md:whitespace-nowrap">
+                <Cell label={tr('colDue')} className="md:whitespace-nowrap">
                   {t.dueAt ? (
                     <DueText
                       dueAt={t.dueAt}
@@ -176,7 +188,7 @@ export function TasksTable({
                       href={`/tasks/${t.id}`}
                       className={buttonClass({ size: 'sm', variant: 'soft' })}
                     >
-                      بازبینی
+                      {tr('review')}
                     </Link>
                   ) : t.overdue ? (
                     <span className="inline-flex flex-wrap gap-1.5">
@@ -185,13 +197,13 @@ export function TasksTable({
                         className={buttonClass({ size: 'sm' })}
                       >
                         <Icon name="calendar" size={14} />
-                        تمدید مهلت
+                        {tr('extend')}
                       </Link>
                       <Link
                         href={`/students/${t.student.id}?add=reminder`}
                         className={buttonClass({ size: 'sm', variant: 'ghost' })}
                       >
-                        یادآور
+                        {tr('reminder')}
                       </Link>
                     </span>
                   ) : null}

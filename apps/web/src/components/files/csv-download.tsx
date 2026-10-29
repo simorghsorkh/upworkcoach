@@ -1,7 +1,7 @@
 'use client';
 
 import { type ReactNode, useState } from 'react';
-import { type ApiResult, fallbackMessage } from '@/components/api/client';
+import { type ApiResult, fallbackMessage, pageLocale } from '@/components/api/client';
 import { useReauth } from '@/components/auth/reauth-dialog';
 import { Icon, type IconName } from '@/components/icons/icon';
 import { Button, type ButtonVariant } from '@/components/ui/button';
@@ -9,7 +9,11 @@ import { Button, type ButtonVariant } from '@/components/ui/button';
 async function fetchFile(path: string): Promise<ApiResult<Blob>> {
   let res: Response;
   try {
-    res = await fetch(path, { credentials: 'same-origin', cache: 'no-store' });
+    res = await fetch(path, {
+      credentials: 'same-origin',
+      cache: 'no-store',
+      headers: { 'Accept-Language': pageLocale() },
+    });
   } catch {
     return {
       ok: false,

@@ -46,35 +46,39 @@ export async function findReminder(db: DbOrTx, id: string) {
   return row ?? null;
 }
 
-/** Lock + the scope inputs (owner, student's primary mentor). */
-export async function lockReminder(db: DbOrTx, id: string) {
+/** Lock + the scope inputs (owner, student); null outside `org`. */
+export async function lockReminder(db: DbOrTx, org: string, id: string) {
   const [row] = await db
     .select({
       id: reminders.id,
       ownerId: reminders.ownerId,
       studentId: reminders.studentId,
-      primaryMentorId: students.primaryMentorId,
+      organizationId: reminders.organizationId,
       status: reminders.status,
       dueAt: reminders.dueAt,
     })
     .from(reminders)
     .leftJoin(students, eq(students.userId, reminders.studentId))
-    .where(eq(reminders.id, id))
+    .where(and(eq(reminders.id, id), eq(reminders.organizationId, org)))
     .for('update', { of: reminders });
   return row ?? null;
 }
 
 export type ListFilter = {
-  /** `students.primary_mentor_id` scope (SEC-A2); reminders without a student pass. */
-  scope: (column: typeof students.primaryMentorId) => SQL;
+  organizationId: string;
+  /** Student scope (SEC-A2) on the student's columns; reminders without a student pass. */
+  scope: (student: typeof students.userId, organization: typeof students.organizationId) => SQL;
   ownerId?: string;
   studentId?: string;
   window: { kind: 'before'; at: Date } | { kind: 'from'; at: Date } | { kind: 'done' };
 };
 
 export async function listReminders(db: DbOrTx, filter: ListFilter) {
-  const conditions: SQL[] = [];
-  const scoped = or(isNull(reminders.studentId), filter.scope(students.primaryMentorId));
+  const conditions: SQL[] = [eq(reminders.organizationId, filter.organizationId)];
+  const scoped = or(
+    isNull(reminders.studentId),
+    filter.scope(students.userId, students.organizationId),
+  );
   if (scoped) conditions.push(scoped);
   if (filter.ownerId) conditions.push(eq(reminders.ownerId, filter.ownerId));
   if (filter.studentId) conditions.push(eq(reminders.studentId, filter.studentId));
@@ -100,6 +104,8 @@ export async function listReminders(db: DbOrTx, filter: ListFilter) {
 export async function insertReminder(
   db: DbOrTx,
   values: {
+    /** Overwritten by the trigger with the student's organization when there is one. */
+    organizationId: string;
     ownerId: string;
     studentId: string | null;
     text: string;
@@ -173,7 +179,15 @@ export async function upsertSystemReminder(
 ): Promise<void> {
   await db
     .insert(reminders)
-    .values({ ...values, status: 'open', source: 'system', createdAt: now, updatedAt: now })
+    .values({
+      ...values,
+      // The trigger copies it from the student anyway (ADR-0011).
+      organizationId: sql`(SELECT ${students.organizationId} FROM ${students} WHERE ${students.userId} = ${values.studentId})`,
+      status: 'open',
+      source: 'system',
+      createdAt: now,
+      updatedAt: now,
+    })
     .onConflictDoUpdate({
       target: reminders.systemKey,
       set: {

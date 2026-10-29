@@ -1,7 +1,10 @@
+import { getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
 import { faNumber } from '@/components/format/fa';
 import type { NavCounts } from '@/components/shell/nav-items';
 import { StaffShell } from '@/components/shell/staff-shell';
+import { unreadNotificationCount } from '@/modules/notifications/service';
+import { openBookingCount } from '@/modules/scheduling/service';
 import { getToday } from '@/modules/today/service';
 import { requireUser, toActor } from '@/server/auth/current-user';
 
@@ -18,6 +21,13 @@ async function navCounts(actor: ReturnType<typeof toActor>): Promise<NavCounts |
         label: `${faNumber(c.unansweredQuestions)} سؤال بی‌پاسخ`,
         tone: 'alert',
       };
+    const unread = await unreadNotificationCount(actor);
+    if (unread) result['/notifications'] = { value: unread, label: String(unread), tone: 'alert' };
+    const requests = await openBookingCount(actor);
+    if (requests) {
+      const t = await getTranslations('scheduling');
+      result['/calendar'] = { value: requests, label: t('openRequests', { count: requests }) };
+    }
     return result;
   } catch {
     return undefined;

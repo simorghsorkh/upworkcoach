@@ -1,36 +1,36 @@
-# ADR-0001 — استک فنی: مونولیت ماژولار TypeScript با Next.js و PostgreSQL
+# ADR-0001 — Tech stack: a modular TypeScript monolith with Next.js and PostgreSQL
 
-- **وضعیت:** پیشنهادشده (منتظر گیت بنیان‌گذار)
-- **تاریخ:** ۲۷ مهر ۱۴۰۵ (2026-10-19)
-- **نویسنده:** software-architect
-- **جزئیات:** [`../tech-stack.md`](../tech-stack.md)
+- **Status:** Proposed (awaiting founder gate)
+- **Date:** 27 Mehr 1405 (2026-10-19)
+- **Author:** software-architect
+- **Details:** [`../tech-stack.md`](../tech-stack.md)
 
-## زمینه
-- یک توسعه‌دهنده‌ی فول‌استک، حدود ۵ تا ۶ هفته برای 0.1 (فرض A3).
-- وب‌اپ واکنش‌گرای فارسی و RTL، خوب روی دسکتاپ و موبایل (تصمیم D1).
-- بار کم: کمتر از ۵۰۰ کاربر بدون تغییر معماری (PRD بخش ۸).
-- 1.0 ابزارهای AI، ثبت اپلای‌ها و اعلان اضافه می‌کند و نباید بازنویسی لازم شود.
-- باید قابل‌انتقال به میزبان ایرانی باشد (ADR-0002).
+## Context
+- One full-stack developer, about 5 to 6 weeks for 0.1 (assumption A3).
+- Responsive Persian RTL web app that works well on desktop and mobile (decision D1).
+- Low load: fewer than 500 users with no architecture change (PRD section 8).
+- 1.0 adds AI tools, job-application logging and notifications, and must not require a rewrite.
+- Must be portable to an Iranian host (ADR-0002).
 
-## گزینه‌ها
-| گزینه | مزیت | عیب |
+## Options
+| Option | Pro | Con |
 |---|---|---|
-| **A. یک برنامه‌ی Next.js (UI + REST API + jobs) + PostgreSQL + Drizzle + pg-boss** | یک زبان، یک استقرار، یک دیتابیس؛ کمترین قطعه‌ی متحرک | باید مرز ماژول‌ها را با قاعده نگه داشت، چون چارچوب آن را تحمیل نمی‌کند |
-| B. Next.js (فرانت) + NestJS (API) جدا | مرز فرانت و بک روشن | دو استقرار، دو پیکربندی، دو بار احراز هویت؛ برای یک نفر سنگین |
-| C. Django یا Laravel + فرانت React | پنل ادمین آماده | دو زبان؛ RTL و شمسی در پنل آماده هم کار می‌خواهد |
-| D. BaaS (Supabase یا Firebase) | سرعت شروع | قفل‌شدگی؛ وابستگی خارجی؛ RLS پیچیده برای قواعد ما؛ Firebase برای ایران مسدود است |
+| **A. One Next.js app (UI + REST API + jobs) + PostgreSQL + Drizzle + pg-boss** | One language, one deployment, one database; fewest moving parts | Module boundaries must be kept by discipline, because the framework does not enforce them |
+| B. Separate Next.js (front end) + NestJS (API) | Clear front/back boundary | Two deployments, two configurations, authentication twice; heavy for one person |
+| C. Django or Laravel + React front end | Ready-made admin panel | Two languages; RTL and Jalali dates need work even in a ready-made panel |
+| D. BaaS (Supabase or Firebase) | Fast start | Lock-in; external dependency; complex RLS for our rules; Firebase is blocked for Iran |
 
-## تصمیم
-**گزینه‌ی A**، مونولیت ماژولار:
-- Next.js App Router با `output: 'standalone'` در یک image داکر.
-- REST نسخه‌دار (`/api/v1`) با zod. صفحه‌های سرور همان serviceها را مستقیم صدا می‌زنند.
-- PostgreSQL 16+ با Drizzle و مهاجرت‌های SQL.
-- pg-boss برای cron و صف (ADR-0007).
-- نشست دیتابیسی و argon2id (ADR-0003).
-- Tailwind v4 + shadcn/ui، Vazirmatn محلی، تاریخ با Intl + date-fns-jalali (ADR-0008).
+## Decision
+**Option A**, a modular monolith:
+- Next.js App Router with `output: 'standalone'` in one Docker image.
+- Versioned REST (`/api/v1`) with zod. Server pages call the same services directly.
+- PostgreSQL 16+ with Drizzle and SQL migrations.
+- pg-boss for cron and queues (ADR-0007).
+- Database sessions and argon2id (ADR-0003).
+- Tailwind v4 + shadcn/ui, self-hosted Vazirmatn, dates with Intl + date-fns-jalali (ADR-0008).
 
-## پیامدها
-- **مثبت:** راه‌اندازی در یک روز؛ هر تغییر یک PR و یک استقرار؛ تست یکپارچه‌ی ساده.
-- **منفی:** اگر بار LLM در 1.0 سنگین شد، worker باید جدا اجرا شود. این کار بدون بازنویسی ممکن است: همان image با دستور `worker`.
-- **قاعده‌ی الزامی:** منطق و دسترسی داخل `modules/*/service.ts`. Route Handler فقط HTTP را مدیریت می‌کند (tech-stack.md بخش ۳). بدون این قاعده، مونولیت به «توپ گل» تبدیل می‌شود.
-- **قابل‌بازنگری:** Prisma به‌جای Drizzle اگر backend-engineer با آن سریع‌تر است. مدل داده و مهاجرت‌ها تغییر مفهومی نمی‌کنند.
+## Consequences
+- **Positive:** Setup in one day; every change is one PR and one deployment; simple integration testing.
+- **Negative:** If the LLM load in 1.0 becomes heavy, the worker must run separately. This is possible without a rewrite: the same image with a `worker` command.
+- **Mandatory rule:** Logic and access control live in `modules/*/service.ts`. A Route Handler only handles HTTP (tech-stack.md section 3). Without this rule, the monolith turns into a "big ball of mud".
+- **Revisable:** Prisma instead of Drizzle if backend-engineer is faster with it. The data model and migrations do not change conceptually.

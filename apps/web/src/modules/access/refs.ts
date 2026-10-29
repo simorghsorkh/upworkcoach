@@ -3,8 +3,8 @@ import type { DbOrTx } from '@/server/db';
 import { errors, INVALID_REF_MESSAGE } from '@/server/http/errors';
 import { type CatalogRefKind, isActiveCatalogRef } from '../catalog/service';
 import { isActiveStaffUser } from '../identity/service';
-import { findPrimaryMentor, isProfileOfStudent, isTaskOfStudent } from './repo';
-import { isStudentInScope, type PrimaryMentorLookup } from './scope';
+import { findStudentOrganization, isProfileOfStudent, isTaskOfStudent } from './repo';
+import { isStudentInScope, type MentorLinkCheck, type StudentOrganizationLookup } from './scope';
 
 /**
  * Reference-id rule (ADR-0004 section 1-1, security.md C3 / SEC-A3).
@@ -18,13 +18,13 @@ import { isStudentInScope, type PrimaryMentorLookup } from './scope';
  * Every new reference id in the API needs a row in the ADR table and a `RefCheck` kind here.
  */
 export type RefCheck =
-  /** mentorId, reviewerId, assigneeId, ownerId: an active admin or mentor. */
+  /** mentorId, reviewerId, assigneeId, ownerId: an active admin or mentor of the actor's organization. */
   | { field: string; kind: 'staffUser'; id: string; mentorActorMustBeSelf?: boolean }
   /** studentId / studentIds: all inside staffStudentScope(actor); one bad id rejects all. */
   | { field: string; kind: 'studentsInScope'; ids: readonly string[] }
   /**
    * stageId, toStageId, platformId, primaryPlatformId, trackId, templateId, typeId,
-   * cannedResponseId: exists and is active.
+   * cannedResponseId: exists in the actor's organization and is active.
    */
   | { field: string; kind: 'catalog'; catalog: CatalogRefKind; id: string }
   /** profileId (e.g. on a task): belongs to `studentId` and is not deleted. */
@@ -38,11 +38,17 @@ export type RefCheck =
   | { field: string; kind: 'todo'; reason: string };
 
 export type RefDeps = {
-  isActiveStaffUser: (db: DbOrTx, id: string) => Promise<boolean>;
+  isActiveStaffUser: (db: DbOrTx, organizationId: string, id: string) => Promise<boolean>;
   /** Must also confirm that the id is an existing student. */
   isExistingStudent: (db: DbOrTx, id: string) => Promise<boolean>;
-  lookupPrimaryMentor?: PrimaryMentorLookup;
-  isActiveCatalogRef: (db: DbOrTx, kind: CatalogRefKind, id: string) => Promise<boolean>;
+  lookupStudentOrganization?: StudentOrganizationLookup;
+  mentorWorksWithStudent?: MentorLinkCheck;
+  isActiveCatalogRef: (
+    db: DbOrTx,
+    organizationId: string,
+    kind: CatalogRefKind,
+    id: string,
+  ) => Promise<boolean>;
   isProfileOfStudent: (db: DbOrTx, profileId: string, studentId: string) => Promise<boolean>;
   isTaskOfStudent: (db: DbOrTx, taskId: string, studentId: string) => Promise<boolean>;
 };
@@ -52,7 +58,7 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 export const defaultRefDeps: RefDeps = {
   isActiveStaffUser,
   isExistingStudent: async (db, id) =>
-    UUID_RE.test(id) && (await findPrimaryMentor(db, id)) !== null,
+    UUID_RE.test(id) && (await findStudentOrganization(db, id)) !== null,
   isActiveCatalogRef,
   isProfileOfStudent: async (db, profileId, studentId) =>
     UUID_RE.test(profileId) &&
@@ -83,18 +89,25 @@ async function checkRef(db: DbOrTx, actor: Actor, ref: RefCheck, deps: RefDeps):
       if (ref.mentorActorMustBeSelf && actor.role === 'mentor' && ref.id !== actor.userId) {
         return false;
       }
-      return deps.isActiveStaffUser(db, ref.id);
+      return deps.isActiveStaffUser(db, actor.organizationId, ref.id);
     case 'studentsInScope': {
       if (actor.role === 'student') return false;
       const unique = [...new Set(ref.ids)];
       for (const id of unique) {
         if (!(await deps.isExistingStudent(db, id))) return false;
-        if (!(await isStudentInScope(db, actor, id, deps.lookupPrimaryMentor))) return false;
+        const inScope = await isStudentInScope(
+          db,
+          actor,
+          id,
+          deps.lookupStudentOrganization,
+          deps.mentorWorksWithStudent,
+        );
+        if (!inScope) return false;
       }
       return true;
     }
     case 'catalog':
-      return deps.isActiveCatalogRef(db, ref.catalog, ref.id);
+      return deps.isActiveCatalogRef(db, actor.organizationId, ref.catalog, ref.id);
     case 'profileOfStudent':
       return deps.isProfileOfStudent(db, ref.id, ref.studentId);
     case 'taskOfStudent':

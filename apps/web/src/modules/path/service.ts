@@ -82,8 +82,8 @@ export async function changeStage(
       new Date(),
     );
     const [from, to] = await Promise.all([
-      getStage(tx, locked.currentStageId),
-      getStage(tx, input.toStageId),
+      getStage(tx, actor.organizationId, locked.currentStageId),
+      getStage(tx, actor.organizationId, input.toStageId),
     ]);
     if (!from || !to) throw errors.validation({ toStageId: 'مقدار نامعتبر است' });
     const check = checkTransition({
@@ -137,7 +137,7 @@ export async function changeStage(
   // F3 Should: templates with suggest_on_stage_entry for the new stage (only suggested).
   return {
     student: { ...student, health: (await loadStaffStudentDTO(db, studentId)).health },
-    suggestedTemplates: await listSuggestedTemplates(db, input.toStageId),
+    suggestedTemplates: await listSuggestedTemplates(db, actor.organizationId, input.toStageId),
     createdTasks: taskChanges.createdTasks,
     cancelledTaskIds: taskChanges.cancelledTaskIds,
   };
@@ -177,7 +177,7 @@ export async function getBoard(
 ): Promise<BoardDTO> {
   assertStaff(actor);
   const [stages, rows] = await Promise.all([
-    getPathStages(db, true),
+    getPathStages(db, actor.organizationId, true),
     listStudentsForBoard(db, actor, {
       mentorId: query.mentorId,
       tag: query.tag ? normalizeFa(query.tag) || undefined : undefined,
@@ -233,7 +233,7 @@ function toMyPathStage(stage: StageInfo, current: StageInfo): MyPathStageDTO {
 /** GET /me/path (S): current stage, next stage and content links (F3). */
 export async function getOwnPath(actor: Actor, db: DbOrTx = getDb()): Promise<MyPathDTO> {
   const own = await getOwnStudent(actor, db); // 403 for staff, 404 without a record
-  const all = await getPathStages(db, true);
+  const all = await getPathStages(db, actor.organizationId, true);
   const current = all.find((s) => s.id === own.stage.id);
   if (!current) throw errors.notFound();
   const visible = all.filter((s) => s.isActive || s.id === current.id);
@@ -257,7 +257,7 @@ export async function deactivateStage(
   if (actor.role !== 'admin') throw errors.forbidden();
   if (!isUuid(stageId)) throw errors.notFound();
   return db.transaction(async (tx) => {
-    const stage = await getStage(tx, stageId);
+    const stage = await getStage(tx, actor.organizationId, stageId);
     if (!stage) throw errors.notFound();
     if ((await countActiveStudentsInStage(tx, stageId)) > 0) {
       throw errors.conflict('هنوز هنرجوی فعالی در این مرحله است؛ اول آن‌ها را جابه‌جا کن.');

@@ -3,7 +3,9 @@ import { alias } from 'drizzle-orm/pg-core';
 import type { DbOrTx } from '@/server/db';
 import { platforms, stages, tracks } from '../catalog/schema';
 import { studentHealth } from '../health/schema';
+import { memberAccountStatus } from '../identity/membership-sql';
 import { users } from '../identity/schema';
+import { enrollments } from '../programs/schema';
 import type { HealthFilter, LifecycleStatus } from './contracts';
 import { mentorAssignments, platformProfiles, profileSnapshots, students } from './schema';
 
@@ -22,7 +24,7 @@ const studentColumns = {
   id: students.userId,
   displayName: users.displayName,
   phone: users.phone,
-  accountStatus: users.status,
+  accountStatus: memberAccountStatus(users.id, students.organizationId),
   erasedAt: users.erasedAt,
   inviteAcceptedAt: users.inviteAcceptedAt,
   inviteAcceptedUserAgent: users.inviteAcceptedUserAgent,
@@ -100,6 +102,9 @@ export type ListFilter = {
   scope: SQL;
   lifecycle: LifecycleStatus[];
   stageId?: string;
+  /** Holds a seat in this run (sprint 5c), optionally in this phase. */
+  runId?: string;
+  phaseId?: string;
   mentorId?: string | 'none';
   tag?: string;
   platformId?: string;
@@ -131,6 +136,14 @@ export function healthConditions(filter: Pick<ListFilter, 'health' | 'hideSnooze
 export function listConditions(filter: ListFilter): SQL[] {
   const conditions: SQL[] = [filter.scope, inArray(students.lifecycleStatus, filter.lifecycle)];
   if (filter.stageId) conditions.push(eq(students.currentStageId, filter.stageId));
+  if (filter.runId) {
+    conditions.push(
+      sql`EXISTS (SELECT 1 FROM ${enrollments} WHERE ${enrollments.studentId} = ${students.userId}
+        AND ${enrollments.runId} = ${filter.runId}
+        AND ${enrollments.status} IN ('active', 'paused')
+        ${filter.phaseId ? sql`AND ${enrollments.currentPhaseNodeId} = ${filter.phaseId}` : sql``})`,
+    );
+  }
   if (filter.mentorId === 'none') conditions.push(isNull(students.primaryMentorId));
   else if (filter.mentorId) conditions.push(eq(students.primaryMentorId, filter.mentorId));
   if (filter.tag) conditions.push(sql`${students.tags} @> ARRAY[${filter.tag}]::text[]`);
@@ -256,7 +269,7 @@ export async function listForBoard(db: DbOrTx, conditions: SQL[]) {
     .select({
       id: students.userId,
       displayName: users.displayName,
-      accountStatus: users.status,
+      accountStatus: memberAccountStatus(users.id, students.organizationId),
       currentStageId: students.currentStageId,
       stageEnteredAt: students.stageEnteredAt,
       lifecycleStatus: students.lifecycleStatus,
@@ -270,13 +283,17 @@ export async function listForBoard(db: DbOrTx, conditions: SQL[]) {
     .orderBy(asc(students.stageEnteredAt), asc(users.displayName));
 }
 
-/** The student with this (normalised) phone, for the «go to the existing record» link. */
-export async function findStudentIdByPhone(db: DbOrTx, phone: string): Promise<string | null> {
+/** The organization's student with this (normalised) phone («go to the existing record»). */
+export async function findStudentIdByPhone(
+  db: DbOrTx,
+  org: string,
+  phone: string,
+): Promise<string | null> {
   const [row] = await db
     .select({ id: students.userId })
     .from(students)
     .innerJoin(users, eq(users.id, students.userId))
-    .where(and(eq(users.phone, phone), isNull(users.erasedAt)));
+    .where(and(eq(students.organizationId, org), eq(users.phone, phone), isNull(users.erasedAt)));
   return row?.id ?? null;
 }
 
@@ -310,6 +327,7 @@ export type StudentWriteValues = Partial<{
 export async function insertStudent(
   db: DbOrTx,
   values: StudentWriteValues & {
+    organizationId: string;
     userId: string;
     currentStageId: string;
     stageEnteredAt: Date;

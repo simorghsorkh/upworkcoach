@@ -12,11 +12,20 @@ export const E2E_ADMIN = {
   password: 'e2e-admin-password-0123',
 } as const;
 
+/** Owner of a second organization: the tenant-isolation step of the acceptance scenario. */
+export const E2E_OTHER_ADMIN = {
+  phone: '09120000098',
+  displayName: 'مدیر سازمان دوم',
+  password: 'e2e-other-password-0123',
+  orgSlug: 'e2e-second',
+} as const;
+
 export type E2EState = {
   dataDir: string;
   clusterDir: string;
   databaseUrl: string;
   admin: typeof E2E_ADMIN;
+  otherAdmin: typeof E2E_OTHER_ADMIN;
 };
 
 export const stateFile = path.join(os.tmpdir(), `uc-e2e-${E2E_PORT}.json`);

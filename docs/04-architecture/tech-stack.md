@@ -1,112 +1,112 @@
-# استک فنی — UpworkCoach نسخه‌ی 0.1
+# Tech Stack — UpworkCoach version 0.1
 
-> فاز ۳ — ۲۷ مهر ۱۴۰۵ — نویسنده: software-architect — وضعیت: پیش‌نویس برای گیت بنیان‌گذار
-> تصمیم رسمی: [ADR-0001](adr/0001-tech-stack.md). میزبانی: [ADR-0002](adr/0002-hosting-0.1.md).
-> اصل راهنما: **یک توسعه‌دهنده‌ی فول‌استک باید کل سیستم را در ذهن نگه دارد.** یک زبان، یک برنامه، یک دیتابیس، بدون سرویس جانبی.
+> Phase 3 — 27 Mehr 1405 (2026-10-19) — Author: software-architect — Status: draft for the founder gate
+> Formal decision: [ADR-0001](adr/0001-tech-stack.md). Hosting: [ADR-0002](adr/0002-hosting-0.1.md).
+> Guiding principle: **a single full-stack developer must be able to hold the whole system in their head.** One language, one app, one database, no side services.
 
 ---
 
-## ۱. خلاصه
+## 1. Summary
 
-| لایه | انتخاب | چرا این | چرا نه آن |
+| Layer | Choice | Why this | Why not that |
 |---|---|---|---|
-| زبان | **TypeScript** (strict) روی **Node.js 24 LTS** | یک زبان در فرانت و بک؛ تایپ مشترک بین API و UI | Python/Django یا PHP/Laravel: زبان دوم برای فرانت لازم می‌شود |
-| مخزن | **pnpm workspace**: `apps/web` + `packages/config` | 1.0 بدون جابه‌جایی پوشه‌ها `packages/ai` یا `apps/worker` اضافه می‌کند | Turborepo/Nx: برای یک برنامه زیادی است؛ بعداً قابل‌افزودن |
-| فریم‌ورک | **Next.js** (App Router، آخرین نسخه‌ی پایدار) با `output: 'standalone'` | UI و API در یک برنامه و یک استقرار؛ رندر سرور برای بارگذاری سریع روی اینترنت ضعیف (F10: کمتر از ۳ ثانیه) | Next.js + NestJS جدا: دو برنامه، دو استقرار، دو بار احراز هویت. Vite SPA + API: رندر سرور و مسیریابی را باید خودمان بسازیم |
-| API | **REST JSON** در Route Handlerهای `app/api/v1/**`؛ اعتبارسنجی با **zod** | قرارداد صریح و قابل‌تست (`api.md`)؛ بعداً ربات تلگرام یا اپ موبایل از همان API استفاده می‌کند | Server Actions برای mutationها: قرارداد صریح ندارد و تست دسترسی سخت‌تر است. tRPC: قفل به کلاینت TS |
-| دیتابیس | **PostgreSQL 16+** | رابطه‌ای، استاندارد، همه‌جا (Azure، Neon، هر VPS ایرانی)؛ `pg_trgm` برای جستجوی فارسی؛ صف هم داخل همین | MySQL: جستجوی trigram و JSONB ضعیف‌تر. MongoDB: داده‌ی ما رابطه‌ای است |
-| ORM و مهاجرت | **Drizzle ORM** + **drizzle-kit** (فایل‌های SQL مهاجرت در گیت) | نزدیک به SQL؛ index جزئی، check constraint، ستون generated و SQL خام راحت است؛ بدون موتور باینری؛ image کوچک | Prisma: گزینه‌ی خوبی است، ولی قیدها و indexهای Postgres-محور را باید با SQL خام کنار schema نگه داشت. با دلیل قابل‌تعویض است |
-| احراز هویت | **نشست در دیتابیس + کوکی httpOnly**؛ هش رمز با **argon2id** (`@node-rs/argon2`) | جریان ما (دعوت ← موبایل + رمز) ساده و غیراستاندارد است؛ کد کم و قابل‌فهم (ADR-0003) | Auth.js: credentials را با نشست دیتابیسی خوب پشتیبانی نمی‌کند. Better Auth: محور ایمیل است و وابستگی سنگین‌تری می‌آورد. سرویس بیرونی (Clerk و …): تحریم و قطعی |
-| صف و زمان‌بند | **pg-boss** (روی همان Postgres) | بدون Redis؛ cron با منطقه‌ی زمانی؛ زمان‌بندی تک‌نمونه‌ای حتی با چند نمونه‌ی برنامه؛ صف 1.0 برای LLM (ADR-0007) | BullMQ: Redis می‌خواهد. Vercel Cron یا Azure Functions: قفل به میزبان |
-| UI | **React** + **Tailwind CSS v4** + **shadcn/ui** (روی Radix) | کلاس‌های منطقی (`ms-*`، `pe-*`، `start-*`) برای RTL؛ Radix با `DirectionProvider dir="rtl"`؛ کامپوننت‌ها در مخزن خودمان کپی می‌شوند، نه وابستگی | MUI: سنگین و RTL آن با emotion پیچیده است. Ant Design: حجم زیاد |
-| فرم | **react-hook-form** + همان schemaهای zod | یک schema برای کلاینت و سرور | — |
-| فونت | **Vazirmatn** self-host با `next/font/local` | PRD: بدون فونت از سرویس خارجی | Google Fonts: دامنه‌ی خارجی، فیلتر و قطعی |
-| تاریخ | ذخیره‌ی **UTC** (`timestamptz`)؛ نمایش شمسی با `Intl.DateTimeFormat('fa-IR-u-ca-persian', {timeZone: 'Asia/Tehran'})`؛ انتخابگر تاریخ و محاسبه‌ی شمسی با **date-fns-jalali** | Intl بومی است و کتابخانه نمی‌خواهد؛ date-fns-jalali برای «پنجشنبه‌ی این هفته» و «۳ روز بعد» در تقویم شمسی | moment-jalaali: moment منسوخ و سنگین است (ADR-0008) |
-| فایل | رابط **`FileStorage`** با آداپتورهای `local` (توسعه و VPS تک‌سرور)، `azure-blob` و `s3`؛ پردازش تصویر با **sharp** (بازکدگذاری و حذف EXIF) | قابل‌انتقال (ADR-0002)؛ حذف مکان و مشخصات دستگاه از عکس‌ها (حریم خصوصی) | ذخیره در دیتابیس: پشتیبان‌ها را بزرگ می‌کند |
-| CSV | **papaparse** | ورود و خروج CSV (F11) با UTF-8 BOM تا اکسل فارسی را درست نشان دهد | — |
-| لاگ | **pino** (JSON به stdout) | هر میزبانی می‌خواند | SDK مانیتورینگ اختصاصی: قفل به میزبان |
-| تست | **Vitest** (واحد و یکپارچه با Postgres واقعی: محلی از **embedded-postgres**، در CI از service container؛ [ADR-0009](adr/0009-local-dev-without-docker.md))؛ **Playwright** (e2e در اندازه‌ی موبایل و دسکتاپ) | قواعد سلامت تابع خالص‌اند و تست واحد می‌خورند؛ ماتریس دسترسی روی دیتابیس واقعی تست می‌شود (ADR-0004) | Jest: کندتر و تنظیم ESM آن دردسر دارد |
-| کیفیت کد | **Biome** (lint + format) + `tsc --noEmit` در CI | یک ابزار سریع به‌جای ESLint + Prettier | — |
-| استقرار | **Docker** (image چندمرحله‌ای) ← GHCR ← Azure App Service | ADR-0002 | — |
-| PWA | manifest + نصب‌پذیری؛ service worker فقط برای cache کردن assetهای ثابت | PRD: وب‌اپ واکنش‌گرا (D1). داده‌ی آفلاین در 0.1 نداریم | آفلاین کامل: پیچیدگی همگام‌سازی |
+| Language | **TypeScript** (strict) on **Node.js 24 LTS** | One language for front and back; shared types between API and UI | Python/Django or PHP/Laravel: a second language would be needed for the front end |
+| Repository | **pnpm workspace**: `apps/web` + `packages/config` | 1.0 adds `packages/ai` or `apps/worker` without moving folders | Turborepo/Nx: too much for one app; can be added later |
+| Framework | **Next.js** (App Router, latest stable version) with `output: 'standalone'` | UI and API in one app and one deployment; server rendering for fast loading on weak internet (F10: under 3 seconds) | Separate Next.js + NestJS: two apps, two deployments, authentication twice. Vite SPA + API: we would have to build server rendering and routing ourselves |
+| API | **REST JSON** in the `app/api/v1/**` Route Handlers; validation with **zod** | Explicit, testable contract (`api.md`); later a Telegram bot or mobile app uses the same API | Server Actions for mutations: no explicit contract and access testing is harder. tRPC: locked to a TS client |
+| Database | **PostgreSQL 16+** | Relational, standard, available everywhere (Azure, Neon, any Iranian VPS); `pg_trgm` for Persian search; the queue lives in it too | MySQL: weaker trigram search and JSONB. MongoDB: our data is relational |
+| ORM and migrations | **Drizzle ORM** + **drizzle-kit** (SQL migration files in git) | Close to SQL; partial indexes, check constraints, generated columns and raw SQL are easy; no binary engine; small image | Prisma: a good option, but Postgres-specific constraints and indexes would have to be kept as raw SQL alongside the schema. Replaceable with good reason |
+| Authentication | **Database session + httpOnly cookie**; password hashing with **argon2id** (`@node-rs/argon2`) | Our flow (invite → mobile + password) is simple and non-standard; little, understandable code (ADR-0003) | Auth.js: does not support credentials well with database sessions. Better Auth: email-centric and brings a heavier dependency. External service (Clerk, etc.): sanctions and outages |
+| Queue and scheduler | **pg-boss** (on the same Postgres) | No Redis; cron with time zone; single-instance scheduling even with several app instances; the 1.0 queue for LLM (ADR-0007) | BullMQ: needs Redis. Vercel Cron or Azure Functions: locked to the host |
+| UI | **React** + **Tailwind CSS v4** + **shadcn/ui** (on Radix) | Logical classes (`ms-*`, `pe-*`, `start-*`) for RTL; Radix with `DirectionProvider dir="rtl"`; components are copied into our own repo, not a dependency | MUI: heavy, and its RTL with emotion is complicated. Ant Design: large bundle size |
+| Forms | **react-hook-form** + the same zod schemas | One schema for client and server | — |
+| Font | **Vazirmatn** self-hosted with `next/font/local` | PRD: no fonts from an external service | Google Fonts: external domain, filtering and outages |
+| Dates | Store in **UTC** (`timestamptz`); Jalali display with `Intl.DateTimeFormat('fa-IR-u-ca-persian', {timeZone: 'Asia/Tehran'})`; date picker and Jalali arithmetic with **date-fns-jalali** | Intl is native and needs no library; date-fns-jalali for "Thursday of this week" and "3 days later" in the Jalali calendar | moment-jalaali: moment is deprecated and heavy (ADR-0008) |
+| Files | A **`FileStorage`** interface with `local` (development and single-server VPS), `azure-blob` and `s3` adapters; image processing with **sharp** (re-encoding and EXIF removal) | Portable (ADR-0002); strips location and device details from photos (privacy) | Storing in the database: makes backups large |
+| CSV | **papaparse** | CSV import and export (F11) with a UTF-8 BOM so Excel shows Persian correctly | — |
+| Logging | **pino** (JSON to stdout) | Any host can read it | Dedicated monitoring SDK: locked to the host |
+| Testing | **Vitest** (unit and integration against a real Postgres: locally from **embedded-postgres**, in CI from a service container; [ADR-0009](adr/0009-local-dev-without-docker.md)); **Playwright** (e2e at mobile and desktop sizes) | Health rules are pure functions and get unit tests; the access matrix is tested against a real database (ADR-0004) | Jest: slower and its ESM setup is a hassle |
+| Code quality | **Biome** (lint + format) + `tsc --noEmit` in CI | One fast tool instead of ESLint + Prettier | — |
+| Deployment | **Docker** (multi-stage image) → GHCR → Azure App Service | ADR-0002 | — |
+| PWA | manifest + installability; service worker only for caching static assets | PRD: responsive web app (D1). No offline data in 0.1 | Full offline: sync complexity |
 
-**عمداً نداریم:** Redis، Kubernetes، میکروسرویس، GraphQL، سرویس احراز هویت بیرونی، CDN خارجی، Sentry یا هر SDK بیرونی در مرورگر (اضافه کردن Sentry یا GlitchTip self-host پس از 0.1 بررسی می‌شود؛ تصمیم با devops-engineer).
+**Deliberately not included:** Redis, Kubernetes, microservices, GraphQL, an external authentication service, an external CDN, Sentry or any external SDK in the browser (adding Sentry or a self-hosted GlitchTip will be considered after 0.1; the decision belongs to devops-engineer).
 
 ---
 
-## ۲. ساختار مخزن
+## 2. Repository structure
 
 ```
 upworkcoach/
 ├─ apps/
-│  └─ web/                         # تنها برنامه‌ی 0.1 (UI + API + jobs)
+│  └─ web/                         # the only app in 0.1 (UI + API + jobs)
 │     ├─ src/
 │     │  ├─ app/
-│     │  │  ├─ (auth)/             # ورود، پذیرش دعوت، تنظیم رمز
-│     │  │  ├─ (staff)/            # امروز، هنرجوها، کانبان، پرونده، تنظیمات (admin|mentor)
-│     │  │  ├─ (student)/          # خانه، کارها، سؤال‌ها، پروفایل‌ها (student)
-│     │  │  └─ api/v1/**/route.ts  # REST — فقط لایه‌ی نازک HTTP
-│     │  ├─ modules/               # ماژول‌های دامنه (overview.md بخش ۳)
+│     │  │  ├─ (auth)/             # login, accept invite, set password
+│     │  │  ├─ (staff)/            # today, students, kanban, profile, settings (admin|mentor)
+│     │  │  ├─ (student)/          # home, tasks, questions, profiles (student)
+│     │  │  └─ api/v1/**/route.ts  # REST — only a thin HTTP layer
+│     │  ├─ modules/               # domain modules (overview.md section 3)
 │     │  │  └─ <module>/
-│     │  │     ├─ schema.ts        # جدول‌های Drizzle همین ماژول
-│     │  │     ├─ contracts.ts     # schemaهای zod و DTOها (ورودی/خروجی API)
-│     │  │     ├─ policy.ts        # قواعد دسترسی همین ماژول
-│     │  │     ├─ service.ts       # منطق دامنه؛ تنها نقطه‌ی ورود از بیرون ماژول
-│     │  │     └─ repo.ts          # پرس‌وجوها (فقط داخل ماژول)
-│     │  ├─ server/                # db، auth، http (خطا، اعتبارسنجی)، jobs (pg-boss)، storage
-│     │  └─ lib/                   # jalali، text-fa (نرمال‌سازی)، phone، business-hours
-│     ├─ drizzle/                  # فایل‌های مهاجرت SQL
-│     ├─ tests/                    # integration (access matrix) و e2e
+│     │  │     ├─ schema.ts        # this module's Drizzle tables
+│     │  │     ├─ contracts.ts     # zod schemas and DTOs (API input/output)
+│     │  │     ├─ policy.ts        # this module's access rules
+│     │  │     ├─ service.ts       # domain logic; the only entry point from outside the module
+│     │  │     └─ repo.ts          # queries (module-internal only)
+│     │  ├─ server/                # db, auth, http (errors, validation), jobs (pg-boss), storage
+│     │  └─ lib/                   # jalali, text-fa (normalization), phone, business-hours
+│     ├─ drizzle/                  # SQL migration files
+│     ├─ tests/                    # integration (access matrix) and e2e
 │     └─ Dockerfile
 ├─ packages/
-│  └─ config/                      # tsconfig و biome مشترک
+│  └─ config/                      # shared tsconfig and biome
 └─ docs/
 ```
 
-در 1.0 اضافه می‌شود (بدون جابه‌جایی کد موجود): `apps/web/src/modules/ai`، `modules/opportunities`، `modules/notifications`. اگر بار LLM زیاد شد، `apps/worker` همان image را با دستور دیگری اجرا می‌کند (`node dist/worker.js`).
+Added in 1.0 (without moving existing code): `apps/web/src/modules/ai`, `modules/opportunities`, `modules/notifications`. If the LLM load grows, `apps/worker` runs the same image with a different command (`node dist/worker.js`).
 
 ---
 
-## ۳. قواعد کدنویسی که معماری به آن‌ها وابسته است
+## 3. Coding rules the architecture depends on
 
-1. **Route Handler نازک است:** احراز هویت ← اعتبارسنجی zod ← فراخوانی `service` ← تبدیل به DTO. منطق کسب‌وکار و بررسی دسترسی **داخل service** است، نه در route.
-2. **هر service اولین پارامترش `actor`** است (`{ userId, role }`) و دسترسی را خودش بررسی می‌کند (ADR-0004). صفحه‌های RSC هم همان serviceها را صدا می‌زنند، پس دو مسیر دسترسی نداریم.
-3. **ماژول جدول ماژول دیگر را مستقیم نمی‌نویسد.** خواندن بین ماژول‌ها فقط از service ماژول صاحب داده است. استثنا: `today`، `health` و (هماهنگ با کد، اسپرینت ۲) `access` read-model هستند و پرس‌وجوی فقط-خواندنی SQL روی چند جدول دارند (`overview.md` بخش ۳، قاعده‌ی ۲).
-4. **DTOهای هنرجو جدا هستند** (`SelfStudentDTO`، `StudentTaskDTO`، …) و فیلدهای داخلی (سلامت، پرچم، یادداشت داخلی، شناسه‌ی بازبین) را **ندارند**. یعنی نشت به‌صورت ساختاری ناممکن است، نه با فیلتر.
-5. **زمان:** همه‌ی `timestamptz` در UTC. هیچ‌جا `new Date().getDay()` یا `toLocaleDateString()` بدون `timeZone: 'Asia/Tehran'` استفاده نشود. فقط توابع `lib/jalali` (ADR-0008).
-6. **متن فارسی ورودی** پیش از ذخیره نرمال می‌شود: `ي`→`ی`، `ك`→`ک`، ارقام فارسی/عربی در فیلدهای عددی و موبایل ← لاتین، فاصله‌های اضافه و نیم‌فاصله‌ی تکراری (ADR-0008).
-7. **نام مرحله‌ها و پلتفرم‌ها در کد نمی‌آید.** رفتار خاص از پرچم‌های داده می‌آید (`stage.is_open_ended`، `milestone_type.counts_for_north_star`).
-8. **هیچ فیلدی به نام password برای اکانت پلتفرم‌ها وجود ندارد** (PRD بخش ۶). فرم‌های پروفایل هشدار می‌دهند.
+1. **Route Handlers are thin:** authentication → zod validation → call the `service` → map to a DTO. Business logic and access checks live **inside the service**, not in the route.
+2. **Every service takes `actor` as its first parameter** (`{ userId, role }`) and checks access itself (ADR-0004). RSC pages call the same services, so there are not two access paths.
+3. **A module does not write another module's tables directly.** Reading across modules goes only through the service of the module that owns the data. Exception: `today`, `health` and (aligned with the code, sprint 2) `access` are read-models and run read-only SQL queries across several tables (`overview.md` section 3, rule 2).
+4. **Student DTOs are separate** (`SelfStudentDTO`, `StudentTaskDTO`, …) and do **not** contain internal fields (health, flags, internal notes, reviewer ID). That means leaks are structurally impossible, not prevented by filtering.
+5. **Time:** every `timestamptz` is in UTC. Nowhere may `new Date().getDay()` or `toLocaleDateString()` be used without `timeZone: 'Asia/Tehran'`. Only the `lib/jalali` functions (ADR-0008).
+6. **Persian input text** is normalized before storage: `ي`→`ی`, `ك`→`ک` (Arabic Yeh/Kaf to Persian), Persian/Arabic digits in numeric and mobile fields → Latin, extra spaces and repeated ZWNJs (ADR-0008).
+7. **Stage and platform names do not appear in code.** Special behavior comes from data flags (`stage.is_open_ended`, `milestone_type.counts_for_north_star`).
+8. **There is no field named password for platform accounts** (PRD section 6). Profile forms show a warning.
 
 ---
 
-## ۴. محیط‌ها
+## 4. Environments
 
-| محیط | کجا | دیتابیس |
+| Environment | Where | Database |
 |---|---|---|
-| local | `pnpm db:start` + `pnpm dev`، بدون Docker ([ADR-0009](adr/0009-local-dev-without-docker.md)) | Postgres 16 جاسازی‌شده (npm) در `.data/pg` |
-| staging | اختیاری در 0.1؛ اگر لازم شد یک slot در App Service | دیتابیس جدا، داده‌ی ساختگی |
+| local | `pnpm db:start` + `pnpm dev`, without Docker ([ADR-0009](adr/0009-local-dev-without-docker.md)) | Embedded Postgres 16 (npm) in `.data/pg` |
+| staging | Optional in 0.1; if needed, a slot in App Service | Separate database, fake data |
 | production | Azure App Service B1 + Flexible Server B1ms (ADR-0002) | — |
 
-`docker-compose.yml` (Postgres 16 + migrate + برنامه) برای استقرار تک‌سرور و مهاجرت به میزبان ایرانی است، نه توسعه‌ی محلی. چون روی دستگاه توسعه Docker نیست، مسیر انتقال دیگر هر روز تست نمی‌شود؛ جبرانش ساخت image در CI و تمرین فصلی runbook است (ADR-0009).
+`docker-compose.yml` (Postgres 16 + migrate + app) is for single-server deployment and migration to an Iranian host, not for local development. Because there is no Docker on the development machine, the migration path is no longer tested every day; this is compensated by building the image in CI and a quarterly runbook drill (ADR-0009).
 
 ---
 
-## ۵. متغیرهای محیطی (قرارداد)
+## 5. Environment variables (contract)
 
-| نام | مثال | توضیح |
+| Name | Example | Description |
 |---|---|---|
 | `DATABASE_URL` | `postgres://…?sslmode=require` | — |
-| `APP_BASE_URL` | `https://app.example.ir` | برای ساخت لینک دعوت |
+| `APP_BASE_URL` | `https://app.example.ir` | For building invite links |
 | `SESSION_COOKIE_NAME` | `__Host-uc_session` | — |
-| `DEVICE_COOKIE_SECRET` | — (۳۲ بایت تصادفی) | راز HMAC کوکی دستگاه در سیاست قفل ورود (ADR-0003)؛ در production الزامی |
-| `TRUSTED_PROXY_HOPS` | `0` محلی، `1` روی App Service | تعداد پراکسی‌های مورد اعتماد برای خواندن IP از `X-Forwarded-For` (ADR-0003) |
-| `STORAGE_DRIVER` | `local` \| `azure-blob` \| `s3` | `local` برای توسعه و VPS تک‌سرور (ADR-0009) |
-| `LOCAL_STORAGE_DIR` | `.data/uploads` | فقط برای `local`؛ نسبی = از ریشه‌ی مخزن در توسعه |
-| `AZURE_STORAGE_CONNECTION_STRING`، `AZURE_STORAGE_CONTAINER` | — | فقط برای `azure-blob` |
-| `S3_ENDPOINT`، `S3_BUCKET`، `S3_ACCESS_KEY`، `S3_SECRET_KEY`، `S3_REGION` | — | فقط برای `s3` |
-| `JOBS_MODE` | `in-process` \| `http-trigger` \| `off` (و در 1.0 `worker-only`) | ADR-0007 |
-| `JOB_TRIGGER_SECRET` | — | برای `POST /api/internal/jobs/:name` |
+| `DEVICE_COOKIE_SECRET` | — (32 random bytes) | HMAC secret for the device cookie in the login lockout policy (ADR-0003); required in production |
+| `TRUSTED_PROXY_HOPS` | `0` locally, `1` on App Service | Number of trusted proxies for reading the IP from `X-Forwarded-For` (ADR-0003) |
+| `STORAGE_DRIVER` | `local` \| `azure-blob` \| `s3` | `local` for development and single-server VPS (ADR-0009) |
+| `LOCAL_STORAGE_DIR` | `.data/uploads` | Only for `local`; relative = from the repo root in development |
+| `AZURE_STORAGE_CONNECTION_STRING`, `AZURE_STORAGE_CONTAINER` | — | Only for `azure-blob` |
+| `S3_ENDPOINT`, `S3_BUCKET`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`, `S3_REGION` | — | Only for `s3` |
+| `JOBS_MODE` | `in-process` \| `http-trigger` \| `off` (and in 1.0 `worker-only`) | ADR-0007 |
+| `JOB_TRIGGER_SECRET` | — | For `POST /api/internal/jobs/:name` |
 | `LOG_LEVEL` | `info` | — |
-| `MAX_UPLOAD_BYTES` | `5242880` | ۵ مگابایت |
-| (1.0) `LLM_PROVIDER`، `LLM_BASE_URL`، `LLM_API_KEY` | — | ADR-0006 |
+| `MAX_UPLOAD_BYTES` | `5242880` | 5 MB |
+| (1.0) `LLM_PROVIDER`, `LLM_BASE_URL`, `LLM_API_KEY` | — | ADR-0006 |

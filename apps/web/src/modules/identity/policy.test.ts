@@ -8,9 +8,25 @@ import {
   type TargetUser,
 } from './policy';
 
-const admin: Actor = { userId: 'a', role: 'admin' };
-const mentor: Actor = { userId: 'm', role: 'mentor' };
-const student: Actor = { userId: 's', role: 'student' };
+const ORG = '00000000-0000-7000-8000-0000000000f1';
+const admin: Actor = {
+  userId: 'a',
+  role: 'admin',
+  organizationId: ORG,
+  organizationRole: 'admin',
+};
+const mentor: Actor = {
+  userId: 'm',
+  role: 'mentor',
+  organizationId: ORG,
+  organizationRole: 'mentor',
+};
+const student: Actor = {
+  userId: 's',
+  role: 'student',
+  organizationId: ORG,
+  organizationRole: 'mentee',
+};
 
 const user = (over: Partial<TargetUser>): TargetUser => ({
   role: 'student',

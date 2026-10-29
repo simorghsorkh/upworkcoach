@@ -4,6 +4,7 @@ import { addDays, tehranDay, tehranDayEnd } from '@/lib/tehran-day';
 import { milestoneTypes } from '@/modules/catalog/schema';
 import { attachments } from '@/modules/files/schema';
 import { studentFlags } from '@/modules/health/schema';
+import { DEFAULT_ORGANIZATION_ID } from '@/modules/identity/schema';
 import { milestones } from '@/modules/milestones/schema';
 import { questionMessages, questionThreads } from '@/modules/questions/schema';
 import { reminders } from '@/modules/reminders/schema';
@@ -146,6 +147,7 @@ export async function reminderFixture(
   const [row] = await getDb()
     .insert(reminders)
     .values({
+      organizationId: DEFAULT_ORGANIZATION_ID,
       ownerId,
       studentId: options.studentId ?? null,
       text: options.text ?? 'یادآور آزمایشی',
@@ -162,6 +164,7 @@ export async function pendingAttachmentFixture(uploadedBy: string): Promise<stri
   const [row] = await getDb()
     .insert(attachments)
     .values({
+      organizationId: DEFAULT_ORGANIZATION_ID,
       storageKey: `attachments/fixture-${crypto.randomUUID()}`,
       originalName: 'fixture.png',
       mimeType: 'image/png',
@@ -257,6 +260,7 @@ export async function milestoneTypeFixture(
   const [row] = await getDb()
     .insert(milestoneTypes)
     .values({
+      organizationId: DEFAULT_ORGANIZATION_ID,
       name: `نوع آزمایشی ${crypto.randomUUID().slice(0, 8)}`,
       uniquePerStudent: options.uniquePerStudent ?? false,
       requiresEvidence: options.requiresEvidence ?? false,

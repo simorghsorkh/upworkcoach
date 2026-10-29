@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { faNumber, tehranDaysBetween } from '@/components/format/fa';
 import { Icon } from '@/components/icons/icon';
+import { CoursePhases } from '@/components/students/course-phases';
 import { BallChip, HealthPill, HealthReasonLine } from '@/components/students/health';
 import { Avatar } from '@/components/ui/avatar';
 import { Tag } from '@/components/ui/badge';
@@ -86,6 +87,7 @@ export function StuckRows({
                   </Tag>
                 ) : null}
               </div>
+              <CoursePhases courses={s.courses} className="mt-1" />
               {advice && h?.status !== 'green' ? (
                 <p className="mt-1.5 flex items-center gap-1.5 text-xs text-fg-2">
                   <Icon name="phone" size={14} className="text-fg-3" />

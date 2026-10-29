@@ -4,7 +4,13 @@ import pg from 'pg';
 import { afterAll, beforeAll, describe, expect, inject, it } from 'vitest';
 import { auditLog } from '@/modules/admin/schema';
 import { recordAudit } from '@/modules/admin/service';
-import { authThrottle, authTokens, sessions, users } from '@/modules/identity/schema';
+import {
+  authThrottle,
+  authTokens,
+  DEFAULT_ORGANIZATION_ID,
+  sessions,
+  users,
+} from '@/modules/identity/schema';
 import {
   bootstrapAdmin,
   CliError,
@@ -79,7 +85,7 @@ describe('admin:create (bootstrap, SEC-T6)', () => {
     ).rejects.toBeInstanceOf(CliError);
   });
 
-  it('refuses to erase the last active admin', async () => {
+  it('refuses to erase the organization owner (the bootstrap admin, ADR-0011)', async () => {
     const [first] = await isolated.db
       .select({ id: users.id })
       .from(users)
@@ -91,7 +97,7 @@ describe('admin:create (bootstrap, SEC-T6)', () => {
         { userId: first.id, confirmDisplayName: 'مربی', requestedOn: '2026-10-20' },
         isolated.db,
       ),
-    ).rejects.toThrow(/last active admin/);
+    ).rejects.toThrow(/owns the organization/);
   });
 });
 
@@ -288,6 +294,7 @@ describe('auth.cleanup retention (data-model.md 6-1)', () => {
     await getDb()
       .insert(sessions)
       .values({
+        organizationId: DEFAULT_ORGANIZATION_ID,
         userId: user.id,
         tokenHash: randomBytes(32).toString('hex'),
         createdAt: long,

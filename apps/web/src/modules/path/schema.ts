@@ -2,7 +2,7 @@ import { sql } from 'drizzle-orm';
 import { check, index, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { uuidv7 } from '../../lib/uuid';
 import { stages } from '../catalog/schema';
-import { users } from '../identity/schema';
+import { inheritedOrganizationId, users } from '../identity/schema';
 import { students } from '../students/schema';
 
 /**
@@ -24,6 +24,7 @@ export type TransitionKind = (typeof TRANSITION_KINDS)[number];
 export const stageTransitions = pgTable(
   'stage_transitions',
   {
+    organizationId: inheritedOrganizationId(),
     id: uuid()
       .primaryKey()
       .$defaultFn(() => uuidv7()),

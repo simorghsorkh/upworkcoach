@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { type FormEvent, useRef, useState } from 'react';
 import { apiPost } from '@/components/api/client';
-import { faDuration } from '@/components/format/fa';
+import { useFormat } from '@/components/format/use-format';
 import { Button } from '@/components/ui/button';
 import { TextField } from '@/components/ui/field';
 import { Alert } from '@/components/ui/states';
@@ -27,6 +28,9 @@ export function LoginForm({
   /** Navigation after success; injectable for tests. */
   onSignedIn?: (path: string) => void;
 }) {
+  const t = useTranslations('login');
+  const tAuth = useTranslations('auth');
+  const format = useFormat();
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState<Errors>({});
@@ -45,7 +49,7 @@ export function LoginForm({
     const found: Errors = {};
     const pErr = phoneError(phone);
     if (pErr) found.phone = pErr;
-    if (!password) found.password = 'رمزت را بنویس.';
+    if (!password) found.password = tAuth('passwordRequired');
     setErrors(found);
     setFormError(null);
     if (found.phone) return phoneRef.current?.focus();
@@ -66,7 +70,7 @@ export function LoginForm({
     const { error } = result;
     switch (error.status) {
       case 401:
-        setFormError('شماره‌ی موبایل یا رمز درست نیست.');
+        setFormError(t('wrongCredentials'));
         passwordRef.current?.select();
         return;
       case 422:
@@ -78,10 +82,7 @@ export function LoginForm({
         const seconds = error.retryAfterSeconds ?? (error.status === 429 ? 15 * 60 : 10);
         setLock({
           until: Date.now() + seconds * 1000,
-          reason:
-            error.status === 429
-              ? 'تلاش‌های ناموفق زیاد بود و ورود موقتاً بسته شد.'
-              : 'سرور الان شلوغ است.',
+          reason: error.status === 429 ? t('locked') : tAuth('busy'),
         });
         return;
       }
@@ -93,13 +94,13 @@ export function LoginForm({
   return (
     <form noValidate onSubmit={onSubmit} aria-labelledby="login-title">
       <h1 id="login-title" className="mb-1 text-xl">
-        ورود
+        {t('title')}
       </h1>
-      <p className="mb-6 text-ui text-fg-2">با شماره‌ی موبایل و رمزی که موقع پذیرش دعوت گذاشتی.</p>
+      <p className="mb-6 text-ui text-fg-2">{t('intro')}</p>
 
       {locked && lock ? (
         <Alert tone="error" role="alert" title={lock.reason}>
-          {`${faDuration(waitSeconds)} دیگر دوباره امتحان کن.`}
+          {tAuth('tryAgainIn', { wait: format.duration(waitSeconds) })}
         </Alert>
       ) : formError ? (
         <Alert tone="error" role="alert" title={formError} />
@@ -107,7 +108,7 @@ export function LoginForm({
 
       <TextField
         ref={phoneRef}
-        label="شماره‌ی موبایل"
+        label={t('phone')}
         name="phone"
         type="tel"
         inputMode="tel"
@@ -117,11 +118,11 @@ export function LoginForm({
         value={phone}
         onChange={(e) => setPhone(e.target.value)}
         error={errors.phone}
-        hint="ارقام فارسی یا انگلیسی، هر دو قبول است."
+        hint={t('phoneHint')}
       />
       <PasswordField
         ref={passwordRef}
-        label="رمز"
+        label={tAuth('password')}
         name="password"
         autoComplete="current-password"
         value={password}
@@ -137,12 +138,12 @@ export function LoginForm({
         loading={submitting}
         disabled={locked}
       >
-        {submitting ? 'در حال ورود…' : 'ورود'}
+        {submitting ? t('submitting') : t('title')}
       </Button>
 
       <p className="mt-5 text-center text-ui">
         <Link href="/forgot" className="font-semibold text-link hover:underline">
-          رمزت را فراموش کرده‌ای؟
+          {t('forgot')}
         </Link>
       </p>
     </form>

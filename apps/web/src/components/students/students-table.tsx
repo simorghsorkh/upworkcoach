@@ -13,6 +13,7 @@ import { cn } from '@/components/ui/cn';
 import { PathBar } from '@/components/ui/path-bar';
 import { PlatformBadge } from '@/components/ui/platform';
 import type { OverExpected, StudentListItemDTO } from '@/modules/students/contracts';
+import { CoursePhases } from './course-phases';
 import { HealthCell } from './health';
 import { lifecycleLabel } from './labels';
 
@@ -142,6 +143,7 @@ export function StudentsTable({
                       <span className={overClass(s.overExpected)}>{faDays(s.daysInStage)}</span>
                     )}
                   </span>
+                  <CoursePhases courses={s.courses} className="max-md:items-end" />
                 </div>
               </Cell>
               <Cell label="کار بعدی">

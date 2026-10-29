@@ -1,4 +1,6 @@
+import { pageLocale } from '@/components/api/client';
 import { toLatinDigits } from '@/components/format/fa';
+import { translate } from '@/i18n/translate';
 
 /**
  * Client-side pre-check of a mobile number before it is sent to the API.
@@ -18,8 +20,7 @@ export function looksLikePhone(cleaned: string): boolean {
 
 export function phoneError(raw: string): string | null {
   const cleaned = cleanPhoneInput(raw);
-  if (!cleaned) return 'شماره‌ی موبایلت را بنویس.';
-  if (!looksLikePhone(cleaned))
-    return 'این شماره‌ی موبایل درست به نظر نمی‌رسد؛ مثل ۰۹۱۲۳۴۵۶۷۸۹ بنویس.';
+  if (!cleaned) return translate(pageLocale(), 'auth.phoneRequired');
+  if (!looksLikePhone(cleaned)) return translate(pageLocale(), 'auth.phoneInvalid');
   return null;
 }

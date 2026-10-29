@@ -11,7 +11,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import { uuidv7 } from '../../lib/uuid';
-import { users } from '../identity/schema';
+import { inheritedOrganizationId, users } from '../identity/schema';
 import { students } from '../students/schema';
 
 /**
@@ -38,6 +38,7 @@ const inList = (values: readonly string[]) => sql.raw(values.map((v) => `'${v}'`
 export const studentFlags = pgTable(
   'student_flags',
   {
+    organizationId: inheritedOrganizationId(),
     id: uuid()
       .primaryKey()
       .$defaultFn(() => uuidv7()),
@@ -74,6 +75,7 @@ export type StoredHealthReason = {
 export const studentHealth = pgTable(
   'student_health',
   {
+    organizationId: inheritedOrganizationId(),
     studentId: uuid()
       .primaryKey()
       .references(() => students.userId),

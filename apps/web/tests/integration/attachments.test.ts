@@ -50,8 +50,8 @@ describe('upload (T-UPLOAD)', () => {
       .select({ key: attachments.storageKey })
       .from(attachments)
       .where(eq(attachments.id, res.body.id));
-    // Random storage key: neither the row id nor the user's file name.
-    expect(row?.key).toMatch(/^attachments\/[0-9a-f-]{36}$/);
+    // Random storage key under the organization: neither the row id nor the file name.
+    expect(row?.key).toMatch(/^org\/[0-9a-f-]{36}\/attachments\/[0-9a-f-]{36}$/);
     expect(row?.key).not.toContain(res.body.id);
   });
 

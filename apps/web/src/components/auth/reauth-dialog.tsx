@@ -1,8 +1,9 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { type FormEvent, type ReactNode, useRef, useState } from 'react';
 import { type ApiResult, apiPost } from '@/components/api/client';
-import { faDuration } from '@/components/format/fa';
+import { useFormat } from '@/components/format/use-format';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogActions } from '@/components/ui/dialog';
 import { Alert } from '@/components/ui/states';
@@ -26,6 +27,10 @@ export function ReauthDialog({
   onConfirmed: () => void;
   onCancel: () => void;
 }) {
+  const t = useTranslations('reauth');
+  const tAuth = useTranslations('auth');
+  const tCommon = useTranslations('common');
+  const format = useFormat();
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
@@ -35,7 +40,7 @@ export function ReauthDialog({
     event.preventDefault();
     if (sending) return;
     if (!password) {
-      setError('رمزت را بنویس.');
+      setError(tAuth('passwordRequired'));
       return;
     }
     setSending(true);
@@ -49,11 +54,11 @@ export function ReauthDialog({
       return;
     }
     if (res.error.status === 422) {
-      setError(res.error.fields.password ?? 'رمز درست نیست.');
+      setError(res.error.fields.password ?? t('wrong'));
     } else if (res.error.status === 429) {
       setFormError(
         res.error.retryAfterSeconds
-          ? `تلاش‌ها زیاد بود. ${faDuration(res.error.retryAfterSeconds)} دیگر دوباره امتحان کن.`
+          ? t('tooMany', { wait: format.duration(res.error.retryAfterSeconds) })
           : res.error.message,
       );
     } else {
@@ -70,13 +75,13 @@ export function ReauthDialog({
         setFormError(null);
         onCancel();
       }}
-      title="برای ادامه رمزت را دوباره وارد کن"
-      description="این کار حساس است؛ رمزی که در ۳۰ دقیقه‌ی گذشته وارد شده لازم دارد."
+      title={t('title')}
+      description={t('description')}
     >
       <form noValidate onSubmit={onSubmit}>
         {formError ? <Alert tone="error" role="alert" title={formError} /> : null}
         <PasswordField
-          label="رمز"
+          label={tAuth('password')}
           autoComplete="current-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -84,9 +89,9 @@ export function ReauthDialog({
           autoFocus
         />
         <DialogActions>
-          <Button onClick={onCancel}>انصراف</Button>
+          <Button onClick={onCancel}>{tCommon('cancel')}</Button>
           <Button type="submit" variant="primary" loading={sending}>
-            تأیید و ادامه
+            {t('confirm')}
           </Button>
         </DialogActions>
       </form>

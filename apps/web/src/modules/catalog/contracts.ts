@@ -24,6 +24,8 @@ import { CANNED_RESPONSE_CATEGORIES, SUBMISSION_TYPES, TASK_KINDS } from './sche
 export const accessSettingsSchema = z.strictObject({
   mentorScope: z.enum(['assigned', 'all']),
   mentorsCanInviteStudents: z.boolean(),
+  /** Coach Office sprint 4: mentors may start group runs (they manage them). Absent = no. */
+  mentorsCanCreateGroupRuns: z.boolean().optional(),
 });
 
 export type AccessSettings = z.infer<typeof accessSettingsSchema>;
@@ -222,7 +224,7 @@ export type UpdatePlatformInput = z.infer<typeof updatePlatformInput>;
 
 // ---- stages --------------------------------------------------------------------------
 
-const contentLinkInput = z.strictObject({
+export const contentLinkInput = z.strictObject({
   title: requiredShortText(120, 'عنوان لینک را وارد کن.'),
   url: httpsUrl,
 });

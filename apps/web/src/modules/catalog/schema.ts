@@ -6,13 +6,14 @@ import {
   integer,
   jsonb,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
 import { uuidv7 } from '../../lib/uuid';
-import { users } from '../identity/schema';
+import { inheritedOrganizationId, organizationId, users } from '../identity/schema';
 
 /**
  * catalog — settings, tracks, platforms, learning paths and stages (data-model.md 2-2).
@@ -27,13 +28,19 @@ import { users } from '../identity/schema';
 
 const ts = () => timestamp({ withTimezone: true });
 
-export const settings = pgTable('settings', {
-  key: text().primaryKey(),
-  value: jsonb().notNull(),
-  version: integer().notNull().default(1),
-  updatedBy: uuid().references(() => users.id, { onDelete: 'set null' }),
-  updatedAt: ts().notNull().defaultNow(),
-});
+/** One row per organization and key (ADR-0011): each organization has its own settings. */
+export const settings = pgTable(
+  'settings',
+  {
+    organizationId: organizationId(),
+    key: text().notNull(),
+    value: jsonb().notNull(),
+    version: integer().notNull().default(1),
+    updatedBy: uuid().references(() => users.id, { onDelete: 'set null' }),
+    updatedAt: ts().notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ name: 'settings_pkey', columns: [t.organizationId, t.key] })],
+);
 
 /** Path branch by client-acquisition model (learning-path.md section 2): B, C, D. */
 export const tracks = pgTable(
@@ -42,6 +49,7 @@ export const tracks = pgTable(
     id: uuid()
       .primaryKey()
       .$defaultFn(() => uuidv7()),
+    organizationId: organizationId(),
     /** Label only (`B`, `C`, `D`); no logic depends on it. */
     code: text().notNull(),
     name: text().notNull(),
@@ -50,7 +58,7 @@ export const tracks = pgTable(
     createdAt: ts().notNull().defaultNow(),
     updatedAt: ts().notNull().defaultNow(),
   },
-  (t) => [uniqueIndex('tracks_code_key').on(t.code)],
+  (t) => [uniqueIndex('tracks_org_code_key').on(t.organizationId, t.code)],
 );
 
 export const platforms = pgTable(
@@ -59,6 +67,7 @@ export const platforms = pgTable(
     id: uuid()
       .primaryKey()
       .$defaultFn(() => uuidv7()),
+    organizationId: organizationId(),
     name: text().notNull(),
     trackId: uuid().references(() => tracks.id, { onDelete: 'set null' }),
     sortOrder: integer().notNull().default(0),
@@ -67,21 +76,24 @@ export const platforms = pgTable(
     createdAt: ts().notNull().defaultNow(),
     updatedAt: ts().notNull().defaultNow(),
   },
-  (t) => [uniqueIndex('platforms_name_key').on(sql`lower(${t.name})`)],
+  (t) => [uniqueIndex('platforms_org_name_key').on(t.organizationId, sql`lower(${t.name})`)],
 );
 
-/** 0.1 has one default path; the table exists so a second path needs no migration. */
+/** One default path per organization; ADR-0012 turns paths into program templates. */
 export const learningPaths = pgTable(
   'learning_paths',
   {
     id: uuid()
       .primaryKey()
       .$defaultFn(() => uuidv7()),
+    organizationId: organizationId(),
     name: text().notNull(),
     isDefault: boolean().notNull().default(false),
     createdAt: ts().notNull().defaultNow(),
   },
-  (t) => [uniqueIndex('learning_paths_one_default').on(t.isDefault).where(sql`${t.isDefault}`)],
+  (t) => [
+    uniqueIndex('learning_paths_one_default').on(t.organizationId).where(sql`${t.isDefault}`),
+  ],
 );
 
 export type ContentLink = { title: string; url: string };
@@ -92,6 +104,7 @@ export const stages = pgTable(
     id: uuid()
       .primaryKey()
       .$defaultFn(() => uuidv7()),
+    organizationId: inheritedOrganizationId(),
     pathId: uuid()
       .notNull()
       .references(() => learningPaths.id),
@@ -143,6 +156,7 @@ export const taskTemplates = pgTable(
     id: uuid()
       .primaryKey()
       .$defaultFn(() => uuidv7()),
+    organizationId: organizationId(),
     /** null = general template (any stage). */
     stageId: uuid().references(() => stages.id),
     title: text().notNull(),
@@ -182,6 +196,7 @@ export const milestoneTypes = pgTable(
     id: uuid()
       .primaryKey()
       .$defaultFn(() => uuidv7()),
+    organizationId: organizationId(),
     name: text().notNull(),
     countsForNorthStar: boolean().notNull().default(false),
     /** «اولین …» types: at most one APPROVED milestone of this type per student. */
@@ -193,7 +208,7 @@ export const milestoneTypes = pgTable(
     createdAt: ts().notNull().defaultNow(),
     updatedAt: ts().notNull().defaultNow(),
   },
-  (t) => [index('milestone_types_order_idx').on(t.sortOrder)],
+  (t) => [index('milestone_types_order_idx').on(t.organizationId, t.sortOrder)],
 );
 
 export const CANNED_RESPONSE_CATEGORIES = ['red_line', 'general'] as const;
@@ -205,6 +220,7 @@ export const cannedResponses = pgTable(
     id: uuid()
       .primaryKey()
       .$defaultFn(() => uuidv7()),
+    organizationId: organizationId(),
     title: text().notNull(),
     body: text().notNull(),
     category: text({ enum: CANNED_RESPONSE_CATEGORIES }).notNull().default('general'),

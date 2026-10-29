@@ -4,7 +4,7 @@ import type { Actor } from '@/server/auth/current-user';
 import { type Db, type DbOrTx, getDb } from '@/server/db';
 import { ApiError, errors } from '@/server/http/errors';
 import { assertRefs, type RefCheck } from '../access/refs';
-import { isInScope, scopeCondition, staffStudentScope } from '../access/scope';
+import { scopeCondition, staffStudentScope, studentInScope } from '../access/scope';
 import type {
   CreateReminderInput,
   ListRemindersQuery,
@@ -89,7 +89,8 @@ async function listFor(
     return [];
   }
   return repo.listReminders(db, {
-    scope: (column) => scopeCondition(scope, column),
+    organizationId: actor.organizationId,
+    scope: (student, organization) => scopeCondition(scope, student, organization),
     ownerId,
     studentId: options.studentId,
     window: options.window,
@@ -140,6 +141,7 @@ export async function createReminder(
     const id = await repo.insertReminder(
       tx,
       {
+        organizationId: actor.organizationId,
         ownerId,
         studentId: input.studentId ?? null,
         text: input.text,
@@ -156,13 +158,15 @@ export async function createReminder(
 async function lockForWrite(tx: DbOrTx, actor: Actor, reminderId: string) {
   assertStaff(actor);
   if (!isUuid(reminderId)) throw errors.notFound();
-  const row = await repo.lockReminder(tx, reminderId);
+  const row = await repo.lockReminder(tx, actor.organizationId, reminderId);
   if (!row) throw errors.notFound();
   if (actor.role === 'admin') return row;
   if (row.ownerId !== actor.userId) throw errors.notFound();
   if (row.studentId) {
     const scope = await staffStudentScope(tx, actor);
-    if (!isInScope(scope, row.primaryMentorId)) throw errors.notFound();
+    if (!(await studentInScope(tx, scope, row.studentId, row.organizationId))) {
+      throw errors.notFound();
+    }
   }
   return row;
 }

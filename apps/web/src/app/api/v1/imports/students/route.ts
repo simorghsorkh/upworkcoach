@@ -4,7 +4,8 @@ import { parseMultipart, readBodyBytes, route } from '@/server/http/handler';
 
 /**
  * POST /api/v1/imports/students — A. multipart: `file` (CSV UTF-8, ≤ 1 MB, ≤ 500 rows) and
- * `dryRun` (`true` by default; `false` imports the valid rows). The response may contain
+ * `dryRun` (`true` by default; `false` imports the valid rows), and optional `runId` (an open
+ * group course every row joins, sprint 6). The response may contain
  * invite links: `no-store` (set by `route()`), never logged (SEC-V5).
  */
 export const POST = route({
@@ -20,9 +21,14 @@ export const POST = route({
     if (dryRunField !== null && dryRunField !== 'true' && dryRunField !== 'false') {
       throw errors.validation({ dryRun: 'مقدار نامعتبر است' });
     }
+    const runField = form.get('runId');
     const body = await importStudents(
       auth.actor,
-      { bytes: new Uint8Array(await file.arrayBuffer()), dryRun: dryRunField !== 'false' },
+      {
+        bytes: new Uint8Array(await file.arrayBuffer()),
+        dryRun: dryRunField !== 'false',
+        runId: typeof runField === 'string' && runField !== '' ? runField : null,
+      },
       meta,
     );
     return { status: 200, body };

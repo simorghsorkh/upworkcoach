@@ -118,6 +118,8 @@ export type NoteDTO = {
   occurredAt: string;
   author: { id: string; displayName: string };
   /** The actor may edit or delete it (admin, or author with the student in scope). */
+  /** The viewer wrote it (only the author makes a note private). */
+  isAuthor: boolean;
   canEdit: boolean;
   createdAt: string;
   updatedAt: string;

@@ -18,6 +18,7 @@ import {
 } from '../catalog/service';
 import { attachmentsBySubmission, linkAttachmentsToSubmission } from '../files/service';
 import { recomputeHealthSafe } from '../health/recompute';
+import { notify } from '../notifications/service';
 import { touchStudentActivity } from '../students/activity';
 import { likePattern } from '../students/policy';
 import { students } from '../students/schema';
@@ -352,7 +353,7 @@ export async function listStaffTasks(
   const limit = query.limit ?? DEFAULT_LIST_LIMIT;
   const now = new Date();
   const scope = await staffStudentScope(db, actor);
-  const base: SQL[] = [scopeCondition(scope, students.primaryMentorId)];
+  const base: SQL[] = [scopeCondition(scope, students.userId, students.organizationId)];
   if (query.stageId) base.push(eq(tasks.stageId, query.stageId));
   if (query.reviewerId) base.push(eq(tasks.reviewerId, query.reviewerId));
   if (query.mentorId === 'none') base.push(isNull(students.primaryMentorId));
@@ -487,7 +488,9 @@ async function resolveTaskValues(
   if (input.reviewerId) refs.push({ field: 'reviewerId', kind: 'staffUser', id: input.reviewerId });
   await assertRefs(tx, actor, refs);
 
-  const template = input.templateId ? await getActiveTaskTemplate(tx, input.templateId) : null;
+  const template = input.templateId
+    ? await getActiveTaskTemplate(tx, actor.organizationId, input.templateId)
+    : null;
   const title = input.title ?? template?.title;
   if (!title) throw errors.validation({ title: 'عنوان کار را وارد کن.' });
   const stageId = input.stageId !== undefined ? input.stageId : (template?.stageId ?? null);
@@ -500,7 +503,10 @@ async function resolveTaskValues(
   const today = tehranDay(now);
   const dueDate =
     input.dueDate ??
-    addDays(today, template?.defaultDueDays ?? (await getTasksSettings(tx)).defaultDueDays);
+    addDays(
+      today,
+      template?.defaultDueDays ?? (await getTasksSettings(tx, actor.organizationId)).defaultDueDays,
+    );
   if (dueDate < today) throw errors.validation({ dueDate: 'مهلت نمی‌تواند قبل از امروز باشد.' });
   return {
     template,
@@ -519,7 +525,9 @@ async function resolveTaskValues(
 /** Default reviewer: the student's active primary mentor, otherwise the actor. */
 async function defaultReviewer(tx: DbOrTx, actor: Actor, studentId: string): Promise<string> {
   const mentor = await repo.primaryMentorOf(tx, studentId);
-  if (mentor && (await repo.activeStaffIds(tx, [mentor])).has(mentor)) return mentor;
+  if (mentor && (await repo.activeStaffIds(tx, actor.organizationId, [mentor])).has(mentor)) {
+    return mentor;
+  }
   return actor.userId;
 }
 
@@ -566,6 +574,20 @@ async function insertTaskFor(
     },
     occurredAt: now,
   });
+  await notify(
+    tx,
+    actor,
+    [
+      {
+        userId: studentId,
+        kind: 'task_assigned',
+        studentId,
+        subjectId: id,
+        data: { title: values.title },
+      },
+    ],
+    now,
+  );
   return id;
 }
 
@@ -639,6 +661,174 @@ export async function createTasksInBulk(
     }),
     () => input.studentIds,
   );
+}
+
+// ---- tasks from a program activity (Coach Office sprint 5) ------------------------------
+
+export type ProgramTaskValues = {
+  title: string;
+  description: string | null;
+  submissionType: repo.TaskWriteValues['submissionType'];
+  /** Calendar day; the task is due at its end. */
+  dueDay: string;
+};
+
+export type ProgramTaskTarget = {
+  studentId: string;
+  enrollmentId: string;
+  nodeId: string;
+  /** Preferred reviewer; one that is not active staff falls back to the actor. */
+  reviewerId: string | null;
+};
+
+/**
+ * Internal (programs.assignNodeToRun, INSIDE its transaction): one task per target from a
+ * program assignment, with a `task.created` timeline event each. The caller recomputes the
+ * students' health after the commit. Returns the new task ids.
+ */
+export async function insertProgramTasks(
+  tx: DbOrTx,
+  actor: Actor,
+  values: ProgramTaskValues,
+  targets: readonly ProgramTaskTarget[],
+  now: Date,
+): Promise<string[]> {
+  assertStaff(actor);
+  const wanted = [...new Set(targets.map((t) => t.reviewerId).filter((x) => x !== null))];
+  const active = await repo.activeStaffIds(tx, actor.organizationId, wanted);
+  const dueAt = tehranDayEnd(values.dueDay);
+  const ids: string[] = [];
+  for (const t of targets) {
+    const id = await repo.insertTask(
+      tx,
+      {
+        studentId: t.studentId,
+        title: values.title,
+        description: values.description,
+        kind: 'path_assignment',
+        submissionType: values.submissionType,
+        stageId: null,
+        requiredForGate: false,
+        priority: 'normal',
+        dueAt,
+        reviewerId: t.reviewerId && active.has(t.reviewerId) ? t.reviewerId : actor.userId,
+        createdBy: actor.userId,
+        templateId: null,
+        batchId: null,
+        profileId: null,
+        enrollmentId: t.enrollmentId,
+        nodeId: t.nodeId,
+      },
+      now,
+    );
+    await recordTimelineEvent(tx, {
+      studentId: t.studentId,
+      type: 'task.created',
+      actorId: actor.userId,
+      subjectType: 'task',
+      subjectId: id,
+      data: {
+        title: values.title,
+        kind: 'path_assignment',
+        submissionType: values.submissionType,
+        dueAt: dueAt.toISOString(),
+        enrollmentId: t.enrollmentId,
+      },
+      occurredAt: now,
+    });
+    await notify(
+      tx,
+      actor,
+      [
+        {
+          userId: t.studentId,
+          kind: 'task_assigned',
+          studentId: t.studentId,
+          subjectId: id,
+          data: { title: values.title },
+        },
+      ],
+      now,
+    );
+    ids.push(id);
+  }
+  return ids;
+}
+
+/**
+ * Internal (mentoring module, sprint 5b): a session's "next action" for one student — a
+ * `follow_up` task the student ticks off, reviewed by the session's mentor (or the actor when
+ * that mentor is no longer active staff). The caller has checked access to the session.
+ */
+export async function insertSessionAction(
+  tx: DbOrTx,
+  actor: Actor,
+  values: {
+    title: string;
+    description: string | null;
+    dueDay: string;
+    studentId: string;
+    enrollmentId: string | null;
+    sessionId: string;
+    reviewerId: string;
+  },
+  now: Date,
+): Promise<string> {
+  assertStaff(actor);
+  const active = await repo.activeStaffIds(tx, actor.organizationId, [values.reviewerId]);
+  const dueAt = tehranDayEnd(values.dueDay);
+  const id = await repo.insertTask(
+    tx,
+    {
+      studentId: values.studentId,
+      title: values.title,
+      description: values.description,
+      kind: 'follow_up',
+      submissionType: 'checkbox',
+      stageId: null,
+      requiredForGate: false,
+      priority: 'normal',
+      dueAt,
+      reviewerId: active.has(values.reviewerId) ? values.reviewerId : actor.userId,
+      createdBy: actor.userId,
+      templateId: null,
+      batchId: null,
+      profileId: null,
+      enrollmentId: values.enrollmentId,
+      sessionId: values.sessionId,
+    },
+    now,
+  );
+  await recordTimelineEvent(tx, {
+    studentId: values.studentId,
+    type: 'task.created',
+    actorId: actor.userId,
+    subjectType: 'task',
+    subjectId: id,
+    data: {
+      title: values.title,
+      kind: 'follow_up',
+      submissionType: 'checkbox',
+      dueAt: dueAt.toISOString(),
+      sessionId: values.sessionId,
+    },
+    occurredAt: now,
+  });
+  await notify(
+    tx,
+    actor,
+    [
+      {
+        userId: values.studentId,
+        kind: 'task_assigned',
+        studentId: values.studentId,
+        subjectId: id,
+        data: { title: values.title },
+      },
+    ],
+    now,
+  );
+  return id;
 }
 
 // ---- tasks of a stage change (sprint-3 frontend gap 4) ---------------------------------
@@ -974,6 +1164,20 @@ export async function reviewSubmission(
       },
       occurredAt: now,
     });
+    await notify(
+      tx,
+      actor,
+      [
+        {
+          userId: locked.studentId,
+          kind: 'task_reviewed',
+          studentId: locked.studentId,
+          subjectId: locked.id,
+          data: { title: locked.title, outcome: input.outcome },
+        },
+      ],
+      now,
+    );
     await changeStatus(
       tx,
       actor,
@@ -1129,6 +1333,20 @@ export async function submitTask(
         data: { taskId, version: created.version },
         occurredAt: now,
       });
+      await notify(
+        tx,
+        actor,
+        [
+          {
+            userId: locked.reviewerId,
+            kind: 'task_submitted',
+            studentId: locked.studentId,
+            subjectId: taskId,
+            data: { title: locked.title },
+          },
+        ],
+        now,
+      );
       await changeStatus(tx, actor, locked, to, { lastSubmittedAt: now }, now);
       await touchStudentActivity(tx, actor.userId, now);
       return {
@@ -1153,14 +1371,18 @@ export async function submitTask(
 export async function reviewQueueFor(
   db: DbOrTx,
   actor: Actor,
-  reviewerId: string | undefined,
+  filters: repo.ReviewQueueFilters,
   now: Date,
 ): Promise<ReviewQueueItemDTO[]> {
   const scope = await staffStudentScope(db, actor);
   const [rows, sla, hours] = await Promise.all([
-    repo.listReviewQueue(db, scopeCondition(scope, students.primaryMentorId), reviewerId),
-    getSlaSettings(db),
-    getBusinessHours(db),
+    repo.listReviewQueue(
+      db,
+      scopeCondition(scope, students.userId, students.organizationId),
+      filters,
+    ),
+    getSlaSettings(db, actor.organizationId),
+    getBusinessHours(db, actor.organizationId),
   ]);
   return rows.map((r) => {
     const since = r.lastSubmittedAt ?? now;
@@ -1184,8 +1406,45 @@ export async function reviewQueueFor(
       slaRemainingHours: state.remainingHours,
       breached: state.breached,
       warning: state.warning,
+      program: r.runId
+        ? { runId: r.runId, title: r.runTitle ?? '', isLegacy: r.legacyPathId !== null }
+        : null,
     };
   });
+}
+
+/**
+ * Internal (mentor directory, Coach Office sprint 4): submitted tasks past their review SLA,
+ * counted per reviewer, over the whole organization.
+ */
+export async function breachedReviewsByReviewer(
+  db: DbOrTx,
+  organizationId: string,
+  now: Date,
+): Promise<Map<string, number>> {
+  const scope = scopeCondition(
+    { kind: 'all', organizationId },
+    students.userId,
+    students.organizationId,
+  );
+  const [rows, sla, hours] = await Promise.all([
+    repo.listReviewQueue(db, scope),
+    getSlaSettings(db, organizationId),
+    getBusinessHours(db, organizationId),
+  ]);
+  const out = new Map<string, number>();
+  for (const r of rows) {
+    const slaHours = reviewSlaHours(r.requiredForGate, sla);
+    const state = slaState(
+      r.lastSubmittedAt ?? now,
+      now,
+      slaHours,
+      sla.clock,
+      hours as BusinessHoursConfig,
+    );
+    if (state.breached) out.set(r.reviewerId, (out.get(r.reviewerId) ?? 0) + 1);
+  }
+  return out;
 }
 
 /** F-09: the review SLA of one task (hours). */
@@ -1203,16 +1462,29 @@ export async function getReviewQueue(
   db: DbOrTx = getDb(),
 ): Promise<ReviewQueueItemDTO[]> {
   assertStaff(actor);
-  return reviewQueueFor(db, actor, query.mentorId, new Date());
+  const items = await reviewQueueFor(
+    db,
+    actor,
+    { reviewerId: query.mentorId, runId: query.runId, studentId: query.studentId },
+    new Date(),
+  );
+  if (!query.sla) return items;
+  return items.filter((i) =>
+    query.sla === 'breached'
+      ? i.breached
+      : query.sla === 'warning'
+        ? !i.breached && i.warning
+        : !i.breached && !i.warning,
+  );
 }
 
 /**
  * Internal (CSV export, admin only — the caller checks the role and audits): every task with
  * the columns of `GET /exports/tasks.csv` (SEC-V3: no submission text, no feedback).
  */
-export async function listTasksForExport(db: DbOrTx) {
+export async function listTasksForExport(db: DbOrTx, organizationId: string) {
   const now = new Date();
-  return (await repo.listAllTasks(db)).map((row) => ({
+  return (await repo.listAllTasks(db, organizationId)).map((row) => ({
     studentName: row.studentDisplayName,
     title: row.title,
     kind: row.kind,

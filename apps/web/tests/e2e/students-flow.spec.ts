@@ -62,10 +62,8 @@ test('admin: new student → invite → record → showcase → stage → kanban
     await page.getByRole('button', { name: 'خروجی CSV' }).click();
     const exp = page.getByRole('dialog', { name: 'خروجی CSV' });
     await expect(exp.getByText(/موبایل و لینک پروفایل همه‌ی هنرجوهاست/)).toBeVisible();
-    await expect(exp.getByRole('link', { name: 'هنرجوها' })).toHaveAttribute(
-      'href',
-      '/api/v1/exports/students.csv',
-    );
+    // A fetch button since SEC-S7 (re-auth before the export), not a bare link.
+    await expect(exp.getByRole('button', { name: 'هنرجوها' })).toBeVisible();
     await exp.getByRole('button', { name: 'بستن' }).click();
   }
 

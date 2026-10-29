@@ -10,7 +10,12 @@ import { HEALTH_RULES } from './contracts';
  *
  * Interpretations (ADR-0005 table): a «day» is elapsed time (24 h); «2 overdue tasks» means
  * any delay unless `redCountMinDays` says otherwise; R-NOTASK counts `submitted` as open; a
- * stage with `is_open_ended` skips R-STALL and R-NOTASK (never a stage name or number).
+ * phase with `is_open_ended` skips R-STALL and R-NOTASK (never a stage name or number).
+ *
+ * Coach Office sprint 5c: a mentee can be in several courses, each with its own phases. R-STALL
+ * looks at the current phase of every active enrollment and reports the worst one; R-NOTASK
+ * is skipped only when every current phase is open-ended. The main path is one of these
+ * courses (its phases mirror the 0.1 stages).
  */
 
 const DAY_MS = 24 * 3600 * 1000;
@@ -22,13 +27,20 @@ export type HealthTaskInput = {
   extensionCount: number;
 };
 
+/** The current phase of one active enrollment. */
+export type HealthPhaseInput = {
+  enteredAt: Date;
+  expectedDays: number | null;
+  isOpenEnded: boolean;
+};
+
 export type StudentHealthInput = {
   lifecycleStatus: 'active' | 'paused' | 'graduated' | 'dropped';
   joinedAt: Date;
   /** Base of R-INACT; null → `joinedAt`. */
   lastActivityAt: Date | null;
-  stageEnteredAt: Date;
-  stage: { expectedDays: number | null; isOpenEnded: boolean };
+  /** Current phases of the active enrollments of open runs (main path included). */
+  phases: HealthPhaseInput[];
   /** Tasks not accepted / cancelled. */
   openTasks: HealthTaskInput[];
   /** `closed_at` of the most recently finished task. */
@@ -186,15 +198,19 @@ export function evaluateHealth(
     days: Math.floor(inactive),
   });
 
-  // R-STALL
-  const inStage = elapsedDays(input.stageEnteredAt, now);
-  const expected = input.stage.expectedDays;
-  if (expected !== null && expected > 0 && !input.stage.isOpenEnded) {
-    add(
-      'R-STALL',
-      level(inStage / expected, rules.stall.yellowFactor, rules.stall.redFactor, true),
-      { daysInStage: Math.floor(inStage), expectedDays: expected },
-    );
+  // R-STALL: the phase furthest past its expected days.
+  let stall: { ratio: number; days: number; expected: number } | null = null;
+  for (const phase of input.phases) {
+    const expected = phase.expectedDays;
+    if (expected === null || expected <= 0 || phase.isOpenEnded) continue;
+    const days = elapsedDays(phase.enteredAt, now);
+    if (!stall || days / expected > stall.ratio) stall = { ratio: days / expected, days, expected };
+  }
+  if (stall) {
+    add('R-STALL', level(stall.ratio, rules.stall.yellowFactor, rules.stall.redFactor, true), {
+      daysInStage: Math.floor(stall.days),
+      expectedDays: stall.expected,
+    });
   }
 
   // R-OVERDUE (only tasks the student still has to act on)
@@ -219,11 +235,12 @@ export function evaluateHealth(
     maxRevisions,
   });
 
-  // R-NOTASK
-  if (input.openTasks.length === 0 && !input.stage.isOpenEnded) {
+  // R-NOTASK: skipped only when every current phase is open-ended.
+  const counted = input.phases.filter((p) => !p.isOpenEnded);
+  if (input.openTasks.length === 0 && (counted.length > 0 || input.phases.length === 0)) {
     const since = Math.max(
       input.joinedAt.getTime(),
-      input.stageEnteredAt.getTime(),
+      ...counted.map((p) => p.enteredAt.getTime()),
       input.lastTaskClosedAt?.getTime() ?? 0,
     );
     const idle = elapsedDays(new Date(since), now);

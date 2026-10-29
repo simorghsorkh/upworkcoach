@@ -1,15 +1,22 @@
 import Papa from 'papaparse';
 import type { z } from 'zod';
+import { messagesFor } from '@/i18n/messages';
 import { parseAnyCalendarDay } from '@/lib/jalali';
 import { tehranDay } from '@/lib/tehran-day';
 import { normalizeFa, toLatinDigits } from '@/lib/text-fa';
 import type { Actor } from '@/server/auth/current-user';
 import { type Db, getDb } from '@/server/db';
 import { ApiError, errors } from '@/server/http/errors';
-import { httpsUrl, longText, requiredShortText, shortText } from '@/server/http/schemas';
+import { httpsUrl, longText, requiredShortText, shortText, uuidInput } from '@/server/http/schemas';
 import { listPlatforms, listStages, listTracks } from '../catalog/service';
 import { displayNameInput, phoneInput } from '../identity/contracts';
-import { findActiveStaffByPhone, isPhoneTaken, listMentors } from '../identity/service';
+import {
+  findActiveStaffByPhone,
+  findStudentByPhone,
+  isPhoneTaken,
+  listMentors,
+} from '../identity/service';
+import { enroll, getRun } from '../programs/service';
 import { createStudent, createStudentProfile } from '../students/service';
 import { createTask } from '../tasks/service';
 import { recordAudit } from './service';
@@ -26,7 +33,12 @@ import { recordAudit } from './service';
  *   task, initial note), and reports the invalid ones.
  * - Errors give the line and the column, never the value (SEC-V5). The response contains
  *   invite links: `no-store` (route) and never logged.
+ * - Sprint 6 (Coach Office): with `runId` every row joins that open group course, at the phase
+ *   of the optional «فاز» column (number or title). A mentee of the organization already
+ *   registered with the row's mobile is only enrolled; the rest of the row is ignored.
  */
+
+const MI = messagesFor('fa').studentImport;
 
 export const MAX_IMPORT_BYTES = 1024 * 1024;
 export const MAX_IMPORT_ROWS = 500;
@@ -42,7 +54,8 @@ type Column =
   | 'profileHeadline'
   | 'lastTask'
   | 'lastTaskDue'
-  | 'note';
+  | 'note'
+  | 'phase';
 
 /** Accepted header names (Persian or English; compared after normalisation). */
 const HEADERS: Record<Column, string[]> = {
@@ -57,6 +70,7 @@ const HEADERS: Record<Column, string[]> = {
   lastTask: ['آخرین کار', 'کار', 'task', 'last task'],
   lastTaskDue: ['مهلت', 'مهلت کار', 'due', 'due date'],
   note: ['یادداشت', 'note'],
+  phase: [MI.phaseColumn, 'phase'],
 };
 
 /** Column labels in error messages. */
@@ -72,6 +86,7 @@ const LABEL: Record<Column, string> = {
   lastTask: 'آخرین کار',
   lastTaskDue: 'مهلت',
   note: 'یادداشت',
+  phase: MI.phaseColumn,
 };
 
 const headerKey = (h: string) => normalizeFa(h).toLowerCase();
@@ -94,6 +109,8 @@ export type ImportRowDTO = {
   studentId?: string;
   /** Only after a real run; shown once (no-store). */
   inviteUrl?: string;
+  /** Import into a course: a mentee already registered with this mobile, only enrolled. */
+  existing?: true;
 };
 
 export type ImportResultDTO = {
@@ -101,12 +118,25 @@ export type ImportResultDTO = {
   total: number;
   valid: number;
   imported: number;
+  /** Import into a course: rows enrolled in it (new and existing mentees). */
+  enrolled: number;
+  course: { id: string; title: string } | null;
   rows: ImportRowDTO[];
+};
+
+/** The course of an import into one (sprint 6). */
+type Course = {
+  id: string;
+  title: string;
+  phases: Array<{ id: string; title: string }>;
+  enrolled: Set<string>;
 };
 
 type ParsedRow = {
   line: number;
   errors: ImportRowError[];
+  /** A mentee already registered with this mobile (import into a course). */
+  existing: boolean;
   value?: {
     displayName: string;
     phone: string;
@@ -119,6 +149,8 @@ type ParsedRow = {
     lastTask: string | null;
     lastTaskDue?: string;
     note: string | null;
+    existingId?: string;
+    phaseId?: string;
   };
 };
 
@@ -176,6 +208,7 @@ const sameName = (a: string, b: string) => headerKey(a) === headerKey(b);
 async function validateRows(
   actor: Actor,
   rows: Array<Partial<Record<Column, string>>>,
+  course: Course | null,
   db: Db,
 ): Promise<ParsedRow[]> {
   const [mentors, stages, tracks, platforms] = await Promise.all([
@@ -196,19 +229,36 @@ async function validateRows(
     if (!name.success) fail('name', row.name ? firstMessage(name) : 'این فیلد را پر کن.');
     const phone = phoneInput.safeParse(row.phone ?? '');
     let phoneValue = '';
+    let existingId: string | undefined;
     if (!phone.success) {
       fail('phone', row.phone ? 'شماره‌ی موبایل معتبر نیست.' : 'این فیلد را پر کن.');
     } else {
       phoneValue = phone.data;
+      const known = course ? await findStudentByPhone(db, actor.organizationId, phoneValue) : null;
       if (seenPhones.has(phoneValue)) fail('phone', 'این شماره در فایل تکراری است.');
+      else if (known && course?.enrolled.has(known.id)) fail('phone', MI.alreadyInCourse);
+      else if (known) existingId = known.id;
       else if (await isPhoneTaken(db, phoneValue)) fail('phone', 'این شماره قبلاً ثبت شده است.');
       seenPhones.add(phoneValue);
+    }
+
+    let phaseId: string | undefined;
+    if (row.phase) {
+      const wanted = row.phase;
+      const phase = course?.phases.find(
+        (p, i) => toLatinDigits(wanted) === String(i + 1) || sameName(p.title, wanted),
+      );
+      if (!course) fail('phase', MI.phaseNeedsCourse);
+      else if (!phase) fail('phase', MI.phaseNotFound);
+      else phaseId = phase.id;
     }
 
     let mentorId: string | null = null;
     if (row.mentor) {
       const asPhone = phoneInput.safeParse(row.mentor);
-      const byPhone = asPhone.success ? await findActiveStaffByPhone(db, asPhone.data) : null;
+      const byPhone = asPhone.success
+        ? await findActiveStaffByPhone(db, actor.organizationId, asPhone.data)
+        : null;
       const byName = mentors.filter((m) => sameName(m.displayName, row.mentor ?? ''));
       if (byPhone) mentorId = byPhone.id;
       else if (byName.length === 1) mentorId = byName[0]?.id ?? null;
@@ -268,6 +318,7 @@ async function validateRows(
     out.push({
       line,
       errors: errs,
+      existing: existingId !== undefined,
       value:
         errs.length === 0 && name.success && note.success && headline.success
           ? {
@@ -282,6 +333,8 @@ async function validateRows(
               lastTask,
               lastTaskDue: due,
               note: note.data,
+              existingId,
+              phaseId,
             }
           : undefined,
     });
@@ -289,26 +342,53 @@ async function validateRows(
   return out;
 }
 
+/** The course of an import: an open group run other than the main path (else 422). */
+async function courseOf(actor: Actor, runId: string, db: Db): Promise<Course> {
+  if (!uuidInput.safeParse(runId).success) throw errors.validation({ runId: MI.courseInvalid });
+  const run = await getRun(actor, runId, db);
+  const open = run.status === 'draft' || run.status === 'active';
+  if (run.isLegacy || run.mode !== 'group' || !open) {
+    throw errors.validation({ runId: MI.courseInvalid });
+  }
+  return {
+    id: run.id,
+    title: run.title,
+    phases: run.phases.map((p) => ({ id: p.id, title: p.title })),
+    enrolled: new Set(run.enrollments.map((e) => e.student.id)),
+  };
+}
+
 /** POST /imports/students (A). */
 export async function importStudents(
   actor: Actor,
-  input: { bytes: Uint8Array; dryRun: boolean },
+  input: { bytes: Uint8Array; dryRun: boolean; runId?: string | null },
   meta: { ip?: string | null } = {},
   db: Db = getDb(),
 ): Promise<ImportResultDTO> {
   if (actor.role !== 'admin') throw errors.forbidden();
-  const parsed = await validateRows(actor, readCsv(input.bytes), db);
+  const course = input.runId ? await courseOf(actor, input.runId, db) : null;
+  const parsed = await validateRows(actor, readCsv(input.bytes), course, db);
   const rows: ImportRowDTO[] = parsed.map((p) => ({
     line: p.line,
     ok: p.errors.length === 0,
     errors: p.errors,
+    ...(p.existing ? { existing: true as const } : {}),
   }));
   const valid = rows.filter((r) => r.ok).length;
   let imported = 0;
+  let enrolled = 0;
   if (!input.dryRun) {
+    const joining: Array<{ row: ImportRowDTO; studentId: string }> = [];
+    const startPhase = new Map<string, string>();
     for (const [index, p] of parsed.entries()) {
       const row = rows[index];
       if (!p.value || !row) continue;
+      if (p.value.existingId) {
+        row.studentId = p.value.existingId;
+        joining.push({ row, studentId: p.value.existingId });
+        if (p.value.phaseId) startPhase.set(p.value.existingId, p.value.phaseId);
+        continue;
+      }
       try {
         const created = await createStudent(
           actor,
@@ -349,6 +429,10 @@ export async function importStudents(
           );
         }
         imported += 1;
+        if (course) {
+          joining.push({ row, studentId: created.student.id });
+          if (p.value.phaseId) startPhase.set(created.student.id, p.value.phaseId);
+        }
       } catch (err) {
         row.ok = false;
         const fields = err instanceof ApiError ? Object.keys(err.fields ?? {}) : [];
@@ -359,12 +443,39 @@ export async function importStudents(
         );
       }
     }
+    if (course && joining.length) {
+      try {
+        // One transaction for the whole course (the run's seat lock and audit): all or none.
+        await enroll(actor, course.id, { studentIds: joining.map((j) => j.studentId) }, meta, db, {
+          startPhase,
+        });
+        enrolled = joining.length;
+      } catch {
+        for (const { row } of joining) {
+          row.ok = false;
+          row.errors.push({ column: '-', message: MI.enrollFailed });
+        }
+      }
+    }
     await recordAudit(db, {
       actorId: actor.userId,
       action: 'import.students',
-      data: { rows: rows.length, valid, imported },
+      data: {
+        rows: rows.length,
+        valid,
+        imported,
+        ...(course ? { enrolled, runId: course.id } : {}),
+      },
       ip: meta.ip ?? null,
     });
   }
-  return { dryRun: input.dryRun, total: rows.length, valid, imported, rows };
+  return {
+    dryRun: input.dryRun,
+    total: rows.length,
+    valid,
+    imported,
+    enrolled,
+    course: course ? { id: course.id, title: course.title } : null,
+    rows,
+  };
 }

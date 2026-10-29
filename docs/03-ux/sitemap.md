@@ -1,120 +1,120 @@
-# نقشه‌ی صفحات — نسخه‌ی 0.1 («دفتر مربی»)
+# Sitemap — Version 0.1 ("Coach Office")
 
-> فاز ۲ — نویسنده: ux-designer — ۲۷ مهر ۱۴۰۵ — وضعیت: پیش‌نویس برای گیت بنیان‌گذار
-> ورودی‌ها: `docs/02-product/prd.md` (F1 تا F11)، `mvp-scope.md`، `learning/progress-tracking.md` (بخش ۸)، `learning/mentor-workflow.md`، `01-discovery/personas.md`
-> اسناد هم‌خانواده: `user-flows.md`، `design-system.md`، `wireframes/index.html`
+> Phase 2 — Author: ux-designer — 27 Mehr 1405 (2026-10-19) — Status: draft for the founder gate
+> Inputs: `docs/02-product/prd.md` (F1 to F11), `mvp-scope.md`, `learning/progress-tracking.md` (section 8), `learning/mentor-workflow.md`, `01-discovery/personas.md`
+> Sibling documents: `user-flows.md`, `design-system.md`, `wireframes/index.html`
 
 ---
 
-## ۱. دامنه‌ی این نقشه
+## 1. Scope of this map
 
-| در این نقشه هست | عمداً نیست (به 1.0 یا بک‌لاگ) |
+| In this map | Deliberately not included (deferred to 1.0 or the backlog) |
 |---|---|
-| ورود، پذیرش دعوت، صفحه‌های مدیر/مربی، مشاور و هنرجو برای F1 تا F11 | ثبت‌نام عمومی و لندینگ (F16)، ابزارهای AI (F13 تا F15)، پرداخت و اشتراک (F17، معلق)، ثبت اپلای‌ها و قیف (F12)، اعلان پیامکی/تلگرامی (F18)، گزارش مدیریتی (F19) |
+| Login, invite acceptance, and the admin/coach, mentor and student pages for F1 to F11 | Public sign-up and landing page (F16), AI tools (F13 to F15), payment and subscription (F17, on hold), application tracking and funnel (F12), SMS/Telegram notifications (F18), management reports (F19) |
 
-**جای خالی برای 1.0:** در «خانه‌ی هنرجو» و «پرونده‌ی هنرجو» یک جایگاه رزرو‌شده (slot) برای ابزارها تعریف شده که **در 0.1 هیچ چیزی نشان نمی‌دهد** (نه دکمه‌ی غیرفعال، نه «به‌زودی»). جزئیات در `design-system.md` بخش ۹.
+**Empty slot for 1.0:** On the "Student home" and the "Student record" a reserved slot is defined for the tools, which **shows nothing at all in 0.1** (no disabled button, no "Coming soon"). Details in `design-system.md` section 9.
 
-**قاعده‌ی دسترسی:** مدیر و مشاور **صفحه‌های یکسان** دارند. فرق فقط در دامنه‌ی داده است: مشاور فقط هنرجوهای تخصیص‌یافته به خودش را می‌بیند (فرض A8 / تصمیم D2) و مدیر همه را با فیلتر «مشاور». صفحه‌هایی که فقط مدیر دارد با «مدیر» علامت خورده‌اند.
+**Access rule:** The admin and the mentor have **the same pages**. The only difference is the data scope: a mentor only sees the students assigned to them (assumption A8 / decision D2), while the admin sees everyone, with a "Mentor" filter. Pages that only the admin has are marked "admin".
 
-**کد صفحه‌ها:** `G` = عمومی (بدون ورود)، `M` = مربی و مشاور، `S` = هنرجو. ستون «وایرفریم» به فایل‌های `wireframes/` اشاره می‌کند.
-
----
-
-## ۲. صفحه‌های عمومی (بدون ورود)
-
-| کد | صفحه | آدرس پیشنهادی | امکان PRD | user story / هدف | وایرفریم |
-|---|---|---|---|---|---|
-| G1 | ورود (موبایل + رمز) | `/login` | F1 | هنرجو: «با یک لینک وارد شوم و رمز بگذارم، بدون فرم طولانی» | — (فرم دوفیلدی، الگو در design-system) |
-| G2 | پذیرش دعوت و تعیین رمز / تعیین رمز تازه با لینک بازنشانی | `/invite#t=<token>` و `/reset#t=<token>` (یک کامپوننت؛ عنوان بر اساس `purpose`) | F1 | همان؛ (امنیت C1) **نام** نمایش داده می‌شود؛ کاربر **موبایل خودش** را وارد می‌کند (`inputmode="tel"`، `autocomplete="username"`) + رمز و تأیید رمز (`new-password`). موبایل پیش‌پر یا پوشانده نشان داده نمی‌شود. توکن در fragment است و صفحه بلافاصله آن را از نوار آدرس پاک می‌کند (`history.replaceState`). اگر مرورگر با حساب دیگری وارد است، هشدار «با ادامه از آن حساب خارج می‌شوی». موبایل غلط: «این شماره با این لینک هم‌خوانی ندارد». بدون لینک بیرونی؛ یک خط درباره‌ی محل نگه‌داری داده + لینک صفحه‌ی حریم خصوصی (SEC-F4) | — |
-| G3 | لینک دعوت یا بازنشانی نامعتبر (منقضی / استفاده‌شده / باطل) | `/invite` و `/reset` (حالت خطا) | F1 | پیام روشن + «از مربی‌ات لینک تازه بخواه». (امنیت C1) پس از ۵ موبایل غلط هم لینک باطل می‌شود و همین حالت نمایش داده می‌شود | — |
-| G4 | فراموشی رمز | `/forgot` | F1 | در 0.1 بدون OTP: صفحه فقط راهنمایی می‌کند که به مربی پیام بدهد؛ مدیر از پنل کاربر لینک بازنشانی می‌سازد (`POST /users/:id/reset-link`) و خودش می‌فرستد. فرم عمومی ثبت درخواست نداریم (هماهنگ با api.md؛ یک endpoint بی‌احراز کمتر) | — |
-
-صفحه‌ی ثبت‌نام عمومی **وجود ندارد** (F1، معیار پذیرش ۴). آدرس ریشه‌ی `/` برای کاربر واردنشده به `/login` می‌رود.
+**Page codes:** `G` = general (no login), `M` = coach and mentor, `S` = student. The "Wireframe" column points to files in `wireframes/`.
 
 ---
 
-## ۳. مدیر/مربی و مشاور
+## 2. Public pages (no login)
 
-ناوبری اصلی: **امروز · هنرجوها · مراحل · کارها · سؤال‌ها** (+ برای مدیر: **نتایج · تنظیمات**). روی موبایل، نوار پایین: امروز، هنرجوها، [+ افزودن سریع]، کارها، سؤال‌ها؛ بقیه در منوی بالا.
-
-| کد | صفحه | آدرس پیشنهادی | امکان PRD | user story / هدف | وایرفریم |
+| Code | Page | Proposed URL | PRD feature | User story / goal | Wireframe |
 |---|---|---|---|---|---|
-| **M1** | **امروز** (صفحه‌ی اول بعد از ورود) | `/today` | F6، F7، F8، F4 | مربی/مشاور: «صبح یک فهرست ببینم: چه کسی را پیگیری کنم، چه تحویلی منتظر بازبینی است، چه سؤالی بی‌جواب مانده» + «بدون گشتن بفهمم کدام هنرجو گیر کرده و توپ در زمین کیست» | `today.html` |
-| **M2** | **هنرجوها — فهرست** | `/students` | F2، F7 | مربی: جستجو و فیلتر بر اساس نام، مرحله، مشاور، برچسب، پلتفرم، سلامت؛ نمای «فهرست هنرجوهای من / همه» در `progress-tracking.md` بخش ۸ | `students.html` |
-| M2a | هنرجوی جدید + لینک دعوت (پنجره) | `/students/new` | F1، F2 | مدیر: «هنرجو را با نام و موبایل بسازم و لینک دعوت یک‌بارمصرف بگیرم» (< ۱ دقیقه) | داخل `students.html` |
-| M2b | ورود گروهی از CSV/اکسل (Should) | `/students/import` | F11 | مهاجرت هنرجوهای فعلی (`progress-tracking.md` بخش ۲-۹) | — |
-| **M3** | **پرونده‌ی هنرجو** | `/students/:id` | F2، F3، F4، F5، F7، F8، F9 | مربی: «در یک صفحه ببینم این هنرجو کیست، چه پروفایل‌هایی دارد، کجاست و چه کاری از او خواسته‌ام» | `student-profile.html` |
-| M3a | — بخش کارها | `/students/:id#tasks` | F4 | کارهای این هنرجو به ترتیب مهلت | همان |
-| M3b | — بخش تایم‌لاین + ثبت یادداشت | `/students/:id#timeline` | F5 | «بعد از هر جلسه یا پیام تلگرامی یک یادداشت کوتاه بگذارم» (< ۳ کلیک) | همان |
-| M3c | — بخش ویترین‌ها (پروفایل‌های پلتفرم) | `/students/:id#profiles` | F2 | «چه پروفایلی دارد؟» با لینک، وضعیت، نیچ | همان |
-| M3d | — بخش سؤال‌ها | `/students/:id#questions` | F8 | سؤال‌های همین هنرجو | همان |
-| M3e | — بخش نقاط عطف | `/students/:id#milestones` | F9 | ثبت و تأیید اولین قرارداد و … | همان |
-| M3f | — اطلاعات پایه (پیش‌زمینه، هدف، تماس) | `/students/:id#info` | F2 | ویرایش فیلدهای پرونده | همان |
-| M3g | تغییر مرحله (پنجره) | — | F3 | «تغییر مرحله یک کلیک، با یادداشت اختیاری»؛ (Should) پیشنهاد کارهای قالب | همان |
-| M3h | اقدام‌های دیگر: پرچم دستی، توقف موقت، نادیده گرفتن هشدار تا تاریخ، تغییر مشاور، ارسال دوباره‌ی دعوت | — | F7، F2، F1 | «برچسب را تا تاریخی نادیده بگیرم (مثلاً در سفر است)» | همان (منوی «بیشتر») |
-| **M4** | **مراحل (کانبان)** | `/stages` | F3، F7 | مربی: «مرحله‌ی هر هنرجو را تعیین کنم و ببینم چند نفر در هر مرحله‌اند» | `kanban.html` |
-| **M5** | **کارها — فهرست** | `/tasks` | F4 | «ببینم چه کاری از چه کسی خواستم، تحویل داده یا نه» | `tasks.html` |
-| M5a | کار جدید (پنجره) | `/tasks/new` | F4 | تعریف کار با مهلت شمسی؛ (Should) قالب و واگذاری گروهی | داخل `tasks.html` |
-| **M6** | **جزئیات کار: تحویل‌ها و بازبینی** | `/tasks/:id` | F4 | «بازخورد فارسی بنویسم و نتیجه بدهم (پذیرفته / نیاز به اصلاح)» + جمع‌آوری جفت «پروپوزال + نقد مربی» (G4) | `task-detail.html` |
-| M7 | سؤال‌ها — صف | `/questions` | F8 | مشاور: «سؤال‌ها را در یک صف ببینم و پاسخ بدهم» | — (همان الگوی فهرست M5) |
-| M8 | رشته‌ی سؤال + خلاصه‌ی پرونده کنارش | `/questions/:id` | F8 | «کنار سؤال، خلاصه‌ی پرونده را ببینم» | — (همان الگوی دوستونه‌ی M6) |
-| M9 | یادآورهای من | `/reminders` | F6 | همه‌ی یادآورهای آینده (امروز فقط امروز و گذشته را نشان می‌دهد) | — |
-| M10 | نتایج (**مدیر**) | `/results` | F9 | «تعداد اولین قرارداد تأییدشده در این ماه و تجمعی + میانه‌ی روز تا اولین قرارداد» — دو عدد و یک میانه، نه بیشتر | — |
-| M11 | تنظیمات (**مدیر**) | `/settings/*` | F11، F1، F7 | زیرصفحه‌ها: کاربران و دعوت مشاور، مراحل مسیر، پلتفرم‌ها، انواع نقطه‌ی عطف، قالب کارها، آستانه‌های سلامت و SLA، متن‌های استاندارد (پاسخ خطوط قرمز)، خروجی CSV (Should)، درخواست‌های بازنشانی رمز | — |
-| M12 | حساب من | `/account` | F1 | تغییر رمز، نام، خروج | — |
+| G1 | Login (mobile + password) | `/login` | F1 | Student: "Log in with a link and set a password, without a long form" | — (two-field form, pattern in design-system) |
+| G2 | Accept invite and set password / set a new password via reset link | `/invite#t=<token>` and `/reset#t=<token>` (one component; title based on `purpose`) | F1 | Same; (security C1) the **name** is displayed; the user enters **their own mobile number** (`inputmode="tel"`, `autocomplete="username"`) + password and password confirmation (`new-password`). The mobile number is not shown prefilled or masked. The token is in the fragment and the page immediately removes it from the address bar (`history.replaceState`). If the browser is logged in with another account, a warning: "Continuing will log you out of that account". Wrong mobile number: "This number does not match this link". No external links; one line about where data is stored + a link to the privacy page (SEC-F4) | — |
+| G3 | Invalid invite or reset link (expired / used / revoked) | `/invite` and `/reset` (error state) | F1 | Clear message + "Ask your coach for a new link". (Security C1) After 5 wrong mobile numbers the link is also revoked and this same state is shown | — |
+| G4 | Forgot password | `/forgot` | F1 | In 0.1 without OTP: the page only instructs the user to message the coach; the admin generates a reset link from the user panel (`POST /users/:id/reset-link`) and sends it themselves. There is no public request form (consistent with api.md; one less unauthenticated endpoint) | — |
 
-### تفاوت دید مدیر و مشاور
+There is **no** public sign-up page (F1, acceptance criterion 4). The root URL `/` redirects a logged-out user to `/login`.
 
-| صفحه | مدیر | مشاور |
+---
+
+## 3. Admin/coach and mentor
+
+Main navigation: **Today · Students · Stages · Tasks · Questions** (+ for the admin: **Results · Settings**). On mobile, the bottom bar: Today, Students, [+ Quick add], Tasks, Questions; the rest in the top menu.
+
+| Code | Page | Proposed URL | PRD feature | User story / goal | Wireframe |
+|---|---|---|---|---|---|
+| **M1** | **Today** (first page after login) | `/today` | F6, F7, F8, F4 | Coach/mentor: "In the morning, see one list: whom to follow up with, which submission is waiting for review, which question is unanswered" + "know without searching which student is stuck and whose court the ball is in" | `today.html` |
+| **M2** | **Students — list** | `/students` | F2, F7 | Coach: search and filter by name, stage, mentor, tag, platform, health; the "My students / All" list view in `progress-tracking.md` section 8 | `students.html` |
+| M2a | New student + invite link (dialog) | `/students/new` | F1, F2 | Admin: "Create a student with name and mobile and get a one-time invite link" (< 1 minute) | inside `students.html` |
+| M2b | Bulk import from CSV/Excel (Should) | `/students/import` | F11 | Migrating current students (`progress-tracking.md` section 2-9) | — |
+| **M3** | **Student record** | `/students/:id` | F2, F3, F4, F5, F7, F8, F9 | Coach: "See on one page who this student is, what profiles they have, where they are and what I have asked of them" | `student-profile.html` |
+| M3a | — Tasks section | `/students/:id#tasks` | F4 | This student's tasks, ordered by deadline | same |
+| M3b | — Timeline section + add note | `/students/:id#timeline` | F5 | "After every session or Telegram message, leave a short note" (< 3 clicks) | same |
+| M3c | — Showcases section (platform profiles) | `/students/:id#profiles` | F2 | "What profiles do they have?" with link, status, niche | same |
+| M3d | — Questions section | `/students/:id#questions` | F8 | This student's questions | same |
+| M3e | — Milestones section | `/students/:id#milestones` | F9 | Record and confirm the first contract, etc. | same |
+| M3f | — Basic info (background, goal, contact) | `/students/:id#info` | F2 | Edit record fields | same |
+| M3g | Change stage (dialog) | — | F3 | "Changing the stage is one click, with an optional note"; (Should) suggest template tasks | same |
+| M3h | Other actions: manual flag, pause, snooze alert until a date, change mentor, resend invite | — | F7, F2, F1 | "Ignore the tag until a date (e.g. they are traveling)" | same (the "More" menu) |
+| **M4** | **Stages (kanban)** | `/stages` | F3, F7 | Coach: "Set each student's stage and see how many people are in each stage" | `kanban.html` |
+| **M5** | **Tasks — list** | `/tasks` | F4 | "See which task I asked of whom, and whether they submitted it" | `tasks.html` |
+| M5a | New task (dialog) | `/tasks/new` | F4 | Define a task with a Jalali deadline; (Should) templates and bulk assignment | inside `tasks.html` |
+| **M6** | **Task details: submissions and review** | `/tasks/:id` | F4 | "Write Persian feedback and give a result (accepted / needs revision)" + collecting "proposal + coach critique" pairs (G4) | `task-detail.html` |
+| M7 | Questions — queue | `/questions` | F8 | Mentor: "See questions in one queue and answer them" | — (same list pattern as M5) |
+| M8 | Question thread + record summary beside it | `/questions/:id` | F8 | "See the record summary next to the question" | — (same two-column pattern as M6) |
+| M9 | My reminders | `/reminders` | F6 | All upcoming reminders (Today shows only today and overdue) | — |
+| M10 | Results (**admin**) | `/results` | F9 | "Number of confirmed first contracts this month and cumulatively + median days to first contract" — two numbers and a median, nothing more | — |
+| M11 | Settings (**admin**) | `/settings/*` | F11, F1, F7 | Subpages: users and mentor invites, path stages, platforms, milestone types, task templates, health and SLA thresholds, canned replies (red-line responses), CSV export (Should), password reset requests | — |
+| M12 | My account | `/account` | F1 | Change password, name, log out | — |
+
+### Differences between the admin and mentor views
+
+| Page | Admin | Mentor |
 |---|---|---|
-| امروز، هنرجوها، مراحل، کارها، سؤال‌ها | همه‌ی هنرجوها؛ فیلتر «مشاور» با پیش‌فرض «همه» | فقط هنرجوهای خودش؛ فیلتر «مشاور» دیده نمی‌شود |
-| ساخت هنرجو | ✓ با انتخاب مشاور | ✓ فقط با تخصیص به خودش (قابل‌خاموش‌کردن در تنظیمات) |
-| نتایج، تنظیمات | ✓ | دیده نمی‌شود (نه غیرفعال، بلکه حذف از منو) |
-| یادآور | برای خودش یا هر مشاور | فقط برای خودش |
+| Today, Students, Stages, Tasks, Questions | All students; "Mentor" filter defaulting to "All" | Only their own students; the "Mentor" filter is not shown |
+| Create student | ✓ with mentor selection | ✓ only assigned to themselves (can be turned off in settings) |
+| Results, Settings | ✓ | Not shown (not disabled, but removed from the menu) |
+| Reminder | For themselves or any mentor | Only for themselves |
 
 ---
 
-## ۴. هنرجو
+## 4. Student
 
-ناوبری: **خانه · کارها · سؤال‌ها · مسیر · من**. روی موبایل همین پنج مورد در نوار پایین. هنرجو **وضعیت سلامت، کد قاعده‌ها، پرچم‌ها و یادداشت‌های داخلی را هیچ‌جا نمی‌بیند** (F5، `progress-tracking.md` بخش ۸).
+Navigation: **Home · Tasks · Questions · Path · Me**. On mobile, these same five items are in the bottom bar. The student **never sees health status, rule codes, flags or internal notes anywhere** (F5, `progress-tracking.md` section 8).
 
-| کد | صفحه | آدرس پیشنهادی | امکان PRD | user story / هدف | وایرفریم |
+| Code | Page | Proposed URL | PRD feature | User story / goal | Wireframe |
 |---|---|---|---|---|---|
-| **S1** | **خانه** (صفحه‌ی اول بعد از ورود) | `/home` | F10، F3، F4، F8، F5 | هنرجو: «با باز کردن برنامه ببینم کجای مسیرم، چه کاری با چه مهلتی دارم و جواب سؤال‌هایم آمده یا نه» | `student-home.html` |
-| S1a | خوش‌آمد اولین ورود (یک کارت روی خانه، نه صفحه‌ی جدا) | `/home?welcome` | F1، F10 | سارا: بداند اولین قدمش چیست؛ «برد کوچک» زیر ۵ دقیقه = تکمیل اولین کار مرحله‌ی ۰ | داخل `student-home.html` |
-| S2 | کارهای من | `/my/tasks` | F4 | «فهرست کارهایم را با مهلت ببینم»؛ معوق‌ها بالا و قرمز | — (همان فهرست بخش کارهای خانه، کامل‌تر) |
-| **S3** | **جزئیات کار + تحویل** | `/my/tasks/:id` | F4 | «تحویل بدهم و بازخورد بگیرم»؛ نوع «پروپوزال برای بررسی» با فیلدهای جدا و چک‌باکس رضایت | `student-task.html` |
-| S4 | سؤال‌های من | `/my/questions` | F8 | «بدانم کی جواب می‌گیرم» | — |
-| S5 | سؤال جدید / رشته‌ی سؤال | `/my/questions/new`، `/my/questions/:id` | F8 | موضوع + متن + لینک؛ زمان پاسخ مورد انتظار دیده شود | — |
-| S6 | مسیر من | `/my/path` | F3 | «مرحله‌ی فعلی، مرحله‌ی بعد و لینک محتوای مرتبط را ببینم» | — (stepper همان خانه، بازشده) |
-| S7 | من: پروفایل‌ها و اطلاعات | `/my/profile` | F2 | هنرجو: «لینک پروفایل‌هایم را خودم اضافه یا به‌روز کنم» + مهارت‌ها | — |
-| S8 | پیشنهاد نقطه‌ی عطف (پنجره) | `/my/milestones/new` | F9 | «اولین قراردادم را با مدرک ثبت کنم تا مربی تأیید کند» | — |
-| S9 | check-in هفتگی (Should) | `/my/checkin` | F7 | فرم ۳ دقیقه‌ای پنجشنبه | — |
-| S10 | حساب من | `/account` | F1 | تغییر رمز، خروج. **بدون دکمه‌ی حذف حساب در 0.1** (امنیت C5، ADR-0010): به‌جایش یک خط راهنما «برای حذف حساب به مربی پیام بده»؛ مدیر ظرف ۳۰ روز داده را ناشناس می‌کند | — |
+| **S1** | **Home** (first page after login) | `/home` | F10, F3, F4, F8, F5 | Student: "When I open the app, see where I am on my path, what tasks I have with what deadlines, and whether my questions have been answered" | `student-home.html` |
+| S1a | First-login welcome (a card on Home, not a separate page) | `/home?welcome` | F1, F10 | Sara: knows what her first step is; a "small win" in under 5 minutes = completing the first task of stage 0 | inside `student-home.html` |
+| S2 | My tasks | `/my/tasks` | F4 | "See my task list with deadlines"; overdue ones at the top and in red | — (the same list as Home's tasks section, more complete) |
+| **S3** | **Task details + submission** | `/my/tasks/:id` | F4 | "Submit and get feedback"; the "Proposal for review" type has separate fields and a consent checkbox | `student-task.html` |
+| S4 | My questions | `/my/questions` | F8 | "Know when I will get an answer" | — |
+| S5 | New question / question thread | `/my/questions/new`, `/my/questions/:id` | F8 | Topic + text + link; the expected response time is visible | — |
+| S6 | My path | `/my/path` | F3 | "See the current stage, the next stage and a link to related content" | — (the same stepper as Home, expanded) |
+| S7 | Me: profiles and info | `/my/profile` | F2 | Student: "Add or update my profile links myself" + skills | — |
+| S8 | Propose a milestone (dialog) | `/my/milestones/new` | F9 | "Record my first contract with evidence so the coach can confirm it" | — |
+| S9 | Weekly check-in (Should) | `/my/checkin` | F7 | 3-minute Thursday form | — |
+| S10 | My account | `/account` | F1 | Change password, log out. **No delete-account button in 0.1** (security C5, ADR-0010): instead a guidance line "To delete your account, message your coach"; the admin anonymizes the data within 30 days | — |
 
 ---
 
-## ۵. نقشه‌ی درختی
+## 5. Tree map
 
 ```
 /login (G1) ── /forgot (G4)
-/invite#t=…  و  /reset#t=…  (G2 | G3)   ← توکن فقط در fragment (امنیت C1)
+/invite#t=…  and  /reset#t=…  (G2 | G3)   ← token only in the fragment (security C1)
 
-[مدیر/مشاور]
-/today (M1)  ← صفحه‌ی اول
+[admin/mentor]
+/today (M1)  ← first page
 /students (M2) ─┬─ /students/new (M2a)
                 ├─ /students/import (M2b, Should)
                 └─ /students/:id (M3)  #tasks #timeline #profiles #questions #milestones #info
-/stages (M4)   ← کانبان؛ از M2 هم با سوییچ «فهرست | مراحل» در دسترس
+/stages (M4)   ← kanban; also reachable from M2 via the "List | Stages" switch
 /tasks (M5) ── /tasks/new (M5a) ── /tasks/:id (M6)
 /questions (M7) ── /questions/:id (M8)
 /reminders (M9)
-/results (M10, مدیر)
-/settings (M11, مدیر) ─ users · stages · platforms · milestone-types · task-templates · thresholds · canned-replies · export · reset-requests
+/results (M10, admin)
+/settings (M11, admin) ─ users · stages · platforms · milestone-types · task-templates · thresholds · canned-replies · export · reset-requests
 /account (M12)
 
-[هنرجو]
-/home (S1)  ← صفحه‌ی اول
+[student]
+/home (S1)  ← first page
 /my/tasks (S2) ── /my/tasks/:id (S3)
 /my/questions (S4) ── /my/questions/new | /:id (S5)
 /my/path (S6)
@@ -125,31 +125,31 @@
 
 ---
 
-## ۶. پوشش امکان‌ها
+## 6. Feature coverage
 
-| امکان | صفحه‌ها |
+| Feature | Pages |
 |---|---|
-| F1 دعوت و ورود | G1–G4، M2a، M3h، M11 (کاربران)، S10 |
-| F2 پرونده | M2، M2a، M3، S7 |
-| F3 مسیر و مرحله | M3g، M4، S1، S6 |
-| F4 کارها و تحویل | M1، M3a، M5، M5a، M6، S1، S2، S3 |
-| F5 یادداشت و تایم‌لاین | M3b، افزودن سریع (همه‌ی صفحه‌های M روی موبایل)، S1 (فقط اشتراکی) |
-| F6 یادآور و امروز | M1، M9 |
-| F7 گیرکرده | M1، M2، M3 (سربرگ)، M4، M3h، M11، S9 |
-| F8 سؤال و پاسخ | M1، M3d، M7، M8، S1، S4، S5 |
-| F9 نقاط عطف | M3e، M10، S8 |
-| F10 خانه‌ی هنرجو | S1 |
-| F11 تنظیمات و خروجی | M2b، M11 |
+| F1 Invite and login | G1–G4, M2a, M3h, M11 (users), S10 |
+| F2 Record | M2, M2a, M3, S7 |
+| F3 Path and stage | M3g, M4, S1, S6 |
+| F4 Tasks and submissions | M1, M3a, M5, M5a, M6, S1, S2, S3 |
+| F5 Notes and timeline | M3b, Quick add (all M pages on mobile), S1 (shared only) |
+| F6 Reminders and Today | M1, M9 |
+| F7 Stuck | M1, M2, M3 (header), M4, M3h, M11, S9 |
+| F8 Questions and answers | M1, M3d, M7, M8, S1, S4, S5 |
+| F9 Milestones | M3e, M10, S8 |
+| F10 Student home | S1 |
+| F11 Settings and export | M2b, M11 |
 
 ---
 
-## ۷. فرض‌های این نقشه
+## 7. Assumptions of this map
 
-| # | فرض | چرا |
+| # | Assumption | Why |
 |---|---|---|
-| U1 | «مراحل» صفحه‌ی جدا در منوی دسکتاپ است ولی روی موبایل از سوییچ «فهرست / مراحل» در صفحه‌ی هنرجوها باز می‌شود | نوار پایین موبایل فقط ۵ جا دارد |
-| U2 | **ردیاب قیف و عددهای قیف** (ستون‌های پیشنهادی `progress-tracking.md` بخش ۸) در 0.1 نمایش داده نمی‌شوند | PRD ثبت اپلای‌ها را F12 و در 1.0 گذاشته است. جای ستون در فهرست هنرجوها خالی می‌ماند |
-| U3 | صف چهارگانه‌ی `mentor-workflow.md` (فوری، سؤال‌ها، بازبینی، هشدارها) با چهار بخش PRD (یادآورها، تحویل‌ها، سؤال‌ها، گیرکرده‌ها) در صفحه‌ی «امروز» ادغام شد: بخش‌ها طبق PRD، و موارد «فوری» یا «از زمان پاسخ گذشته» بالای هر بخش با برچسب | PRD منبع امکان‌ها است؛ اولویت‌بندی mentor-workflow حفظ شد |
-| U4 | SLA نمایش‌داده‌شده: تحویل ۴۸ ساعت، سؤال ۲۴ ساعت (PRD F7). SLAهای ریزتر mentor-workflow (۴ ساعت فوری، ۷۲ ساعت غیرگیت) قابل‌تنظیم در M11 فرض شده‌اند | ناهماهنگی دو سند |
-| U5 | «قیف کوهورت» بنیان‌گذار (`progress-tracking.md` بخش ۸) در 0.1 همان کانبان (تعداد در هر مرحله) + صفحه‌ی نتایج (F9) است | F9 داشبورد مدیر را به «دو عدد و یک میانه» محدود کرده |
-| U6 | بازیابی رمز در 0.1 = درخواست به مدیر، چون OTP پیامکی در 0.1 نیست (mvp-scope F1) | — |
+| U1 | "Stages" is a separate page in the desktop menu, but on mobile it opens from the "List / Stages" switch on the Students page | The mobile bottom bar only has 5 slots |
+| U2 | The **funnel tracker and funnel numbers** (the columns proposed in `progress-tracking.md` section 8) are not displayed in 0.1 | The PRD puts application tracking in F12 and in 1.0. The column's place in the student list stays empty |
+| U3 | The four queues in `mentor-workflow.md` (urgent, questions, review, alerts) were merged with the four PRD sections (reminders, submissions, questions, stuck) on the "Today" page: sections follow the PRD, and "urgent" or "past response time" items go at the top of each section with a tag | The PRD is the source of features; the mentor-workflow prioritization was preserved |
+| U4 | Displayed SLA: submission 48 hours, question 24 hours (PRD F7). The finer-grained SLAs of mentor-workflow (4 hours urgent, 72 hours non-gate) are assumed to be configurable in M11 | Inconsistency between the two documents |
+| U5 | The founder's "cohort funnel" (`progress-tracking.md` section 8) in 0.1 is just the kanban (count per stage) + the results page (F9) | F9 limited the admin dashboard to "two numbers and a median" |
+| U6 | Password recovery in 0.1 = a request to the admin, because SMS OTP is not in 0.1 (mvp-scope F1) | — |

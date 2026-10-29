@@ -1,6 +1,11 @@
+import type { Locale } from '@/i18n/config';
+import { messagesFor } from '@/i18n/messages';
+import { formatCount, localizeText, translate } from '@/i18n/translate';
+
 /**
  * Structured API errors (api.md section 1). `message` is Persian and safe to show to the user;
- * it never contains internal details.
+ * it never contains internal details. The response speaks the request's language (ADR-0013):
+ * `toBody(locale)` translates through the message catalog.
  */
 export type ErrorCode =
   | 'VALIDATION_FAILED'
@@ -39,24 +44,8 @@ const STATUS: Record<ErrorCode, number> = {
   BUSY: 503,
 };
 
-const DEFAULT_MESSAGE: Record<ErrorCode, string> = {
-  VALIDATION_FAILED: 'بعضی از مقدارها درست نیستند.',
-  UNAUTHENTICATED: 'برای ادامه وارد حسابت شو.',
-  INVALID_CREDENTIALS: 'موبایل یا رمز درست نیست.',
-  FORBIDDEN: 'به این بخش دسترسی نداری.',
-  BAD_ORIGIN: 'درخواست از مبدأ نامعتبر آمده است.',
-  REAUTH_REQUIRED: 'برای این کار اول رمزت را دوباره وارد کن.',
-  NOT_FOUND: 'پیدا نشد.',
-  CONFLICT: 'این کار در وضعیت فعلی ممکن نیست.',
-  PHONE_TAKEN: 'این شماره‌ی موبایل قبلاً ثبت شده است.',
-  INVALID_TRANSITION: 'این تغییر وضعیت مجاز نیست.',
-  TOKEN_EXPIRED: 'این لینک دیگر معتبر نیست. از مربی‌ات لینک تازه بخواه.',
-  PAYLOAD_TOO_LARGE: 'حجم درخواست بیش از حد مجاز است.',
-  UNSUPPORTED_MEDIA_TYPE: 'نوع محتوای درخواست پشتیبانی نمی‌شود.',
-  TOO_MANY_ATTEMPTS: 'تلاش‌ها زیاد بود؛ کمی بعد دوباره امتحان کن.',
-  INTERNAL: 'خطای غیرمنتظره‌ای رخ داد. دوباره امتحان کن.',
-  BUSY: 'سرور الان شلوغ است؛ چند ثانیه‌ی دیگر دوباره امتحان کن.',
-};
+// Persian texts live in messages/fa.json (errors.code), with their English twins (ADR-0013).
+const DEFAULT_MESSAGE: Record<ErrorCode, string> = messagesFor('fa').errors.code;
 
 export type ApiErrorBody = {
   error: {
@@ -75,6 +64,10 @@ export class ApiError extends Error {
   readonly fields?: Record<string, string>;
   readonly retryAfterSeconds?: number;
   readonly data?: Record<string, string>;
+  /** Catalog key of a message with parameters; otherwise `message` is looked up as fa text. */
+  private readonly messageKey?: { key: string; params: Record<string, number> };
+  /** Builds `fields` in another language (zod issues carry counts, e.g. «at least 3»). */
+  private readonly fieldsFor?: (locale: Locale) => Record<string, string>;
 
   constructor(
     code: ErrorCode,
@@ -83,6 +76,8 @@ export class ApiError extends Error {
       fields?: Record<string, string>;
       retryAfterSeconds?: number;
       data?: Record<string, string>;
+      messageKey?: { key: string; params: Record<string, number> };
+      fieldsFor?: (locale: Locale) => Record<string, string>;
     } = {},
   ) {
     super(options.message ?? DEFAULT_MESSAGE[code]);
@@ -92,14 +87,16 @@ export class ApiError extends Error {
     this.fields = options.fields;
     this.retryAfterSeconds = options.retryAfterSeconds;
     this.data = options.data;
+    this.messageKey = options.messageKey;
+    this.fieldsFor = options.fieldsFor;
   }
 
-  toBody(): ApiErrorBody {
+  toBody(locale: Locale = 'fa'): ApiErrorBody {
     return {
       error: {
         code: this.code,
-        message: this.message,
-        ...(this.fields ? { fields: this.fields } : {}),
+        message: this.localizedMessage(locale),
+        ...(this.fields ? { fields: this.localizedFields(locale, this.fields) } : {}),
         ...(this.retryAfterSeconds !== undefined
           ? { retryAfterSeconds: this.retryAfterSeconds }
           : {}),
@@ -107,9 +104,28 @@ export class ApiError extends Error {
       },
     };
   }
+
+  private localizedFields(locale: Locale, fields: Record<string, string>) {
+    if (locale === 'fa') return fields;
+    if (this.fieldsFor) return this.fieldsFor(locale);
+    return Object.fromEntries(
+      Object.entries(fields).map(([name, text]) => [name, localizeText(locale, text)]),
+    );
+  }
+
+  private localizedMessage(locale: Locale): string {
+    if (!this.messageKey) return localizeText(locale, this.message);
+    const params = Object.fromEntries(
+      Object.entries(this.messageKey.params).map(([name, value]) => [
+        name,
+        formatCount(locale, value),
+      ]),
+    );
+    return translate(locale, this.messageKey.key, params);
+  }
 }
 
-export const INVALID_REF_MESSAGE = 'مقدار نامعتبر است';
+export const INVALID_REF_MESSAGE = messagesFor('fa').validation.invalid;
 
 export const errors = {
   validation: (fields: Record<string, string>, message?: string) =>
@@ -127,7 +143,10 @@ export const errors = {
   tooManyAttempts: (retryAfterSeconds: number) => {
     const minutes = Math.max(1, Math.ceil(retryAfterSeconds / 60));
     return new ApiError('TOO_MANY_ATTEMPTS', {
-      message: `تلاش‌ها زیاد بود؛ ${minutes.toLocaleString('fa-IR')} دقیقه‌ی دیگر دوباره امتحان کن.`,
+      message: translate('fa', 'errors.tooManyAttemptsWait', {
+        minutes: formatCount('fa', minutes),
+      }),
+      messageKey: { key: 'errors.tooManyAttemptsWait', params: { minutes } },
       retryAfterSeconds,
     });
   },

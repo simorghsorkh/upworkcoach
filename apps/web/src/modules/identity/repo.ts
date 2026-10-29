@@ -1,7 +1,15 @@
 import { and, asc, desc, eq, gt, inArray, isNull, lt, or, type SQL, sql } from 'drizzle-orm';
-import type { Role } from '@/server/auth/current-user';
+import type { Locale } from '@/i18n/config';
+import type { OrganizationRole, Role } from '@/server/auth/current-user';
 import type { DbOrTx } from '@/server/db';
-import { authTokens, sessions, users } from './schema';
+import {
+  authTokens,
+  organizationMemberships,
+  organizations,
+  sessions,
+  userPreferences,
+  users,
+} from './schema';
 
 /**
  * identity — queries. Only used inside the module. Columns are always selected explicitly
@@ -30,7 +38,9 @@ export type UserRow = {
   id: string;
   phone: string;
   displayName: string;
+  /** For a member row: the 0.1 role of the membership (legacyRole). */
   role: Role;
+  /** For a member row: `disabled` when the membership is disabled, else the account state. */
   status: UserStatus;
   passwordChangedAt: Date | null;
   lastLoginAt: Date | null;
@@ -42,6 +52,175 @@ export type UserRow = {
   inviteAcceptedAt: Date | null;
   inviteAcceptedUserAgent: string | null;
 };
+
+// ---- members of an organization (ADR-0011) ----------------------------------------------
+
+/** Organization role → the 0.1 role the access rules check (same mapping as legacyRole). */
+const memberRole = sql<Role>`CASE ${organizationMemberships.role} WHEN 'mentee' THEN 'student' WHEN 'mentor' THEN 'mentor' ELSE 'admin' END`;
+const memberStatus = sql<UserStatus>`CASE WHEN ${organizationMemberships.status} = 'disabled' THEN 'disabled' ELSE ${users.status} END`;
+
+const memberColumns = {
+  ...publicUserColumns,
+  role: memberRole,
+  status: memberStatus,
+  organizationRole: organizationMemberships.role,
+};
+
+export type MemberRow = UserRow & { organizationRole: OrganizationRole };
+
+const ADMIN_ROLES: OrganizationRole[] = ['owner', 'admin'];
+
+function memberOf(organizationId: string) {
+  return and(
+    eq(organizationMemberships.userId, users.id),
+    eq(organizationMemberships.organizationId, organizationId),
+  );
+}
+
+/** A user as seen from one organization; null when they are not a member of it. */
+export async function findMember(
+  db: DbOrTx,
+  organizationId: string,
+  userId: string,
+): Promise<MemberRow | null> {
+  const [row] = await db
+    .select(memberColumns)
+    .from(users)
+    .innerJoin(organizationMemberships, memberOf(organizationId))
+    .where(eq(users.id, userId));
+  return row ?? null;
+}
+
+/** Locks the user and membership rows for an admin edit (PATCH /users/:id, /role). */
+export async function lockMember(
+  db: DbOrTx,
+  organizationId: string,
+  userId: string,
+): Promise<MemberRow | null> {
+  const [row] = await db
+    .select(memberColumns)
+    .from(users)
+    .innerJoin(organizationMemberships, memberOf(organizationId))
+    .where(eq(users.id, userId))
+    .for('update');
+  return row ?? null;
+}
+
+export async function insertMembership(
+  db: DbOrTx,
+  values: {
+    organizationId: string;
+    userId: string;
+    role: OrganizationRole;
+    invitedBy: string | null;
+  },
+): Promise<void> {
+  await db.insert(organizationMemberships).values(values);
+}
+
+export async function updateMembership(
+  db: DbOrTx,
+  organizationId: string,
+  userId: string,
+  values: { role?: OrganizationRole; status?: 'active' | 'disabled' },
+  now: Date,
+): Promise<void> {
+  const disabledAt =
+    values.status === undefined ? {} : { disabledAt: values.status === 'disabled' ? now : null };
+  await db
+    .update(organizationMemberships)
+    .set({ ...values, ...disabledAt, updatedAt: now })
+    .where(
+      and(
+        eq(organizationMemberships.organizationId, organizationId),
+        eq(organizationMemberships.userId, userId),
+      ),
+    );
+}
+
+/** Memberships of this user in other organizations (any status). */
+export async function countOtherMemberships(
+  db: DbOrTx,
+  userId: string,
+  organizationId: string,
+): Promise<number> {
+  const [row] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(organizationMemberships)
+    .where(
+      and(
+        eq(organizationMemberships.userId, userId),
+        sql`${organizationMemberships.organizationId} <> ${organizationId}`,
+      ),
+    );
+  return row?.count ?? 0;
+}
+
+export type ActiveMembership = {
+  organizationId: string;
+  organizationName: string;
+  role: OrganizationRole;
+  /** Organization defaults (ADR-0013): language without a user preference, time zone. */
+  organizationLocale: string;
+  organizationTimeZone: string;
+  /** The user's own language preference (null = organization default). */
+  preferredLocale: string | null;
+};
+
+/**
+ * Active memberships in active organizations, oldest first: the first one is where a login
+ * or an accepted link lands (ADR-0011 section 2).
+ */
+export async function listActiveMemberships(
+  db: DbOrTx,
+  userId: string,
+): Promise<ActiveMembership[]> {
+  return db
+    .select({
+      organizationId: organizations.id,
+      organizationName: organizations.name,
+      role: organizationMemberships.role,
+      organizationLocale: organizations.defaultLocale,
+      organizationTimeZone: organizations.timezone,
+      preferredLocale: userPreferences.locale,
+    })
+    .from(organizationMemberships)
+    .innerJoin(organizations, eq(organizations.id, organizationMemberships.organizationId))
+    .leftJoin(userPreferences, eq(userPreferences.userId, organizationMemberships.userId))
+    .where(
+      and(
+        eq(organizationMemberships.userId, userId),
+        eq(organizationMemberships.status, 'active'),
+        eq(organizations.status, 'active'),
+      ),
+    )
+    .orderBy(asc(organizationMemberships.createdAt), asc(organizationMemberships.id));
+}
+
+/** Every membership of the user (CLI erasure). */
+export async function listMembershipsOfUser(db: DbOrTx, userId: string) {
+  return db
+    .select({
+      organizationId: organizationMemberships.organizationId,
+      role: organizationMemberships.role,
+      status: organizationMemberships.status,
+    })
+    .from(organizationMemberships)
+    .where(eq(organizationMemberships.userId, userId));
+}
+
+export async function disableMembershipsOfUser(
+  db: DbOrTx,
+  userId: string,
+  now: Date,
+): Promise<void> {
+  await db
+    .update(organizationMemberships)
+    .set({ status: 'disabled', disabledAt: now, updatedAt: now })
+    .where(
+      and(eq(organizationMemberships.userId, userId), eq(organizationMemberships.status, 'active')),
+    );
+}
 
 // ---- users ---------------------------------------------------------------------------
 
@@ -126,45 +305,62 @@ export async function touchUserSeen(db: DbOrTx, userId: string, now: Date): Prom
   await db.update(users).set({ lastSeenAt: now }).where(eq(users.id, userId));
 }
 
-export async function countActiveAdmins(db: DbOrTx, exceptUserId?: string): Promise<number> {
-  const conditions: SQL[] = [eq(users.role, 'admin'), eq(users.status, 'active')];
+/** Active owners and admins of the organization (active membership and account). */
+export async function countActiveAdmins(
+  db: DbOrTx,
+  organizationId: string,
+  exceptUserId?: string,
+): Promise<number> {
+  const conditions: SQL[] = [
+    inArray(organizationMemberships.role, ADMIN_ROLES),
+    eq(organizationMemberships.status, 'active'),
+    eq(users.status, 'active'),
+  ];
   if (exceptUserId) conditions.push(sql`${users.id} <> ${exceptUserId}`);
   const [row] = await db
     .select({ count: sql<number>`count(*)::int` })
     .from(users)
+    .innerJoin(organizationMemberships, memberOf(organizationId))
     .where(and(...conditions));
   return row?.count ?? 0;
 }
 
-export async function countAdmins(db: DbOrTx): Promise<number> {
+/** Owners and admins of the organization that are not erased (bootstrap check). */
+export async function countAdmins(db: DbOrTx, organizationId: string): Promise<number> {
   const [row] = await db
     .select({ count: sql<number>`count(*)::int` })
     .from(users)
-    .where(and(eq(users.role, 'admin'), isNull(users.erasedAt)));
+    .innerJoin(organizationMemberships, memberOf(organizationId))
+    .where(and(inArray(organizationMemberships.role, ADMIN_ROLES), isNull(users.erasedAt)));
   return row?.count ?? 0;
 }
 
-export async function listUsers(db: DbOrTx, filter: { role?: Role; status?: UserStatus }) {
-  const conditions: SQL[] = [];
-  if (filter.role) conditions.push(eq(users.role, filter.role));
-  if (filter.status) conditions.push(eq(users.status, filter.status));
-  // SEC-T5 (F-01): «invite accepted» lives on `users`, so it survives auth.cleanup.
-  return db
-    .select(publicUserColumns)
+/** Active members of an organization (erased accounts excluded). */
+export async function countMembers(db: DbOrTx, organizationId: string): Promise<number> {
+  const [row] = await db
+    .select({ count: sql<number>`count(*)::int` })
     .from(users)
-    .where(conditions.length > 0 ? and(...conditions) : undefined)
-    .orderBy(asc(users.role), asc(users.displayName), asc(users.id))
-    .limit(1000);
+    .innerJoin(organizationMemberships, memberOf(organizationId))
+    .where(and(eq(organizationMemberships.status, 'active'), isNull(users.erasedAt)));
+  return row?.count ?? 0;
 }
 
-/** Locks one user row for an admin edit (PATCH /users/:id, /role). */
-export async function lockUser(db: DbOrTx, id: string): Promise<UserRow | null> {
-  const [row] = await db
-    .select(publicUserColumns)
+export async function listMembers(
+  db: DbOrTx,
+  organizationId: string,
+  filter: { role?: Role; status?: UserStatus },
+): Promise<MemberRow[]> {
+  const conditions: SQL[] = [];
+  if (filter.role) conditions.push(sql`${memberRole} = ${filter.role}`);
+  if (filter.status) conditions.push(sql`${memberStatus} = ${filter.status}`);
+  // SEC-T5 (F-01): «invite accepted» lives on `users`, so it survives auth.cleanup.
+  return db
+    .select(memberColumns)
     .from(users)
-    .where(eq(users.id, id))
-    .for('update');
-  return row ?? null;
+    .innerJoin(organizationMemberships, memberOf(organizationId))
+    .where(conditions.length > 0 ? and(...conditions) : undefined)
+    .orderBy(asc(memberRole), asc(users.displayName), asc(users.id))
+    .limit(1000);
 }
 
 export async function updateUserFields(
@@ -192,11 +388,19 @@ export async function markInviteAccepted(
     .where(eq(users.id, userId));
 }
 
-export async function listActiveStaff(db: DbOrTx) {
+/** Active admins and mentors of the organization. */
+export async function listActiveStaff(db: DbOrTx, organizationId: string) {
   return db
-    .select({ id: users.id, displayName: users.displayName, role: users.role })
+    .select({ id: users.id, displayName: users.displayName, role: memberRole })
     .from(users)
-    .where(and(inArray(users.role, ['admin', 'mentor']), eq(users.status, 'active')))
+    .innerJoin(organizationMemberships, memberOf(organizationId))
+    .where(
+      and(
+        inArray(organizationMemberships.role, ['owner', 'admin', 'mentor']),
+        eq(organizationMemberships.status, 'active'),
+        eq(users.status, 'active'),
+      ),
+    )
     .orderBy(asc(users.displayName), asc(users.id));
 }
 
@@ -329,6 +533,7 @@ export async function insertSession(
   db: DbOrTx,
   values: {
     userId: string;
+    organizationId: string;
     tokenHash: string;
     createdAt: Date;
     expiresAt: Date;
@@ -356,7 +561,14 @@ export async function findSessionWithUser(db: DbOrTx, tokenHash: string) {
       userId: users.id,
       displayName: users.displayName,
       phone: users.phone,
-      role: users.role,
+      organizationId: organizations.id,
+      organizationName: organizations.name,
+      organizationStatus: organizations.status,
+      organizationLocale: organizations.defaultLocale,
+      organizationTimeZone: organizations.timezone,
+      preferredLocale: userPreferences.locale,
+      organizationRole: organizationMemberships.role,
+      membershipStatus: organizationMemberships.status,
       userStatus: users.status,
       userErasedAt: users.erasedAt,
       passwordChangedAt: users.passwordChangedAt,
@@ -364,8 +576,30 @@ export async function findSessionWithUser(db: DbOrTx, tokenHash: string) {
     })
     .from(sessions)
     .innerJoin(users, eq(users.id, sessions.userId))
+    .innerJoin(organizations, eq(organizations.id, sessions.organizationId))
+    .innerJoin(
+      organizationMemberships,
+      and(
+        eq(organizationMemberships.organizationId, sessions.organizationId),
+        eq(organizationMemberships.userId, sessions.userId),
+      ),
+    )
+    .leftJoin(userPreferences, eq(userPreferences.userId, sessions.userId))
     .where(eq(sessions.tokenHash, tokenHash));
   return row ?? null;
+}
+
+/** Sets the account's interface language (ADR-0013). */
+export async function upsertLocale(
+  db: DbOrTx,
+  userId: string,
+  locale: Locale,
+  now: Date,
+): Promise<void> {
+  await db
+    .insert(userPreferences)
+    .values({ userId, locale, updatedAt: now })
+    .onConflictDoUpdate({ target: userPreferences.userId, set: { locale, updatedAt: now } });
 }
 
 export async function touchSession(
@@ -402,11 +636,19 @@ export async function revokeSessionByHash(db: DbOrTx, tokenHash: string, now: Da
   return row ?? null;
 }
 
-export async function revokeAllSessions(db: DbOrTx, userId: string, now: Date): Promise<number> {
+/** Every open session of the user, or only those working in `organizationId`. */
+export async function revokeAllSessions(
+  db: DbOrTx,
+  userId: string,
+  now: Date,
+  organizationId?: string,
+): Promise<number> {
+  const conditions: SQL[] = [eq(sessions.userId, userId), isNull(sessions.revokedAt)];
+  if (organizationId) conditions.push(eq(sessions.organizationId, organizationId));
   const result = await db
     .update(sessions)
     .set({ revokedAt: now })
-    .where(and(eq(sessions.userId, userId), isNull(sessions.revokedAt)));
+    .where(and(...conditions));
   return result.rowCount ?? 0;
 }
 

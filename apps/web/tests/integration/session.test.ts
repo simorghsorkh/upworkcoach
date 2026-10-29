@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm';
 import { describe, expect, it } from 'vitest';
-import { sessions, users } from '@/modules/identity/schema';
+import { organizationMemberships, sessions, users } from '@/modules/identity/schema';
 import { getDb } from '@/server/db';
 import { call, createUser, loginAs, SESSION_COOKIE } from './helpers';
 
@@ -59,11 +59,14 @@ describe('session validation', () => {
     expect((await call('GET', '/auth/me', { cookies: s.cookies })).status).toBe(401);
   });
 
-  it('the role comes from users on every request, not from the session', async () => {
+  it('the role comes from the membership on every request, not from the session', async () => {
     const user = await createUser('mentor');
     const s = await loginAs(user);
     expect((await call('GET', '/users', { cookies: s.cookies })).status).toBe(403);
-    await getDb().update(users).set({ role: 'admin' }).where(eq(users.id, user.id));
+    await getDb()
+      .update(organizationMemberships)
+      .set({ role: 'admin' })
+      .where(eq(organizationMemberships.userId, user.id));
     // (A real role change also revokes sessions — PATCH /users/:id/role, sprint 2.)
     expect((await call('GET', '/users', { cookies: s.cookies })).status).toBe(200);
   });

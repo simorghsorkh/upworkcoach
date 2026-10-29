@@ -1,7 +1,8 @@
 import { z } from 'zod';
+import { SUPPORTED_LOCALES } from '@/i18n/config';
 import { normalizeIranMobile } from '@/lib/phone';
 import { normalizeFa } from '@/lib/text-fa';
-import type { MeDTO, Role } from '@/server/auth/current-user';
+import type { MeDTO, OrganizationRole, Role } from '@/server/auth/current-user';
 import { isoInstantInput } from '@/server/http/schemas';
 import { USER_ROLES, USER_STATUSES } from './schema';
 
@@ -87,6 +88,16 @@ export const reauthInput = z.strictObject({
   password: passwordInput,
 });
 
+/** PATCH /auth/preferences (ADR-0013). */
+export const updatePreferencesInput = z.strictObject({
+  locale: z.enum(SUPPORTED_LOCALES),
+});
+
+/** POST /auth/organization (ADR-0011 section 2). */
+export const switchOrganizationInput = z.strictObject({
+  organizationId: z.string().max(64),
+});
+
 export const listUsersQuery = z.strictObject({
   role: z.enum(USER_ROLES).optional(),
   status: z.enum(USER_STATUSES).optional(),
@@ -137,6 +148,14 @@ export type SessionDTO = {
   lastUsedAt: string;
   userAgent: string | null;
   ip: string | null;
+  current: boolean;
+};
+
+/** GET /auth/organizations row. */
+export type OrganizationOptionDTO = {
+  id: string;
+  name: string;
+  role: OrganizationRole;
   current: boolean;
 };
 

@@ -1,4 +1,3 @@
-import { eq } from 'drizzle-orm';
 import { isUuid } from '@/lib/uuid';
 import type { Actor } from '@/server/auth/current-user';
 import { type Db, type DbOrTx, getDb } from '@/server/db';
@@ -49,12 +48,12 @@ import {
   type UpdateTaskTemplateInput,
 } from './contracts';
 import * as repo from './repo';
-import { settings } from './schema';
 
 /**
  * catalog — settings, tracks, platforms and stages (data-model.md 2-2, api.md 5 and 13).
  * Public functions take `actor` first (ADR-0004) and are safe to call from RSC pages.
- * Internal helpers (no actor) are for other modules' services only.
+ * Internal helpers (no actor) are for other modules' services only and take the
+ * organization explicitly: catalog rows and settings are per organization (ADR-0011).
  */
 
 /** Only the client IP is needed for audit rows (from `getClientIp`, ADR-0003). */
@@ -77,13 +76,10 @@ function isUniqueViolation(err: unknown): boolean {
  * A missing or invalid row falls back to the default (logged), so a bad value can never
  * widen access (the default is the narrowest scope).
  */
-export async function getAccessSettings(db: DbOrTx): Promise<AccessSettings> {
-  const [row] = await db
-    .select({ value: settings.value })
-    .from(settings)
-    .where(eq(settings.key, 'access'));
-  if (!row) return SETTINGS_DEFAULTS.access;
-  const parsed = accessSettingsSchema.safeParse(row.value);
+export async function getAccessSettings(db: DbOrTx, org: string): Promise<AccessSettings> {
+  const value = await repo.findSettingValue(db, org, 'access');
+  if (value === undefined) return SETTINGS_DEFAULTS.access;
+  const parsed = accessSettingsSchema.safeParse(value);
   if (!parsed.success) {
     logger.error(
       { event: 'settings.invalid', key: 'access' },
@@ -97,22 +93,12 @@ export async function getAccessSettings(db: DbOrTx): Promise<AccessSettings> {
 /** Internal write used by tests and, later, by the settings endpoint (which also audits). */
 export async function putAccessSettings(
   db: DbOrTx,
+  org: string,
   value: AccessSettings,
   updatedBy: string | null,
 ): Promise<void> {
   const parsed = accessSettingsSchema.parse(value);
-  const [existing] = await db
-    .select({ version: settings.version })
-    .from(settings)
-    .where(eq(settings.key, 'access'));
-  if (existing) {
-    await db
-      .update(settings)
-      .set({ value: parsed, version: existing.version + 1, updatedBy, updatedAt: new Date() })
-      .where(eq(settings.key, 'access'));
-  } else {
-    await db.insert(settings).values({ key: 'access', value: parsed, version: 1, updatedBy });
-  }
+  await repo.writeSetting(db, org, 'access', parsed, updatedBy, new Date());
 }
 
 // ---- tracks ----------------------------------------------------------------------------
@@ -125,6 +111,7 @@ export async function listTracks(
 ): Promise<TrackDTO[]> {
   const rows = await repo.listTracks(
     db,
+    actor.organizationId,
     actor.role === 'admin' && options.includeInactive === true,
   );
   return rows.map((r) => ({ ...r }));
@@ -140,14 +127,19 @@ export async function listPlatforms(
 ): Promise<PlatformDTO[]> {
   const rows = await repo.listPlatforms(
     db,
+    actor.organizationId,
     actor.role === 'admin' && options.includeInactive === true,
   );
   return rows.map((r) => ({ ...r }));
 }
 
-async function assertTrackRef(db: DbOrTx, trackId: string | null | undefined): Promise<void> {
+async function assertTrackRef(
+  db: DbOrTx,
+  org: string,
+  trackId: string | null | undefined,
+): Promise<void> {
   if (!trackId) return;
-  if (!(await repo.isActiveRef(db, 'track', trackId))) {
+  if (!isUuid(trackId) || !(await repo.isActiveRef(db, org, 'track', trackId))) {
     throw errors.validation({ trackId: 'مقدار نامعتبر است' });
   }
 }
@@ -162,14 +154,15 @@ export async function createPlatform(
   assertAdmin(actor);
   try {
     return await db.transaction(async (tx) => {
-      await assertTrackRef(tx, input.trackId);
-      if (await repo.findPlatformByName(tx, input.name)) {
+      const org = actor.organizationId;
+      await assertTrackRef(tx, org, input.trackId);
+      if (await repo.findPlatformByName(tx, org, input.name)) {
         throw errors.validation({ name: NAME_TAKEN });
       }
-      const row = await repo.insertPlatform(tx, {
+      const row = await repo.insertPlatform(tx, org, {
         name: input.name,
         trackId: input.trackId ?? null,
-        sortOrder: input.sortOrder ?? (await repo.maxPlatformSortOrder(tx)) + 10,
+        sortOrder: input.sortOrder ?? (await repo.maxPlatformSortOrder(tx, org)) + 10,
         isActive: input.isActive ?? true,
       });
       await recordAudit(tx, {
@@ -200,14 +193,15 @@ export async function updatePlatform(
   if (!isUuid(platformId)) throw errors.notFound();
   try {
     return await db.transaction(async (tx) => {
-      const current = await repo.findPlatform(tx, platformId);
+      const org = actor.organizationId;
+      const current = await repo.findPlatform(tx, org, platformId);
       if (!current) throw errors.notFound();
-      await assertTrackRef(tx, input.trackId);
+      await assertTrackRef(tx, org, input.trackId);
       if (input.name !== undefined) {
-        const other = await repo.findPlatformByName(tx, input.name);
+        const other = await repo.findPlatformByName(tx, org, input.name);
         if (other && other.id !== platformId) throw errors.validation({ name: NAME_TAKEN });
       }
-      const row = await repo.updatePlatform(tx, platformId, input);
+      const row = await repo.updatePlatform(tx, org, platformId, input);
       if (!row) throw errors.notFound();
       await recordAudit(tx, {
         actorId: actor.userId,
@@ -241,9 +235,9 @@ export function toStageDTO(row: repo.StageRow): StageDTO {
   };
 }
 
-async function defaultPathId(db: DbOrTx): Promise<string> {
-  const id = await repo.findDefaultPathId(db);
-  // The seed always creates it (pnpm db:migrate); a missing path is an operator error.
+async function defaultPathId(db: DbOrTx, org: string): Promise<string> {
+  const id = await repo.findDefaultPathId(db, org);
+  // The seed (pnpm db:migrate, org:create) always creates it; missing = operator error.
   if (!id) throw new Error('catalog: no default learning path (run `pnpm db:seed`)');
   return id;
 }
@@ -256,7 +250,7 @@ export async function listStages(
 ): Promise<StageDTO[]> {
   const rows = await repo.listStages(
     db,
-    await defaultPathId(db),
+    await defaultPathId(db, actor.organizationId),
     actor.role === 'admin' && options.includeInactive === true,
   );
   return rows.map(toStageDTO);
@@ -271,7 +265,7 @@ export async function createStage(
 ): Promise<StageDTO> {
   assertAdmin(actor);
   return db.transaction(async (tx) => {
-    const pathId = await defaultPathId(tx);
+    const pathId = await defaultPathId(tx, actor.organizationId);
     await repo.lockPath(tx, pathId);
     const row = await repo.insertStage(tx, pathId, {
       displayCode: input.displayCode,
@@ -309,8 +303,8 @@ export async function updateStage(
   assertAdmin(actor);
   if (!isUuid(stageId)) throw errors.notFound();
   const result = await db.transaction(async (tx) => {
-    if (!(await repo.findStage(tx, stageId))) throw errors.notFound();
-    const row = await repo.updateStage(tx, stageId, input);
+    if (!(await repo.findStage(tx, actor.organizationId, stageId))) throw errors.notFound();
+    const row = await repo.updateStage(tx, actor.organizationId, stageId, input);
     if (!row) throw errors.notFound();
     await recordAudit(tx, {
       actorId: actor.userId,
@@ -323,7 +317,7 @@ export async function updateStage(
     return toStageDTO(row);
   });
   if (input.expectedDays !== undefined || input.isOpenEnded !== undefined) {
-    await runHealthSweep(db, 'stage.updated');
+    await runHealthSweep(db, actor.organizationId, 'stage.updated');
   }
   return result;
 }
@@ -333,10 +327,10 @@ export async function updateStage(
  * health module reads its settings from this one (no static import cycle). Best-effort: a
  * failure is logged and the hourly sweep repairs it.
  */
-async function runHealthSweep(db: Db, reason: string): Promise<void> {
+async function runHealthSweep(db: Db, org: string, reason: string): Promise<void> {
   try {
     const { sweepAllHealth } = await import('../health/recompute');
-    await sweepAllHealth(db);
+    await sweepAllHealth(db, org);
   } catch (err) {
     logger.error(
       { event: 'health.sweep_failed', reason, error: safeError(err) },
@@ -357,7 +351,7 @@ export async function reorderStages(
 ): Promise<StageDTO[]> {
   assertAdmin(actor);
   return db.transaction(async (tx) => {
-    const pathId = await defaultPathId(tx);
+    const pathId = await defaultPathId(tx, actor.organizationId);
     await repo.lockPath(tx, pathId);
     const all = await repo.listStages(tx, pathId, true);
     const unique = new Set(input.stageIds);
@@ -367,7 +361,7 @@ export async function reorderStages(
       all.every((s) => unique.has(s.id));
     if (!sameSet) throw errors.validation({ stageIds: 'مقدار نامعتبر است' });
     for (const [index, id] of input.stageIds.entries()) {
-      await repo.updateStage(tx, id, { sortOrder: (index + 1) * 10 });
+      await repo.updateStage(tx, actor.organizationId, id, { sortOrder: (index + 1) * 10 });
     }
     await recordAudit(tx, {
       actorId: actor.userId,
@@ -385,31 +379,43 @@ export async function reorderStages(
 export type StageInfo = repo.StageRow;
 
 /** First active stage of the default path (default stage of a new student). */
-export async function getFirstActiveStage(db: DbOrTx): Promise<StageInfo> {
-  const [first] = await repo.listStages(db, await defaultPathId(db), false);
+export async function getFirstActiveStage(db: DbOrTx, org: string): Promise<StageInfo> {
+  const [first] = await repo.listStages(db, await defaultPathId(db, org), false);
   if (!first) throw errors.conflict('هیچ مرحله‌ی فعالی تعریف نشده است.');
   return first;
 }
 
 /** All stages of the default path in path order (`includeInactive` for history views). */
-export async function getPathStages(db: DbOrTx, includeInactive: boolean): Promise<StageInfo[]> {
-  return repo.listStages(db, await defaultPathId(db), includeInactive);
+export async function getPathStages(
+  db: DbOrTx,
+  org: string,
+  includeInactive: boolean,
+): Promise<StageInfo[]> {
+  return repo.listStages(db, await defaultPathId(db, org), includeInactive);
 }
 
-export async function getStage(db: DbOrTx, stageId: string): Promise<StageInfo | null> {
-  return isUuid(stageId) ? repo.findStage(db, stageId) : null;
+export async function getStage(
+  db: DbOrTx,
+  org: string,
+  stageId: string,
+): Promise<StageInfo | null> {
+  return isUuid(stageId) ? repo.findStage(db, org, stageId) : null;
 }
 
-export async function getStages(db: DbOrTx, ids: readonly string[]): Promise<StageInfo[]> {
-  return repo.findStages(db, ids.filter(isUuid));
+export async function getStages(
+  db: DbOrTx,
+  org: string,
+  ids: readonly string[],
+): Promise<StageInfo[]> {
+  return repo.findStages(db, org, ids.filter(isUuid));
 }
 
-export async function getTrack(db: DbOrTx, id: string) {
-  return isUuid(id) ? repo.findTrack(db, id) : null;
+export async function getTrack(db: DbOrTx, org: string, id: string) {
+  return isUuid(id) ? repo.findTrack(db, org, id) : null;
 }
 
-export async function getPlatform(db: DbOrTx, id: string) {
-  return isUuid(id) ? repo.findPlatform(db, id) : null;
+export async function getPlatform(db: DbOrTx, org: string, id: string) {
+  return isUuid(id) ? repo.findPlatform(db, org, id) : null;
 }
 
 /** Internal: deactivates a stage. The caller (path.service) checks for active students. */
@@ -419,7 +425,7 @@ export async function setStageInactive(
   stageId: string,
   meta: AuditMeta,
 ): Promise<StageDTO> {
-  const row = await repo.updateStage(tx, stageId, { isActive: false });
+  const row = await repo.updateStage(tx, actor.organizationId, stageId, { isActive: false });
   if (!row) throw errors.notFound();
   await recordAudit(tx, {
     actorId: actor.userId,
@@ -434,10 +440,11 @@ export async function setStageInactive(
 /** access.assertRefs: the row exists and is active. */
 export async function isActiveCatalogRef(
   db: DbOrTx,
+  org: string,
   kind: repo.CatalogRefKind,
   id: string,
 ): Promise<boolean> {
-  return isUuid(id) && repo.isActiveRef(db, kind, id);
+  return isUuid(id) && repo.isActiveRef(db, org, kind, id);
 }
 
 export type { CatalogRefKind } from './repo';
@@ -446,11 +453,12 @@ export type { CatalogRefKind } from './repo';
 
 async function readSetting<T>(
   db: DbOrTx,
+  org: string,
   key: string,
   schema: { safeParse: (v: unknown) => { success: true; data: T } | { success: false } },
   fallback: T,
 ): Promise<T> {
-  const value = await repo.findSettingValue(db, key);
+  const value = await repo.findSettingValue(db, org, key);
   if (value === undefined) return fallback;
   const parsed = schema.safeParse(value);
   if (!parsed.success) {
@@ -461,13 +469,13 @@ async function readSetting<T>(
 }
 
 /** `sla` thresholds (hours) and clock (business / calendar; decision E6 = business). */
-export async function getSlaSettings(db: DbOrTx): Promise<SlaSettings> {
-  return readSetting(db, 'sla', slaSettingsSchema, SETTINGS_DEFAULTS.sla);
+export async function getSlaSettings(db: DbOrTx, org: string): Promise<SlaSettings> {
+  return readSetting(db, org, 'sla', slaSettingsSchema, SETTINGS_DEFAULTS.sla);
 }
 
 /** `business_hours` (Tehran; holidays as Tehran days). */
-export async function getBusinessHours(db: DbOrTx): Promise<BusinessHoursSettings> {
-  return readSetting(db, 'business_hours', businessHoursSchema, {
+export async function getBusinessHours(db: DbOrTx, org: string): Promise<BusinessHoursSettings> {
+  return readSetting(db, org, 'business_hours', businessHoursSchema, {
     ...SETTINGS_DEFAULTS.business_hours,
     week: { ...SETTINGS_DEFAULTS.business_hours.week },
     holidays: [],
@@ -475,26 +483,29 @@ export async function getBusinessHours(db: DbOrTx): Promise<BusinessHoursSetting
 }
 
 /** `tasks.defaultDueDays`. */
-export async function getTasksSettings(db: DbOrTx): Promise<TasksSettings> {
-  return readSetting(db, 'tasks', tasksSettingsSchema, SETTINGS_DEFAULTS.tasks);
+export async function getTasksSettings(db: DbOrTx, org: string): Promise<TasksSettings> {
+  return readSetting(db, org, 'tasks', tasksSettingsSchema, SETTINGS_DEFAULTS.tasks);
 }
 
 /** `questions.expectedResponseText` (F8). */
-export async function getQuestionsSettings(db: DbOrTx): Promise<QuestionsSettings> {
-  return readSetting(db, 'questions', questionsSettingsSchema, SETTINGS_DEFAULTS.questions);
+export async function getQuestionsSettings(db: DbOrTx, org: string): Promise<QuestionsSettings> {
+  return readSetting(db, org, 'questions', questionsSettingsSchema, SETTINGS_DEFAULTS.questions);
 }
 
 /** `checkin` (decision E5: the seed turns it on). */
-export async function getCheckinSettings(db: DbOrTx): Promise<CheckinSettings> {
-  return readSetting(db, 'checkin', checkinSettingsSchema, SETTINGS_DEFAULTS.checkin);
+export async function getCheckinSettings(db: DbOrTx, org: string): Promise<CheckinSettings> {
+  return readSetting(db, org, 'checkin', checkinSettingsSchema, SETTINGS_DEFAULTS.checkin);
 }
 
 /**
  * `health.rules` and its version (stored with each health result; 0 = the built-in
  * default). An invalid row falls back to the default (logged).
  */
-export async function getHealthRules(db: DbOrTx): Promise<{ rules: HealthRules; version: number }> {
-  const row = await repo.findSettingRow(db, 'health.rules');
+export async function getHealthRules(
+  db: DbOrTx,
+  org: string,
+): Promise<{ rules: HealthRules; version: number }> {
+  const row = await repo.findSettingRow(db, org, 'health.rules');
   if (!row) return { rules: SETTINGS_DEFAULTS['health.rules'], version: 0 };
   const parsed = healthRulesSchema.safeParse(row.value);
   if (!parsed.success) {
@@ -524,8 +535,8 @@ function settingEntry<K extends SettingsKey>(
   };
 }
 
-async function loadSettingsDTO(db: DbOrTx): Promise<SettingsDTO> {
-  const rows = new Map((await repo.listSettingRows(db)).map((r) => [r.key, r]));
+async function loadSettingsDTO(db: DbOrTx, org: string): Promise<SettingsDTO> {
+  const rows = new Map((await repo.listSettingRows(db, org)).map((r) => [r.key, r]));
   const out: Record<string, SettingEntryDTO> = {};
   for (const key of SETTINGS_KEYS) out[key] = settingEntry(key, rows.get(key));
   return out as SettingsDTO;
@@ -534,7 +545,7 @@ async function loadSettingsDTO(db: DbOrTx): Promise<SettingsDTO> {
 /** GET /settings (A): every key with its value (default when never saved) and version. */
 export async function getSettings(actor: Actor, db: DbOrTx = getDb()): Promise<SettingsDTO> {
   assertAdmin(actor);
-  return loadSettingsDTO(db);
+  return loadSettingsDTO(db, actor.organizationId);
 }
 
 /** Keys whose change re-evaluates every student's health at once (ADR-0005). */
@@ -550,7 +561,14 @@ async function writeSettings(
   const result = await db.transaction(async (tx) => {
     const now = new Date();
     for (const key of keys) {
-      const { version } = await repo.writeSetting(tx, key, values[key], actor.userId, now);
+      const { version } = await repo.writeSetting(
+        tx,
+        actor.organizationId,
+        key,
+        values[key],
+        actor.userId,
+        now,
+      );
       await recordAudit(tx, {
         actorId: actor.userId,
         action: 'settings.updated',
@@ -559,9 +577,11 @@ async function writeSettings(
         ip: meta.ip ?? null,
       });
     }
-    return loadSettingsDTO(tx);
+    return loadSettingsDTO(tx, actor.organizationId);
   });
-  if (keys.some((k) => SWEEP_KEYS.includes(k))) await runHealthSweep(db, 'settings.updated');
+  if (keys.some((k) => SWEEP_KEYS.includes(k))) {
+    await runHealthSweep(db, actor.organizationId, 'settings.updated');
+  }
   return result;
 }
 
@@ -614,12 +634,12 @@ export async function updateSetting(
 
 /** GET /settings/public (*): response-time text and check-in on/off. */
 export async function getPublicSettings(
-  _actor: Actor,
+  actor: Actor,
   db: DbOrTx = getDb(),
 ): Promise<PublicSettingsDTO> {
   const [questions, checkin] = await Promise.all([
-    getQuestionsSettings(db),
-    getCheckinSettings(db),
+    getQuestionsSettings(db, actor.organizationId),
+    getCheckinSettings(db, actor.organizationId),
   ]);
   return {
     questions: { expectedResponseText: questions.expectedResponseText },
@@ -635,14 +655,15 @@ export async function getStaffSettings(
   if (actor.role !== 'admin' && actor.role !== 'mentor') throw errors.forbidden();
   const [base, access, sla] = await Promise.all([
     getPublicSettings(actor, db),
-    getAccessSettings(db),
-    getSlaSettings(db),
+    getAccessSettings(db, actor.organizationId),
+    getSlaSettings(db, actor.organizationId),
   ]);
   return {
     ...base,
     access: {
       mentorScope: access.mentorScope,
       mentorsCanInviteStudents: access.mentorsCanInviteStudents,
+      mentorsCanCreateGroupRuns: access.mentorsCanCreateGroupRuns ?? false,
     },
     sla: {
       questionHours: sla.questionHours,
@@ -676,6 +697,7 @@ export async function listMilestoneTypes(
 ): Promise<MilestoneTypeDTO[]> {
   const rows = await repo.listMilestoneTypes(
     db,
+    actor.organizationId,
     actor.role === 'admin' && options.includeInactive === true,
   );
   return rows.map(toMilestoneTypeDTO);
@@ -690,12 +712,13 @@ export async function createMilestoneType(
 ): Promise<MilestoneTypeDTO> {
   assertAdmin(actor);
   return db.transaction(async (tx) => {
-    const row = await repo.insertMilestoneType(tx, {
+    const row = await repo.insertMilestoneType(tx, actor.organizationId, {
       name: input.name,
       countsForNorthStar: input.countsForNorthStar ?? false,
       uniquePerStudent: input.uniquePerStudent ?? false,
       requiresEvidence: input.requiresEvidence ?? false,
-      sortOrder: input.sortOrder ?? (await repo.maxMilestoneTypeSortOrder(tx)) + 10,
+      sortOrder:
+        input.sortOrder ?? (await repo.maxMilestoneTypeSortOrder(tx, actor.organizationId)) + 10,
       isActive: input.isActive ?? true,
     });
     await recordAudit(tx, {
@@ -720,8 +743,10 @@ export async function updateMilestoneType(
   assertAdmin(actor);
   if (!isUuid(typeId)) throw errors.notFound();
   return db.transaction(async (tx) => {
-    if (!(await repo.findMilestoneType(tx, typeId))) throw errors.notFound();
-    const row = await repo.updateMilestoneType(tx, typeId, input);
+    if (!(await repo.findMilestoneType(tx, actor.organizationId, typeId))) {
+      throw errors.notFound();
+    }
+    const row = await repo.updateMilestoneType(tx, actor.organizationId, typeId, input);
     if (!row) throw errors.notFound();
     await recordAudit(tx, {
       actorId: actor.userId,
@@ -738,10 +763,11 @@ export async function updateMilestoneType(
 /** Internal (milestones module): a type by id (active or not), or null. */
 export async function getMilestoneType(
   db: DbOrTx,
+  org: string,
   typeId: string,
 ): Promise<MilestoneTypeDTO | null> {
   if (!isUuid(typeId)) return null;
-  const row = await repo.findMilestoneType(db, typeId);
+  const row = await repo.findMilestoneType(db, org, typeId);
   return row ? toMilestoneTypeDTO(row) : null;
 }
 
@@ -767,6 +793,7 @@ export async function listCannedResponses(
   if (actor.role !== 'admin' && actor.role !== 'mentor') throw errors.forbidden();
   const rows = await repo.listCannedResponses(
     db,
+    actor.organizationId,
     actor.role === 'admin' && options.includeInactive === true,
   );
   return rows.map(toCannedResponseDTO);
@@ -781,7 +808,7 @@ export async function createCannedResponse(
 ): Promise<CannedResponseDTO> {
   assertAdmin(actor);
   return db.transaction(async (tx) => {
-    const row = await repo.insertCannedResponse(tx, {
+    const row = await repo.insertCannedResponse(tx, actor.organizationId, {
       title: input.title,
       body: input.body,
       category: input.category ?? 'general',
@@ -810,8 +837,10 @@ export async function updateCannedResponse(
   assertAdmin(actor);
   if (!isUuid(responseId)) throw errors.notFound();
   return db.transaction(async (tx) => {
-    if (!(await repo.findCannedResponse(tx, responseId))) throw errors.notFound();
-    const row = await repo.updateCannedResponse(tx, responseId, input);
+    if (!(await repo.findCannedResponse(tx, actor.organizationId, responseId))) {
+      throw errors.notFound();
+    }
+    const row = await repo.updateCannedResponse(tx, actor.organizationId, responseId, input);
     if (!row) throw errors.notFound();
     await recordAudit(tx, {
       actorId: actor.userId,
@@ -851,16 +880,20 @@ export async function listTaskTemplates(
   db: DbOrTx = getDb(),
 ): Promise<TaskTemplateDTO[]> {
   if (actor.role !== 'admin' && actor.role !== 'mentor') throw errors.forbidden();
-  const rows = await repo.listTaskTemplates(db, {
+  const rows = await repo.listTaskTemplates(db, actor.organizationId, {
     stageId: query.stageId,
     includeInactive: actor.role === 'admin' && query.includeInactive === true,
   });
   return rows.map(toTaskTemplateDTO);
 }
 
-async function assertStageRef(db: DbOrTx, stageId: string | null | undefined): Promise<void> {
+async function assertStageRef(
+  db: DbOrTx,
+  org: string,
+  stageId: string | null | undefined,
+): Promise<void> {
   if (!stageId) return;
-  if (!(await repo.isActiveRef(db, 'stage', stageId))) {
+  if (!isUuid(stageId) || !(await repo.isActiveRef(db, org, 'stage', stageId))) {
     throw errors.validation({ stageId: 'مقدار نامعتبر است' });
   }
 }
@@ -874,8 +907,8 @@ export async function createTaskTemplate(
 ): Promise<TaskTemplateDTO> {
   assertAdmin(actor);
   return db.transaction(async (tx) => {
-    await assertStageRef(tx, input.stageId);
-    const row = await repo.insertTaskTemplate(tx, {
+    await assertStageRef(tx, actor.organizationId, input.stageId);
+    const row = await repo.insertTaskTemplate(tx, actor.organizationId, {
       stageId: input.stageId ?? null,
       title: input.title,
       description: input.description ?? null,
@@ -909,9 +942,11 @@ export async function updateTaskTemplate(
   assertAdmin(actor);
   if (!isUuid(templateId)) throw errors.notFound();
   return db.transaction(async (tx) => {
-    if (!(await repo.findTaskTemplate(tx, templateId))) throw errors.notFound();
-    await assertStageRef(tx, input.stageId);
-    const row = await repo.updateTaskTemplate(tx, templateId, input);
+    if (!(await repo.findTaskTemplate(tx, actor.organizationId, templateId))) {
+      throw errors.notFound();
+    }
+    await assertStageRef(tx, actor.organizationId, input.stageId);
+    const row = await repo.updateTaskTemplate(tx, actor.organizationId, templateId, input);
     if (!row) throw errors.notFound();
     await recordAudit(tx, {
       actorId: actor.userId,
@@ -928,19 +963,21 @@ export async function updateTaskTemplate(
 /** Internal (tasks module): an active template, or null. */
 export async function getActiveTaskTemplate(
   db: DbOrTx,
+  org: string,
   templateId: string,
 ): Promise<TaskTemplateDTO | null> {
   if (!isUuid(templateId)) return null;
-  const row = await repo.findTaskTemplate(db, templateId);
+  const row = await repo.findTaskTemplate(db, org, templateId);
   return row?.isActive ? toTaskTemplateDTO(row) : null;
 }
 
 /** Internal (path module): active templates suggested on entering a stage (F3 Should). */
 export async function listSuggestedTemplates(
   db: DbOrTx,
+  org: string,
   stageId: string,
 ): Promise<TaskTemplateDTO[]> {
-  const rows = await repo.listTaskTemplates(db, {
+  const rows = await repo.listTaskTemplates(db, org, {
     stageId,
     includeInactive: false,
     suggestOnly: true,

@@ -39,11 +39,13 @@ export async function getToday(
   const [reminders, reviewQueue, unansweredQuestions, stuckStudents, redItems, freshness] =
     await Promise.all([
       remindersForToday(db, actor, mentorId, now),
-      reviewQueueFor(db, actor, mentorId, now),
+      reviewQueueFor(db, actor, { reviewerId: mentorId }, now),
       unansweredQuestionsFor(db, actor, mentorId, now),
       listStudentItemsByHealth(db, actor, { health: ['red', 'yellow'], mentorId }, now),
       redWithoutAction(db, actor, mentorId, now),
-      actor.role === 'admin' ? healthFreshnessFor(db, now) : Promise.resolve(undefined),
+      actor.role === 'admin'
+        ? healthFreshnessFor(db, actor.organizationId, now)
+        : Promise.resolve(undefined),
     ]);
   const waitingOnUs = sortWaiting([
     ...reviewQueue.map((r) => ({
@@ -96,8 +98,12 @@ export async function getToday(
 }
 
 /** F-14: system-wide (not scoped: it says nothing about any one student). */
-async function healthFreshnessFor(db: DbOrTx, now: Date): Promise<HealthFreshnessDTO> {
-  const f = await getHealthFreshness(db, now);
+async function healthFreshnessFor(
+  db: DbOrTx,
+  organizationId: string,
+  now: Date,
+): Promise<HealthFreshnessDTO> {
+  const f = await getHealthFreshness(db, now, organizationId);
   return {
     lastHealthSweepAt: f.lastHealthSweepAt?.toISOString() ?? null,
     oldestComputedAt: f.oldestComputedAt?.toISOString() ?? null,
@@ -119,9 +125,13 @@ async function redWithoutAction(
 ): Promise<WaitingOnUsItemDTO[]> {
   const scope = await staffStudentScope(db, actor);
   const [rows, sla, hours] = await Promise.all([
-    redWithoutActionRows(db, scopeCondition(scope, students.primaryMentorId), undefined),
-    getSlaSettings(db),
-    getBusinessHours(db),
+    redWithoutActionRows(
+      db,
+      scopeCondition(scope, students.userId, students.organizationId),
+      undefined,
+    ),
+    getSlaSettings(db, actor.organizationId),
+    getBusinessHours(db, actor.organizationId),
   ]);
   const escalateMs = sla.redEscalateDays * 24 * 3600 * 1000;
   const out: WaitingOnUsItemDTO[] = [];
