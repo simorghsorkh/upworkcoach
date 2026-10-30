@@ -11,7 +11,7 @@ import { isStudentInScope, type MentorLinkCheck, type StudentOrganizationLookup 
  *
  * Every id in the BODY or QUERY of a write request that points to another resource is
  * checked like the main resource, inside the same write transaction and before any write.
- * Any failure → `422 VALIDATION_FAILED` with `fields.<name> = "مقدار نامعتبر است"` — one
+ * Any failure → `422 VALIDATION_FAILED` with `fields.<name> = "Invalid value"` — one
  * message for missing, out of scope, other student's and inactive, so nothing leaks.
  * (`404` is only for the path id.)
  *

@@ -28,8 +28,8 @@ export function moneyText(amount: string | null, currency: string | null): strin
 }
 
 /**
- * M3e «نقاط عطف» (mockups/student-profile.html #milestones): approved ones with who approved,
- * student proposals with «تأیید» / «رد» (reason required), and «ثبت» for staff (approved at
+ * M3e "Milestones" (mockups/student-profile.html #milestones): approved ones with who approved,
+ * student proposals with "Approve" / "Reject" (reason required), and "Record" for staff (approved at
  * once). Only approved milestones count for the North Star (F9).
  */
 export function StaffMilestones({
@@ -48,7 +48,7 @@ export function StaffMilestones({
   types: MilestoneTypeDTO[];
   platforms: Array<{ id: string; name: string }>;
   viewerId: string;
-  /** Controlled «ثبت» dialog (the record's «بیشتر» menu opens it too). */
+  /** Controlled "Record" dialog (the record's "More" menu opens it too). */
   openForm?: boolean;
   onFormClose?: () => void;
 }) {

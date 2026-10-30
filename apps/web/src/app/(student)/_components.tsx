@@ -12,7 +12,7 @@ export function NoRecord() {
   );
 }
 
-/** «به‌زودی» card for home sections that arrive in later sprints. */
+/** "Coming soon" card for home sections that arrive in later sprints. */
 export function SoonCard({
   title,
   icon,

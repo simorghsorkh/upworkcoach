@@ -11,7 +11,7 @@ import { cn } from '@/components/ui/cn';
 import { Dialog } from '@/components/ui/dialog';
 
 type QuickAddApi = {
-  /** The student of the open record, if any («افزودن برای امیر رستمی»). */
+  /** The student of the open record, if any ("Add for Amir Rostami"). */
   target: PickedStudent | null;
   setTarget: (s: PickedStudent | null) => void;
   open: () => void;
@@ -68,7 +68,7 @@ type Action = {
 };
 
 /**
- * «افزودن سریع» (mockups/today.html #quick): note first (it opens right here, user-flows §5),
+ * "Quick add" (mockups/today.html #quick): note first (it opens right here, user-flows §5),
  * then task, reminder and — without a record — new student.
  */
 function QuickAddSheet({
@@ -159,7 +159,7 @@ function QuickAddSheet({
   );
 }
 
-/** Desktop «افزودن» in a page header (same sheet as the mobile «+»). */
+/** Desktop "Add" in a page header (same sheet as the mobile "+"). */
 export function QuickAddButton({ className }: { className?: string }) {
   const ctx = useQuickAdd();
   const t = useTranslations('shell');

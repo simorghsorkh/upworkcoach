@@ -15,8 +15,8 @@ export const metadata: Metadata = { title: 'کارهای من' };
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 /**
- * S2 «کارهای من» (sitemap §4): overdue first and red, then by deadline (the API orders them);
- * finished ones under «انجام‌شده». No health, rule or internal field ever appears.
+ * S2 "My tasks" (sitemap §4): overdue first and red, then by deadline (the API orders them);
+ * finished ones under "Done". No health, rule or internal field ever appears.
  */
 export default async function MyTasksPage({ searchParams }: { searchParams: SearchParams }) {
   const { actor, student } = await loadOwn();

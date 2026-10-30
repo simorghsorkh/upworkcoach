@@ -11,11 +11,11 @@ import { dayFromToday, questionFixture, submittedTaskFixture, taskFixture } from
 import { call, createUser, loginAs, SEEDED, type TestUser } from './helpers';
 
 /**
- * Sprint-3 frontend gaps, closed in sprint 4 (sprint-4.md «کمبودهای برطرف‌شده»):
+ * Sprint-3 frontend gaps, closed in sprint 4 (sprint-4.md "Gaps closed"):
  * 1. GET /tasks across students (scope matrix incl. M-other / M-former, filters, counts,
  *    cursor); 2. reviewer display name in the student review; 3. `nextDueDate` in a review;
  * 4. atomic tasks on a stage change; 5. `submissionType` / `dueAt` in the review queue;
- * 6. platform name in profile events; 7. typed `unansweredQuestions` in «امروز».
+ * 6. platform name in profile events; 7. typed `unansweredQuestions` in "Today".
  */
 
 const S = SEEDED.stages;

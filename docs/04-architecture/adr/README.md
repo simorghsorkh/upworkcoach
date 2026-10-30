@@ -1,24 +1,24 @@
-# فهرست ADRها
+# ADR index
 
-قالب هر ADR: زمینه، گزینه‌ها، تصمیم، پیامدها. ADR پذیرفته‌شده ویرایش نمی‌شود. تصمیم تازه یک ADR جدید است که قبلی را «جایگزین» اعلام می‌کند.
+Each ADR follows this template: context, options, decision, consequences. An accepted ADR is not edited. A new decision is a new ADR that declares the earlier one "superseded".
 
-| # | عنوان | وضعیت | تاریخ |
+| # | Title | Status | Date |
 |---|---|---|---|
-| [0001](0001-tech-stack.md) | استک فنی: مونولیت ماژولار TypeScript با Next.js و PostgreSQL | پیشنهادشده | ۱۴۰۵/۰۷/۲۷ |
-| [0002](0002-hosting-0.1.md) | میزبانی 0.1: Azure (با قابلیت انتقال به میزبان ایرانی) | پیشنهادشده | ۱۴۰۵/۰۷/۲۷ |
-| [0003](0003-auth-0.1.md) | احراز هویت 0.1: دعوت + موبایل و رمز، نشست دیتابیسی | پیشنهادشده | ۱۴۰۵/۰۷/۲۷ |
-| [0004](0004-access-control.md) | کنترل دسترسی: نقش + دامنه، DTO جدا، ماتریس تست | پیشنهادشده | ۱۴۰۵/۰۷/۲۷ |
-| [0005](0005-health-status-computation.md) | محاسبه‌ی وضعیت سلامت: تابع خالص + رویداد + sweep ساعتی | پیشنهادشده | ۱۴۰۵/۰۷/۲۷ |
-| [0006](0006-ai-readiness-llm-path.md) | آمادگی لایه‌ی AI و مسیر فراخوانی LLM (1.0) | پیشنهادشده | ۱۴۰۵/۰۷/۲۷ |
-| [0007](0007-background-jobs.md) | کارهای پس‌زمینه با pg-boss | پیشنهادشده | ۱۴۰۵/۰۷/۲۷ |
-| [0008](0008-time-and-persian-text.md) | زمان، تقویم شمسی و متن فارسی | پیشنهادشده | ۱۴۰۵/۰۷/۲۷ |
-| [0009](0009-local-dev-without-docker.md) | توسعه‌ی محلی و تست بدون Docker: Postgres جاسازی‌شده از npm | پذیرفته‌شده | ۱۴۰۵/۰۷/۲۸ |
-| [0010](0010-data-retention-and-deletion.md) | نگه‌داری داده و حذف حساب 0.1: درخواست با پیام، CLI مدیر، ناشناس‌سازی (امنیت C5) | پیشنهادشده | ۱۴۰۵/۰۷/۲۸ |
-| [0011](0011-multi-tenancy-and-roles.md) | چندسازمانی: سازمان، عضویت، نقش در سازمان، جداسازی tenant، یادداشت خصوصی | پذیرفته‌شده (پیاده‌سازی: اسپرینت ۱ Coach Office) | ۱۴۰۵/۰۸/۰۶ |
-| [0012](0012-programs-runs-packages-sessions.md) | مدل برنامه: قالب، اجرا (snapshot)، عضویت، بسته، جلسه، هدف، پیشرفت | پیشنهادشده | ۱۴۰۵/۰۸/۰۶ |
-| [0013](0013-i18n-foundation.md) | زیرساخت چندزبانگی: next-intl، RTL و LTR، قالب‌بندی و منطقه‌ی زمانی سازمانی | پذیرفته‌شده (پیاده‌سازی پایه: اسپرینت ۲ Coach Office) | ۱۴۰۵/۰۸/۰۶ |
-| [0014](0014-booking-availability.md) | رزرو جلسه: ساعت‌های آزاد مشاور، نوع جلسه و درخواست با تأیید مشاور | پذیرفته‌شده (پیاده‌سازی: اسپرینت ۷ Coach Office) | ۱۴۰۵/۰۸/۰۷ |
+| [0001](0001-tech-stack.md) | Tech stack: TypeScript modular monolith with Next.js and PostgreSQL | Proposed | 27 Mehr 1405 (2026-10-19) |
+| [0002](0002-hosting-0.1.md) | Hosting for 0.1: Azure (portable to an Iranian host) | Proposed | 27 Mehr 1405 (2026-10-19) |
+| [0003](0003-auth-0.1.md) | Authentication for 0.1: invitation + mobile number and password, database-backed sessions | Proposed | 27 Mehr 1405 (2026-10-19) |
+| [0004](0004-access-control.md) | Access control: role + scope, separate DTOs, test matrix | Proposed | 27 Mehr 1405 (2026-10-19) |
+| [0005](0005-health-status-computation.md) | Health status computation: pure function + event + hourly sweep | Proposed | 27 Mehr 1405 (2026-10-19) |
+| [0006](0006-ai-readiness-llm-path.md) | AI layer readiness and the LLM call path (1.0) | Proposed | 27 Mehr 1405 (2026-10-19) |
+| [0007](0007-background-jobs.md) | Background jobs with pg-boss | Proposed | 27 Mehr 1405 (2026-10-19) |
+| [0008](0008-time-and-persian-text.md) | Time, the Solar Hijri calendar and Persian text | Proposed | 27 Mehr 1405 (2026-10-19) |
+| [0009](0009-local-dev-without-docker.md) | Local development and testing without Docker: embedded Postgres from npm | Accepted | 28 Mehr 1405 (2026-10-20) |
+| [0010](0010-data-retention-and-deletion.md) | Data retention and account deletion for 0.1: request by message, admin CLI, anonymization (security C5) | Proposed | 28 Mehr 1405 (2026-10-20) |
+| [0011](0011-multi-tenancy-and-roles.md) | Multi-tenancy: organization, membership, in-organization role, tenant isolation, private note | Accepted (implementation: Coach Office sprint 1) | 6 Aban 1405 (2026-10-28) |
+| [0012](0012-programs-runs-packages-sessions.md) | Program model: template, run (snapshot), membership, package, session, goal, progress | Proposed | 6 Aban 1405 (2026-10-28) |
+| [0013](0013-i18n-foundation.md) | Multilingual foundation: next-intl, RTL and LTR, formatting and organization time zone | Accepted (base implementation: Coach Office sprint 2) | 6 Aban 1405 (2026-10-28) |
+| [0014](0014-booking-availability.md) | Session booking: mentor availability, session type and request with mentor approval | Accepted (implementation: Coach Office sprint 7) | 7 Aban 1405 (2026-10-29) |
 
-**۳۰ مهر ۱۴۰۵ (هماهنگ با کد، اسپرینت ۱ تا ۴):** ADR-0003 (بخش ۹)، ADR-0004 (بخش ۶)، ADR-0005، ADR-0007، ADR-0008 (بخش ۶) و ADR-0010 هر کدام یک بخش «تطبیق با پیاده‌سازی» گرفتند و ADR-0002 نام متغیر `SESSION_SECRET` را اصلاح کرد. چون همه هنوز «پیشنهادشده» هستند، ویرایش مجاز است. این بخش‌ها تصمیم اصلی را عوض نمی‌کنند؛ فرض‌های پیاده‌سازی را تأیید یا رد می‌کنند و سؤال‌های باز اسپرینت‌ها را می‌بندند. کارهای کدی باقی‌مانده: `docs/05-delivery/followups.md`.
+**30 Mehr 1405 (2026-10-22) (aligned with the code, sprints 1 to 4):** ADR-0003 (section 9), ADR-0004 (section 6), ADR-0005, ADR-0007, ADR-0008 (section 6) and ADR-0010 each gained an "Alignment with the implementation" section, and ADR-0002 corrected the name of the `SESSION_SECRET` variable. Because all of them are still "Proposed", editing is allowed. These sections do not change the core decision; they confirm or reject implementation assumptions and close the sprints' open questions. Remaining code work: `docs/05-delivery/followups.md`.
 
-(ADR-0009 مال devops-engineer است و ردیفش را خودش اضافه می‌کند. ADR-0003 و ADR-0004 در ۱۴۰۵/۰۷/۲۸ با تغییرهای امنیتی C1 تا C3 ویرایش شدند؛ هنوز «پیشنهادشده» بودند، پس ویرایش مجاز بود.)
+(ADR-0009 belongs to the devops-engineer, who adds its row. ADR-0003 and ADR-0004 were edited on 28 Mehr 1405 (2026-10-20) with the security changes C1 to C3; they were still "Proposed", so editing was allowed.)

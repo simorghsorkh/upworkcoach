@@ -39,8 +39,8 @@ function confirmText(c: Confirm, name: string): string {
 }
 
 /**
- * «تیم» (M11 کاربران و دعوت مشاور; admin only): staff list with role, status, accepted invite
- * and how many students each mentor has; «مربی جدید» (one-time invite link), «لینک تازه» for
+ * "Team" (M11 users and mentor invites; admin only): staff list with role, status, accepted invite
+ * and how many students each mentor has; "New mentor" (one-time invite link), "New link" for
  * invited users, disable / enable with an in-page confirmation, and role change. Sensitive
  * requests go through `useReauth` (`403 REAUTH_REQUIRED`, SEC-S7).
  */

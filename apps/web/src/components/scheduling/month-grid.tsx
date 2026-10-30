@@ -87,7 +87,7 @@ export function MonthGrid({
     new Intl.DateTimeFormat('fa-IR-u-ca-persian', { ...options, timeZone: 'UTC' }).format(
       dayDate(first),
     );
-  // Persian reads «آبان ۱۴۰۵» (month, then year); Intl puts the year first.
+  // Persian reads «آبان ۱۴۰۵» (Aban 1405) (month, then year); Intl puts the year first.
   const title =
     locale === 'fa'
       ? `${part({ month: 'long' })} ${part({ year: 'numeric' })}`

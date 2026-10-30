@@ -17,7 +17,7 @@ import type {
   MilestoneTypeDTO,
 } from '@/modules/catalog/contracts';
 
-/** «انواع نقطه‌ی عطف» (F9, F11): rename, switch flags, deactivate; add a new type. */
+/** "Milestone types" (F9, F11): rename, switch flags, deactivate; add a new type. */
 export function MilestoneTypesSettings({ types }: { types: MilestoneTypeDTO[] }) {
   const router = useRouter();
   const toast = useToast();
@@ -160,7 +160,7 @@ const CATEGORY_LABEL: Record<CannedResponseCategory, string> = {
   general: 'عمومی',
 };
 
-/** «متن‌های استاندارد» (F8, F11): canned answers staff insert in a reply. */
+/** "Standard texts" (F8, F11): canned answers staff insert in a reply. */
 export function CannedResponsesSettings({ items }: { items: CannedResponseDTO[] }) {
   const router = useRouter();
   const toast = useToast();

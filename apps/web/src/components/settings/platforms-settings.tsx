@@ -17,7 +17,7 @@ import { useToast } from '@/components/ui/toast';
 import type { PlatformDTO, TrackDTO } from '@/modules/catalog/contracts';
 
 /**
- * M11 «پلتفرم‌ها» (admin): add a platform without a code change (F2), rename, attach to a
+ * M11 "Platforms" (admin): add a platform without a code change (F2), rename, attach to a
  * track, order, deactivate. Names are unique regardless of case (422 `fields.name`).
  */
 export function PlatformsSettings({

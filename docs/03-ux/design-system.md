@@ -1,170 +1,170 @@
-# سیستم طراحی — نسخه‌ی 0.1 («دفتر مربی»)
+# Design System — Version 0.1 ("Coach Office")
 
-> فاز ۲ — نویسنده: ux-designer — ۲۷ مهر ۱۴۰۵ — وضعیت: پیش‌نویس برای گیت بنیان‌گذار
-> **بازنگری بصری (همان روز):** بعد از بازخورد بنیان‌گذار («دیزاین قوی‌تر، فونت وزیر») یک طراحی با کیفیت بالا روی همان ساختار تأییدشده ساخته شد.
+> Phase 2 — author: ux-designer — 27 Mehr 1405 (2026-10-19) — status: draft for the founder gate
+> **Visual revision (same day):** after the founder's feedback ("a stronger design, Vazir font"), a high-quality design was built on top of the already-approved structure.
 >
-> | پوشه | نقش |
+> | Folder | Role |
 > |---|---|
-> | `mockups/` | **مرجع بصری و پیاده‌سازی مرجع توکن‌ها** (`mockups/styles.css`). نام متغیرها و کلاس‌ها همان‌هایی است که frontend-engineer باید استفاده یا به Tailwind نگاشت کند |
-> | `wireframes/` | مرجع **ساختار و محتوا** (تأییدشده، بدون تغییر) |
+> | `mockups/` | **Visual reference and the reference implementation of the tokens** (`mockups/styles.css`). The variable and class names are the ones frontend-engineer must use or map to Tailwind |
+> | `wireframes/` | Reference for **structure and content** (approved, unchanged) |
 >
-> اصل: **کاربردی، آرام و پرداده؛ نه تزئینی.** مربی روزی ۳۰ تا ۶۰ دقیقه پشت این صفحه‌هاست و هنرجو با گوشی و اینترنت ضعیف می‌آید.
+> Principle: **practical, calm and data-rich; not decorative.** The coach spends 30 to 60 minutes a day on these screens, and the student arrives on a phone with a poor connection.
 
 ---
 
-## ۰. جهت بصری
+## 0. Visual direction
 
-**حس: حرفه‌ای، مطمئن، گرم و آرام** — مثل دفتر کار مرتب یک مربی باتجربه، نه پنل اداری و نه اپ سرگرمی.
+**Feel: professional, reliable, warm and calm** — like the tidy office of an experienced coach, not an admin panel and not an entertainment app.
 
-| تصمیم | چرا |
+| Decision | Why |
 |---|---|
-| **رنگ برند: نیلی جوهری** (`#4A40A8`، رنگ جوهر خودنویس) | ۱) با هیچ‌کدام از رنگ‌های وضعیت (سبز، کهربایی، قرمز، خاکستری) قاطی نمی‌شود؛ سبز-آبی (teal) کنار «روبه‌راه» سبز، معنای وضعیت را مبهم می‌کرد. ۲) آبی پیش‌فرض بوت‌استرپ و سبز آپورک نیست؛ هویت خودش را دارد و ادعای وابستگی به Upwork نمی‌کند. ۳) جوهر و دفتر = استعاره‌ی «دفتر مربی»: نوشتن بازخورد، یادداشت، پرونده. ۴) کنتراست ۸٫۱:۱ با متن سفید؛ هم برای دکمه و هم برای متن لینک کافی است |
-| **خنثی‌های گرم کاغذی** (`#F7F6F3`) به‌جای خاکستری سرد | چشم مربی ساعت‌ها روی صفحه است؛ پس‌زمینه‌ی کمی گرم خستگی کمتری می‌دهد و صفحه را از حالت «فرم اداری» درمی‌آورد |
-| **نوار کناری جوهری تیره** | هویت اصلی محصول در یک نگاه؛ ناوبری را از محتوا جدا می‌کند تا محتوای روشن «روی میز» دیده شود. تنها سطح پررنگ دائمی صفحه است |
-| **سلسله‌مراتب با وزن، نه با رنگ** | Vazirmatn متغیر: ۸۰۰ برای عددهای کلیدی، ۷۰۰ تیتر و نام، ۶۰۰ عنوان ردیف و دکمه، ۵۰۰ برچسب، ۴۰۰ متن. رنگ برای **معنا** (وضعیت، اقدام) نگه داشته می‌شود |
-| **یک دکمه‌ی پررنگ در هر صفحه** | اقدام اصلی صفحه نیلی توپر است؛ اقدام‌های ردیفی «نرم» (`btn-soft`، زمینه‌ی نیلی کم‌رنگ). در «امروز» تنها دکمه‌ی توپر «بازبینی کن» در کادر «از زمان پاسخ گذشته» است، پس چشم اول آن‌جا می‌رود |
-| **«اول به چه برسم» = کادر قرمز بالای امروز** | ترتیب دید در «امروز»: کادر SLA (قرمز، با دکمه) ← چهار عدد درشت ← بخش‌ها. هر عدد زیرنشان «۱ دیر / ۳ قرمز» دارد |
-| **آدم‌ها با آواتار حرف اول و رنگ ثابت** | مربی هنرجو را با رنگ و حرف در فهرست، کانبان و امروز سریع‌تر پیدا می‌کند. ۸ رنگ ملایم و جدا از رنگ‌های وضعیت |
-| **مسیر ۹ مرحله‌ای همه‌جا یک شکل دارد** | نوار ۹ تکه کنار هر هنرجو (فهرست، امروز، پرونده) و گام‌شمار کامل برای هنرجو؛ مرحله‌ی فعلی بلندتر و با حلقه، نه فقط رنگی |
-| **سایه‌ی کم، مرز نازک، گوشه‌ی ۱۲px** | آرام و دقیق مثل Linear/Attio؛ سایه‌ی بزرگ فقط برای پنجره‌ها |
-| **عمداً نیست** | گرادیان تزئینی در صفحه‌های کاری، تصویر، ایموجی، انیمیشن بیش از ۲۰۰ms، رنگ برند آپورک، هر اشاره‌ی بصری به ابزارهای AI یا پرداخت |
+| **Brand color: ink indigo** (`#4A40A8`, the color of fountain-pen ink) | 1) It does not mix with any of the status colors (green, amber, red, gray); a teal next to the green "On track" would have made the status meaning ambiguous. 2) It is neither the default Bootstrap blue nor Upwork green; it has its own identity and does not claim any affiliation with Upwork. 3) Ink and notebook = the "Coach Office" metaphor: writing feedback, notes, a file on a person. 4) Contrast of 8.1:1 against white text; sufficient for both buttons and link text |
+| **Warm paper neutrals** (`#F7F6F3`) instead of cold gray | The coach's eyes are on the screen for hours; a slightly warm background causes less fatigue and takes the page out of "office form" territory |
+| **Dark ink sidebar** | The product's main identity at a glance; it separates navigation from content so the light content is seen "on the desk". It is the only permanent bold surface on the page |
+| **Hierarchy by weight, not by color** | Variable Vazirmatn: 800 for key numbers, 700 for headings and names, 600 for row titles and buttons, 500 for labels, 400 for text. Color is kept for **meaning** (status, action) |
+| **One bold button per page** | The page's main action is solid indigo; per-row actions are "soft" (`btn-soft`, pale indigo background). On "Today" the only solid button is "Review" in the "Past response time" box, so the eye goes there first |
+| **"What do I tackle first" = the red box at the top of Today** | Reading order on "Today": SLA box (red, with a button) → four large numbers → sections. Each number has a sub-indicator such as "1 late / 3 red" |
+| **People get an initial-letter avatar with a fixed color** | The coach finds a student faster by color and letter in the list, the kanban and Today. 8 soft colors, separate from the status colors |
+| **The 9-stage path looks the same everywhere** | A 9-segment bar next to every student (list, Today, file) and a full stepper for the student; the current stage is taller and has a ring, not just a color |
+| **Light shadow, thin border, 12px corners** | Calm and precise like Linear/Attio; large shadows only for dialogs |
+| **Deliberately absent** | Decorative gradients on working screens, imagery, emoji, animation longer than 200ms, Upwork brand color, any visual hint of AI tools or payments |
 
 ---
 
-## ۱. اصول
+## 1. Principles
 
-| اصل | معنی در عمل |
+| Principle | Meaning in practice |
 |---|---|
-| **دسکتاپ و موبایل، هر دو درجه‌ی یک** | تصمیم بنیان‌گذار (D1). مربی کار روزانه را پشت دسکتاپ می‌کند و یادداشت سریع را با گوشی؛ هنرجو بیشتر با گوشی. هر صفحه در ۱۴۴۰px و ۳۷۵px طراحی شده است |
-| **در یک نگاه** | مربی ببیند هر هنرجو **کجاست، چه کاری از او خواسته شده و چه کسی گیر کرده**. این سه همیشه بالای صفحه و درشت‌اند |
-| **وضعیت هرگز فقط با رنگ** | هر رنگ وضعیت همراه با شکل و متن است |
-| **هر چیز قابل‌کلیک یک کلیک تا مقصد** | ردیف‌ها و کارت‌ها کامل لینک‌اند؛ اقدام ثانویه دکمه‌ی جدا |
-| **سبک** | فونت محلی، آیکن SVG درون‌خطی، بدون تصویر و کتابخانه‌ی خارجی؛ خانه‌ی هنرجو زیر ۳ ثانیه روی اینترنت ضعیف (F10) |
+| **Desktop and mobile, both first-class** | Founder's decision (D1). The coach does daily work at a desktop and quick notes on a phone; the student mostly uses a phone. Every page is designed at 1440px and 375px |
+| **At a glance** | The coach sees where each student **is, what task has been asked of them, and who is stuck**. These three are always at the top of the page and large |
+| **Status never by color alone** | Every status color comes with a shape and text |
+| **Everything clickable is one click from its destination** | Rows and cards are fully links; a secondary action is a separate button |
+| **Lightweight** | Local font, inline SVG icons, no images and no external library; the student home under 3 seconds on a poor connection (F10) |
 
 ---
 
-## ۲. توکن‌ها
+## 2. Tokens
 
-همه‌ی مقدارها در `mockups/styles.css` بخش ۱ (روشن) و ۱b (تاریک) تعریف شده‌اند. نسبت کنتراست طبق WCAG 2.2 محاسبه شده است.
+All values are defined in `mockups/styles.css` section 1 (light) and 1b (dark). Contrast ratios are computed per WCAG 2.2.
 
-### ۲-۱. برند — نیلی جوهری
+### 2-1. Brand — ink indigo
 
-| توکن | مقدار | کاربرد | کنتراست |
+| Token | Value | Usage | Contrast |
 |---|---|---|---|
-| `--brand-50` | `#F3F2FC` | زمینه‌ی انتخاب‌شده، یادداشت اشتراکی | brand-700 روی آن: ۹٫۳:۱ |
-| `--brand-100` | `#E6E4F8` | چیپ «منتظر بازبینی»، تب فعال هنرجو | brand-700 روی آن: ۸٫۰:۱ |
-| `--brand-200` | `#CCC8F0` | مرز عناصر برند، انتخاب متن | تزئینی |
-| `--brand-300` | `#A9A3E4` | تکه‌های گذشته‌ی نوار مسیر، نشانگر سایدبار، حاشیه‌ی بلوک انگلیسی | تزئینی (≥ ۳:۱ روی جوهری) |
-| `--brand-500` | `#5B52BD` | حلقه‌ی فوکوس؛ دکمه‌ی اصلی در حالت تاریک | سفید روی آن: ۶٫۲:۱ |
-| `--brand-600` | `#4A40A8` | **رنگ اصلی**: دکمه‌ی اصلی، لینک، مرحله‌ی فعلی | سفید: ۸٫۱:۱ · روی bg: ۷٫۵:۱ |
-| `--brand-700` | `#3C3489` | hover، متن روی زمینه‌ی برند | سفید: ۱۰٫۳:۱ |
-| `--brand-900` | `#1D1B36` | نوار کناری | `#CFCBE6` روی آن: ۱۰٫۵:۱ |
+| `--brand-50` | `#F3F2FC` | Selected background, shared note | brand-700 on it: 9.3:1 |
+| `--brand-100` | `#E6E4F8` | "Waiting for review" chip, active student tab | brand-700 on it: 8.0:1 |
+| `--brand-200` | `#CCC8F0` | Brand element borders, text selection | decorative |
+| `--brand-300` | `#A9A3E4` | Past segments of the path bar, sidebar indicator, border of the English block | decorative (≥ 3:1 on ink) |
+| `--brand-500` | `#5B52BD` | Focus ring; primary button in dark mode | white on it: 6.2:1 |
+| `--brand-600` | `#4A40A8` | **Main color**: primary button, link, current stage | white: 8.1:1 · on bg: 7.5:1 |
+| `--brand-700` | `#3C3489` | hover, text on a brand background | white: 10.3:1 |
+| `--brand-900` | `#1D1B36` | Sidebar | `#CFCBE6` on it: 10.5:1 |
 
-نقش‌های معنایی (برای استفاده در کد به‌جای عدد): `--c-primary` (۶۰۰)، `--c-primary-hover` (۷۰۰)، `--c-primary-weak` (۵۰)، `--c-primary-weak-2` (۱۰۰)، `--c-primary-text` (۷۰۰)، `--c-primary-line` (۲۰۰)، `--c-link` (۶۰۰)، `--c-focus` (۵۰۰).
+Semantic roles (use these in code instead of numbers): `--c-primary` (600), `--c-primary-hover` (700), `--c-primary-weak` (50), `--c-primary-weak-2` (100), `--c-primary-text` (700), `--c-primary-line` (200), `--c-link` (600), `--c-focus` (500).
 
-### ۲-۲. خنثی‌های گرم
+### 2-2. Warm neutrals
 
-| توکن | مقدار | کاربرد | کنتراست |
+| Token | Value | Usage | Contrast |
 |---|---|---|---|
-| `--c-bg` | `#F7F6F3` | پس‌زمینه‌ی صفحه | — |
-| `--c-surface` | `#FFFFFF` | کارت، جدول، پنجره | — |
-| `--c-surface-2` | `#F2F0EB` | سربرگ جدول، چیپ خنثی، ستون کانبان | — |
-| `--c-surface-3` | `#EAE7E0` | سوییچ، تکه‌ی آینده‌ی نوار مسیر | — |
-| `--c-hover` | `#FAF9F6` | hover ردیف | — |
-| `--c-border` | `#E6E2DA` | جداکننده و کادر کارت | تزئینی |
-| `--c-border-2` | `#D6D1C7` | کادر دکمه‌ی ثانویه، چیپ فیلتر | تزئینی (دکمه متن و سایه دارد) |
-| `--c-border-strong` | `#8E877B` | **کادر فیلد فرم** | ۳٫۶:۱ روی سفید (WCAG 1.4.11) |
-| `--c-text` | `#1F1D1A` | متن اصلی | ۱۶٫۸:۱ سفید · ۱۵٫۶:۱ bg |
-| `--c-text-2` | `#57524A` | متن فرعی، برچسب | ۷٫۸:۱ سفید · ۶٫۸:۱ surface-2 |
-| `--c-text-3` | `#6F695F` | متا، زمان، شمارنده | ۵٫۴:۱ سفید · ۵٫۰:۱ bg · ۴٫۷:۱ surface-2 (حداقل) |
+| `--c-bg` | `#F7F6F3` | Page background | — |
+| `--c-surface` | `#FFFFFF` | Card, table, dialog | — |
+| `--c-surface-2` | `#F2F0EB` | Table header, neutral chip, kanban column | — |
+| `--c-surface-3` | `#EAE7E0` | Switch, future segment of the path bar | — |
+| `--c-hover` | `#FAF9F6` | Row hover | — |
+| `--c-border` | `#E6E2DA` | Divider and card outline | decorative |
+| `--c-border-2` | `#D6D1C7` | Secondary button outline, filter chip | decorative (the button has text and a shadow) |
+| `--c-border-strong` | `#8E877B` | **Form field border** | 3.6:1 on white (WCAG 1.4.11) |
+| `--c-text` | `#1F1D1A` | Main text | 16.8:1 white · 15.6:1 bg |
+| `--c-text-2` | `#57524A` | Secondary text, labels | 7.8:1 white · 6.8:1 surface-2 |
+| `--c-text-3` | `#6F695F` | Meta, time, counters | 5.4:1 white · 5.0:1 bg · 4.7:1 surface-2 (minimum) |
 
-### ۲-۳. نوار کناری (مربی)
+### 2-3. Sidebar (coach)
 
-| توکن | مقدار | کنتراست روی `--side-bg` |
+| Token | Value | Contrast on `--side-bg` |
 |---|---|---|
 | `--side-bg` | `#1D1B36` | — |
-| `--side-fg` | `#CFCBE6` | ۱۰٫۵:۱ |
-| `--side-fg-2` (آیکن، برچسب گروه) | `#9C97BF` | ۶٫۰:۱ |
-| `--side-active` (آیتم فعلی، متن سفید) | `#34305F` | سفید روی آن: ۱۲٫۱:۱ |
-| `--side-accent` (نشانگر و آیکن فعلی) | `#A9A3E4` | ۵٫۲:۱ روی active |
+| `--side-fg` | `#CFCBE6` | 10.5:1 |
+| `--side-fg-2` (icon, group label) | `#9C97BF` | 6.0:1 |
+| `--side-active` (current item, white text) | `#34305F` | white on it: 12.1:1 |
+| `--side-accent` (indicator and current icon) | `#A9A3E4` | 5.2:1 on active |
 
-### ۲-۴. رنگ وضعیت سلامت (F7)
+### 2-4. Health status colors (F7)
 
-هر وضعیت = **رنگ + شکل + متن**. شکل‌ها در سیاه‌وسفید و برای کوررنگی قرمز-سبز هم جدا هستند. هیچ‌کدام به نیلی برند نزدیک نیست.
+Every status = **color + shape + text**. The shapes are distinguishable in black and white and for red-green color blindness. None is close to the brand indigo.
 
-| وضعیت | متن نشان | شکل | پس‌زمینه | متن/شکل | کادر | کنتراست |
+| Status | Badge text | Shape | Background | Text/shape | Border | Contrast |
 |---|---|---|---|---|---|---|
-| سبز | «روبه‌راه» | دایره ● | `#E6F4EA` | `#16653A` | `#A7D7B5` | ۶٫۳:۱ |
-| زرد | «نیاز به توجه» | مثلث ▲ | `#FDF1D6` | `#7A4B00` | `#EBC46F` | ۶٫۶:۱ |
-| قرمز | «گیرکرده» | مربع ■ | `#FCE9E7` | `#A8221C` | `#F0AFA9` | ۶٫۲:۱ |
-| متوقف | «متوقف تا [تاریخ]» | دو خط ‖ | `#EEECE8` | `#4A463F` | `#C9C4BA` | ۷٫۹:۱ |
-| خطر ریزش | «گیرکرده · خطر ریزش» | مربع سفید | `#B3261E` (`--h-solid`) | `#FFFFFF` | — | ۶٫۵:۱ |
-| هشدار خاموش | «هشدار خاموش تا …» | همان شکل | شفاف | همان | **خط‌چین** | همان |
+| Green | "On track" | circle ● | `#E6F4EA` | `#16653A` | `#A7D7B5` | 6.3:1 |
+| Yellow | "Needs attention" | triangle ▲ | `#FDF1D6` | `#7A4B00` | `#EBC46F` | 6.6:1 |
+| Red | "Stuck" | square ■ | `#FCE9E7` | `#A8221C` | `#F0AFA9` | 6.2:1 |
+| Paused | "Paused until [date]" | two bars ‖ | `#EEECE8` | `#4A463F` | `#C9C4BA` | 7.9:1 |
+| Churn risk | "Stuck · churn risk" | white square | `#B3261E` (`--h-solid`) | `#FFFFFF` | — | 6.5:1 |
+| Alert muted | "Alert muted until …" | same shape | transparent | same | **dashed** | same |
 
-**قواعد نمایش سلامت** (بدون تغییر از وایرفریم)
-- کنار نشان همیشه **دلیل انسانی** می‌آید؛ کد قاعده (`.rule`) کوچک، لاتین، روی زمینه‌ی خاکستری، داخل `<bdi>`.
-- «توپ در زمین» نشان جدای `.ball` با آیکن توپ: «توپ: هنرجو / ما / هر دو».
-- **هنرجو هیچ‌وقت نشان سلامت را نمی‌بیند.**
-- در فهرست‌ها، ردیف قرمز یک خط ۳px قرمز در لبه‌ی شروع (راست) دارد؛ کانبان «بیش از معمول» = خط کهربایی، «۲ برابر» = خط قرمز، **همیشه با متن** («۲۱ روز · ۲ برابر معمول»).
+**Health display rules** (unchanged from the wireframe)
+- A **human-readable reason** always accompanies the badge; the rule code (`.rule`) is small, Latin, on a gray background, inside `<bdi>`.
+- "Ball in court" is a separate `.ball` badge with a ball icon: "Ball: student / us / both".
+- **The student never sees the health badge.**
+- In lists, a red row has a 3px red line on the start edge (right); kanban "longer than usual" = amber line, "2x" = red line, **always with text** ("21 days · 2x usual").
 
-### ۲-۵. وضعیت کار (F4)
+### 2-5. Task status (F4)
 
-| وضعیت | برچسب | زمینه / متن | آیکن | کنتراست |
+| Status | Label | Background / text | Icon | Contrast |
 |---|---|---|---|---|
-| باز | «باز» | `#EEECE8` / `#4A463F` | دایره‌ی توخالی | ۷٫۹:۱ |
-| در حال انجام | «در حال انجام» | `#E3F0F8` / `#0F5A80` | نیم‌دایره‌ی پر | ۶٫۴:۱ |
-| تحویل‌شده | «منتظر بازبینی» / «تحویل دادی» | `#E6E4F8` / `#3C3489` | ساعت شنی | ۸٫۰:۱ |
-| نیاز به اصلاح | «نیاز به اصلاح · دور ۲» | `#FDF1D6` / `#7A4B00` | پیکان برگشت | ۶٫۶:۱ |
-| پذیرفته | «پذیرفته» | `#E6F4EA` / `#16653A` | تیک | ۶٫۳:۱ |
-| لغوشده | «لغوشده» | `#F2F0EB` / `#6F695F` + خط‌خورده | — | ۴٫۷:۱ |
+| Open | "Open" | `#EEECE8` / `#4A463F` | hollow circle | 7.9:1 |
+| In progress | "In progress" | `#E3F0F8` / `#0F5A80` | filled half circle | 6.4:1 |
+| Submitted | "Waiting for review" / "You submitted" | `#E6E4F8` / `#3C3489` | hourglass | 8.0:1 |
+| Needs revision | "Needs revision · round 2" | `#FDF1D6` / `#7A4B00` | return arrow | 6.6:1 |
+| Accepted | "Accepted" | `#E6F4EA` / `#16653A` | check mark | 6.3:1 |
+| Cancelled | "Cancelled" | `#F2F0EB` / `#6F695F` + strikethrough | — | 4.7:1 |
 
-«منتظر بازبینی» عمداً نیلی است: این همان چیزی است که مربی باید رویش اقدام کند و به دکمه‌ی «بازبینی» وصل است.
+"Waiting for review" is deliberately indigo: this is the thing the coach must act on, and it is tied to the "Review" button.
 
-### ۲-۶. برچسب‌ها (`.tag`)
+### 2-6. Tags (`.tag`)
 
-| برچسب | ظاهر | کنتراست |
+| Tag | Appearance | Contrast |
 |---|---|---|
-| خنثی (نیچ، کوهورت) | `surface-2` / `text-2`، گرد کامل | ۶٫۸:۱ |
-| **معوق** `.tag-overdue` | قرمز توپر `#B3261E` / سفید | ۶٫۵:۱ |
-| **دیر** `.tag-late` (SLA تیم) | سفید با کادر قرمز / متن `#A8221C` + آیکن ساعت | ۷٫۲:۱ |
-| **فوری** `.tag-urgent` | جوهری `#1F1D1A` / سفید + آیکن صاعقه | ۱۶٫۸:۱ |
-| **جدید** `.tag-new` | نیلی توپر / سفید | ۸٫۱:۱ |
-| **اجباری برای عبور** `.tag-gate` | نیلی کم‌رنگ با کادر | ۹٫۳:۱ |
-| پلتفرم `.platform` | کادر نازک، مونوگرام کوچک، متن لاتین LTR؛ **بدون رنگ برند پلتفرم** (سبز آپورک با «روبه‌راه» قاطی می‌شد) | ۷٫۸:۱ |
+| Neutral (niche, cohort) | `surface-2` / `text-2`, fully rounded | 6.8:1 |
+| **Overdue** `.tag-overdue` | solid red `#B3261E` / white | 6.5:1 |
+| **Late** `.tag-late` (team SLA) | white with red border / text `#A8221C` + clock icon | 7.2:1 |
+| **Urgent** `.tag-urgent` | ink `#1F1D1A` / white + lightning icon | 16.8:1 |
+| **New** `.tag-new` | solid indigo / white | 8.1:1 |
+| **Required to pass** `.tag-gate` | pale indigo with border | 9.3:1 |
+| Platform `.platform` | thin border, small monogram, Latin LTR text; **no platform brand color** (Upwork green would clash with "On track") | 7.8:1 |
 
-### ۲-۷. آواتار
+### 2-7. Avatar
 
-دایره با حرف اول نام (۷۰۰) روی ۸ رنگ ملایم ثابت؛ رنگ در پیاده‌سازی = `hash(userId) % 8` تا در همه‌ی صفحه‌ها یکی باشد. همه‌ی جفت‌ها ≥ ۶:۱.
+A circle with the first letter of the name (700) on one of 8 fixed soft colors; the color in the implementation = `hash(userId) % 8` so it is the same on every page. All pairs ≥ 6:1.
 
-| کلاس | زمینه / متن | | کلاس | زمینه / متن |
+| Class | Background / text | | Class | Background / text |
 |---|---|---|---|---|
-| `av-1` نیلی | `#E6E4F8` / `#3C3489` | | `av-5` سبزآبی | `#DCEFEC` / `#1D5C55` |
-| `av-2` آلویی | `#F4E2EF` / `#7A2E68` | | `av-6` آسمانی | `#DFEDF7` / `#1E5276` |
-| `av-3` سفالی | `#F8E3D7` / `#8A3B17` | | `av-7` گلی | `#F9E1E4` / `#8C2639` |
-| `av-4` اُخرایی | `#F5EACB` / `#6B4E00` | | `av-8` زیتونی | `#E7EDD5` / `#4A5A1A` |
+| `av-1` indigo | `#E6E4F8` / `#3C3489` | | `av-5` teal | `#DCEFEC` / `#1D5C55` |
+| `av-2` plum | `#F4E2EF` / `#7A2E68` | | `av-6` sky | `#DFEDF7` / `#1E5276` |
+| `av-3` terracotta | `#F8E3D7` / `#8A3B17` | | `av-7` rose | `#F9E1E4` / `#8C2639` |
+| `av-4` ochre | `#F5EACB` / `#6B4E00` | | `av-8` olive | `#E7EDD5` / `#4A5A1A` |
 
-اندازه‌ها: `av-xs` ۲۰، `av-sm` ۲۶، پیش‌فرض ۳۲، `av-lg` ۴۴، `av-xl` ۶۴ (گوشه‌ی ۲۰px، فقط سربرگ پرونده). آواتار همیشه `aria-hidden` است؛ نام کنارش متن واقعی است.
+Sizes: `av-xs` 20, `av-sm` 26, default 32, `av-lg` 44, `av-xl` 64 (20px corners, file header only). The avatar is always `aria-hidden`; the name next to it is real text.
 
-### ۲-۸. حالت تاریک
+### 2-8. Dark mode
 
-با `@media (prefers-color-scheme: dark)` فقط توکن‌ها عوض می‌شوند؛ هیچ کامپوننتی کد جدا ندارد. (در پیاده‌سازی با Tailwind: استراتژی `class` روی `<html>` با پیش‌فرض «مطابق سیستم» تا کاربر بتواند دستی عوض کند.)
+With `@media (prefers-color-scheme: dark)` only the tokens change; no component has separate code. (In the Tailwind implementation: the `class` strategy on `<html>`, defaulting to "follow system", so the user can switch manually.)
 
-| توکن | تاریک | کنتراست |
+| Token | Dark | Contrast |
 |---|---|---|
 | `--c-bg` / `--c-surface` / `--c-surface-2` | `#141311` / `#1C1B18` / `#24221F` | — |
-| `--c-text` | `#EDEAE4` | ۱۴٫۳:۱ روی surface |
-| `--c-text-2` | `#B8B2A7` | ۸٫۲:۱ |
-| `--c-text-3` | `#989186` | ۵٫۵:۱ (۵٫۱ روی surface-2) |
-| `--c-border-strong` | `#7A746A` | ۳٫۷:۱ |
-| `--c-primary` (دکمه) | `#5B52BD` | سفید: ۶٫۲:۱ |
-| `--c-link` / `--c-focus` | `#A9A3F0` | ۷٫۵:۱ |
-| `--c-primary-text` روی `--c-primary-weak` | `#B9B3F2` روی `#211E44` | ۷٫۸:۱ |
-| سلامت سبز / زرد / قرمز / متوقف (متن روی زمینه) | `#86D7A1`/`#132B1C` · `#F0C26A`/`#33270C` · `#FFA49B`/`#3A1714` · `#CEC8BD`/`#2A2824` | ۸٫۰ · ۸٫۸ · ۸٫۴ · ۸٫۸ |
+| `--c-text` | `#EDEAE4` | 14.3:1 on surface |
+| `--c-text-2` | `#B8B2A7` | 8.2:1 |
+| `--c-text-3` | `#989186` | 5.5:1 (5.1 on surface-2) |
+| `--c-border-strong` | `#7A746A` | 3.7:1 |
+| `--c-primary` (button) | `#5B52BD` | white: 6.2:1 |
+| `--c-link` / `--c-focus` | `#A9A3F0` | 7.5:1 |
+| `--c-primary-text` on `--c-primary-weak` | `#B9B3F2` on `#211E44` | 7.8:1 |
+| Health green / yellow / red / paused (text on background) | `#86D7A1`/`#132B1C` · `#F0C26A`/`#33270C` · `#FFA49B`/`#3A1714` · `#CEC8BD`/`#2A2824` | 8.0 · 8.8 · 8.4 · 8.8 |
 | `--side-bg` | `#0F0E1C` | — |
 
-### ۲-۹. تایپوگرافی
+### 2-9. Typography
 
-**فونت:** Vazirmatn متغیر نسخه‌ی 33.0.3 (وزن ۱۰۰ تا ۹۰۰)، از فایل محلی؛ PRD بخش ۸: بدون CDN.
+**Font:** Vazirmatn variable, version 33.0.3 (weight 100 to 900), from a local file; PRD section 8: no CDN.
 
 ```css
 @font-face {
@@ -177,297 +177,303 @@
 --font: "Vazirmatn", Tahoma, "Segoe UI", sans-serif;
 ```
 
-- یک فونت برای همه‌چیز، از جمله متن انگلیسی آپورک (Vazirmatn حروف لاتین خوانا دارد). توکن جدای `--font-latin` وایرفریم حذف شد.
-- در پیاده‌سازی: فایل در `public/fonts/` و `<link rel="preload" as="font" type="font/woff2" crossorigin>` فقط برای همین یک فایل (~۱۰۰KB).
-- فاصله‌ی حروف (letter-spacing) برای فارسی همیشه صفر. ارتفاع خط فارسی هرگز زیر ۱٫۵.
+- One font for everything, including the English Upwork text (Vazirmatn has legible Latin letters). The separate `--font-latin` token from the wireframe was removed.
+- In the implementation: the file goes in `public/fonts/` with `<link rel="preload" as="font" type="font/woff2" crossorigin>` for this one file only (~100KB).
+- Letter-spacing is always zero for Persian. Persian line height is never below 1.5.
 
-| نقش | توکن | اندازه / ارتفاع خط | وزن | نمونه |
+| Role | Token | Size / line height | Weight | Example |
 |---|---|---|---|---|
-| عدد کلیدی (KPI) | `--fs-kpi` | ۳۴ / ۴۰ (موبایل ۲۶ / ۳۲) | **۸۰۰** | «۱۸» در امروز |
-| عنوان صفحه | `--fs-2xl` | ۲۶ / ۳۸ (موبایل ۲۱ / ۳۲) | ۷۰۰ | «امروز» |
-| عنوان پنجره، سلام هنرجو | `--fs-xl` | ۲۰ / ۳۰ | ۷۰۰ | «تغییر مرحله‌ی امیر» |
-| عنوان کارت/بخش (h2) | — | ۱۶ / ۲۶ | ۷۰۰ | «تحویل‌های منتظر بازبینی» |
-| نام هنرجو در جدول | — | ۱۵ / ۲۴ | ۷۰۰ | «زهرا کریمی» |
-| عنوان ردیف، دکمه | `--fs-md` | ۱۵ / ۲۶ · دکمه ۱۴ | ۶۰۰ | «بپرس مصاحبه‌ی دیروز چه شد» |
-| متن بدنه | `--fs-md` | ۱۵ / ۲۶ | ۴۰۰ | شرح کار |
-| برچسب فیلد، ناوبری | — | ۱۴ / ۲۰ | ۵۰۰–۶۰۰ | «مهلت نسخه‌ی بعد» |
-| متا (نام، زمان، مشاور) | `--fs-sm` | ۱۳ / ۲۱ | ۴۰۰ | «امیر رستمی · ۶ ساعت پیش» |
-| نشان، شمارنده، کد قاعده | `--fs-xs` | ۱۲ / ۱۸ (حداقل برای متن) | ۵۰۰–۷۰۰ | «دیر · ۵۲ ساعت» |
-| استثنای ۱۱px | — | ۱۱ / ۱۴–۱۶ | ۵۰۰–۷۰۰ | فقط برچسب زیر آیکن نوار پایین موبایل، قرص «اینجایی»، برچسب «داخلی/اشتراکی» و عنوان گروه ناوبری؛ همه کوتاه و با کنتراست ≥ ۵:۱ |
-| ورودی فرم | `--fs-input` | **۱۶** همیشه | ۴۰۰ | تا iOS زوم نکند |
+| Key number (KPI) | `--fs-kpi` | 34 / 40 (mobile 26 / 32) | **800** | "18" on Today |
+| Page title | `--fs-2xl` | 26 / 38 (mobile 21 / 32) | 700 | "Today" |
+| Dialog title, student greeting | `--fs-xl` | 20 / 30 | 700 | "Change Amir's stage" |
+| Card/section title (h2) | — | 16 / 26 | 700 | "Submissions waiting for review" |
+| Student name in a table | — | 15 / 24 | 700 | "Zahra Karimi" |
+| Row title, button | `--fs-md` | 15 / 26 · button 14 | 600 | "Ask how yesterday's interview went" |
+| Body text | `--fs-md` | 15 / 26 | 400 | Task description |
+| Field label, navigation | — | 14 / 20 | 500–600 | "Next-version deadline" |
+| Meta (name, time, mentor) | `--fs-sm` | 13 / 21 | 400 | "Amir Rostami · 6 hours ago" |
+| Badge, counter, rule code | `--fs-xs` | 12 / 18 (minimum for text) | 500–700 | "Late · 52 hours" |
+| 11px exception | — | 11 / 14–16 | 500–700 | Only the label under the mobile bottom-bar icon, the "You are here" pill, the "Internal/Shared" label and the navigation group title; all short and with contrast ≥ 5:1 |
+| Form input | `--fs-input` | **16** always | 400 | So iOS does not zoom |
 
-اعداد رابط فارسی‌اند (`Intl.NumberFormat('fa-IR')`)؛ شمارنده‌ها `font-variant-numeric: tabular-nums` دارند تا ستون‌ها نلرزند.
+UI numbers are Persian (`Intl.NumberFormat('fa-IR')`); counters have `font-variant-numeric: tabular-nums` so columns do not jitter.
 
-### ۲-۱۰. فاصله (مقیاس ۴px)
+### 2-10. Spacing (4px scale)
 
-| توکن | `--sp-1` | `--sp-2` | `--sp-3` | `--sp-4` | `--sp-5` | `--sp-6` | `--sp-7` | `--sp-8` | `--sp-9` | `--sp-10` |
+| Token | `--sp-1` | `--sp-2` | `--sp-3` | `--sp-4` | `--sp-5` | `--sp-6` | `--sp-7` | `--sp-8` | `--sp-9` | `--sp-10` |
 |---|---|---|---|---|---|---|---|---|---|---|
-| px | ۴ | ۸ | ۱۲ | ۱۶ | ۲۰ | ۲۴ | ۳۲ | ۴۰ | ۴۸ | ۶۴ |
+| px | 4 | 8 | 12 | 16 | 20 | 24 | 32 | 40 | 48 | 64 |
 
-توجه: در وایرفریم `--sp-5` = ۲۴ بود؛ حالا ۲۰ است و ۲۴ = `--sp-6` (مقیاس پیوسته‌ی ۴تایی).
+Note: in the wireframe `--sp-5` was 24; it is now 20, and 24 = `--sp-6` (a continuous 4px scale).
 
-کاربرد ثابت: درون کارت ۲۰ (موبایل ۱۶)؛ بین کارت‌ها ۲۰؛ بین ستون‌ها ۲۴؛ حاشیه‌ی صفحه‌ی دسکتاپ ۴۰، موبایل ۱۶؛ بین آیکن و متن ۶ تا ۸؛ ردیف فهرست ۱۲ عمودی.
+Fixed usage: inside a card 20 (mobile 16); between cards 20; between columns 24; desktop page margin 40, mobile 16; between icon and text 6 to 8; list row 12 vertical.
 
-### ۲-۱۱. شعاع و سایه
+### 2-11. Radius and shadow
 
-| توکن | مقدار | کاربرد |
+| Token | Value | Usage |
 |---|---|---|
-| `--r-xs` | ۶px | چیپ وضعیت کار، کد |
-| `--r-sm` | ۸px | دکمه، فیلد، آیتم ناوبری |
-| `--r-md` | ۱۲px | کارت، جدول، کارت کانبان |
-| `--r-lg` | ۱۶px | کارت KPI، ستون کانبان، کادر اولویت |
-| `--r-xl` | ۲۰px | پنجره و برگه‌ی پایین |
-| `--r-full` | ۹۹۹px | نشان، برچسب، چیپ فیلتر، آواتار |
+| `--r-xs` | 6px | Task status chip, code |
+| `--r-sm` | 8px | Button, field, navigation item |
+| `--r-md` | 12px | Card, table, kanban card |
+| `--r-lg` | 16px | KPI card, kanban column, priority box |
+| `--r-xl` | 20px | Dialog and bottom sheet |
+| `--r-full` | 999px | Badge, tag, filter chip, avatar |
 
-| توکن | مقدار (رنگ سایه گرم `rgb(31,27,20)`) | کاربرد |
+| Token | Value (warm shadow color `rgb(31,27,20)`) | Usage |
 |---|---|---|
-| `--shadow-xs` | `0 1px 2px /.05` | دکمه، فیلد، کارت کانبان |
-| `--shadow-sm` | `0 1px 2px /.06, 0 1px 3px /.05` | کارت |
-| `--shadow-md` | `0 2px 4px /.04, 0 8px 20px -6px /.14` | hover کارت، برگه‌ی پیشنهاد |
-| `--shadow-lg` | `0 24px 56px -12px /.30, …` | فقط پنجره، منوی بازشو، پیام موقت |
-| `--ring` | `0 0 0 3px` نیلی ۲۲٪ | فوکوس فیلد (به‌علاوه‌ی تغییر رنگ کادر) |
+| `--shadow-xs` | `0 1px 2px /.05` | Button, field, kanban card |
+| `--shadow-sm` | `0 1px 2px /.06, 0 1px 3px /.05` | Card |
+| `--shadow-md` | `0 2px 4px /.04, 0 8px 20px -6px /.14` | Card hover, suggestion sheet |
+| `--shadow-lg` | `0 24px 56px -12px /.30, …` | Only dialog, popup menu, toast |
+| `--ring` | `0 0 0 3px` indigo 22% | Field focus (plus a border color change) |
 
-### ۲-۱۲. نقطه‌های شکست
+### 2-12. Breakpoints
 
-| نام | عرض | چیدمان |
+| Name | Width | Layout |
 |---|---|---|
-| موبایل | < ۷۶۸px | یک ستون، نوار بالا + نوار پایین، جدول ← کارت، پنجره ← برگه‌ی پایین |
-| تبلت | ۷۶۸ تا ۱۱۹۹px | نوار کناری ۲۲۴px، یک ستون، KPI دوتایی |
-| دسکتاپ باریک | ۱۲۰۰ تا ۱۲۷۹px | نوار کناری ۲۵۶px، جزئیات دوستونه، «امروز» یک ستون |
-| دسکتاپ | ≥ ۱۲۸۰px | «امروز» دو ستون؛ محتوا تا ۱۳۶۰px (در ۱۴۴۰ کل عرض پر می‌شود)؛ کانبان بدون سقف عرض |
+| Mobile | < 768px | One column, top bar + bottom bar, table → card, dialog → bottom sheet |
+| Tablet | 768 to 1199px | Sidebar 224px, one column, KPIs in pairs |
+| Narrow desktop | 1200 to 1279px | Sidebar 256px, two-column detail, "Today" one column |
+| Desktop | ≥ 1280px | "Today" two columns; content up to 1360px (at 1440 it fills the full width); kanban has no width cap |
 
 ---
 
-## ۳. الگوی چیدمان (Layout)
+## 3. Layout patterns
 
-### ۳-۱. پوسته‌ی مربی/مشاور
+### 3-1. Coach/mentor shell
 
 ```
-دسکتاپ (≥ 1200)                                        موبایل (< 768)
+Desktop (≥ 1200)                                       Mobile (< 768)
 ┌──────────────────────────────────────┬─────────────┐  ┌───────────────────────┐
-│ تاریخ (کم‌رنگ)                         │ ▣ UpworkCoach│  │ ☰   امروز · ۲۷ مهر  ⌕ │ ← نوار بالا (چسبان، نیمه‌شفاف)
-│ امروز (۲۶/۷۰۰)       [مشاور ▾] [+ افزودن]│ [⌕ جستجو  /]│  ├───────────────────────┤
-│ ┌ از زمان پاسخ گذشته ─────────────────┐ │ ▸ امروز   ۱۸│  │ کادر اولویت            │
-│ │ ا  تحویل امیر · دیر ۵۲ ساعت [بازبینی]│ │   هنرجوها   │  │ [۴][۵]                 │
-│ └────────────────────────────────────┘ │   مراحل     │  │ [۳][۶]   ← KPI دوتایی  │
-│ [۴ یادآور][۵ تحویل][۳ سؤال][۶ گیرکرده]   │   کارها     │  │ بخش‌ها زیر هم          │
-│ ┌ یادآورها ─────┐ ┌ سؤال‌ها ─────────┐  │   سؤال‌ها  ۳ │  ├───────────────────────┤
-│ ┌ تحویل‌ها ─────┐ ┌ گیرکرده‌ها ───────┐  │ مدیر        │  │ امروز هنرجوها (+) کارها سؤال‌ها │
-│                                        │ ● مربی     ⚙│  └───────────────────────┘
+│ date (faded)                          │ ▣ UpworkCoach│  │ ☰   Today · 27 Mehr ⌕ │ ← top bar (sticky, translucent)
+│ Today (26/700)    [Mentor ▾] [+ Add]  │ [⌕ Search  /]│  ├───────────────────────┤
+│ ┌ Past response time ────────────────┐ │ ▸ Today   18│  │ priority box           │
+│ │ A  Amir's submission · late 52h [Review]│ │  Students   │  │ [4][5]                 │
+│ └────────────────────────────────────┘ │   Stages    │  │ [3][6]   ← KPIs in pairs│
+│ [4 reminders][5 submissions][3 questions][6 stuck] │   Tasks     │  │ sections stacked       │
+│ ┌ Reminders ────┐ ┌ Questions ───────┐  │   Questions 3│  ├───────────────────────┤
+│ ┌ Submissions ──┐ ┌ Stuck ───────────┐  │ Admin       │  │ Today Students (+) Tasks Questions │
+│                                        │ ● Coach    ⚙│  └───────────────────────┘
 └──────────────────────────────────────┴─────────────┘
-                                         ↑ نوار کناری جوهری، سمت **راست** (شروع خط در RTL)
+                                         ↑ dark ink sidebar, on the **right** (start of the line in RTL)
 ```
 
-- **نوار کناری** ۲۵۶px، جوهری تیره، چسبان: نشان برند، جستجو با میان‌بُر `/`، ناوبری با آیکن، گروه «مدیر» (نتایج، تنظیمات؛ برای مشاور حذف می‌شود)، کاربر پایین. آیتم فعلی: زمینه‌ی روشن‌تر + خط ۳px نیلی روشن در لبه + آیکن نیلی + وزن ۷۰۰.
-- **نوار پایین موبایل** ۵ جا: امروز، هنرجوها، **+ افزودن سریع** (دکمه‌ی شناور نیلی ۵۲px، گوشه‌ی ۱۸، کمی بالاتر از نوار)، کارها، سؤال‌ها. آیتم فعلی: رنگ نیلی + خط بالای آیکن. شمارنده روی گوشه‌ی آیکن.
-- **افزودن سریع (+)** برگه‌ی پایین با شبکه‌ی ۲×۲ کارت: یادداشت (اصلی)، کار جدید، یادآور، هنرجوی جدید.
+- **Sidebar** 256px, dark ink, sticky: brand mark, search with the `/` shortcut, navigation with icons, an "Admin" group (results, settings; removed for mentors), the user at the bottom. Current item: lighter background + 3px light-indigo line on the edge + indigo icon + weight 700.
+- **Mobile bottom bar** with 5 slots: Today, Students, **+ Quick add** (floating indigo button, 52px, 18px corners, slightly above the bar), Tasks, Questions. Current item: indigo color + a line above the icon. The counter sits on the icon's corner.
+- **Quick add (+)** is a bottom sheet with a 2x2 grid of cards: Note (primary), New task, Reminder, New student.
 
-### ۳-۲. پوسته‌ی هنرجو
+### 3-2. Student shell
 
-- دسکتاپ: نوار بالای سفید نیمه‌شفاف ۶۴px با برند، پنج آیتم قرصی (خانه، کارها، سؤال‌ها، مسیر، من) با شمارنده‌ی نیلی، و زنگ اعلان؛ محتوا در ستون وسط تا ۷۶۰px.
-- موبایل: نوار بالا (برند + زنگ؛ در صفحه‌ی کار: بازگشت + عنوان) و نوار پایین پنج‌تایی.
-- لحن بصری هنرجو کمی گرم‌تر از مربی است: کارت check-in با گرادیان نیلی، گام‌شمار با «اینجایی»، دکمه‌های بزرگ‌تر (`btn-lg`، ۴۸px).
+- Desktop: a 64px translucent white top bar with the brand, five pill items (Home, Tasks, Questions, Path, Me) with an indigo counter, and a notification bell; content in a center column up to 760px.
+- Mobile: top bar (brand + bell; on a task page: back + title) and a five-item bottom bar.
+- The student's visual tone is slightly warmer than the coach's: the check-in card with an indigo gradient, the stepper with "You are here", larger buttons (`btn-lg`, 48px).
 
-### ۳-۳. الگوهای صفحه
+### 3-3. Page patterns
 
-| الگو | دسکتاپ | موبایل | صفحه‌ها |
+| Pattern | Desktop | Mobile | Pages |
 |---|---|---|---|
-| **داشبورد بخش‌دار** | کادر اولویت + ۴ KPI + شبکه‌ی ۲ ستونه | کادر اولویت، KPI ۲×۲ (لینک پرش)، بخش‌ها زیر هم | امروز، خانه‌ی هنرجو |
-| **فهرست جدولی** | جدول در کارت با سربرگ خاکستری، فیلترها در دو ردیف | هر ردیف کارت (نام و آواتار بالا، بقیه «برچسب ← مقدار»)؛ فیلتر در برگه‌ی پایین | هنرجوها، کارها |
-| **جزئیات دوستونه** | ستون اصلی + ستون کناری ۳۶۰px چسبان | ستون کناری زیر اصلی؛ اقدام اصلی در نوار ثابت بالای نوار پایین | پرونده، جزئیات کار |
-| **کانبان** | ستون‌های ۲۷۲px با اسکرول افقی داخلی (نه صفحه) | هر ستون ۸۵٪ عرض، `scroll-snap` اجباری + ردیف چیپ مرحله | مراحل |
-| **فرم/پنجره** | پنجره‌ی وسط، حداکثر ۵۶۰px، گوشه‌ی ۲۰ | برگه‌ی پایین تمام‌عرض با دستگیره، دکمه‌ها چسبیده به پایین | همه‌ی پنجره‌ها |
+| **Sectioned dashboard** | Priority box + 4 KPIs + 2-column grid | Priority box, KPIs 2x2 (jump links), sections stacked | Today, student home |
+| **Tabular list** | Table in a card with a gray header, filters in two rows | Each row a card (name and avatar on top, the rest "label → value"); filters in a bottom sheet | Students, tasks |
+| **Two-column detail** | Main column + 360px sticky side column | Side column below the main one; the main action in a fixed bar above the bottom bar | File, task detail |
+| **Kanban** | 272px columns with internal horizontal scroll (not the page) | Each column 85% width, mandatory `scroll-snap` + a row of stage chips | Stages |
+| **Form/dialog** | Center dialog, max 560px, 20px corners | Full-width bottom sheet with a handle, buttons pinned to the bottom | All dialogs |
 
-**ترتیب ستون‌ها:** در RTL ستون اصلی سمت راست است. ترتیب DOM = ترتیب نمایش؛ از `order` برای جابه‌جایی محتوای تعاملی استفاده نشود.
+**Column order:** in RTL the main column is on the right. DOM order = display order; do not use `order` to rearrange interactive content.
 
 ---
 
-## ۴. کامپوننت‌ها
+## 4. Components
 
-نمونه‌ی زنده‌ی همه: `mockups/states.html`.
+Live example of all of them: `mockups/states.html`.
 
-| کامپوننت | کلاس | توضیح و حالت‌ها |
+| Component | Class | Description and states |
 |---|---|---|
-| دکمه | `.btn` (ثانویه)، `.btn-primary`، `.btn-soft`، `.btn-ghost`، `.btn-link`، `.btn-danger`، `.btn-danger-solid`؛ اندازه `.btn-sm` (۳۲)، پیش‌فرض (۳۸ دسکتاپ / ۴۴ موبایل)، `.btn-lg` (۴۸) | حالت‌ها: hover (زمینه/کادر تیره‌تر)، فشرده (۱px پایین)، فوکوس (حلقه)، غیرفعال (`aria-disabled` + ۵۵٪)، در حال ارسال (`.is-loading` چرخنده‌ی ۱۴px + متن «در حال ثبت…»). **یک `btn-primary` در هر صفحه**؛ اقدام تکراری ردیف‌ها `btn-soft` |
-| دکمه‌ی آیکنی | `.icon-btn` | ۳۶px (موبایل ۴۴)؛ همیشه `aria-label`؛ نشان نقطه‌ای `.dot-badge` |
-| کارت | `.card`، `.card-head`، `.card-link`، `.card-foot` | عنوان ۱۶/۷۰۰ با آیکن کم‌رنگ + شمارنده؛ لینک «همه ›» نیلی ۶۰۰ |
-| کارت عددی | `.kpis` > `.kpi` + `.k-brand/.k-sky/.k-plum/.k-red` | مربع آیکن ۴۴px رنگی، عدد ۳۴/۸۰۰، برچسب ۱۴/۵۰۰، زیرنشان قرمز یا جوهری («۱ دیر»، «۱ فوری»). کل کارت لینک پرش؛ hover: بالا آمدن ۱px و سایه |
-| کادر اولویت | `.priority`، `.priority-head`، `.priority-list` | فقط وقتی چیزی از SLA گذشته؛ سربرگ قرمز کم‌رنگ با آیکن هشدار؛ هر مورد: آواتار، عنوان، دلیل، یک دکمه |
-| ردیف فهرست | `.list` > `.item` (+ `.is-late`، `.is-warn`) | آواتار ۳۲، عنوان ۶۰۰، متا ۱۳؛ hover کل ردیف؛ دیر = خط ۳px قرمز در لبه‌ی شروع |
-| آواتار / شخص | `.avatar .av-1…8`، `.person` | بخش ۲-۷ |
-| نوار مسیر | `.path` (+ `.path-lg`) | ۹ تکه: `i.d` گذشته (نیلی روشن)، `i.c` فعلی (نیلی، پهن‌تر و بلندتر با حلقه)، خالی آینده؛ `role="img"` + `aria-label="مرحله‌ی ۵ از مسیر ۰ تا ۸"`؛ همیشه کنار متن مرحله |
-| گام‌شمار هنرجو | `.stepper` | دایره‌ی ۳۲px: گذشته نیلی با تیک، فعلی ۳۶px با حلقه + قرص «اینجایی»، آینده خاکستری؛ خط اتصال نیلی تا مرحله‌ی فعلی؛ موبایل اسکرول افقی با snap |
-| نشان سلامت | `.health .h-green/.h-yellow/.h-red/.h-churn/.h-paused` (+ `.h-muted`، `.h-dot`) | بخش ۲-۴؛ `.h-dot` = فقط شکل + متن بدون قرص (خلاصه‌ی سربرگ هنرجوها) |
-| چیپ وضعیت کار | `.chip .st-*` + آیکن ۱۴px | بخش ۲-۵ |
-| برچسب | `.tag`، `-overdue`، `-late`، `-urgent`، `-new`، `-gate`، `-outline`؛ `.platform` | بخش ۲-۶ |
-| شمارنده | `.count`، `.count-brand`، `.count-alert` | قرص ۲۰px، ۱۲/۷۰۰، اعداد جدولی؛ همیشه `aria-label` کامل |
-| توپ در زمین / کد قاعده | `.ball`، `.rule` | کادر نازک با آیکن توپ / لاتین ۱۱px روی خاکستری |
-| جستجو | `.search-wrap` > `.search` | آیکن ذره‌بین در شروع، `kbd /` در انتها (فقط دسکتاپ)؛ فوکوس: کادر نیلی + `--ring` |
-| انتخاب / سوییچ | `.select`، `.seg` | سوییچ «فهرست / مراحل» و نسخه‌ها: قرص سفید سایه‌دار روی زمینه‌ی `surface-3` |
-| چیپ فیلتر | `.fchip` (`aria-pressed`) | انتخاب‌شده: جوهری توپر؛ با شکل وضعیت و شمار |
-| زبانه/لنگر | `.tabs` | خط ۲px نیلی زیر فعلی، شمارنده‌ی فعلی نیلی؛ موبایل چسبان زیر نوار بالا |
-| جدول واکنش‌گرا | `.table-wrap` > `.rtable` + `data-label`، `.cell-primary`، `.col-act`، `tr.row-red` | موبایل: کارت با `cell-primary` جداشده با خط، بقیه «برچسب ← مقدار»، دکمه تمام‌عرض |
-| سربرگ پرونده | `.profile-hero`، `.ph-top`، `.ph-rest`، `.three`، `.reasons` | آواتار ۶۴، نام ۲۴/۷۰۰، وضعیت + توپ، دلیل‌ها در قرص قرمز، متا با آیکن؛ سه کاشی «ویترین / آخرین کار / کجای مسیر» |
-| تایم‌لاین | `.timeline`، `.tl-item`، `.tl-icon`، `.tl-internal`، `.tl-shared`، `.tl-auto` | داخلی: آیکن جوهری + کادر خط‌چین + `.vis-tag.vis-internal` («داخلی — هنرجو نمی‌بیند» با آیکن قفل)؛ اشتراکی: نیلی کم‌رنگ + آیکن چشم؛ خودکار: نقطه‌ی کوچک بدون کادر |
-| نوشتن یادداشت | `.composer` + `.vis-switch` | فوکوس کل کادر را حلقه می‌دهد؛ سوییچ «داخلی / اشتراکی» متنی با آیکن، پیش‌فرض داخلی (جوهری) |
-| کانبان | `.board`، `.kcol`، `.kcol-head`، `.stage-num`، `.kcount`، `.kcol-bar`، `.kcard` (+ `.is-over`، `.is-over2`)، `.kmove`، `.kmore`، `.stage-chips` | سربرگ ستون: شماره در مربع، نام، شمارنده، «معمول: …»، نوار توزیع سلامت ۴px (تزئینی، `aria-hidden`). کارت: کل کارت لینک (`::after` کشیده)، دکمه‌ی «انتقال» با hover/فوکوس ظاهر و روی لمسی همیشه دیده می‌شود |
-| نتیجه‌ی بازبینی | `.outcome` (`.ok`، `.fix`) | دو کارت رادیویی بزرگ با آیکن؛ انتخاب‌شده: زمینه و کادر سبز/کهربایی (با `:has(input:checked)`) |
-| امتیاز | `.rating` | پنج خانه‌ی به‌هم‌چسبیده، انتخاب‌شده نیلی؛ ۱، ۳ و ۵ زیرنویس دارند |
-| فرم | `.field`، `.input`، `.textarea`، `.input-icon`، `.radio-card`، `.radio-stack`، `.check`، `.consent`، `.quick`، `.hint`، `.error-text` | بخش ۴-۱ |
-| بخش تاشو | `details.more` | خلاصه با chevron که ۱۸۰° می‌چرخد |
-| منوی بازشو | `details.pop` > `.pop-panel` | «تعویق ▾»: ۱ روز / ۳ روز / ۱ هفته |
-| پنجره / برگه | `.sheet`، `.sheet-panel`، `.sheet-head`، `.sheet-menu`، `.quick-grid` | ماکاپ با `:target`؛ پیاده‌سازی `<dialog>` با قفل فوکوس و Esc |
-| بلوک متن انگلیسی | `.ltr-label` (+ `.lang` «EN»، `.charcount`)، `.ltr-block` (+ `.quote`، `.compact`) | بخش ۶-۴ |
-| هشدار درجا | `.alert .alert-warn/-error/-info/-ok/-neutral` + آیکن | همیشه با عنوان متنی؛ دکمه‌ی اقدام در انتها |
-| پیام موقت | `.toast` | جوهری، آیکن تیک سبز، «برگرداندن» با آیکن، شمارش ثانیه؛ `role="status"` |
-| خانه‌ی هنرجو | `.hello`، `.checkin`، `.out-box`، `.resources`، `.welcome`، `.welcome-steps` | check-in: گرادیان نیلی ۷۰۰→۵۰۰ (تنها گرادیان صفحه‌های کاری)؛ اولین ورود: سه قدم شماره‌دار با مدت، قدم بعدی نیلی |
-| بازخورد برای هنرجو | `.feedback`، `.feedback-head`، `.fb-list`، `.verdict` | سربرگ نیلی کم‌رنگ با آواتار مشاور و «جدید»؛ فهرست تعریف: حکم، قوت، اصلاح، نمونه (بلوک انگلیسی)، قدم بعدی |
-| کپی لینک دعوت | `.copy-box`، `.msg-preview` | لینک LTR تک‌خطی با دکمه‌ی «کپی»؛ پیش‌نمایش پیام شبیه حباب گفتگو |
-| حالت خالی | `.empty`، `.empty-icon` (`.ok`، `.brand`)، `.mini-empty` | بخش ۵ |
-| اسکلت | `.skel`، `.skel-row`، `.skel.circle` | هم‌شکل ردیف واقعی (آواتار + دو خط) |
-| جای رزرو | `.slot-reserved` | `display:none` در 0.1؛ بخش ۹ |
+| Button | `.btn` (secondary), `.btn-primary`, `.btn-soft`, `.btn-ghost`, `.btn-link`, `.btn-danger`, `.btn-danger-solid`; sizes `.btn-sm` (32), default (38 desktop / 44 mobile), `.btn-lg` (48) | States: hover (darker background/border), pressed (1px down), focus (ring), disabled (`aria-disabled` + 55%), submitting (`.is-loading` 14px spinner + text "Saving…"). **One `btn-primary` per page**; repeated row actions use `btn-soft` |
+| Icon button | `.icon-btn` | 36px (mobile 44); always `aria-label`; dot badge `.dot-badge` |
+| Card | `.card`, `.card-head`, `.card-link`, `.card-foot` | Title 16/700 with a faded icon + counter; "All ›" link in indigo 600 |
+| Number card | `.kpis` > `.kpi` + `.k-brand/.k-sky/.k-plum/.k-red` | 44px colored icon square, number 34/800, label 14/500, red or ink sub-indicator ("1 late", "1 urgent"). The whole card is a jump link; hover: lifts 1px and gains a shadow |
+| Priority box | `.priority`, `.priority-head`, `.priority-list` | Only when something is past SLA; pale red header with a warning icon; each item: avatar, title, reason, one button |
+| List row | `.list` > `.item` (+ `.is-late`, `.is-warn`) | Avatar 32, title 600, meta 13; hover on the whole row; late = 3px red line on the start edge |
+| Avatar / person | `.avatar .av-1…8`, `.person` | Section 2-7 |
+| Path bar | `.path` (+ `.path-lg`) | 9 segments: `i.d` past (light indigo), `i.c` current (indigo, wider and taller with a ring), empty future; `role="img"` + `aria-label="Stage 5 of path 0 to 8"`; always next to the stage text |
+| Student stepper | `.stepper` | 32px circle: past indigo with a check, current 36px with a ring + "You are here" pill, future gray; connector line indigo up to the current stage; on mobile horizontal scroll with snap |
+| Health badge | `.health .h-green/.h-yellow/.h-red/.h-churn/.h-paused` (+ `.h-muted`, `.h-dot`) | Section 2-4; `.h-dot` = shape + text only, no pill (student list header summary) |
+| Task status chip | `.chip .st-*` + 14px icon | Section 2-5 |
+| Tag | `.tag`, `-overdue`, `-late`, `-urgent`, `-new`, `-gate`, `-outline`; `.platform` | Section 2-6 |
+| Counter | `.count`, `.count-brand`, `.count-alert` | 20px pill, 12/700, tabular numbers; always a full `aria-label` |
+| Ball in court / rule code | `.ball`, `.rule` | Thin-bordered badge with a ball icon / 11px Latin on gray |
+| Search | `.search-wrap` > `.search` | Magnifier icon at the start, `kbd /` at the end (desktop only); focus: indigo border + `--ring` |
+| Select / switch | `.select`, `.seg` | "List / Stages" switch and versions: a white shadowed pill on a `surface-3` background |
+| Filter chip | `.fchip` (`aria-pressed`) | Selected: solid ink; with the status shape and count |
+| Tab/anchor | `.tabs` | 2px indigo line under the current one, current counter in indigo; on mobile sticky under the top bar |
+| Responsive table | `.table-wrap` > `.rtable` + `data-label`, `.cell-primary`, `.col-act`, `tr.row-red` | Mobile: a card with `cell-primary` separated by a line, the rest "label → value", full-width button |
+| File header | `.profile-hero`, `.ph-top`, `.ph-rest`, `.three`, `.reasons` | Avatar 64, name 24/700, status + ball, reasons in a red pill, meta with icons; three tiles "Showcase / Latest task / Where on the path" |
+| Timeline | `.timeline`, `.tl-item`, `.tl-icon`, `.tl-internal`, `.tl-shared`, `.tl-auto` | Internal: ink icon + dashed border + `.vis-tag.vis-internal` ("Internal — the student can't see it" with a lock icon); shared: pale indigo + eye icon; automatic: a small dot with no border |
+| Note composer | `.composer` + `.vis-switch` | Focus rings the whole box; a text "Internal / Shared" switch with icons, default internal (ink) |
+| Kanban | `.board`, `.kcol`, `.kcol-head`, `.stage-num`, `.kcount`, `.kcol-bar`, `.kcard` (+ `.is-over`, `.is-over2`), `.kmove`, `.kmore`, `.stage-chips` | Column header: number in a square, name, counter, "Usual: …", 4px health distribution bar (decorative, `aria-hidden`). Card: the whole card is a link (stretched `::after`), the "Move" button appears on hover/focus and is always visible on touch |
+| Review outcome | `.outcome` (`.ok`, `.fix`) | Two large radio cards with icons; selected: green/amber background and border (with `:has(input:checked)`) |
+| Rating | `.rating` | Five joined cells, selected one indigo; 1, 3 and 5 have captions |
+| Form | `.field`, `.input`, `.textarea`, `.input-icon`, `.radio-card`, `.radio-stack`, `.check`, `.consent`, `.quick`, `.hint`, `.error-text` | Section 4-1 |
+| Collapsible section | `details.more` | Summary with a chevron that rotates 180° |
+| Popup menu | `details.pop` > `.pop-panel` | "Snooze ▾": 1 day / 3 days / 1 week |
+| Dialog / sheet | `.sheet`, `.sheet-panel`, `.sheet-head`, `.sheet-menu`, `.quick-grid` | Mockup via `:target`; implementation is `<dialog>` with focus trap and Esc |
+| English text block | `.ltr-label` (+ `.lang` "EN", `.charcount`), `.ltr-block` (+ `.quote`, `.compact`) | Section 7-4 |
+| Inline alert | `.alert .alert-warn/-error/-info/-ok/-neutral` + icon | Always with a text title; action button at the end |
+| Toast | `.toast` | Ink, green check icon, "Undo" with an icon, seconds countdown; `role="status"` |
+| Student home | `.hello`, `.checkin`, `.out-box`, `.resources`, `.welcome`, `.welcome-steps` | Check-in: indigo 700→500 gradient (the only gradient on working screens); first login: three numbered steps with duration, the next step in indigo |
+| Feedback for the student | `.feedback`, `.feedback-head`, `.fb-list`, `.verdict` | Pale indigo header with the mentor's avatar and "New"; definition list: verdict, strength, fix, example (English block), next step |
+| Copy invite link | `.copy-box`, `.msg-preview` | Single-line LTR link with a "Copy" button; message preview styled like a chat bubble |
+| Empty state | `.empty`, `.empty-icon` (`.ok`, `.brand`), `.mini-empty` | Section 6 |
+| Skeleton | `.skel`, `.skel-row`, `.skel.circle` | Same shape as a real row (avatar + two lines) |
+| Reserved slot | `.slot-reserved` | `display:none` in 0.1; section 10 |
 
-### ۴-۱. فرم‌ها
+### 4-1. Forms
 
-- برچسب همیشه بالای فیلد (۱۴/۶۰۰)، نه placeholder به‌جای برچسب. «(اختیاری)» با وزن ۴۰۰ و رنگ کم‌رنگ.
-- فیلد: ارتفاع ۴۴، کادر `--c-border-strong` (۳٫۶:۱)، گوشه‌ی ۸، متن ۱۶؛ hover کادر تیره‌تر؛ فوکوس کادر نیلی + حلقه‌ی ۳px.
-- خطا: کادر قرمز + حلقه‌ی قرمز کم‌رنگ، زیر فیلد آیکن هشدار + متن قرمز ۱۳/۶۰۰، `aria-invalid` و `aria-describedby`.
-- تاریخ: فیلد با آیکن تقویم + چیپ‌های «فردا، ۳ روز، ۱ هفته» زیرش.
-- شماره‌ی موبایل و لینک: `dir="ltr"`، `inputmode` مناسب. هشدار ثابت «رمز یا کد ورود هیچ حسابی را این‌جا ننویس» با آیکن قفل.
-- `select` بومی با `appearance:none` و فلش رسم‌شده در انتهای خط (چپ در RTL).
+- The label is always above the field (14/600), never a placeholder instead of a label. "(optional)" in weight 400 and a faded color.
+- Field: height 44, border `--c-border-strong` (3.6:1), 8 corners, text 16; hover darkens the border; focus is an indigo border + 3px ring.
+- Error: red border + faint red ring, beneath the field a warning icon + red text 13/600, `aria-invalid` and `aria-describedby`.
+- Date: a field with a calendar icon + chips "Tomorrow, 3 days, 1 week" beneath it.
+- Mobile number and link: `dir="ltr"`, suitable `inputmode`. A fixed warning "Never type a password or login code for any account here" with a lock icon.
+- A native `select` with `appearance:none` and a drawn arrow at the end of the line (left in RTL).
 
 ---
 
-## ۵. آیکن‌ها
+## 5. Icons
 
-| قاعده | مقدار |
+| Rule | Value |
 |---|---|
-| سبک | خطی، یک‌دست، سر و اتصال گرد، بدون پر (به‌جز نقطه‌ها) |
-| اندازه | **۲۰px** پیش‌فرض؛ ۱۶ داخل دکمه و متا؛ ۱۴ داخل نشان؛ ۲۲ نوار پایین |
-| ضخامت | **۱٫۷۵px** نمایش‌داده‌شده (روی شبکه‌ی ۲۴ واحدی `stroke-width: 2.1`؛ برای ۱۶ و ۱۴ به ترتیب ۲٫۴ و ۲٫۵ تا ضخامت دیداری ثابت بماند) |
-| پیاده‌سازی ماکاپ | `<symbol>`های درون‌خطی بالای هر صفحه + `<svg class="i"><use href="#i-…"/></svg>`؛ رنگ از `currentColor` |
-| پیاده‌سازی محصول | همین مسیرها به‌صورت کامپوننت React (یا `lucide-react` که از نظر سبک هم‌خانواده است، با `strokeWidth={1.75}` و `absoluteStrokeWidth`) |
-| دسترس‌پذیری | آیکن تزئینی `aria-hidden="true"`؛ دکمه‌ی فقط‌آیکن `aria-label` |
-| مجموعه (۵۶) | today، users، board، tasks، chat، chart، sliders، search، plus، menu، back\*، next\*، chev-next\*، chev-down، more، x، check، check-circle، clock، calendar، link، external\*، alert، info، filter، phone، pen، undo\*، upload، flag، pause، eye، lock، bell، bell-off، route، user، home، copy، wifi-off، inbox، award، refresh، file، video، checklist\*، briefcase، zap، ball، target، hourglass، st-open، st-progress، checkin، list، grid |
+| Style | Outline, uniform, round caps and joins, no fill (except dots) |
+| Size | **20px** default; 16 inside buttons and meta; 14 inside badges; 22 bottom bar |
+| Stroke | **1.75px** rendered (on the 24-unit grid `stroke-width: 2.1`; for 16 and 14 it is 2.4 and 2.5 respectively so the visual weight stays constant) |
+| Mockup implementation | Inline `<symbol>`s at the top of each page + `<svg class="i"><use href="#i-…"/></svg>`; color from `currentColor` |
+| Product implementation | The same paths as a React component (or `lucide-react`, which is stylistically a family match, with `strokeWidth={1.75}` and `absoluteStrokeWidth`) |
+| Accessibility | A decorative icon is `aria-hidden="true"`; an icon-only button has `aria-label` |
+| Set (56) | today, users, board, tasks, chat, chart, sliders, search, plus, menu, back\*, next\*, chev-next\*, chev-down, more, x, check, check-circle, clock, calendar, link, external\*, alert, info, filter, phone, pen, undo\*, upload, flag, pause, eye, lock, bell, bell-off, route, user, home, copy, wifi-off, inbox, award, refresh, file, video, checklist\*, briefcase, zap, ball, target, hourglass, st-open, st-progress, checkin, list, grid |
 
-\* جهت‌دار: در جهت LTR کشیده شده‌اند و با کلاس `.i-dir` در RTL آینه می‌شوند (`[dir="rtl"] .i-dir { transform: scaleX(-1) }`). بقیه هرگز آینه نمی‌شوند.
+\* Directional: drawn in the LTR direction and mirrored in RTL with the `.i-dir` class (`[dir="rtl"] .i-dir { transform: scaleX(-1) }`). The rest are never mirrored.
 
-**نشان برند:** مربع گرد نیلی (گرادیان ۴۰۰→۶۰۰) با پله‌هایی که از راست به چپ بالا می‌روند و به یک پرچم می‌رسند — مسیر قدم‌به‌قدم تا اولین قرارداد، در جهت خواندن فارسی.
+**Brand mark:** an indigo rounded square (gradient 400→600) with steps that climb from right to left and reach a flag — a step-by-step path to the first contract, in the Persian reading direction.
 
 ---
 
-## ۶. حالت‌های خالی، بارگذاری، خطا
+## 6. Empty, loading and error states
 
-نمونه‌ی زنده: `mockups/states.html`. الگوی بصری خالی: مربع گرد ۵۶px با آیکن (سبز برای موفقیت، نیلی برای شروع، خاکستری برای فیلتر، قرمز برای خطا) + عنوان ۱۵/۷۰۰ + یک جمله + حداکثر یک دکمه.
+Live example: `mockups/states.html`. Visual pattern for empty states: a 56px rounded square with an icon (green for success, indigo for starting, gray for a filter, red for an error) + a 15/700 title + one sentence + at most one button.
 
-| حالت | الگو | نمونه‌ی متن |
+The sample copy below is Persian because the exact wording is the spec; an English gloss follows each.
+
+| State | Pattern | Sample text |
 |---|---|---|
-| **خالی — موفقیت** | آیکن تیک سبز + جمله + قدم بعدی اختیاری | «امروز کار عقب‌مانده‌ای نیست.» / «مرور هفتگی: ۱۲ هنرجو تا شنبه» |
-| **خالی — شروع** | آیکن نیلی + «چرا خالی است» + دکمه‌ی اصلی | «هنوز هنرجویی نساخته‌ای. اولین نفر را اضافه کن و لینک دعوتش را در تلگرام بفرست.» |
-| **خالی — فیلتر** | آیکن فیلتر + «پاک کردن فیلترها» | «هنرجویی با این فیلترها نیست» |
-| **خالی — هنرجو** | دلگرم‌کننده، بدون سرزنش | «فعلاً کاری نداری. مشاورت به‌زودی کار بعدی را می‌گذارد؛ اگر سؤالی داری بپرس.» |
-| **بارگذاری** | اسکلت هم‌شکل محتوا؛ بعد از ۱۰ ثانیه «اتصال کند است…» | — |
-| **خطای بارگذاری** | در همان بخش؛ آیکن قرمز + «تلاش دوباره» | «این بخش بار نشد. اتصال اینترنت را بررسی کن.» |
-| **خطای ذخیره** | متن کاربر حفظ می‌شود؛ هشدار قرمز کنار دکمه | «ذخیره نشد. متنت سر جایش است؛ دوباره بزن.» |
-| **آفلاین** | هشدار خنثی با آیکن قطع اتصال | «اتصال قطع است. آخرین اطلاعات را می‌بینی؛ ثبت‌ها بعد از وصل شدن ارسال می‌شوند.» |
-| **دسترسی ندارد** | صفحه‌ی ساده | «این هنرجو به تو تخصیص داده نشده.» |
-| **تأیید عمل مخرب** | پنجره با نام دقیق عمل؛ دکمه‌ی قرمز توپر | «لغو کار "…"؟ دلیل:» [لغو کار] [منصرف شدم] |
+| **Empty — success** | Green check icon + sentence + optional next step | «امروز کار عقب‌مانده‌ای نیست.» ("Nothing is overdue today.") / «مرور هفتگی: ۱۲ هنرجو تا شنبه» ("Weekly review: 12 students by Saturday") |
+| **Empty — getting started** | Indigo icon + "why it's empty" + primary button | «هنوز هنرجویی نساخته‌ای. اولین نفر را اضافه کن و لینک دعوتش را در تلگرام بفرست.» ("You haven't created a student yet. Add the first one and send their invite link on Telegram.") |
+| **Empty — filter** | Filter icon + "Clear filters" | «هنرجویی با این فیلترها نیست» ("No students match these filters") |
+| **Empty — student** | Encouraging, no blame | «فعلاً کاری نداری. مشاورت به‌زودی کار بعدی را می‌گذارد؛ اگر سؤالی داری بپرس.» ("You have no tasks for now. Your mentor will set the next one soon; ask if you have a question.") |
+| **Loading** | Skeleton matching the content; after 10 seconds "Connection is slow…" | — |
+| **Load error** | In the same section; red icon + "Try again" | «این بخش بار نشد. اتصال اینترنت را بررسی کن.» ("This section didn't load. Check your internet connection.") |
+| **Save error** | The user's text is preserved; red alert next to the button | «ذخیره نشد. متنت سر جایش است؛ دوباره بزن.» ("Not saved. Your text is still there; try again.") |
+| **Offline** | Neutral alert with a disconnected icon | «اتصال قطع است. آخرین اطلاعات را می‌بینی؛ ثبت‌ها بعد از وصل شدن ارسال می‌شوند.» ("You're offline. You're seeing the latest data; entries will be sent once you reconnect.") |
+| **No access** | Plain page | «این هنرجو به تو تخصیص داده نشده.» ("This student isn't assigned to you.") |
+| **Destructive action confirmation** | Dialog naming the exact action; solid red button | «لغو کار "…"؟ دلیل:» [لغو کار] [منصرف شدم] ("Cancel task "…"? Reason:" [Cancel task] [Never mind]) |
 
-لحن: دوم‌شخص مفرد و صمیمی برای هنرجو؛ برای مربی کوتاه و خنثی. بدون علامت تعجب و بدون شکلک.
+Tone: informal second-person singular for the student; short and neutral for the coach. No exclamation marks and no emoticons.
 
 ---
 
-## ۷. قواعد RTL
+## 7. RTL rules
 
-### ۷-۱. جهت و چیدمان
-- `<html lang="fa" dir="rtl">`. در CSS فقط **ویژگی‌های منطقی** (`margin-inline-start`، `inset-inline-end`، `border-inline-start`، `text-align: start`، `border-end-start-radius`).
-- **استثنای مستند:** فلش رسم‌شده‌ی `select` با `background-position: left …` (ویژگی منطقی ندارد). اگر رابط LTR لازم شد، این یک قاعده باید با `[dir="ltr"]` برگردد.
-- Grid و Flex در RTL خودکار از راست شروع می‌شوند؛ نوار کناری اولین ستون = راست. نشانگرهای «دیر»/«بیش از معمول» در لبه‌ی **شروع** (راست) کارت و ردیف‌اند.
-- اسکرول افقی (کانبان، گام‌شمار، زبانه‌ها، چیپ مراحل) از راست شروع می‌شود؛ مرحله‌ی ۰ سمت راست.
+### 7-1. Direction and layout
+- `<html lang="fa" dir="rtl">`. In CSS use only **logical properties** (`margin-inline-start`, `inset-inline-end`, `border-inline-start`, `text-align: start`, `border-end-start-radius`).
+- **Documented exception:** the drawn arrow of `select` with `background-position: left …` (it has no logical property). If an LTR interface is ever needed, this one rule must be flipped with `[dir="ltr"]`.
+- Grid and Flex start from the right automatically in RTL; the sidebar as the first column = right. The "late"/"longer than usual" indicators are on the **start** edge (right) of the card and row.
+- Horizontal scrolling (kanban, stepper, tabs, stage chips) starts from the right; stage 0 is on the right.
 
-### ۷-۲. آیکن‌ها
-| نوع | قاعده |
+### 7-2. Icons
+| Type | Rule |
 |---|---|
-| **جهت‌دار (آینه شوند)** | بازگشت (→ به راست)، بعدی/ادامه/انتقال (← به چپ)، chevron «همه» و breadcrumb، برگرداندن (undo)، لینک بیرونی، فهرست تیک‌دار |
-| **غیرجهت‌دار** | جستجو، تیک، ضربدر، ساعت، تقویم، قفل، زنگ، چشم، +، توپ، ساعت شنی، نیم‌دایره‌ی «در حال انجام» |
-| ممنوع | ‹ › و ( ) به‌عنوان آیکن (الگوریتم bidi خودکار آینه‌شان می‌کند) |
+| **Directional (mirrored)** | Back (→ to the right), next/continue/move (← to the left), the "All" chevron and breadcrumb, undo, external link, checklist |
+| **Non-directional** | Search, check, cross, clock, calendar, lock, bell, eye, +, ball, hourglass, the "in progress" half circle |
+| Forbidden | ‹ › and ( ) as icons (the automatic bidi algorithm mirrors them) |
 
-### ۷-۳. اعداد و تاریخ
-| مورد | قاعده | نمونه |
+### 7-3. Numbers and dates
+Persian digits are the point of the examples in this table, so the Persian samples are kept with an English gloss.
+
+| Item | Rule | Example |
 |---|---|---|
-| اعداد رابط | **رقم فارسی** (`Intl.NumberFormat('fa-IR')`) + اعداد جدولی | «۳ کار معوق»، «۱۸ روز» |
-| اعداد داخل بلوک انگلیسی | رقم لاتین، همان‌طور که کاربر نوشته | `$25/hr`، `Connects: 16` |
-| کد قاعده، شناسه، لینک | لاتین داخل `<bdi>` یا `.rule`/`.link-ltr` | `R-OVERDUE` |
-| مبلغ دلاری در متن فارسی | رقم فارسی + «دلار» | «۲۵ دلار/ساعت» |
-| تاریخ | **شمسی**؛ نسبی برای ۷ روز اخیر، مطلق بعد از آن | «۳ روز پیش»، «دیروز ۱۷:۱۰»، «۲۷ مهر» |
-| مهلت | مطلق + نسبی کم‌رنگ | «تا پنجشنبه ۳۰ مهر (۳ روز مانده)» |
-| درصد | «۸۰٪» | — |
+| UI numbers | **Persian digits** (`Intl.NumberFormat('fa-IR')`) + tabular numbers | «۳ کار معوق» ("3 overdue tasks"), «۱۸ روز» ("18 days") |
+| Numbers inside an English block | Latin digits, exactly as the user wrote them | `$25/hr`, `Connects: 16` |
+| Rule code, identifier, link | Latin inside `<bdi>` or `.rule`/`.link-ltr` | `R-OVERDUE` |
+| Dollar amount in Persian text | Persian digits + "dollar" | «۲۵ دلار/ساعت» ("25 dollars/hour") |
+| Date | **Jalali**; relative for the last 7 days, absolute after that | «۳ روز پیش» ("3 days ago"), «دیروز ۱۷:۱۰» ("yesterday 17:10"), «۲۷ مهر» ("27 Mehr") |
+| Deadline | Absolute + faded relative | «تا پنجشنبه ۳۰ مهر (۳ روز مانده)» ("By Thursday 30 Mehr (3 days left)") |
+| Percentage | «۸۰٪» ("80%") | — |
 
-### ۷-۴. متن انگلیسی داخل صفحه‌ی فارسی (محتوای آپورک)
-- متن آگهی، پروپوزال، تیتر پروفایل در `.ltr-block`: `dir="ltr"`، `lang="en"`، `text-align: start`، همان Vazirmatn ۱۴/۱٫۷، زمینه‌ی `--c-bg`، **خط نیلی روشن ۳px در لبه‌ی شروعِ متن انگلیسی (چپ)** تا مثل نقل‌قول از سند دیگری دیده شود.
-- برچسب بالای بلوک فارسی است با قرص کوچک «EN» و در صورت نیاز شمار نویسه (لاتین).
-- فیلدهای ورودی انگلیسی `dir="ltr"`؛ فیلدهای مخلوط (یادداشت، بازخورد) `dir="auto"`.
-- کلمه‌ی انگلیسی وسط جمله‌ی فارسی (Upwork، Overview، check-in) داخل `<bdi>`.
-- لینک‌ها: `.link-ltr`، کوتاه‌شده از وسط، با `title` کامل و آیکن لینک بیرونی.
+### 7-4. English text inside a Persian page (Upwork content)
+- Job post, proposal and profile headline text goes in `.ltr-block`: `dir="ltr"`, `lang="en"`, `text-align: start`, the same Vazirmatn 14/1.7, `--c-bg` background, **a 3px light-indigo line on the start edge of the English text (left)** so it reads like a quotation from another document.
+- The label above the block is Persian with a small "EN" pill and, if needed, a character count (Latin).
+- English input fields are `dir="ltr"`; mixed fields (note, feedback) are `dir="auto"`.
+- An English word in the middle of a Persian sentence (Upwork, Overview, check-in) goes inside `<bdi>`.
+- Links: `.link-ltr`, truncated in the middle, with the full `title` and an external-link icon.
 
 ---
 
-## ۸. دسترس‌پذیری
+## 8. Accessibility
 
-| حوزه | قاعده |
+| Area | Rule |
 |---|---|
-| کنتراست | متن عادی ≥ ۴٫۵:۱، متن درشت و مرز کنترل‌ها ≥ ۳:۱ (WCAG 2.2 AA)، در **هر دو** حالت روشن و تاریک. کمترین نسبت متنی در سیستم: `text-3` روی `surface-2` = ۴٫۷:۱ |
-| رنگ | هیچ اطلاعاتی فقط با رنگ منتقل نمی‌شود: سلامت (شکل + متن)، کار (آیکن + متن)، معوق/دیر (متن)، بیش از معمول (خط + متن)، نوار مسیر (اندازه + `aria-label` + متن کنارش) |
-| فوکوس | حلقه‌ی ۲px `--c-focus` با فاصله‌ی ۲px؛ فیلدها: کادر نیلی + حلقه‌ی ۳px؛ در نوار کناری تیره حلقه نیلی روشن. هرگز `outline:none` بدون جایگزین |
-| کیبورد | ترتیب Tab = ترتیب خواندن RTL؛ «پرش به محتوا» اولین لینک؛ پنجره‌ها فوکوس را قفل و با Esc بسته می‌شوند. کارت کانبان: یک توقف برای پرونده و یکی برای «انتقال» (دکمه با فوکوس ظاهر می‌شود) |
-| میان‌بُرهای مربی | `/` جستجو (در نوار کناری و فیلد جستجو نشان داده شده)، `N` یادداشت تازه، `G` سپس `T` امروز؛ فهرست با `?` |
-| کانبان | کشیدن و رها کردن فقط میان‌بُر است؛ «انتقال به…» روی هر کارت (WCAG 2.5.7) |
-| هدف لمسی | ≥ ۴۴×۴۴px روی موبایل (دکمه، آیکن، نوار پایین، دکمه‌ی انتقال)؛ فاصله‌ی ≥ ۸px |
-| صفحه‌خوان | یک `h1` در هر صفحه؛ آواتار و آیکن `aria-hidden`؛ شمارنده‌ها `aria-label` کامل؛ پیام موقت `role="status"`؛ خطای فرم `role="alert"`؛ گام‌شمار `aria-current="step"` |
-| زبان | `lang="en"` روی بلوک‌های انگلیسی |
-| حرکت | انتقال‌ها ≤ ۲۰۰ms؛ با `prefers-reduced-motion` همه خاموش |
-| بزرگ‌نمایی | تا ۲۰۰٪ بدون اسکرول افقی صفحه (کانبان و زبانه‌ها اسکرول داخلی دارند)؛ `body { overflow-x: clip }` فقط تور ایمنی است، نه راه‌حل |
+| Contrast | Normal text ≥ 4.5:1, large text and control borders ≥ 3:1 (WCAG 2.2 AA), in **both** light and dark modes. The lowest text ratio in the system: `text-3` on `surface-2` = 4.7:1 |
+| Color | No information is conveyed by color alone: health (shape + text), task (icon + text), overdue/late (text), longer than usual (line + text), path bar (size + `aria-label` + adjacent text) |
+| Focus | 2px `--c-focus` ring with a 2px offset; fields: indigo border + 3px ring; on the dark sidebar the ring is light indigo. Never `outline:none` without a replacement |
+| Keyboard | Tab order = RTL reading order; "Skip to content" is the first link; dialogs trap focus and close with Esc. Kanban card: one stop for the file and one for "Move" (the button appears on focus) |
+| Coach shortcuts | `/` search (shown in the sidebar and search field), `N` new note, `G` then `T` Today; list with `?` |
+| Kanban | Drag and drop is only a shortcut; "Move to…" on every card (WCAG 2.5.7) |
+| Touch target | ≥ 44x44px on mobile (button, icon, bottom bar, move button); spacing ≥ 8px |
+| Screen reader | One `h1` per page; avatar and icon `aria-hidden`; counters have a full `aria-label`; toast `role="status"`; form error `role="alert"`; stepper `aria-current="step"` |
+| Language | `lang="en"` on English blocks |
+| Motion | Transitions ≤ 200ms; all turned off under `prefers-reduced-motion` |
+| Zoom | Up to 200% without horizontal page scroll (kanban and tabs scroll internally); `body { overflow-x: clip }` is only a safety net, not the solution |
 
 ---
 
-## ۹. واژه‌نامه‌ی رابط (یکدست‌سازی)
+## 9. UI glossary (consistency)
 
-| مفهوم | واژه در رابط | استفاده نشود |
+The Persian terms are the point of this table, so they are kept as is, with the English concept alongside.
+
+| Concept | UI term | Do not use |
 |---|---|---|
-| Student | هنرجو | دانشجو، کاربر |
-| Mentor | مشاور (مدیر: «مربی») | استاد، پشتیبان |
-| Task / Assignment | کار | تکلیف، تسک (در متن‌های آموزشی «تکلیف» مجاز است) |
-| Submission | تحویل | ارسال |
-| Review | بازبینی | بررسی (برای ابزار AI در 1.0 رزرو است) |
-| Stage | مرحله | گام، سطح |
-| PlatformProfile | ویترین / پروفایل [پلتفرم] | اکانت، حساب |
-| Interaction | یادداشت | کامنت |
-| Health | وضعیت | سلامت (فقط در مستندات) |
-| Milestone | نقطه‌ی عطف | دستاورد، مدال |
-| Overdue | معوق | عقب‌افتاده |
+| Student | هنرجو | دانشجو، کاربر (university student, user) |
+| Mentor | مشاور (admin: «مربی» / coach) | استاد، پشتیبان (professor, support person) |
+| Task / Assignment | کار | تکلیف، تسک (in learning content «تکلیف» / assignment is allowed) |
+| Submission | تحویل | ارسال (sending) |
+| Review | بازبینی | بررسی (reserved for the AI tool in 1.0) |
+| Stage | مرحله | گام، سطح (step, level) |
+| PlatformProfile | ویترین / پروفایل [پلتفرم] (showcase / [platform] profile) | اکانت، حساب (account) |
+| Interaction | یادداشت (note) | کامنت (comment) |
+| Health | وضعیت (status) | سلامت (health; documentation only) |
+| Milestone | نقطه‌ی عطف | دستاورد، مدال (achievement, medal) |
+| Overdue | معوق | عقب‌افتاده (lagging behind) |
 
 ---
 
-## ۱۰. جای رزرو برای 1.0 (بدون نمایش در 0.1)
+## 10. Reserved slots for 1.0 (not shown in 0.1)
 
-تصمیم بنیان‌گذار: ابزارهای AI، پرداخت و اشتراک در 0.1 **دیده نمی‌شوند** — نه دکمه‌ی غیرفعال، نه «به‌زودی»، نه اشاره‌ی بصری. در ماکاپ‌ها این جاها فقط با کامنت HTML مشخص‌اند.
+Founder's decision: AI tools, payments and subscriptions are **not visible** in 0.1 — no disabled button, no "coming soon", no visual hint. In the mockups these places are marked only with an HTML comment.
 
-| جا | محل در چیدمان | در 0.1 |
+| Slot | Location in the layout | In 0.1 |
 |---|---|---|
-| خانه‌ی هنرجو | بعد از «کارهای من» و قبل از «سؤال‌ها» (`<!-- slot: tools (1.0) -->`) | وجود ندارد |
-| نوار پایین هنرجو | جای پنجم «مسیر» در 1.0 می‌تواند «ابزارها» شود | «مسیر» |
-| پرونده‌ی هنرجو | زبانه‌ی «خروجی ابزارها» بعد از «سؤال‌ها» (`progress-tracking.md` بخش ۸) | وجود ندارد |
-| جزئیات کار (مربی) | بلوک «بازخورد AI» بالای فرم بازبینی | وجود ندارد |
-| کار هنرجو | «بررسی سریع قبل از تحویل» بالای فرم تحویل | وجود ندارد |
-| تنظیمات مدیر | گروه «ابزارها و سهمیه» | وجود ندارد |
+| Student home | After "My tasks" and before "Questions" (`<!-- slot: tools (1.0) -->`) | Does not exist |
+| Student bottom bar | The fifth slot "Path" could become "Tools" in 1.0 | "Path" |
+| Student file | A "Tool outputs" tab after "Questions" (`progress-tracking.md` section 8) | Does not exist |
+| Task detail (coach) | An "AI feedback" block above the review form | Does not exist |
+| Student task | "Quick check before submitting" above the submission form | Does not exist |
+| Admin settings | A "Tools and quota" group | Does not exist |
 
 ---
 
-## ۱۱. یادداشت برای پیاده‌سازی (Tailwind + shadcn)
+## 11. Implementation notes (Tailwind + shadcn)
 
-- متغیرهای `--c-*`، `--h-*`، `--st-*`، `--av-*` را در `globals.css` همان‌طور نگه دار و در `tailwind.config` به‌عنوان رنگ تعریف کن (`primary: 'var(--c-primary)'` …). نگاشت به متغیرهای shadcn: `--background`←`--c-bg`، `--card`←`--c-surface`، `--muted`←`--c-surface-2`، `--muted-foreground`←`--c-text-2`، `--border`←`--c-border`، `--input`←`--c-border-strong`، `--primary`←`--c-primary`، `--ring`←`--c-focus`، `--destructive`←`--h-solid`.
-- `radius` پایه‌ی shadcn = ۱۲px (`--r-md`)؛ دکمه و فیلد ۸.
-- Tailwind v3.3+ کلاس‌های منطقی دارد (`ms-*`، `me-*`، `ps-*`، `start-*`، `end-*`، `border-s-*`)؛ از `ml/mr/left/right` استفاده نشود (قانون lint).
-- فاصله‌ها با مقیاس پیش‌فرض Tailwind (۴px) یکی‌اند: `--sp-5` = `p-5` = ۲۰px.
-- آیکن جهت‌دار: کلاس `rtl:-scale-x-100`.
-- وزن‌های فونت در Tailwind: `font-extrabold` (۸۰۰) فقط برای KPI.
+- Keep the `--c-*`, `--h-*`, `--st-*`, `--av-*` variables in `globals.css` as they are and define them as colors in `tailwind.config` (`primary: 'var(--c-primary)'` …). Mapping to the shadcn variables: `--background`←`--c-bg`, `--card`←`--c-surface`, `--muted`←`--c-surface-2`, `--muted-foreground`←`--c-text-2`, `--border`←`--c-border`, `--input`←`--c-border-strong`, `--primary`←`--c-primary`, `--ring`←`--c-focus`, `--destructive`←`--h-solid`.
+- shadcn's base `radius` = 12px (`--r-md`); button and field 8.
+- Tailwind v3.3+ has logical classes (`ms-*`, `me-*`, `ps-*`, `start-*`, `end-*`, `border-s-*`); do not use `ml/mr/left/right` (lint rule).
+- Spacing matches Tailwind's default scale (4px): `--sp-5` = `p-5` = 20px.
+- Directional icon: class `rtl:-scale-x-100`.
+- Font weights in Tailwind: `font-extrabold` (800) only for KPIs.

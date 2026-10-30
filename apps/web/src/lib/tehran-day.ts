@@ -53,7 +53,7 @@ export function tehranDayEnd(day: string): Date {
   return dayEndIn(TEHRAN_TZ, day);
 }
 
-/** `[start of today, start of tomorrow)` in Tehran (ADR-0008 «امروز»). */
+/** `[start of today, start of tomorrow)` in Tehran (ADR-0008 "Today"). */
 export function tehranDayRange(instant: Date = new Date()): { start: Date; end: Date } {
   return dayRangeIn(TEHRAN_TZ, instant);
 }

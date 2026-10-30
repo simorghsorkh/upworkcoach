@@ -13,7 +13,7 @@ const statusChip: Record<ProfileStatus, string> = {
   suspended: 'bg-h-red-bg text-h-red-fg',
 };
 
-/** «۲۵ USD/ساعت» — the amount comes as a decimal string («25.00»). */
+/** "25 USD/hour" — the amount comes as a decimal string ("25.00"). */
 export function formatRate(p: Pick<ProfileDTO, 'rateAmount' | 'rateCurrency' | 'rateUnit'>) {
   if (!p.rateAmount) return null;
   const amount = Number(p.rateAmount);

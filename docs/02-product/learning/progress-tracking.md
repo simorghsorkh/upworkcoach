@@ -1,431 +1,431 @@
-# پیگیری پیشرفت هنرجو — UpworkCoach
+# Student Progress Tracking — UpworkCoach
 
-> فاز ۱ — نویسنده: curriculum-designer — ۲۷ مهر ۱۴۰۵
-> وضعیت: پیش‌نویس، منتظر تأیید بنیان‌گذار
-> این سند به **نیاز فوری بنیان‌گذار** جواب می‌دهد: «یادم می‌رود هر هنرجو چه پروفایلی دارد، چه کاری از او خواستم و در چه مرحله‌ای است.» این سند ورودی مستقیم ux-designer (صفحه‌ها) و software-architect (مدل داده) است.
-> مرحله‌ها: `learning-path.md`. کار مشاور: `mentor-workflow.md`.
+> Phase 1 — author: curriculum-designer — 27 Mehr 1405 (2026-10-19)
+> Status: draft, awaiting founder approval
+> This document answers the founder's **urgent need**: "I forget what profile each student has, what I asked them to do, and which stage they are at." It is direct input for ux-designer (screens) and software-architect (data model).
+> Stages: `learning-path.md`. Mentor work: `mentor-workflow.md`.
 
 ---
 
-## ۱. اصول
+## 1. Principles
 
-| اصل | معنی |
+| Principle | Meaning |
 |---|---|
-| **همه‌چیز درباره‌ی یک هنرجو در یک صفحه** | پرونده جای تلگرام، یادداشت شخصی و حافظه‌ی مربی را می‌گیرد. هر مشاوری که پرونده را باز کند، در ۳۰ ثانیه بفهمد هنرجو کجاست و قدم بعدی چیست |
-| **سه سؤال همیشه جواب دارند** | (۱) چه ویترینی دارد؟ (۲) آخرین کار خواسته‌شده چیست و وضعیتش؟ (۳) در چه مرحله‌ای است و از کِی؟ این سه در بالای پرونده دیده می‌شوند |
-| **هر هنرجو همیشه یک کار باز دارد** | هنرجوی بدون کار باز «بی‌تکلیف» است و هشدار می‌گیرد |
-| **عدد، نه حس** | پیشرفت با خروجی و عدد قیف سنجیده می‌شود، نه با ساعت تماشای ویدئو |
-| **ثبت سبک** | هنرجو هفته‌ای حداکثر ۵ دقیقه برای ثبت وقت بگذارد. هر چیزی که ثبتش سخت است، ثبت نمی‌شود |
-| **بدون اسکرپ** | لینک پروفایل فقط ذخیره می‌شود و سیستم آن را باز نمی‌کند. متن ویترین را هنرجو یا مشاور paste می‌کند |
-| **حریم خصوصی** | هیچ رمز عبور، مدرک هویتی یا اطلاعات ورود به حساب پلتفرم‌ها در پرونده ذخیره نمی‌شود (بخش ۲-۸) |
+| **Everything about one student on one page** | The record replaces Telegram, personal notes and the coach's memory. Any mentor who opens the record should understand within 30 seconds where the student is and what the next step is |
+| **Three questions always have an answer** | (1) What showcase do they have? (2) What was the last task requested, and what is its status? (3) Which stage are they in, and since when? These three are visible at the top of the record |
+| **Every student always has one open task** | A student with no open task is "without assignment" and triggers an alert |
+| **Numbers, not feelings** | Progress is measured by output and funnel numbers, not by hours of video watched |
+| **Light logging** | The student should spend at most 5 minutes a week on logging. Anything hard to log will not get logged |
+| **No scraping** | A profile link is only stored; the system never opens it. The student or mentor pastes the showcase text |
+| **Privacy** | No passwords, identity documents or platform login details are stored in the record (section 2.8) |
 
 ---
 
-## ۲. پرونده‌ی هنرجو (Student Record)
+## 2. The Student Record
 
-ستون «MVP»: ✔ یعنی در نسخه‌ی اول لازم است؛ ○ یعنی بعداً. ستون «پرکننده»: ه = هنرجو، م = مشاور، س = سیستم.
-نام‌های انگلیسی پیشنهادی‌اند؛ تصمیم نهایی مدل داده با software-architect است.
+The "MVP" column: ✔ means needed in the first version; ○ means later. The "Filled by" column: S = student, M = mentor, Sys = system.
+The English names are proposals; the final data model is up to software-architect.
 
-### ۲-۱. سربرگ پرونده (همیشه بالای صفحه)
+### 2.1. Record header (always at the top of the page)
 
-| فیلد | key | توضیح | MVP |
+| Field | key | Description | MVP |
 |---|---|---|---|
-| نام و عکس | `display_name` | — | ✔ |
-| مرحله‌ی فعلی + روزهای حضور در مرحله | `current_stage`، `stage_entered_at` | مثلاً «۵-ب، ۱۸ روز» | ✔ |
-| وضعیت سلامت + دلیل | `health`، `health_reasons[]` | سبز / زرد / قرمز / متوقف (بخش ۷) | ✔ |
-| ویترین اصلی | `primary_showcase` | تیتر فعلی + لینک + نرخ (بخش ۲-۵) | ✔ |
-| کار باز بعدی + مهلت | محاسبه‌ای | نزدیک‌ترین «کار خواسته‌شده»ی باز | ✔ |
-| آخرین فعالیت | `last_activity_at` | آخرین ورود، تحویل، check-in یا پیام | ✔ |
-| مشاور مسئول | `mentor_id` | — | ✔ |
-| خلاصه‌ی قیف | محاسبه‌ای | ارسال / پاسخ / مصاحبه / قرارداد (کل و ۴ هفته‌ی اخیر) | ✔ |
+| Name and photo | `display_name` | — | ✔ |
+| Current stage + days in stage | `current_stage`, `stage_entered_at` | e.g. "5-b, 18 days" | ✔ |
+| Health status + reason | `health`, `health_reasons[]` | green / yellow / red / paused (section 7) | ✔ |
+| Primary showcase | `primary_showcase` | current headline + link + rate (section 2.5) | ✔ |
+| Next open task + deadline | computed | the nearest open "assignment" | ✔ |
+| Last activity | `last_activity_at` | last login, submission, check-in or message | ✔ |
+| Responsible mentor | `mentor_id` | — | ✔ |
+| Funnel summary | computed | sent / replied / interview / contract (total and last 4 weeks) | ✔ |
 
-### ۲-۲. هویت و تماس
+### 2.2. Identity and contact
 
-| فیلد | key | نوع | پرکننده | MVP |
+| Field | key | Type | Filled by | MVP |
 |---|---|---|---|---|
-| نام و نام خانوادگی | `full_name` | متن | ه | ✔ |
-| موبایل | `phone` | متن (تأییدشده) | ه | ✔ |
-| شناسه‌ی تلگرام یا پیام‌رسان | `messenger_handle` | متن | ه | ✔ |
-| ایمیل | `email` | متن | ه | ○ |
-| تاریخ ثبت‌نام | `joined_at` | تاریخ (نمایش شمسی) | س | ✔ |
-| دوره یا کوهورت | `cohort` | انتخابی | م | ✔ |
-| پلن | `plan` | پایه / پرو / … | س | ○ |
-| روزها و ساعت‌های در دسترس | `availability` | متن کوتاه | ه | ○ |
+| Full name | `full_name` | text | S | ✔ |
+| Mobile | `phone` | text (verified) | S | ✔ |
+| Telegram or messenger handle | `messenger_handle` | text | S | ✔ |
+| Email | `email` | text | S | ○ |
+| Sign-up date | `joined_at` | date (shown in Jalali) | Sys | ✔ |
+| Course or cohort | `cohort` | selection | M | ✔ |
+| Plan | `plan` | basic / pro / … | Sys | ○ |
+| Available days and hours | `availability` | short text | S | ○ |
 
-### ۲-۳. پیش‌زمینه (از فرم ورود، مرحله‌ی ۰)
+### 2.3. Background (from the onboarding form, stage 0)
 
-| فیلد | key | نوع | MVP |
+| Field | key | Type | MVP |
 |---|---|---|---|
-| مهارت اصلی | `primary_skill` | متن + دسته | ✔ |
-| سطح مهارت (خوداظهاری) | `skill_level` | ۱ تا ۵ | ✔ |
-| سطح انگلیسی نوشتاری / گفتاری | `english_writing`، `english_speaking` | ۱ تا ۵ | ✔ |
-| ساعت در دسترس در هفته | `hours_per_week` | عدد | ✔ |
-| هدف درآمد ماهانه (دلار) | `income_goal_usd` | عدد | ✔ |
-| هدف ۹۰ روزه (متن عددی) | `goal_90d` | متن | ✔ |
-| تجربه‌ی قبلی فریلنسری | `prior_experience` | هیچ / اپلای بی‌نتیجه / چند قرارداد / فعال | ✔ |
-| بودجه‌ی ماهانه برای Connects یا تبلیغ | `acquisition_budget` | عدد (اختیاری) | ○ |
-| مانع اصلی از نگاه خودش | `self_reported_blocker` | متن | ✔ |
+| Main skill | `primary_skill` | text + category | ✔ |
+| Skill level (self-reported) | `skill_level` | 1 to 5 | ✔ |
+| Written / spoken English level | `english_writing`, `english_speaking` | 1 to 5 | ✔ |
+| Available hours per week | `hours_per_week` | number | ✔ |
+| Monthly income goal (USD) | `income_goal_usd` | number | ✔ |
+| 90-day goal (numeric text) | `goal_90d` | text | ✔ |
+| Prior freelancing experience | `prior_experience` | none / applied without result / a few contracts / active | ✔ |
+| Monthly budget for Connects or ads | `acquisition_budget` | number (optional) | ○ |
+| Main blocker in their own words | `self_reported_blocker` | text | ✔ |
 
-### ۲-۴. مسیر
+### 2.4. Track
 
-| فیلد | key | توضیح | MVP |
+| Field | key | Description | MVP |
 |---|---|---|---|
-| شاخه‌ی اصلی | `primary_track` | B (مناقصه‌ای، مثلاً Upwork) / C (کاتالوگی، مثلاً Fiverr) / D (مستقیم) — ر.ک. `learning-path.md` بخش ۲ | ✔ |
-| پلتفرم اصلی | `primary_platform` | Upwork / Fiverr / LinkedIn / … | ✔ |
-| شاخه‌ی فرعی | `secondary_track` | اختیاری | ○ |
-| نقطه‌ی ورود | `entry_stage` | از تعیین سطح | ✔ |
-| وضعیت هر مرحله | `stage_progress[]` | بخش ۳-۱ | ✔ |
-| جمله‌ی نیچ | `niche_statement` | خروجی مرحله‌ی ۱ | ✔ |
-| نیچ‌های ردشده و دلیل | `rejected_niches` | — | ○ |
+| Primary branch | `primary_track` | B (bid-based, e.g. Upwork) / C (catalog-based, e.g. Fiverr) / D (direct) — see `learning-path.md` section 2 | ✔ |
+| Primary platform | `primary_platform` | Upwork / Fiverr / LinkedIn / … | ✔ |
+| Secondary branch | `secondary_track` | optional | ○ |
+| Entry point | `entry_stage` | from the placement assessment | ✔ |
+| Status of each stage | `stage_progress[]` | section 3.1 | ✔ |
+| Niche statement | `niche_statement` | output of stage 1 | ✔ |
+| Rejected niches and reason | `rejected_niches` | — | ○ |
 
-### ۲-۵. ویترین‌ها و دارایی‌ها («چه پروفایلی دارد؟»)
+### 2.5. Showcases and assets ("What profile do they have?")
 
-یک هنرجو می‌تواند چند ویترین داشته باشد (مثلاً پروفایل Upwork و یک گیگ Fiverr). هر ویترین:
+A student can have several showcases (e.g. an Upwork profile and a Fiverr gig). Each showcase:
 
-| فیلد | key | توضیح | MVP |
+| Field | key | Description | MVP |
 |---|---|---|---|
-| پلتفرم | `platform` | — | ✔ |
-| نوع | `type` | پروفایل / گیگ / LinkedIn / صفحه‌ی نمونه‌کار | ✔ |
-| لینک عمومی | `public_url` | فقط ذخیره، **سیستم آن را باز نمی‌کند** | ✔ |
-| تیتر فعلی | `headline` | — | ✔ |
-| نرخ یا قیمت فعلی | `rate` | ساعتی یا قیمت پکیج | ✔ |
-| متن کامل فعلی (snapshot) | `snapshots[]` | هر بار که هنرجو برای بررسی می‌فرستد، یک نسخه با تاریخ ذخیره می‌شود. مقایسه‌ی نسخه‌ها = دیدن پیشرفت | ✔ |
-| آخرین امتیاز rubric بررسی پروفایل | `last_review_score` | پیوند به خروجی ابزار | ✔ |
-| وضعیت تأیید مشاور | `mentor_approved` | بله / خیر + تاریخ | ✔ |
-| نشان‌ها و سطح | `badges` | مثلاً Rising Talent، Top Rated، سطح فروشنده | ○ |
-| نمونه‌کارها | `portfolio_items[]` | عنوان، مسئله، کار، نتیجه، لینک، واقعی یا خودساخته | ✔ |
+| Platform | `platform` | — | ✔ |
+| Type | `type` | profile / gig / LinkedIn / portfolio page | ✔ |
+| Public link | `public_url` | stored only; **the system does not open it** | ✔ |
+| Current headline | `headline` | — | ✔ |
+| Current rate or price | `rate` | hourly rate or package price | ✔ |
+| Current full text (snapshot) | `snapshots[]` | each time the student submits for review, a dated version is saved. Comparing versions = seeing progress | ✔ |
+| Last profile-review rubric score | `last_review_score` | link to the tool output | ✔ |
+| Mentor approval status | `mentor_approved` | yes / no + date | ✔ |
+| Badges and level | `badges` | e.g. Rising Talent, Top Rated, seller level | ○ |
+| Portfolio items | `portfolio_items[]` | title, problem, work, result, link, real or self-made | ✔ |
 
-### ۲-۶. قراردادها
+### 2.6. Contracts
 
-| فیلد | key | MVP |
+| Field | key | MVP |
 |---|---|---|
-| پلتفرم | `platform` | ✔ |
-| عنوان کوتاه (بدون نام کارفرما) | `title` | ✔ |
-| نوع | `type`: ثابت / ساعتی / ماهانه | ✔ |
-| مبلغ کل یا نرخ (دلار) | `amount_usd` | ✔ |
-| تاریخ شروع و پایان | `started_at`، `ended_at` | ✔ |
-| وضعیت | فعال / تمام‌شده / لغوشده | ✔ |
-| نظر کارفرما | امتیاز + خلاصه | ✔ |
-| کارفرمای تکراری؟ | بله / خیر | ✔ |
-| مدرک | اسکرین‌شات با نام کارفرمای پوشانده‌شده، یا «خوداظهاری، تأیید مشاور» | ✔ |
-| از کدام ارسال آمده | پیوند به ردیف ردیاب قیف | ○ |
+| Platform | `platform` | ✔ |
+| Short title (without client name) | `title` | ✔ |
+| Type | `type`: fixed / hourly / monthly | ✔ |
+| Total amount or rate (USD) | `amount_usd` | ✔ |
+| Start and end date | `started_at`, `ended_at` | ✔ |
+| Status | active / completed / cancelled | ✔ |
+| Client feedback | rating + summary | ✔ |
+| Repeat client? | yes / no | ✔ |
+| Evidence | screenshot with the client name masked, or "self-reported, mentor-confirmed" | ✔ |
+| Which submission it came from | link to a funnel tracker row | ○ |
 
-### ۲-۷. بخش‌های دیگر پرونده
+### 2.7. Other record sections
 
-| بخش | محتوا | MVP |
+| Section | Content | MVP |
 |---|---|---|
-| کارهای خواسته‌شده | فهرست، بخش ۴ | ✔ |
-| خط زمانی | یادداشت‌های مشاور، جلسه‌ها، تغییر مرحله، تغییر سلامت، milestoneها (بخش ۵) | ✔ |
-| ردیاب قیف | بخش ۶ | ✔ |
-| check-inهای هفتگی | بخش ۶-۳ | ✔ |
-| سؤال‌ها | سؤال‌های هنرجو و پاسخ‌ها (`mentor-workflow.md`) | ✔ |
-| خروجی ابزارهای AI | تاریخچه‌ی بررسی جاب، پروپوزال و پروفایل | ✔ |
-| پرچم‌های دستی | مشکل مالی، مشکل دسترسی به پلتفرم، مشکل شخصی، زبان، … (فقط مشاور و ادمین می‌بینند) | ✔ |
+| Assignments | list, section 4 | ✔ |
+| Timeline | mentor notes, sessions, stage changes, health changes, milestones (section 5) | ✔ |
+| Funnel tracker | section 6 | ✔ |
+| Weekly check-ins | section 6.3 | ✔ |
+| Questions | the student's questions and answers (`mentor-workflow.md`) | ✔ |
+| AI tool outputs | history of job, proposal and profile reviews | ✔ |
+| Manual flags | financial problem, platform access problem, personal problem, language, … (visible only to mentors and admin) | ✔ |
 
-### ۲-۸. چیزهایی که **ذخیره نمی‌شوند**
+### 2.8. Things that are **not stored**
 
-| داده | دلیل |
+| Data | Reason |
 |---|---|
-| رمز عبور یا کد ورود هر پلتفرمی | امنیت؛ مشاور هرگز وارد حساب هنرجو نمی‌شود |
-| مدرک هویتی، تصویر کارت، اطلاعات KYC | حریم خصوصی و ریسک R4 |
-| جزئیات اینکه حساب پلتفرم با چه هویتی ساخته شده | ریسک حقوقی (R4 و R11)؛ پلتفرم وارد این موضوع نمی‌شود |
-| اطلاعات شخصی کارفرما (نام، ایمیل، شرکت) | حداقل‌سازی داده (R3b)؛ در قرارداد و قیف فقط عنوان کوتاه |
-| اطلاعات حساب بانکی یا روش دریافت پول | خارج از دامنه |
+| Password or login code of any platform | Security; the mentor never logs in to a student's account |
+| Identity documents, card images, KYC information | Privacy and risk R4 |
+| Details of what identity a platform account was created under | Legal risk (R4 and R11); the platform does not get involved in this matter |
+| Client personal information (name, email, company) | Data minimization (R3b); contracts and the funnel hold only a short title |
+| Bank account information or how money is received | Out of scope |
 
-### ۲-۹. ورود سریع هنرجوهای فعلی (مهاجرت)
+### 2.9. Quick onboarding of current students (migration)
 
-برای اینکه بنیان‌گذار همین حالا بتواند هنرجوهای فعلی‌اش را وارد کند، **حداقل فیلدهای اجباری** این‌هاست. بقیه را هنرجو بعداً با فرم ورود کامل می‌کند.
+So that the founder can import current students right now, the **minimum required fields** are the following. The student fills in the rest later with the full onboarding form.
 
-| فیلد | چرا کافی است |
+| Field | Why it is enough |
 |---|---|
-| نام + موبایل یا شناسه‌ی پیام‌رسان | برای تماس |
-| شاخه و پلتفرم اصلی | برای مسیر |
-| مرحله‌ی فعلی (تخمین مربی) | مرحله‌های قبلی «عبورکرده با ارزیابی» ثبت می‌شوند |
-| لینک و تیتر ویترین (اگر هست) | جواب «چه پروفایلی دارد؟» |
-| آخرین کاری که از او خواسته شده + مهلت | جواب «چه کاری از او خواستم؟» |
-| مشاور مسئول | — |
-| یک یادداشت آزاد | هر چیزی که مربی در ذهن دارد |
+| Name + mobile or messenger handle | For contact |
+| Primary branch and platform | For the track |
+| Current stage (coach's estimate) | Earlier stages are recorded as "passed by assessment" |
+| Showcase link and headline (if any) | Answers "What profile do they have?" |
+| Last task requested from them + deadline | Answers "What did I ask them to do?" |
+| Responsible mentor | — |
+| One free-form note | Anything the coach has in mind |
 
-پیشنهاد: ورود گروهی با یک فایل Excel یا Google Sheet با همین ستون‌ها (برای backend-engineer و ux-designer).
+Suggestion: bulk import via an Excel file or Google Sheet with these same columns (for backend-engineer and ux-designer).
 
 ---
 
-## ۳. مرحله‌ها و milestoneها
+## 3. Stages and milestones
 
-### ۳-۱. وضعیت هر مرحله
+### 3.1. Status of each stage
 
-| وضعیت | key | معنی | چه کسی تغییر می‌دهد |
+| Status | key | Meaning | Who changes it |
 |---|---|---|---|
-| قفل | `locked` | پیش‌نیاز کامل نشده | س |
-| در حال انجام | `in_progress` | کارهای این مرحله باز است | س (با ورود به مرحله) |
-| در انتظار بازبینی گیت | `awaiting_review` | همه‌ی کارهای اجباری تحویل شده، مشاور باید گیت را بررسی کند | س |
-| عبورکرده | `passed` | مشاور گیت را تأیید کرد | م |
-| عبورکرده با ارزیابی | `passed_by_assessment` | در تعیین سطح یا مهاجرت پرش شد | م |
-| عبور با استثنا | `passed_with_exception` | مشاور با وجود کامل نبودن معیار، با **دلیل مکتوب** عبور داد | م |
+| Locked | `locked` | Prerequisite not completed | Sys |
+| In progress | `in_progress` | The stage's tasks are open | Sys (on entering the stage) |
+| Awaiting gate review | `awaiting_review` | All mandatory tasks submitted; the mentor must review the gate | Sys |
+| Passed | `passed` | Mentor approved the gate | M |
+| Passed by assessment | `passed_by_assessment` | Skipped during placement or migration | M |
+| Passed with exception | `passed_with_exception` | The mentor let the student pass although the criteria were incomplete, with a **written reason** | M |
 
-قواعد:
-- **AI هیچ‌وقت مرحله را عبور نمی‌دهد.** امتیاز rubric فقط یکی از ورودی‌های تصمیم مشاور است.
-- برگشت به مرحله‌ی قبل مجاز است (مثلاً نتیجه‌ی ممیزی سه‌لایه). مرحله‌ی قبلی دوباره `in_progress` می‌شود و دلیل در خط زمانی ثبت می‌شود.
-- مرحله‌ی «فعلی» = پایین‌ترین مرحله‌ای که هنوز `passed` نشده (به استثنای ۸ که باز است). برای مراحل هم‌زمان ۲ و ۳، سربرگ هر دو را نشان می‌دهد.
+Rules:
+- **AI never passes a stage.** The rubric score is only one of the inputs to the mentor's decision.
+- Going back to a previous stage is allowed (e.g. after the result of a three-layer audit). The earlier stage becomes `in_progress` again and the reason is recorded in the timeline.
+- The "current" stage = the lowest stage that is not yet `passed` (except 8, which is open-ended). For the parallel stages 2 and 3, the header shows both.
 
-### ۳-۲. معیار عبور هر مرحله (خلاصه)
+### 3.2. Pass criterion for each stage (summary)
 
-جزئیات در `learning-path.md` بخش ۵.
+Details are in `learning-path.md` section 5.
 
-| مرحله | معیار عبور | نوع بررسی |
+| Stage | Pass criterion | Type of check |
 |---|---|---|
-| ۰ شروع | فرم ورود کامل + هدف ۹۰ روزه + شاخه + جلسه‌ی آشنایی | مشاور |
-| ۱ نیچ | سند نیچ + ۱۰ شاهد (≥ ۷ هم‌خوان) + ۳ رقیب | مشاور (+ نیچ‌یاب اگر باشد) |
-| ۲ ویترین | rubric بررسی پروفایل ≥ آستانه + تأیید | AI + مشاور |
-| ۳ نمونه‌کار | ≥ ۲ نمونه‌کار مرتبط با ساختار مسئله/کار/نتیجه | مشاور |
-| ۴ فرصت | ۱۰ ارزیابی، توافق ≥ ۸ از ۱۰، نام بردن ۳ نشانه‌ی اسکم | AI + مشاور |
-| ۵ پروپوزال | ۳ پروپوزال ≥ آستانه‌ی rubric + تأیید یکی؛ سپس ثبت ارسال‌ها | AI + مشاور؛ سیستم (شمارش) |
-| ۶ مصاحبه | مصاحبه‌ی تمرینی + اولین قرارداد | مشاور |
-| ۷ تحویل | قرارداد بسته + نظر ثبت‌شده + جمع‌بندی درس‌ها | مشاور |
-| ۸ رشد | باز؛ milestoneهای M8 به بعد | سیستم + مشاور |
+| 0 Start | Complete onboarding form + 90-day goal + branch + intro session | Mentor |
+| 1 Niche | Niche document + 10 pieces of evidence (≥ 7 consistent) + 3 competitors | Mentor (+ niche finder if available) |
+| 2 Showcase | Profile-review rubric ≥ threshold + approval | AI + mentor |
+| 3 Portfolio | ≥ 2 relevant portfolio items with the problem/work/result structure | Mentor |
+| 4 Opportunity | 10 evaluations, agreement ≥ 8 of 10, naming 3 scam signs | AI + mentor |
+| 5 Proposal | 3 proposals ≥ rubric threshold + approval of one; then submissions are logged | AI + mentor; system (counting) |
+| 6 Interview | Practice interview + first contract | Mentor |
+| 7 Delivery | Contract closed + feedback recorded + lessons-learned summary | Mentor |
+| 8 Growth | Open-ended; milestones M8 onward | System + mentor |
 
-### ۳-۳. milestoneها (نقطه‌های عطف واقعی)
+### 3.3. Milestones (real turning points)
 
-milestoneها جدا از مرحله‌ها هستند: رویدادهای واقعی که برای پیگیری، گزارش قیف بنیان‌گذار و جشن گرفتن (`engagement.md`) استفاده می‌شوند.
+Milestones are separate from stages: they are real events used for tracking, the founder's funnel report and celebration (`engagement.md`).
 
-| کد | milestone | مدرک | تشخیص |
+| Code | Milestone | Evidence | Detection |
 |---|---|---|---|
-| M1 | نیچ تأیید شد | گیت مرحله‌ی ۱ | خودکار |
-| M2 | ویترین تأیید شد | گیت مرحله‌ی ۲ | خودکار |
-| M3 | اولین ارسال واقعی (پروپوزال، پیام یا outreach) | ردیف ردیاب | خودکار |
-| M4 | ۱۰ ارسال | ردیاب | خودکار |
-| M5 | اولین پاسخ یا مصاحبه | ردیاب | خودکار |
-| **M6** | **اولین قرارداد** (North Star) | اسکرین‌شات بی‌نام یا خوداظهاری + تأیید مشاور | مشاور تأیید می‌کند |
-| M7 | اولین نظر مثبت کارفرما | همان | مشاور |
-| M8 | اولین ۵۰۰ دلار درآمد تجمعی | خوداظهاری در مرور ماهانه | مشاور |
-| M9 | اولین کارفرمای تکراری | ثبت قرارداد | خودکار |
-| M10 | اولین افزایش نرخ | تغییر نرخ در ویترین | مشاور |
-| M11 | ۳ ماه پیاپی درآمد ≥ هدف ۹۰ روزه | مرور ماهانه | مشاور |
-| M12 | نشان پلتفرم (Top Rated، سطح فروشنده، …) | اسکرین‌شات | مشاور |
+| M1 | Niche approved | Stage 1 gate | Automatic |
+| M2 | Showcase approved | Stage 2 gate | Automatic |
+| M3 | First real submission (proposal, message or outreach) | Tracker row | Automatic |
+| M4 | 10 submissions | Tracker | Automatic |
+| M5 | First reply or interview | Tracker | Automatic |
+| **M6** | **First contract** (North Star) | Anonymous screenshot or self-report + mentor confirmation | Mentor confirms |
+| M7 | First positive client feedback | Same | Mentor |
+| M8 | First USD 500 cumulative income | Self-report in the monthly review | Mentor |
+| M9 | First repeat client | Contract record | Automatic |
+| M10 | First rate increase | Rate change in the showcase | Mentor |
+| M11 | 3 consecutive months of income ≥ the 90-day goal | Monthly review | Mentor |
+| M12 | Platform badge (Top Rated, seller level, …) | Screenshot | Mentor |
 
-عددهای M8 و M11 فرض‌اند و بنیان‌گذار تنظیم می‌کند.
+The numbers in M8 and M11 are assumptions; the founder will adjust them.
 
 ---
 
-## ۴. «کار خواسته‌شده» (Assignment)
+## 4. The "Assignment"
 
-هر چیزی که مربی یا مشاور از هنرجو می‌خواهد، یک «کار خواسته‌شده» است: تکلیف‌های پیش‌فرض مسیر، کارهای شخصی‌سازی‌شده («تیترت را با این نکته بازنویسی کن»)، و پیگیری‌ها («تا پنجشنبه ۵ پروپوزال بفرست»). این همان چیزی است که امروز در تلگرام گم می‌شود.
+Anything the coach or a mentor asks of a student is an "assignment": the default path tasks, personalized tasks ("Rewrite your headline with this point in mind"), and follow-ups ("Send 5 proposals by Thursday"). This is exactly what gets lost in Telegram today.
 
-### ۴-۱. فیلدها
+### 4.1. Fields
 
-| فیلد | key | نوع | توضیح | MVP |
+| Field | key | Type | Description | MVP |
 |---|---|---|---|---|
-| شناسه | `id` | — | — | ✔ |
-| هنرجو | `student_id` | — | — | ✔ |
-| عنوان | `title` | متن کوتاه | فعل‌محور: «بازنویسی Overview با تمرکز روی مشکل کارفرما» | ✔ |
-| توضیح | `description` | متن | چه چیزی، چرا، و **معیار پذیرش** («وقتی قبول است که …») | ✔ |
-| نوع | `kind` | انتخابی | تکلیف مسیر / کار شخصی / پیگیری / آمادگی جلسه | ✔ |
-| مرحله‌ی مرتبط | `stage` | ۰ تا ۸ یا «هیچ» | — | ✔ |
-| اجباری برای گیت؟ | `required_for_gate` | بله / خیر | تکلیف‌های پیش‌فرض مسیر معمولاً بله | ✔ |
-| ایجادکننده | `created_by` | مشاور / بنیان‌گذار / سیستم | سیستم یعنی تکلیف پیش‌فرض با ورود به مرحله | ✔ |
-| مسئول بازبینی | `reviewer_id` | مشاور | پیش‌فرض: مشاور مسئول | ✔ |
-| تاریخ ایجاد | `created_at` | تاریخ | — | ✔ |
-| **مهلت** | `due_at` | تاریخ | اجباری؛ پیش‌فرض بر اساس نوع (مثلاً ۳ روز) | ✔ |
-| اولویت | `priority` | عادی / فوری | فوری: به یک جاب یا پیشنهاد کارفرمای زنده وابسته است | ✔ |
-| **وضعیت** | `status` | بخش ۴-۲ | — | ✔ |
-| نوع تحویل | `submission_type` | متن / لینک / فایل / خروجی ابزار / فقط تیک | — | ✔ |
-| تحویل‌ها (نسخه‌ها) | `submissions[]` | هر تحویل: متن یا پیوست، تاریخ، شماره‌ی نسخه | تاریخچه‌ی اصلاح‌ها حفظ می‌شود | ✔ |
-| بازخورد AI | `ai_feedback` | پیوند به خروجی ابزار + امتیاز rubric | اگر ابزار مرتبط وجود دارد | ✔ |
-| **بازخورد مشاور** | `mentor_feedback` | متن با قالب استاندارد (`mentor-workflow.md` بخش ۶) | — | ✔ |
-| نتیجه | `outcome` | پذیرفته / نیاز به اصلاح | — | ✔ |
-| تعداد دور اصلاح | `revision_count` | عدد | برای تشخیص گیر کردن | ✔ |
-| تاریخ آخرین تغییر وضعیت | `status_changed_at` | تاریخ | — | ✔ |
-| سؤال‌های پیوسته | `linked_questions[]` | — | سؤال‌هایی که هنرجو درباره‌ی همین کار پرسیده | ○ |
+| ID | `id` | — | — | ✔ |
+| Student | `student_id` | — | — | ✔ |
+| Title | `title` | short text | Verb-led: "Rewrite the Overview focusing on the client's problem" | ✔ |
+| Description | `description` | text | What, why, and the **acceptance criterion** ("It is accepted when …") | ✔ |
+| Kind | `kind` | selection | path task / personal task / follow-up / session prep | ✔ |
+| Related stage | `stage` | 0 to 8 or "none" | — | ✔ |
+| Mandatory for the gate? | `required_for_gate` | yes / no | Default path tasks are usually yes | ✔ |
+| Creator | `created_by` | mentor / founder / system | System means a default task created on entering a stage | ✔ |
+| Reviewer | `reviewer_id` | mentor | Default: the responsible mentor | ✔ |
+| Creation date | `created_at` | date | — | ✔ |
+| **Deadline** | `due_at` | date | Mandatory; default depends on the kind (e.g. 3 days) | ✔ |
+| Priority | `priority` | normal / urgent | Urgent: tied to a live job or client offer | ✔ |
+| **Status** | `status` | section 4.2 | — | ✔ |
+| Submission type | `submission_type` | text / link / file / tool output / checkbox only | — | ✔ |
+| Submissions (versions) | `submissions[]` | each submission: text or attachment, date, version number | Revision history is kept | ✔ |
+| AI feedback | `ai_feedback` | link to the tool output + rubric score | If a related tool exists | ✔ |
+| **Mentor feedback** | `mentor_feedback` | text in the standard template (`mentor-workflow.md` section 6) | — | ✔ |
+| Outcome | `outcome` | accepted / needs revision | — | ✔ |
+| Revision rounds | `revision_count` | number | To detect being stuck | ✔ |
+| Last status change date | `status_changed_at` | date | — | ✔ |
+| Linked questions | `linked_questions[]` | — | Questions the student asked about this task | ○ |
 
-### ۴-۲. وضعیت‌ها و گذارها
+### 4.2. Statuses and transitions
 
-| وضعیت | key | معنی | گذار بعدی | چه کسی |
+| Status | key | Meaning | Next transition | Who |
 |---|---|---|---|---|
-| باز | `open` | خواسته شده، هنرجو شروع نکرده | ← در حال انجام / تحویل‌شده / لغوشده | ه، م |
-| در حال انجام | `in_progress` | هنرجو شروع کرده (اختیاری؛ هنرجو می‌تواند مستقیم تحویل دهد) | ← تحویل‌شده | ه |
-| تحویل‌شده | `submitted` | در صف بازبینی مشاور | ← پذیرفته / نیاز به اصلاح | م |
-| نیاز به اصلاح | `changes_requested` | بازخورد داده شده، منتظر نسخه‌ی بعد | ← تحویل‌شده | ه |
-| پذیرفته | `accepted` | تمام | — | م |
-| لغوشده | `cancelled` | دیگر لازم نیست (با دلیل) | — | م |
+| Open | `open` | Requested, student has not started | → in progress / submitted / cancelled | S, M |
+| In progress | `in_progress` | Student has started (optional; the student can submit directly) | → submitted | S |
+| Submitted | `submitted` | In the mentor's review queue | → accepted / changes requested | M |
+| Changes requested | `changes_requested` | Feedback given, awaiting the next version | → submitted | S |
+| Accepted | `accepted` | Done | — | M |
+| Cancelled | `cancelled` | No longer needed (with a reason) | — | M |
 
-- **«معوق» وضعیت نیست، برچسب است:** هر کار در وضعیت `open`، `in_progress` یا `changes_requested` که از `due_at` گذشته باشد، برچسب معوق می‌گیرد.
-- **«در انتظار مشاور» هم برچسب است:** کار `submitted` که از SLA بازبینی گذشته باشد. این هشدار مشاور است، نه هنرجو (`mentor-workflow.md` بخش ۴).
-- تمدید مهلت مجاز است، ولی مهلت قبلی و دلیل تمدید در تاریخچه می‌ماند. سومین تمدید، هشدار زرد می‌دهد.
-- کارهایی که «فقط تیک» دارند (مثلاً «جلسه‌ی آشنایی را رزرو کن») با تیک هنرجو مستقیم `accepted` می‌شوند.
+- **"Overdue" is a label, not a status:** any task in `open`, `in_progress` or `changes_requested` whose `due_at` has passed gets the overdue label.
+- **"Awaiting mentor" is also a label:** a `submitted` task that has passed the review SLA. This is an alert for the mentor, not the student (`mentor-workflow.md` section 4).
+- Extending a deadline is allowed, but the previous deadline and the reason for the extension stay in the history. The third extension raises a yellow alert.
+- "Checkbox only" tasks (e.g. "Book the intro session") become `accepted` directly when the student ticks them.
 
-### ۴-۳. تکلیف‌های پیش‌فرض هر مرحله (خودکار با ورود به مرحله)
+### 4.3. Default tasks for each stage (automatic on entering the stage)
 
-| مرحله | کارهای پیش‌فرض (مهلت پیش‌فرض) |
+| Stage | Default tasks (default deadline) |
 |---|---|
-| ۰ | تکمیل فرم ورود (۲ روز)؛ نوشتن هدف ۹۰ روزه (۲ روز)؛ رزرو جلسه‌ی آشنایی (۳ روز) |
-| ۱ | سند نیچ: جمله + ۱۰ شاهد + ۳ رقیب (۷ روز) |
-| ۲ | ارسال متن ویترین برای بررسی (۵ روز)؛ نرخ اولیه با دلیل (۵ روز) |
-| ۳ | نمونه‌کار ۱ (۷ روز)؛ نمونه‌کار ۲ (۱۴ روز) |
-| ۴ | ارزیابی ۱۰ فرصت (۵ روز) |
-| ۵ | ۳ پروپوزال کالیبره (۷ روز)؛ سپس کار تکرارشونده‌ی هفتگی «سهمیه‌ی ارسال این هفته: N» |
-| ۶ | برگه‌ی آمادگی مصاحبه (۳ روز)؛ مصاحبه‌ی تمرینی (۷ روز) |
-| ۷ | برنامه‌ی پروژه (۲ روز از شروع قرارداد)؛ جمع‌بندی درس‌ها (۳ روز بعد از پایان) |
-| ۸ | مرور ماهانه‌ی رشد (هر ماه) |
+| 0 | Complete the onboarding form (2 days); write the 90-day goal (2 days); book the intro session (3 days) |
+| 1 | Niche document: statement + 10 pieces of evidence + 3 competitors (7 days) |
+| 2 | Submit the showcase text for review (5 days); initial rate with reasoning (5 days) |
+| 3 | Portfolio item 1 (7 days); portfolio item 2 (14 days) |
+| 4 | Evaluate 10 opportunities (5 days) |
+| 5 | 3 calibrated proposals (7 days); then a weekly recurring task "This week's submission quota: N" |
+| 6 | Interview prep sheet (3 days); practice interview (7 days) |
+| 7 | Project plan (2 days from contract start); lessons-learned summary (3 days after the end) |
+| 8 | Monthly growth review (every month) |
 
 ---
 
-## ۵. خط زمانی پرونده
+## 5. Record timeline
 
-هر رویداد یک ردیف با تاریخ شمسی و نویسنده دارد. مشاور قبل از هر تماس فقط همین را می‌خواند.
+Each event is a row with a Jalali date and an author. Before every call, the mentor reads only this.
 
-| نوع رویداد | ثبت | محتوا |
+| Event type | Logged | Content |
 |---|---|---|
-| یادداشت مشاور | دستی | متن آزاد + برچسب (انگیزه، مهارت، زبان، مالی، دسترسی، …) |
-| جلسه | دستی | نوع (آشنایی، ۱:۱، مصاحبه‌ی تمرینی)، خلاصه، تصمیم‌ها، کارهای ایجادشده |
-| مرور هفتگی | دستی (قالب، `mentor-workflow.md` بخش ۵) | تصمیم و قدم بعدی |
-| تغییر مرحله | خودکار | از / به، توسط چه کسی، دلیل (در استثنا یا برگشت) |
-| تغییر سلامت | خودکار | از / به، قاعده‌ی فعال‌شده |
-| milestone | خودکار یا با تأیید | کد و تاریخ |
-| تغییر مشاور | خودکار | از / به، دلیل |
+| Mentor note | Manually | Free text + tag (motivation, skill, language, financial, access, …) |
+| Session | Manually | Type (intro, 1:1, practice interview), summary, decisions, tasks created |
+| Weekly review | Manually (template, `mentor-workflow.md` section 5) | Decision and next step |
+| Stage change | Automatic | From / to, by whom, reason (for an exception or going back) |
+| Health change | Automatic | From / to, the rule that triggered |
+| Milestone | Automatic or on confirmation | Code and date |
+| Mentor change | Automatic | From / to, reason |
 
 ---
 
-## ۶. شاخص‌های عملی، ردیاب قیف و check-in
+## 6. Practical metrics, funnel tracker and check-in
 
-### ۶-۱. ردیاب قیف (یک ردیف برای هر ارسال)
+### 6.1. Funnel tracker (one row per submission)
 
-هنرجو هر پروپوزال، پیام یا outreach را با یک فرم ۳۰ ثانیه‌ای ثبت می‌کند. اگر ارسال از ابزار بررسی جاب یا پروپوزال گذشته باشد، فیلدها از قبل پر شده‌اند.
+The student logs each proposal, message or outreach with a 30-second form. If the submission came through the job-review or proposal-review tool, the fields are pre-filled.
 
-| فیلد | key | توضیح | MVP |
+| Field | key | Description | MVP |
 |---|---|---|---|
-| تاریخ ارسال | `sent_at` | — | ✔ |
-| پلتفرم / شاخه | `platform` | — | ✔ |
-| عنوان کوتاه فرصت | `title` | بدون نام کارفرما | ✔ |
-| بودجه یا ارزش | `budget_usd` | — | ✔ |
-| Connects مصرفی (B) | `connects_spent` | شامل Boost | ✔ |
-| Boost شد؟ (B) | `boosted` | بله / خیر | ○ |
-| امتیاز بررسی جاب | `job_review_score` | اگر بررسی شده | ✔ |
-| امتیاز بررسی پروپوزال | `proposal_review_score` | اگر بررسی شده | ✔ |
-| وضعیت | `stage` | ارسال‌شده ← دیده‌شده ← پاسخ ← مصاحبه ← پیشنهاد ← قرارداد / رد / بی‌پاسخ | ✔ |
-| تاریخ آخرین تغییر | `updated_at` | — | ✔ |
-| یادداشت | `note` | — | ○ |
+| Sent date | `sent_at` | — | ✔ |
+| Platform / branch | `platform` | — | ✔ |
+| Short opportunity title | `title` | Without the client name | ✔ |
+| Budget or value | `budget_usd` | — | ✔ |
+| Connects spent (B) | `connects_spent` | Including Boost | ✔ |
+| Boosted? (B) | `boosted` | yes / no | ○ |
+| Job review score | `job_review_score` | If reviewed | ✔ |
+| Proposal review score | `proposal_review_score` | If reviewed | ✔ |
+| Status | `stage` | sent → viewed → replied → interview → offer → contract / rejected / no reply | ✔ |
+| Last change date | `updated_at` | — | ✔ |
+| Note | `note` | — | ○ |
 
-قاعده: ارسالی که ۱۴ روز بی‌تغییر بماند، خودکار «بی‌پاسخ» می‌شود (هنرجو می‌تواند برگرداند).
+Rule: a submission left unchanged for 14 days automatically becomes "no reply" (the student can revert it).
 
-### ۶-۲. شاخص‌ها
+### 6.2. Metrics
 
-| شاخص | فرمول | دوره | چه چیزی را نشان می‌دهد |
+| Metric | Formula | Period | What it shows |
 |---|---|---|---|
-| تعداد ارسال | شمارش | هفتگی، کل | ریتم کار |
-| نرخ دیده شدن (B) | دیده‌شده ÷ ارسال | ۴ هفته | جذابیت عنوان و دو خط اول، زمان ارسال |
-| **نرخ پاسخ** | (پاسخ + مصاحبه + …) ÷ ارسال | ۴ هفته | کیفیت انتخاب فرصت + پروپوزال + ویترین |
-| نرخ مصاحبه | مصاحبه ÷ ارسال | ۴ هفته | — |
-| نرخ قرارداد از مصاحبه | قرارداد ÷ مصاحبه | کل | مهارت مصاحبه و مذاکره |
-| Connects مصرفی (B) | جمع | ماهانه | هزینه‌ی جذب |
-| Connects به ازای هر مصاحبه (B) | Connects ÷ مصاحبه | کل | کارایی |
-| میانگین امتیاز جاب‌های اپلای‌شده | میانگین `job_review_score` | ۴ هفته | آیا روی فرصت‌های بد اپلای می‌کند؟ |
-| روز تا اولین قرارداد | M6 − تاریخ ثبت‌نام | — | North Star برای کوهورت |
-| درآمد ماهانه (دلار) | از مرور ماهانه و قراردادها | ماهانه | هدف نهایی |
-| نرخ مؤثر ساعتی | درآمد ÷ ساعت کار اعلام‌شده | ماهانه | رشد |
-| شاخه‌ی C | نمایش ← کلیک ← پیام ← سفارش ⚠ | ماهانه | — |
-| شاخه‌ی D | پیام ← پاسخ ← تماس ← قرارداد | ماهانه | — |
+| Number of submissions | Count | Weekly, total | Work rhythm |
+| View rate (B) | viewed ÷ sent | 4 weeks | Title appeal, the first two lines, send time |
+| **Reply rate** | (replies + interviews + …) ÷ sent | 4 weeks | Quality of opportunity selection + proposal + showcase |
+| Interview rate | interviews ÷ sent | 4 weeks | — |
+| Contract rate from interviews | contracts ÷ interviews | Total | Interview and negotiation skill |
+| Connects spent (B) | Sum | Monthly | Acquisition cost |
+| Connects per interview (B) | Connects ÷ interviews | Total | Efficiency |
+| Average score of jobs applied to | Average `job_review_score` | 4 weeks | Are they applying to bad opportunities? |
+| Days to first contract | M6 − sign-up date | — | North Star for the cohort |
+| Monthly income (USD) | From the monthly review and contracts | Monthly | The ultimate goal |
+| Effective hourly rate | Income ÷ reported hours worked | Monthly | Growth |
+| Branch C | Impressions → clicks → messages → orders ⚠ | Monthly | — |
+| Branch D | Message → reply → call → contract | Monthly | — |
 
-**هشدار درباره‌ی معیارها:** «نرخ خوب» در هر نیچ و هر پلتفرم فرق دارد. آستانه‌های بخش ۷ فرض اولیه‌اند و پس از ۸ تا ۱۲ هفته داده با بنیان‌گذار تنظیم می‌شوند.
+**Warning about the metrics:** a "good rate" differs in every niche and on every platform. The thresholds in section 7 are initial assumptions and will be tuned with the founder after 8 to 12 weeks of data.
 
-### ۶-۳. check-in هفتگی هنرجو (حداکثر ۳ دقیقه)
+### 6.3. Student weekly check-in (at most 3 minutes)
 
-یک فرم کوتاه که هر هفته (پیشنهاد: پنجشنبه) باز می‌شود. عددهای قیف از ردیاب خودکار پر می‌شوند و هنرجو فقط تأیید می‌کند.
+A short form that opens every week (suggested: Thursday). The funnel numbers are filled in automatically from the tracker and the student only confirms.
 
-| سؤال | نوع |
+| Question | Type |
 |---|---|
-| این هفته چه کار کردی؟ (عددهای ردیاب نمایش داده می‌شوند) | تأیید یا اصلاح |
-| بزرگ‌ترین مانع این هفته؟ | متن کوتاه |
-| حالت چطور است؟ | ۱ تا ۵ (برای تشخیص زودهنگام ریزش) |
-| هفته‌ی بعد چه می‌کنی؟ | متن کوتاه |
-| به کمک مشاور نیاز داری؟ | بله / خیر؛ «بله» یک سؤال در صف مشاور می‌سازد |
+| What did you do this week? (tracker numbers are shown) | Confirm or correct |
+| Biggest blocker this week? | Short text |
+| How are you feeling? | 1 to 5 (for early detection of dropout) |
+| What will you do next week? | Short text |
+| Do you need the mentor's help? | Yes / no; "yes" creates a question in the mentor's queue |
 
 ---
 
-## ۷. وضعیت سلامت: تشخیص هنرجوی گیرکرده و در خطر ریزش
+## 7. Health status: detecting stuck students and dropout risk
 
-### ۷-۱. چهار وضعیت
+### 7.1. The four statuses
 
-| وضعیت | معنی | اقدام |
+| Status | Meaning | Action |
 |---|---|---|
-| سبز | پیش می‌رود | مرور سریع در مرور هفتگی |
-| زرد | یک نشانه‌ی گیر کردن | مشاور در مرور هفتگی رسیدگی می‌کند |
-| قرمز | گیر جدی یا خطر ریزش | مشاور ظرف ۴۸ ساعت کاری **شخصاً** تماس می‌گیرد |
-| متوقف | هنرجو خودش توقف موقت زده (با تاریخ بازگشت) | هشدار نمی‌گیرد؛ یک روز قبل از تاریخ بازگشت یادآور |
+| Green | Progressing | Quick pass in the weekly review |
+| Yellow | One sign of being stuck | The mentor handles it in the weekly review |
+| Red | Seriously stuck or at risk of dropping out | The mentor **personally** calls within 48 working hours |
+| Paused | The student set a temporary pause themselves (with a return date) | No alerts; a reminder one day before the return date |
 
-وضعیت = **بدترین** قاعده‌ی فعال. دلیل (کد قاعده) همیشه کنار وضعیت نمایش داده می‌شود، چون «قرمز» بدون دلیل به درد مشاور نمی‌خورد.
+Status = the **worst** active rule. The reason (rule code) is always shown next to the status, because a "red" without a reason is no use to the mentor.
 
-### ۷-۲. قواعد (همه‌ی آستانه‌ها فرض اولیه‌اند)
+### 7.2. Rules (all thresholds are initial assumptions)
 
-| کد | نشانه | زرد | قرمز | معمولاً یعنی |
+| Code | Sign | Yellow | Red | Usually means |
 |---|---|---|---|---|
-| R-INACT | بی‌فعالیتی (نه ورود، نه تحویل، نه ثبت، نه check-in) | ۷ روز | ۱۴ روز | انگیزه یا مشکل بیرونی |
-| R-STALL | ماندن در یک مرحله | > ۱٫۵ برابر زمان معمول مرحله | > ۲ برابر | گیر در مهارت یا ابهام |
-| R-OVERDUE | کار معوق | یک کار > ۳ روز معوق | ۲ کار معوق، یا یکی > ۷ روز | بار زیاد یا کار نامشخص |
-| R-LOOP | دور اصلاح یک کار | ۳ دور | ۴ دور یا بیشتر | فاصله‌ی مهارتی؛ بازخورد مکتوب کافی نیست |
-| R-NOTASK | نبود هیچ کار باز (به جز مرحله‌ی ۸) | ۳ روز | ۷ روز | خطای مشاور؛ هنرجو بی‌تکلیف مانده |
-| R-CHECKIN | جا انداختن check-in | ۱ هفته | ۲ هفته پیاپی | فاصله گرفتن |
-| R-LOWVOL | ارسال کمتر از نصف سهمیه در مرحله‌ی ۵ | ۱ هفته | ۲ هفته پیاپی | ترس از رد شدن، کمبود وقت یا Connects |
-| R-NOREPLY | ارسال بدون پاسخ | ۱۵ ارسال، ۰ پاسخ | ۲۰ ارسال، ۰ پاسخ | ایراد در انتخاب فرصت، پروپوزال یا ویترین → **ممیزی سه‌لایه** |
-| R-BADJOBS | اپلای روی فرصت‌های ضعیف | میانگین امتیاز جاب‌های اپلای‌شده زیر آستانه‌ی rubric در ۴ هفته | — | هدر دادن Connects |
-| R-SKIPREVIEW | ارسال بدون بررسی ابزار | > ۷۰٪ ارسال‌های ۲ هفته بدون بررسی پروپوزال | — | عجله یا بی‌اعتمادی به ابزار |
-| R-INTERVIEW | مصاحبه بدون قرارداد | ۳ مصاحبه، ۰ قرارداد | ۵ مصاحبه، ۰ قرارداد | ضعف مصاحبه، زبان یا قیمت‌گذاری |
-| R-MOOD | حال گزارش‌شده در check-in | ≤ ۲ یک بار | ≤ ۲ دو هفته پیاپی | ناامیدی؛ خطر ریزش |
-| R-EXTEND | تمدید پیاپی مهلت | تمدید سوم یک کار | — | تعهد پایین یا کار بیش از حد بزرگ |
-| R-FLAG | پرچم دستی مشاور | به انتخاب مشاور | به انتخاب مشاور | موارد خاص (مالی، شخصی، دسترسی به پلتفرم) |
-| R-POSTCONTRACT | افت بعد از قرارداد (مرحله‌ی ۷ و ۸) | ۳۰ روز بدون ارسال یا قرارداد جدید پس از پایان قرارداد | ۶۰ روز | «یک قرارداد و تمام» |
+| R-INACT | Inactivity (no login, submission, log entry or check-in) | 7 days | 14 days | Motivation or an outside problem |
+| R-STALL | Staying in one stage | > 1.5x the stage's usual time | > 2x | Stuck on a skill or ambiguity |
+| R-OVERDUE | Overdue task | One task > 3 days overdue | 2 tasks overdue, or one > 7 days | Overload or an unclear task |
+| R-LOOP | Revision rounds on one task | 3 rounds | 4 rounds or more | Skill gap; written feedback is not enough |
+| R-NOTASK | No open task at all (except stage 8) | 3 days | 7 days | Mentor error; the student was left without assignment |
+| R-CHECKIN | Missed check-in | 1 week | 2 consecutive weeks | Drifting away |
+| R-LOWVOL | Fewer than half the quota submitted in stage 5 | 1 week | 2 consecutive weeks | Fear of rejection, lack of time or Connects |
+| R-NOREPLY | Submissions with no reply | 15 submissions, 0 replies | 20 submissions, 0 replies | Flaw in opportunity selection, proposal or showcase → **three-layer audit** |
+| R-BADJOBS | Applying to weak opportunities | Average score of jobs applied to is below the rubric threshold over 4 weeks | — | Wasting Connects |
+| R-SKIPREVIEW | Submitting without tool review | > 70% of the last 2 weeks' submissions without a proposal review | — | Haste or distrust of the tool |
+| R-INTERVIEW | Interviews without a contract | 3 interviews, 0 contracts | 5 interviews, 0 contracts | Weak interviewing, language or pricing |
+| R-MOOD | Mood reported in check-in | ≤ 2 once | ≤ 2 two consecutive weeks | Discouragement; dropout risk |
+| R-EXTEND | Repeated deadline extensions | Third extension of one task | — | Low commitment or a task that is too big |
+| R-FLAG | Mentor's manual flag | Mentor's choice | Mentor's choice | Special cases (financial, personal, platform access) |
+| R-POSTCONTRACT | Drop-off after a contract (stages 7 and 8) | 30 days with no submission or new contract after the contract ends | 60 days | "One contract and done" |
 
-**خطر ریزش** ترکیب این‌هاست: R-INACT، R-CHECKIN، R-MOOD و R-LOWVOL. اگر دو قاعده از این چهار هم‌زمان فعال باشند، وضعیت مستقیم قرمز می‌شود و برچسب «خطر ریزش» می‌گیرد، حتی اگر هر کدام به‌تنهایی زرد باشد.
+**Dropout risk** is a combination of these: R-INACT, R-CHECKIN, R-MOOD and R-LOWVOL. If two of these four are active at the same time, the status goes straight to red and gets the "dropout risk" label, even if each one alone would be yellow.
 
-### ۷-۳. اقدام مشاور برای هر نشانه
+### 7.3. Mentor action for each sign
 
-| نشانه | اقدام اول | اگر جواب نداد |
+| Sign | First action | If there is no response |
 |---|---|---|
-| R-INACT / خطر ریزش | پیام شخصی (نه قالب خودکار): «چه چیزی جلوی کارت را گرفته؟» + پیشنهاد کوچک‌ترین قدم بعدی | تماس کوتاه؛ پیشنهاد «توقف موقت» به‌جای رها کردن؛ اطلاع به بنیان‌گذار |
-| R-STALL / R-LOOP | تماس ۱۵ دقیقه‌ای به‌جای بازخورد مکتوب بیشتر؛ تقسیم کار به کارهای کوچک‌تر | ماژول پشتیبان (`learning-path.md` بخش ۶)؛ عبور با استثنا اگر ایراد جزئی است |
-| R-OVERDUE / R-EXTEND | بازبینی اندازه و وضوح کار؛ مهلت واقع‌بینانه با توافق هنرجو | بازنگری ساعت در دسترس و هدف ۹۰ روزه |
-| R-NOTASK | مشاور همان روز کار بعدی را تعریف می‌کند | — |
-| **R-NOREPLY** | **ممیزی سه‌لایه:** (۱) بررسی جاب روی ۵ تا ۱۰ فرصت اپلای‌شده‌ی اخیر؛ (۲) بررسی پروپوزال روی ۳ پروپوزال اخیر؛ (۳) بررسی دوباره‌ی ویترین. ضعیف‌ترین لایه مشخص می‌شود و هنرجو به مرحله‌ی مربوط برمی‌گردد (۴، ۵-الف یا ۲) | بازنگری نیچ (برگشت به مرحله‌ی ۱) با نظر بنیان‌گذار |
-| R-BADJOBS / R-SKIPREVIEW | جلسه‌ی کوتاه روی معیار انتخاب جاب؛ کار «۵ ارسال بعدی فقط بعد از بررسی جاب» | — |
-| R-LOWVOL | بررسی علت: وقت، بودجه‌ی Connects یا ترس. سهمیه را با هنرجو تنظیم کن، نه برایش | جلسه‌ی گروهی «کلینیک پروپوزال» (`engagement.md`) |
-| R-INTERVIEW | مصاحبه‌ی تمرینی با مشاور؛ بررسی یادداشت‌های مصاحبه‌های قبلی | ماژول مکالمه‌ی انگلیسی؛ بازبینی قیمت‌گذاری |
-| R-MOOD | پیام همدلانه‌ی شخصی؛ عادی‌سازی رد شدن با عدد (چند ارسال تا اولین پاسخ طبیعی است) | ارجاع به بنیان‌گذار |
-| R-POSTCONTRACT | مرور قرارداد قبلی: پیام به کارفرمای قبلی برای کار بعدی؛ برگشت به چرخه‌ی ارسال | — |
+| R-INACT / dropout risk | A personal message (not an automatic template): "What has been holding you back?" + suggest the smallest next step | A short call; offer a "temporary pause" instead of abandoning; notify the founder |
+| R-STALL / R-LOOP | A 15-minute call instead of more written feedback; split the task into smaller tasks | Support module (`learning-path.md` section 6); pass with exception if the flaw is minor |
+| R-OVERDUE / R-EXTEND | Review the size and clarity of the task; set a realistic deadline in agreement with the student | Revisit available hours and the 90-day goal |
+| R-NOTASK | The mentor defines the next task the same day | — |
+| **R-NOREPLY** | **Three-layer audit:** (1) job review on 5 to 10 recently applied opportunities; (2) proposal review on the 3 most recent proposals; (3) re-review of the showcase. Identify the weakest layer and send the student back to the relevant stage (4, 5-a or 2) | Re-examine the niche (go back to stage 1) with the founder's input |
+| R-BADJOBS / R-SKIPREVIEW | A short session on job selection criteria; task "the next 5 submissions only after a job review" | — |
+| R-LOWVOL | Investigate the cause: time, Connects budget or fear. Adjust the quota with the student, not for them | A group "proposal clinic" session (`engagement.md`) |
+| R-INTERVIEW | Practice interview with the mentor; review notes from previous interviews | English conversation module; review pricing |
+| R-MOOD | A personal, empathetic message; normalize rejection with numbers (how many submissions until the first reply is normal) | Refer to the founder |
+| R-POSTCONTRACT | Review the previous contract: message the previous client about the next job; return to the submission cycle | — |
 
-هر اقدام در خط زمانی ثبت می‌شود. اگر وضعیت قرمز ۷ روز بدون هیچ اقدام ثبت‌شده بماند، به بنیان‌گذار گزارش می‌شود (نظارت بر کار مشاور).
+Every action is recorded in the timeline. If a red status stays for 7 days with no recorded action, it is reported to the founder (oversight of mentor work).
 
 ---
 
-## ۸. نماهای اصلی (ورودی برای ux-designer)
+## 8. Main views (input for ux-designer)
 
-| نما | کاربر | محتوا |
+| View | User | Content |
 |---|---|---|
-| **فهرست هنرجوهای من** | مشاور | جدول: نام، مرحله + روز، سلامت + دلیل، کار بعدی + مهلت، آخرین فعالیت، عددهای قیف ۴ هفته. مرتب‌سازی پیش‌فرض: قرمز ← زرد ← دارای تحویل منتظر ← سبز |
-| **فهرست همه‌ی هنرجوها** | بنیان‌گذار | همان + ستون مشاور؛ فیلتر بر اساس مرحله، سلامت، کوهورت، شاخه، مشاور |
-| **پرونده‌ی هنرجو** | مشاور، بنیان‌گذار | سربرگ (بخش ۲-۱) + زبانه‌ها: کارها، ویترین‌ها، قیف، خط زمانی، سؤال‌ها، خروجی ابزارها |
-| **قیف کوهورت** | بنیان‌گذار | تعداد هنرجو در هر مرحله؛ درصد رسیده به M3، M5 و M6؛ میانه‌ی روز تا M6؛ بیشترین قاعده‌های گیر فعال |
-| **صفحه‌ی «مسیر من»** | هنرجو | مرحله‌ی فعلی، کارهای باز، بازخوردهای جدید، عددهای قیف خودش، milestoneها. هنرجو وضعیت سلامت و پرچم‌ها را **نمی‌بیند**؛ فقط کارها و پیشرفت را می‌بیند |
+| **My students list** | Mentor | Table: name, stage + days, health + reason, next task + deadline, last activity, 4-week funnel numbers. Default sort: red → yellow → has a submission waiting → green |
+| **All students list** | Founder | Same + a mentor column; filter by stage, health, cohort, branch, mentor |
+| **Student record** | Mentor, founder | Header (section 2.1) + tabs: tasks, showcases, funnel, timeline, questions, tool outputs |
+| **Cohort funnel** | Founder | Number of students in each stage; percentage who reached M3, M5 and M6; median days to M6; most common active stuck-rules |
+| **"My path" page** | Student | Current stage, open tasks, new feedback, their own funnel numbers, milestones. The student **does not see** the health status or flags; they see only tasks and progress |
 
 ---
 
-## ۹. دامنه‌ی MVP
+## 9. MVP scope
 
-| در MVP | بعداً |
+| In the MVP | Later |
 |---|---|
-| پرونده با فیلدهای ✔، ورود گروهی هنرجوهای فعلی (بخش ۲-۹) | ایمیل، پلن، شاخه‌ی فرعی، نشان‌ها |
-| مرحله‌ها با گیت دستی مشاور | پیشنهاد خودکار عبور |
-| «کار خواسته‌شده» با همه‌ی وضعیت‌ها و تکلیف‌های پیش‌فرض | کارهای تکرارشونده‌ی پیچیده |
-| ردیاب قیف شاخه‌ی B + check-in هفتگی | قیف شاخه‌های C و D |
-| قواعد سلامت: R-INACT، R-STALL، R-OVERDUE، R-NOTASK، R-CHECKIN، R-NOREPLY، R-LOWVOL، R-MOOD، R-FLAG | بقیه‌ی قواعد؛ تشخیص احساس از متن پیام‌ها با AI |
-| نماهای فهرست، پرونده و قیف کوهورت ساده | گزارش‌های پیشرفته |
+| Record with ✔ fields, bulk import of current students (section 2.9) | Email, plan, secondary branch, badges |
+| Stages with the mentor's manual gate | Automatic pass suggestion |
+| "Assignment" with all statuses and default tasks | Complex recurring tasks |
+| Branch B funnel tracker + weekly check-in | Funnels for branches C and D |
+| Health rules: R-INACT, R-STALL, R-OVERDUE, R-NOTASK, R-CHECKIN, R-NOREPLY, R-LOWVOL, R-MOOD, R-FLAG | The remaining rules; AI detection of sentiment from message text |
+| Simple list, record and cohort funnel views | Advanced reports |
 
 ---
 
-## ۱۰. فرض‌ها و سؤال‌های باز
+## 10. Assumptions and open questions
 
-| # | فرض یا سؤال | اثر |
+| # | Assumption or question | Impact |
 |---|---|---|
-| ۱ | تعداد هنرجوهای فعال فعلی و اینکه داده‌ی آن‌ها الان کجاست (Excel، تلگرام، ذهن مربی)؟ (سؤال باز ۳) | طراحی ورود گروهی |
-| ۲ | همه‌ی آستانه‌های بخش ۷ فرض‌اند و پس از ۸ تا ۱۲ هفته با داده تنظیم می‌شوند | دقت هشدارها |
-| ۳ | هنرجو حاضر است هر ارسال را ثبت کند (فرض: اگر ۳۰ ثانیه طول بکشد و ابزارها خودکار پرش کنند، بله) | کیفیت داده‌ی قیف |
-| ۴ | مدرک اولین قرارداد: اسکرین‌شات بی‌نام کافی است یا خوداظهاری؟ | اعتبار آمار North Star و ادعاهای بازاریابی |
-| ۵ | هنرجو وضعیت سلامت خودش را نبیند (پیشنهاد ما). بنیان‌گذار موافق است؟ | شفافیت در برابر انگیزه |
+| 1 | How many active students are there now, and where does their data live today (Excel, Telegram, the coach's head)? (open question 3) | Bulk import design |
+| 2 | All thresholds in section 7 are assumptions and will be tuned with data after 8 to 12 weeks | Alert accuracy |
+| 3 | Students are willing to log every submission (assumption: yes, if it takes 30 seconds and the tools pre-fill it) | Funnel data quality |
+| 4 | Evidence for the first contract: is an anonymous screenshot enough, or self-report? | Credibility of North Star statistics and marketing claims |
+| 5 | The student should not see their own health status (our suggestion). Does the founder agree? | Transparency versus motivation |

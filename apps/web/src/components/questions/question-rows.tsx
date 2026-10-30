@@ -9,8 +9,8 @@ import type { StaffQuestionListItemDTO } from '@/modules/questions/contracts';
 import { questionStatusLabel } from './labels';
 
 /**
- * SLA of a thread while the ball is with the team (api.md section 10): breached = red «دیر»,
- * warning = «N ساعت تا موعد» in amber, otherwise how long it has waited.
+ * SLA of a thread while the ball is with the team (api.md section 10): breached = red "Late",
+ * warning = "N hours until due" in amber, otherwise how long it has waited.
  */
 export function QuestionSla({
   q,
@@ -38,7 +38,7 @@ export function QuestionSla({
   );
 }
 
-/** «از check-in: …» for threads opened by the weekly check-in. */
+/** "From check-in: …" for threads opened by the weekly check-in. */
 export function QuestionSubject({
   q,
 }: {

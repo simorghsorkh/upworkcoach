@@ -21,7 +21,7 @@ import { ProfileForm } from './profile-form';
 type Editing = { kind: 'new' } | { kind: 'edit'; profile: ProfileDTO } | null;
 
 /**
- * «ویترین‌ها» — list, add, edit, delete (and approve for staff). Mutations go through the API
+ * "Showcases" — list, add, edit, delete (and approve for staff). Mutations go through the API
  * (SEC-A10) and the server page is refreshed so the header follows.
  */
 export function ProfilesManager({
@@ -36,7 +36,7 @@ export function ProfilesManager({
   profiles: ProfileDTO[];
   platforms: PlatformDTO[];
   createUrl: string;
-  /** Student's first name in staff mode («ویترین تازه برای امیر»). */
+  /** Student's first name in staff mode ("New showcase for Amir"). */
   ownerName?: string;
   headingId: string;
 }) {

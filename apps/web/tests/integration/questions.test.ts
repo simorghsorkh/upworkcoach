@@ -7,9 +7,9 @@ import { formWith, imageBytes, noteFixture, questionFixture, taskFixture } from 
 import { call, createUser, loginAs, SEEDED, type TestUser } from './helpers';
 
 /**
- * Questions (PRD F8, api.md section 10, ADR-0004 «نکته‌ی سؤال‌ها», SEC-A8): the thread life
+ * Questions (PRD F8, api.md section 10, ADR-0004 "Questions note", SEC-A8): the thread life
  * cycle, the SLA, the out-of-scope assignee (only that thread and the summary, only while
- * open), reference ids (T-REF), mentor change, «امروز», and the student DTO.
+ * open), reference ids (T-REF), mentor change, "Today", and the student DTO.
  */
 
 const CANARY = 'CANARY-QUESTION-5d1e';

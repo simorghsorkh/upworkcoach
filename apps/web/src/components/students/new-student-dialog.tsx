@@ -15,7 +15,7 @@ import {
 } from './new-student-form';
 
 /**
- * «هنرجوی جدید» button + dialog (bottom sheet on mobile). Opens by itself when the page is
+ * "New student" button + dialog (bottom sheet on mobile). Opens by itself when the page is
  * reached with `?new=1` (the mobile quick-add sheet links to /students/new).
  */
 export function NewStudentDialog({

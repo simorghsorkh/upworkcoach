@@ -1,13 +1,13 @@
 # tests
 
-| پوشه | ابزار | اجرا |
+| Folder | Tool | Run |
 |---|---|---|
-| `integration/` | Vitest + Postgres واقعی | `pnpm test` (همراه تست‌های واحد) |
-| `e2e/` | Playwright، دسکتاپ ۱۴۴۰ و موبایل ۳۷۵ | `pnpm test:e2e` |
+| `integration/` | Vitest + real Postgres | `pnpm test` (together with unit tests) |
+| `e2e/` | Playwright, desktop 1440 and mobile 375 | `pnpm test:e2e` |
 
-تست‌های واحد کنار کد هستند: `src/**/*.test.ts`.
+Unit tests live next to the code: `src/**/*.test.ts`.
 
-تست یکپارچه هیچ‌وقت به دیتابیس توسعه (`.data/pg`) وصل نمی‌شود: `global-setup.ts` یک Postgres 16 موقت
-روی پورت آزاد می‌سازد، مهاجرت‌ها را اجرا می‌کند و در پایان پاکش می‌کند (ADR-0009). در CI به‌جای آن
-`TEST_DATABASE_URL` (service container) استفاده می‌شود. در تست‌ها آدرس را با `inject('databaseUrl')` بگیرید.
-ماتریس دسترسی (ADR-0004) و تست قناری نشت یادداشت داخلی اینجا اضافه می‌شوند.
+Integration tests never connect to the development database (`.data/pg`): `global-setup.ts` creates a temporary Postgres 16
+on a free port, runs the migrations and removes it at the end (ADR-0009). In CI, `TEST_DATABASE_URL` (a service container)
+is used instead. In tests, get the URL with `inject('databaseUrl')`.
+The access matrix (ADR-0004) and the internal-note leak canary test are added here.

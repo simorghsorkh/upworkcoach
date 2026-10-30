@@ -28,7 +28,7 @@ import { checkins } from './schema';
  * `source = 'checkin'` in the same transaction.
  *
  * Assumption: sending is allowed on any day; it always belongs to the current Tehran week
- * («ارسال دیرتر به هفته‌ی بعد تعلق می‌گیرد»). `open` only tells the UI when to prompt.
+ * ("A later submission counts toward next week"). `open` only tells the UI when to prompt.
  */
 
 const DEFAULT_LIMIT = 20;

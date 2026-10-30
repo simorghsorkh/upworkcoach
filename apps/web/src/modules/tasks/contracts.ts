@@ -140,7 +140,7 @@ export type SubmitTaskInput = z.infer<typeof submitTaskInput>;
 
 /**
  * POST /submissions/:id/review (A, M). Feedback in Persian (mentor-workflow.md 6).
- * `nextDueDate` («مهلت نسخه‌ی بعد», sprint-3 frontend gap 3): only with
+ * `nextDueDate` ("Next-version deadline", sprint-3 frontend gap 3): only with
  * `changes_requested`; the task's deadline becomes the end of that Tehran day (today or
  * later). It is NOT an extension: no `task_extensions` row and no `extensionCount + 1`
  * (R-EXTEND); the change is recorded in the `review.created` event (sprint-4.md).
@@ -300,7 +300,7 @@ export type StaffTaskDetailDTO = StaffTaskDTO & {
 
 /**
  * GET /tasks → 200. `counts` apply every filter except `status` and `overdue`, so the tabs
- * («منتظر بازبینی»، «معوق»، …) get their numbers from the same request.
+ * ("Awaiting review", "Overdue", …) get their numbers from the same request.
  */
 export type StaffTaskListDTO = {
   items: StaffTaskDTO[];
@@ -315,7 +315,7 @@ export type StaffTaskListDTO = {
 /** POST /tasks/bulk → 201. */
 export type BulkTasksResultDTO = { batchId: string; created: number; taskIds: string[] };
 
-/** GET /review-queue and the «امروز» review section. */
+/** GET /review-queue and the "Today" review section. */
 export type ReviewQueueItemDTO = {
   taskId: string;
   title: string;

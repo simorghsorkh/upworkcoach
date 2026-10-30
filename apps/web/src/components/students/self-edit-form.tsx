@@ -77,7 +77,7 @@ function fromStudent(s: SelfStudentDTO): Values {
 const SCALE = [1, 2, 3, 4, 5].map((n) => [String(n), `${'۱۲۳۴۵'[n - 1]} از ۵`] as const);
 
 /**
- * S7 «ویرایش اطلاعات من» (`PATCH /me/student`): only the whitelist the student may change
+ * S7 "Edit my information" (`PATCH /me/student`): only the whitelist the student may change
  * about themself (data-model.md 2-3). Only changed fields are sent, with `ifUpdatedAt`.
  */
 export function SelfEditButton({

@@ -25,7 +25,7 @@ const TEMPLATE_FIELDS = [
 ] as const;
 type TemplateField = (typeof TEMPLATE_FIELDS)[number];
 
-/** «قالب جدید»: kind and title (plus the package of a one-on-one); opens the editor. */
+/** "New template": kind and title (plus the package of a one-on-one); opens the editor. */
 export function NewTemplateButton({ isAdmin }: { isAdmin: boolean }) {
   const t = useTranslations('programs');
   const tc = useTranslations('common');
@@ -164,7 +164,7 @@ export type RunnableTemplate = { id: string; title: string; kind: ProgramKind };
 const RUN_FIELDS = ['templateId', 'title', 'mode', 'startsOn', 'endsOn'] as const;
 type RunField = (typeof RUN_FIELDS)[number];
 
-/** «اجرای جدید»: from a published template (snapshot), or a one-on-one without one. */
+/** "New run": from a published template (snapshot), or a one-on-one without one. */
 export function NewRunButton({
   isAdmin,
   canGroup = isAdmin,

@@ -139,7 +139,7 @@ async function load(id: string) {
       mentorCards,
     };
   } catch (err) {
-    // Missing and out-of-scope look the same (ADR-0004): one «پیدا نشد» page.
+    // Missing and out-of-scope look the same (ADR-0004): one "Not found" page.
     if (err instanceof ApiError && (err.status === 404 || err.status === 403)) notFound();
     throw err;
   }

@@ -98,7 +98,7 @@ export function formatJalaliInput(day: string): string {
   return faDigits(`${jy}/${pad(jm)}/${pad(jd)}`);
 }
 
-/** `2026-10-22` → «پنجشنبه ۳۰ مهر» (+ « ۱۴۰۵» with `year`). */
+/** `2026-10-22` → «پنجشنبه ۳۰ مهر» (Thursday 30 Mehr) (+ « ۱۴۰۵» with `year`). */
 export function formatJalaliLong(day: string, { year = false }: { year?: boolean } = {}): string {
   const { jy, jm, jd } = dayToJalali(day);
   const text = `${WEEKDAYS[weekdayIndex(day)]} ${faDigits(String(jd))} ${JALALI_MONTHS[jm - 1]}`;

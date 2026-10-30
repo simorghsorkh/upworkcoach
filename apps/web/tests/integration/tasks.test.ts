@@ -117,7 +117,7 @@ describe('create a task (POST /students/:id/tasks)', () => {
 
   it('from a template: title, type, gate and default days come from the template', async () => {
     const res = await createTaskAs('mentor', student.id, {
-      templateId: SEEDED.taskTemplates[9], // «۳ پروپوزال کالیبره»: proposal_review, 7 days
+      templateId: SEEDED.taskTemplates[9], // "3 calibrated proposals": proposal_review, 7 days
     });
     expect(res.status).toBe(201);
     expect(res.body.title).toBe('۳ پروپوزال کالیبره');

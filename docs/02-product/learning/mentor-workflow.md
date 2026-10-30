@@ -1,296 +1,296 @@
-# روال کار مربی و مشاورها — UpworkCoach
+# Coach and Mentor Workflow — UpworkCoach
 
-> فاز ۱ — نویسنده: curriculum-designer — ۲۷ مهر ۱۴۰۵
-> وضعیت: پیش‌نویس، منتظر تأیید بنیان‌گذار
-> پیش‌نیاز: `progress-tracking.md` (پرونده، «کار خواسته‌شده»، قواعد سلامت). مرحله‌ها: `learning-path.md`. معیارهای بازبینی: rubricهای `../tool-rubrics/`.
+> Phase 1 — author: curriculum-designer — 27 Mehr 1405 (2026-10-19)
+> Status: draft, awaiting founder approval
+> Prerequisite: `progress-tracking.md` (the record, "assignment", health rules). Stages: `learning-path.md`. Review criteria: the rubrics in `../tool-rubrics/`.
 
 ---
 
-## ۱. نقش‌ها
+## 1. Roles
 
-طبق پاسخ بنیان‌گذار، مشاور **دو کار** دارد: (۱) کمک به هنرجو برای **رسیدن به درآمد** و (۲) جواب به **سؤال‌های تخصصی**.
+According to the founder's answer, a mentor has **two jobs**: (1) helping the student **reach income** and (2) answering **specialist questions**.
 
-| نقش | مسئولیت | دسترسی |
+| Role | Responsibility | Access |
 |---|---|---|
-| **بنیان‌گذار (مربی ارشد / ادمین)** | تعریف روش و rubric، تخصیص هنرجو، نظارت بر کیفیت مشاورها، تصمیم در موارد ارجاعی، تأیید محتوا. می‌تواند خودش هم مشاور مسئول تعدادی هنرجو باشد | همه‌ی پرونده‌ها و گزارش‌ها |
-| **مشاور مسئول** (کار ۱: رسیدن به درآمد) | صاحب پرونده‌ی هنرجوهای تخصیص‌یافته: بازبینی تکلیف‌ها، تأیید گیت مرحله‌ها، مرور هفتگی، رسیدگی به هشدارها، تعریف کار بعدی | پرونده‌ی هنرجوهای خودش + خواندن پرونده‌ی هنرجوی دیگران فقط وقتی سؤالشان به او ارجاع شود |
-| **مشاور متخصص** (کار ۲: سؤال‌های تخصصی) | پاسخ به سؤال‌های تخصصی در حوزه‌ی خودش (مثلاً یک نیچ، یک پلتفرم، مذاکره) از صف مشترک | صف سؤال‌ها + پرونده‌ی هنرجوی صاحب سؤال (فقط خواندن) |
-| **ابزار AI** | بازخورد فوری اولیه روی تحویل‌ها، پیش‌نویس پاسخ سؤال‌های رایج، خلاصه‌ی پرونده برای مشاور | بخش ۷ |
+| **Founder (senior coach / admin)** | Defines the method and rubrics, assigns students, oversees mentor quality, decides on escalated cases, approves content. Can also be the responsible mentor for some students | All records and reports |
+| **Responsible mentor** (job 1: reaching income) | Owns the record of the assigned students: reviews tasks, approves stage gates, runs the weekly review, handles alerts, defines the next task | Records of their own students + read access to another student's record only when that student's question is escalated to them |
+| **Specialist mentor** (job 2: specialist questions) | Answers specialist questions in their own domain (e.g. a niche, a platform, negotiation) from the shared queue | The question queue + the record of the student who asked (read-only) |
+| **AI tool** | Instant first-pass feedback on submissions, draft answers to common questions, a record summary for the mentor | Section 7 |
 
-یک نفر می‌تواند هم مشاور مسئول باشد و هم مشاور متخصص. این دو **برچسب نقش** هستند، نه دو نوع کاربر.
-
----
-
-## ۲. تقسیم هنرجو بین مشاورها
-
-### ۲-۱. قواعد تخصیص
-
-| قاعده | توضیح |
-|---|---|
-| هر هنرجو **یک** مشاور مسئول دارد | پاسخ‌گویی روشن؛ «همه مسئول‌اند» یعنی هیچ‌کس مسئول نیست |
-| هر مشاور یک **مشاور جانشین** دارد | برای مرخصی و نقض SLA. جانشین پرونده را می‌خواند و کارها را جلو می‌برد |
-| معیار تخصیص | (۱) تناسب نیچ یا شاخه؛ (۲) ظرفیت آزاد؛ (۳) ترکیب مرحله‌ها (همه‌ی هنرجوهای مرحله‌ی ۵ به یک نفر نرسند، چون پرکارترین مرحله است) |
-| ظرفیت پیش‌فرض | **فرض:** ۱۵ تا ۲۵ هنرجوی فعال برای مشاوری با ۱۰ ساعت در هفته (تقریباً ۲۰ تا ۳۰ دقیقه برای هر هنرجو در هفته). هنرجوی «متوقف» در ظرفیت حساب نمی‌شود. عدد واقعی به پاسخ بنیان‌گذار بستگی دارد (سؤال باز ۴) |
-| انتقال هنرجو | با دلیل؛ پرونده و خط زمانی کامل منتقل می‌شود؛ مشاور قبلی یک یادداشت تحویل می‌نویسد («کجاست، چه کاری باز است، چه چیزی جواب می‌دهد») |
-| مالکیت داده | ارتباط با هنرجو داخل پلتفرم انجام می‌شود، نه در پیام‌رسان شخصی مشاور (کاهش ریسک R5: رفتن مشاور با دانش هنرجوها) |
-
-### ۲-۲. مسیریابی سؤال‌ها
-
-| نوع سؤال | به چه کسی می‌رسد |
-|---|---|
-| درباره‌ی کار یا تکلیف خود هنرجو («تیترم را درست کردم؟») | مشاور مسئول |
-| تخصصی با برچسب حوزه (نیچ خاص، Fiverr، قیمت‌گذاری، مذاکره) | صف مشترک، اولویت به مشاور متخصص آن حوزه؛ مشاور مسئول رونوشت می‌گیرد |
-| عمومی و رایج («Boost ارزش دارد؟») | AI پیش‌نویس از کتابخانه‌ی پاسخ می‌دهد (بخش ۷) |
-| حساس (بخش ۹) | مستقیم به مشاور مسئول، و در صورت نیاز بنیان‌گذار؛ AI جواب نمی‌دهد |
+One person can be both a responsible mentor and a specialist mentor. These are two **role labels**, not two types of user.
 
 ---
 
-## ۳. صف‌ها (صندوق کار مشاور)
+## 2. Dividing students among mentors
 
-مشاور هر روز یک صفحه می‌بیند با چهار صف، به این ترتیب اولویت:
+### 2.1. Assignment rules
 
-| # | صف | چه چیزی داخلش است | ترتیب داخل صف |
+| Rule | Description |
+|---|---|
+| Each student has **one** responsible mentor | Clear accountability; "everyone is responsible" means no one is responsible |
+| Each mentor has one **backup mentor** | For leave and SLA breaches. The backup reads the record and moves tasks forward |
+| Assignment criteria | (1) fit with niche or branch; (2) free capacity; (3) mix of stages (not all stage-5 students to one person, since it is the heaviest stage) |
+| Default capacity | **Assumption:** 15 to 25 active students for a mentor with 10 hours a week (roughly 20 to 30 minutes per student per week). A "paused" student does not count toward capacity. The real number depends on the founder's answer (open question 4) |
+| Transferring a student | With a reason; the full record and timeline are transferred; the previous mentor writes a handover note ("where they are, what task is open, what works") |
+| Data ownership | Communication with the student happens inside the platform, not in the mentor's personal messenger (reduces risk R5: a mentor leaving with the students' knowledge) |
+
+### 2.2. Question routing
+
+| Question type | Who gets it |
+|---|---|
+| About the student's own work or task ("Did I fix my headline correctly?") | Responsible mentor |
+| Specialist, with a domain tag (a specific niche, Fiverr, pricing, negotiation) | Shared queue, priority to the specialist mentor of that domain; the responsible mentor gets a copy |
+| General and common ("Is Boost worth it?") | AI drafts an answer from the answer library (section 7) |
+| Sensitive (section 9) | Directly to the responsible mentor, and to the founder if needed; AI does not answer |
+
+---
+
+## 3. Queues (the mentor's inbox)
+
+Every day the mentor sees one page with four queues, in this priority order:
+
+| # | Queue | What is in it | Order within the queue |
 |---|---|---|---|
-| ۱ | **فوری** | سؤال‌ها و تحویل‌های «فوری» (وابسته به جاب زنده، پیشنهاد کارفرما یا مصاحبه‌ی نزدیک)، و هنرجوهای تازه‌قرمز | نزدیک‌ترین زمان نقض SLA |
-| ۲ | **سؤال‌ها** | سؤال‌های عادی هنرجوهای خودش + سؤال‌های تخصصی ارجاعی | نزدیک‌ترین زمان نقض SLA |
-| ۳ | **بازبینی تکلیف‌ها** | کارهای `submitted`؛ تحویل‌های **گیت مرحله** بالاتر از بقیه | گیت اول، بعد قدیمی‌ترین |
-| ۴ | **هشدارها و پیگیری‌ها** | هنرجوهای زرد، کارهای معوق، check-inهای «به کمک نیاز دارم»، پیگیری‌های زمان‌بندی‌شده (مثلاً «۳ روز بعد از مصاحبه بپرس چه شد») | قرمز ← زرد ← بقیه |
+| 1 | **Urgent** | "Urgent" questions and submissions (tied to a live job, a client offer or an upcoming interview), and newly red students | Nearest SLA breach time |
+| 2 | **Questions** | Normal questions from their own students + escalated specialist questions | Nearest SLA breach time |
+| 3 | **Task reviews** | `submitted` tasks; **stage gate** submissions rank above the rest | Gates first, then oldest |
+| 4 | **Alerts and follow-ups** | Yellow students, overdue tasks, check-ins with "I need help", scheduled follow-ups (e.g. "3 days after the interview, ask how it went") | Red → yellow → others |
 
-کنار هر آیتم: نام هنرجو، مرحله، سلامت، خلاصه‌ی یک‌خطی AI از پرونده، و زمان باقی‌مانده تا SLA.
+Next to each item: student name, stage, health, a one-line AI summary of the record, and time remaining until the SLA.
 
 ---
 
-## ۴. SLA (زمان پاسخ)
+## 4. SLA (response time)
 
-ساعت کاری پیش‌فرض (فرض): **شنبه تا چهارشنبه ۹ تا ۲۱ و پنجشنبه ۹ تا ۱۴**. SLA بر اساس ساعت کاری حساب می‌شود. بنیان‌گذار تأیید یا تغییر می‌دهد.
+Default working hours (assumption): **Saturday to Wednesday 09:00 to 21:00 and Thursday 09:00 to 14:00**. The SLA is calculated in working hours. The founder confirms or changes this.
 
-| نوع | پاسخ AI | پاسخ یا بازبینی انسانی | چرا این عدد |
+| Type | AI response | Human response or review | Why this number |
 |---|---|---|---|
-| سؤال یا تحویل **فوری** (جاب زنده، پیشنهاد کارفرما، مصاحبه ظرف ۲۴ ساعت) | فوری | **۴ ساعت کاری** | آگهی‌ها زود کهنه می‌شوند؛ هم‌راستا با هدف «میانه < ۴ ساعت» در `vision.md` |
-| سؤال عادی | فوری (اگر AI مجاز است) | **۲۴ ساعت کاری** | — |
-| بازبینی تکلیف گیت مرحله | فوری (rubric) | **۴۸ ساعت کاری** | گیت، پیشرفت هنرجو را متوقف می‌کند |
-| بازبینی تکلیف غیرگیت | فوری | ۷۲ ساعت کاری | — |
-| هنرجوی تازه‌قرمز | — | تماس شخصی در **۴۸ ساعت کاری** | — |
-| هنرجوی زرد | — | در مرور هفتگی همان هفته | — |
-| check-in با «به کمک نیاز دارم» | — | ۲۴ ساعت کاری | — |
+| **Urgent** question or submission (live job, client offer, interview within 24 hours) | Instant | **4 working hours** | Job postings go stale quickly; aligned with the "median < 4 hours" goal in `vision.md` |
+| Normal question | Instant (if AI is allowed) | **24 working hours** | — |
+| Stage gate task review | Instant (rubric) | **48 working hours** | The gate blocks the student's progress |
+| Non-gate task review | Instant | 72 working hours | — |
+| Newly red student | — | Personal call within **48 working hours** | — |
+| Yellow student | — | In that week's weekly review | — |
+| Check-in with "I need help" | — | 24 working hours | — |
 
-**وقتی SLA نقض می‌شود:**
+**When the SLA is breached:**
 
-| زمان | اتفاق |
+| Time | What happens |
 |---|---|
-| ۸۰٪ زمان گذشته | یادآور به مشاور مسئول |
-| ۱۰۰٪ | آیتم برای مشاور جانشین هم نمایش داده می‌شود (هر کدام زودتر برداشت) |
-| ۱۵۰٪ | گزارش به بنیان‌گذار |
+| 80% of the time elapsed | Reminder to the responsible mentor |
+| 100% | The item is also shown to the backup mentor (whoever picks it up first) |
+| 150% | Reported to the founder |
 
-هنرجو زمان تقریبی پاسخ را می‌بیند («پاسخ مشاور تا فردا ظهر»)، نه یک وعده‌ی مبهم.
+The student sees an approximate response time ("The mentor will reply by tomorrow noon"), not a vague promise.
 
 ---
 
-## ۵. روال روزانه و هفتگی
+## 5. Daily and weekly routine
 
-### ۵-۱. روال روزانه‌ی مشاور (۳۰ تا ۶۰ دقیقه)
+### 5.1. Mentor's daily routine (30 to 60 minutes)
 
-| ترتیب | کار | زمان تقریبی |
+| Order | Task | Approx. time |
 |---|---|---|
-| ۱ | خالی کردن صف «فوری» | ۱۰ تا ۲۰ دقیقه |
-| ۲ | سؤال‌هایی که SLA آن‌ها امروز تمام می‌شود | ۱۰ تا ۲۰ دقیقه |
-| ۳ | بازبینی تکلیف‌های گیت | ۱۰ تا ۲۰ دقیقه |
-| ۴ | ثبت یادداشت برای هر تماسی که امروز داشتی | ۵ دقیقه |
+| 1 | Empty the "Urgent" queue | 10 to 20 minutes |
+| 2 | Questions whose SLA ends today | 10 to 20 minutes |
+| 3 | Review gate tasks | 10 to 20 minutes |
+| 4 | Log notes for every call you had today | 5 minutes |
 
-### ۵-۲. مرور هفتگی هنرجوها (مهم‌ترین روال)
+### 5.2. Weekly student review (the most important routine)
 
-**هدف:** هیچ هنرجویی بیش از یک هفته از دید مشاور بیرون نماند و هر هنرجو بعد از مرور، یک قدم بعدی روشن داشته باشد.
-**زمان پیشنهادی:** شنبه، بعد از check-inهای پنجشنبه. حدود ۲ تا ۳ دقیقه برای هنرجوی سبز و ۵ تا ۱۰ دقیقه برای زرد و قرمز.
-**ترتیب:** قرمز ← زرد ← دارای تحویل منتظر ← سبز (همان ترتیب پیش‌فرض «فهرست هنرجوهای من»).
+**Goal:** no student stays out of the mentor's sight for more than a week, and after the review every student has one clear next step.
+**Suggested time:** Saturday, after the Thursday check-ins. About 2 to 3 minutes for a green student and 5 to 10 minutes for yellow and red.
+**Order:** red → yellow → has a submission waiting → green (the same default order as "My students list").
 
-**چک‌لیست برای هر هنرجو:**
+**Checklist for each student:**
 
-| # | نگاه کن به | سؤال |
+| # | Look at | Question |
 |---|---|---|
-| ۱ | سلامت و دلیل | چرا این رنگ است؟ قاعده‌ی فعال واقعاً مشکل است یا خطای داده؟ |
-| ۲ | مرحله و روزهای حضور | جلوتر از زمان معمول است یا عقب‌تر؟ |
-| ۳ | کارهای باز و معوق | کار باز دارد؟ مهلت‌ها واقع‌بینانه است؟ |
-| ۴ | عددهای قیف این هفته در برابر هفته‌ی قبل | ریتم ارسال؟ نرخ پاسخ؟ |
-| ۵ | check-in این هفته | مانع گفته‌شده؟ حالش؟ نیاز به کمک؟ |
-| ۶ | آخرین بازخوردها | هنرجو بازخوردها را اعمال کرده؟ |
+| 1 | Health and reason | Why this color? Is the active rule a real problem or a data error? |
+| 2 | Stage and days in stage | Ahead of or behind the usual time? |
+| 3 | Open and overdue tasks | Do they have an open task? Are the deadlines realistic? |
+| 4 | This week's funnel numbers versus last week | Submission rhythm? Reply rate? |
+| 5 | This week's check-in | Blocker mentioned? Mood? Need for help? |
+| 6 | Latest feedback | Did the student apply the feedback? |
 
-**تصمیم (یکی یا چند تا):**
+**Decision (one or more):**
 
-| تصمیم | نتیجه در سیستم |
+| Decision | Result in the system |
 |---|---|
-| ادامه، بدون تغییر | فقط ثبت مرور |
-| کار جدید یا اصلاح کار فعلی | ساخت «کار خواسته‌شده» |
-| پیام شخصی | ثبت در خط زمانی |
-| تماس یا جلسه | ساخت پیگیری زمان‌بندی‌شده |
-| پیشنهاد عبور یا برگشت مرحله | تغییر وضعیت مرحله با دلیل |
-| ممیزی سه‌لایه (R-NOREPLY) | ساخت سه کار بررسی (`progress-tracking.md` بخش ۷-۳) |
-| پیشنهاد توقف موقت | وضعیت «متوقف» با تاریخ بازگشت |
-| ارجاع به بنیان‌گذار | آیتم در صف بنیان‌گذار |
+| Continue, no change | Just log the review |
+| New task or revision of the current task | Create an "assignment" |
+| Personal message | Logged in the timeline |
+| Call or session | Create a scheduled follow-up |
+| Suggest passing or going back a stage | Change stage status with a reason |
+| Three-layer audit (R-NOREPLY) | Create three review tasks (`progress-tracking.md` section 7.3) |
+| Suggest a temporary pause | Status "paused" with a return date |
+| Escalate to the founder | Item in the founder's queue |
 
-**قالب یادداشت مرور هفتگی** (در پرونده ذخیره می‌شود، AI پیش‌نویسش را از داده‌ها می‌سازد و مشاور اصلاح می‌کند):
+**Weekly review note template** (saved in the record; AI drafts it from the data and the mentor edits it):
 
 ```
-مرور هفتگی — [تاریخ شمسی] — [نام مشاور]
-وضعیت: [سبز/زرد/قرمز] — دلیل: [کد قاعده]
-مرحله: [شماره و نام] — [N] روز
-این هفته: [ارسال / پاسخ / مصاحبه] — [یک جمله درباره‌ی کیفیت کار]
-مانع اصلی: [از check-in یا برداشت مشاور]
-تصمیم: [یکی از تصمیم‌های بالا]
-قدم بعدی: [عنوان کار] — مهلت [تاریخ]
+Weekly review — [Jalali date] — [mentor name]
+Status: [green/yellow/red] — reason: [rule code]
+Stage: [number and name] — [N] days
+This week: [submissions / replies / interviews] — [one sentence on work quality]
+Main blocker: [from check-in or mentor's impression]
+Decision: [one of the decisions above]
+Next step: [task title] — deadline [date]
 ```
 
-### ۵-۳. روال هفتگی بنیان‌گذار (۶۰ تا ۹۰ دقیقه)
+### 5.3. Founder's weekly routine (60 to 90 minutes)
 
-| کار | نگاه به | خروجی |
+| Task | Look at | Output |
 |---|---|---|
-| قیف کوهورت | تعداد در هر مرحله، رسیدن به M3، M5 و M6 | تشخیص گلوگاه مشترک (مثلاً «۴۰٪ در مرحله‌ی ۲ مانده‌اند») |
-| هنرجوهای قرمز | قرمزهای بیش از ۷ روز و موارد ارجاعی | تصمیم یا تماس مستقیم |
-| عملکرد مشاورها | رعایت SLA، سهم هنرجوهای قرمز هر مشاور، تعداد مرورهای انجام‌شده | گفت‌وگو با مشاور |
-| **نمونه‌برداری کیفیت** | ۵ بازخورد یا پاسخ تصادفی از مشاورها و ۵ خروجی AI | اصلاح rubric یا کتابخانه‌ی پاسخ؛ بازخورد به مشاور |
-| الگوهای تکراری | سؤال‌های پرتکرار هفته | پاسخ استاندارد جدید، محتوای جدید `C-…`، یا موضوع جلسه‌ی گروهی |
+| Cohort funnel | Count per stage, reaching M3, M5 and M6 | Identify the shared bottleneck (e.g. "40% are stuck in stage 2") |
+| Red students | Reds older than 7 days and escalated cases | Decision or direct call |
+| Mentor performance | SLA compliance, each mentor's share of red students, number of reviews completed | Conversation with the mentor |
+| **Quality sampling** | 5 random feedback items or answers from mentors and 5 AI outputs | Fix the rubric or the answer library; give feedback to the mentor |
+| Recurring patterns | The week's frequent questions | New standard answer, new content `C-…`, or a group session topic |
 
-### ۵-۴. روال ماهانه
+### 5.4. Monthly routine
 
-| کار | چه کسی |
+| Task | Who |
 |---|---|
-| مرور ماهانه‌ی رشد هنرجوهای مرحله‌ی ۷ و ۸ | مشاور مسئول |
-| جلسه‌ی ۱:۱ بنیان‌گذار با هر مشاور (۲۰ دقیقه) | بنیان‌گذار |
-| تنظیم آستانه‌ی قواعد سلامت و زمان مرحله‌ها با داده | بنیان‌گذار (با پیشنهاد curriculum-designer) |
-| جمع کردن داستان‌های موفقیت (با رضایت هنرجو) | مشاور مسئول |
+| Monthly growth review for stage 7 and 8 students | Responsible mentor |
+| Founder's 20-minute 1:1 with each mentor | Founder |
+| Tune the health-rule thresholds and stage durations with data | Founder (with curriculum-designer's suggestion) |
+| Collect success stories (with the student's consent) | Responsible mentor |
 
 ---
 
-## ۶. قالب‌های بازخورد
+## 6. Feedback templates
 
-### ۶-۱. بازخورد روی تکلیف
+### 6.1. Feedback on a task
 
-اصل: **هنرجو باید یاد بگیرد، نه اینکه متن آماده بگیرد.** مشاور کل پروپوزال یا پروفایل را بازنویسی نمی‌کند؛ حداکثر یک یا دو جمله را به‌عنوان نمونه بازنویسی می‌کند.
+Principle: **the student should learn, not receive ready-made text.** The mentor does not rewrite a whole proposal or profile; at most they rewrite one or two sentences as an example.
 
 ```
-حکم: [پذیرفته / اصلاح جزئی / اصلاح اساسی]
+Verdict: [accepted / minor revision / major revision]
 
-نقطه‌ی قوت (۱ تا ۲ مورد):
-- [مشخص، با اشاره به بخش متن]
+Strengths (1 to 2):
+- [specific, pointing to a part of the text]
 
-مهم‌ترین اصلاح‌ها (حداکثر ۳، به ترتیب اهمیت):
-1. [مشکل] — چرا مهم است — [معیار rubric مربوط، مثلاً «قلاب دو خط اول»]
-   نمونه: «[بازنویسی یک جمله، به انگلیسی]»
+Most important fixes (at most 3, in order of importance):
+1. [problem] — why it matters — [related rubric criterion, e.g. "hook in the first two lines"]
+   Example: "[a one-sentence rewrite, in English]"
 2. ...
 
-درباره‌ی بازخورد AI: [موافقم / این مورد را نادیده بگیر چون …]
+On the AI feedback: [I agree / ignore this item because …]
 
-قدم بعدی: [کار مشخص] — تا [تاریخ]
+Next step: [specific task] — by [date]
 ```
 
-| قاعده‌ی لحن | مثال بد | مثال خوب |
+| Tone rule | Bad example | Good example |
 |---|---|---|
-| مشخص، نه کلی | «Overview ضعیف است» | «جمله‌ی اول درباره‌ی خودت است؛ با مشکل کارفرما شروع کن» |
-| حداکثر ۳ اصلاح | فهرست ۱۲ ایراد | ۳ ایراد مهم؛ بقیه برای دور بعد |
-| ارجاع به معیار مشترک | «به نظرم …» | «طبق معیار "شخصی‌سازی" در rubric …» |
-| فارسی، نمونه‌ها به انگلیسی | — | توضیح فارسی، جمله‌ی نمونه‌ی انگلیسی |
-| پایان با قدم بعدی | بازخورد بدون نتیجه | «نسخه‌ی بعد را تا پنجشنبه بفرست» |
+| Specific, not general | "The Overview is weak" | "The first sentence is about you; start with the client's problem" |
+| At most 3 fixes | A list of 12 flaws | 3 important flaws; the rest for the next round |
+| Refer to the shared criterion | "I think …" | "According to the 'personalization' criterion in the rubric …" |
+| Persian, with examples in English | — | Explanation in Persian, example sentence in English |
+| End with the next step | Feedback with no outcome | "Send the next version by Thursday" |
 
-### ۶-۲. پاسخ به سؤال
+### 6.2. Answering a question
 
 ```
-جواب کوتاه: [یک یا دو جمله]
-توضیح: [چرا؛ در صورت نیاز با مثال]
-برای موقعیت تو: [اعمال روی پرونده‌ی همین هنرجو]
-[اختیاری] بیشتر بخوان: [کد محتوا یا پاسخ کتابخانه]
+Short answer: [one or two sentences]
+Explanation: [why; with an example if needed]
+For your situation: [apply it to this student's record]
+[Optional] Read more: [content code or library answer]
 ```
 
-مشاور اگر پاسخ را برای دیگران هم مفید بداند، آن را با برچسب «قابل‌استفاده‌ی مجدد» ذخیره می‌کند (بخش ۸).
+If the mentor thinks the answer is useful for others too, they save it with the "reusable" label (section 8).
 
-### ۶-۳. پیام به هنرجوی زرد یا قرمز
+### 6.3. Message to a yellow or red student
 
-قالب ثابت ندارد (پیام باید شخصی باشد)، ولی سه جزء دارد:
-1. اشاره‌ی مشخص به کار یا وضعیت او (نه «مدتی است ندیدیمت»).
-2. یک سؤال باز درباره‌ی مانع.
-3. پیشنهاد **کوچک‌ترین قدم بعدی**، یا گزینه‌ی توقف موقت.
+There is no fixed template (the message must be personal), but it has three parts:
+1. A specific reference to their work or situation (not "I haven't seen you in a while").
+2. One open question about the blocker.
+3. A suggestion of the **smallest next step**, or the option of a temporary pause.
 
 ---
 
-## ۷. تقسیم کار AI و مشاور انسانی
+## 7. Division of work between AI and the human mentor
 
-| کار | AI | مشاور |
+| Task | AI | Mentor |
 |---|---|---|
-| بازخورد اولیه روی پروپوزال، جاب و ویترین | **بله، فوری**، طبق rubric | می‌بیند، تأیید یا اصلاح می‌کند |
-| عبور از گیت مرحله | **هرگز** | **بله، همیشه** |
-| ساخت «کار خواسته‌شده» | فقط تکلیف‌های پیش‌فرض؛ پیشنهاد کار بعدی که مشاور تأیید کند | بله |
-| پاسخ به سؤال رایج و دانشی | پیش‌نویس از کتابخانه‌ی پاسخ، با برچسب «پاسخ اولیه‌ی هوش مصنوعی» و دکمه‌ی «می‌خواهم مشاور هم ببیند» | پاسخ‌های با درخواست بازبینی، یا با اطمینان پایین AI |
-| پاسخ به سؤال وابسته به موقعیت (این کارفرما، این قیمت، این پیشنهاد) | پیش‌نویس فقط برای مشاور، نه مستقیم برای هنرجو | **بله** |
-| خلاصه‌ی پرونده قبل از مرور یا تماس | بله | می‌خواند |
-| پیش‌نویس یادداشت مرور هفتگی | بله | اصلاح و ثبت |
-| تشخیص هشدار سلامت | قواعد سیستم (بدون AI) | تأیید و اقدام |
-| انتخاب نیچ، قیمت در مذاکره، تصمیم درباره‌ی پیشنهاد کارفرما | ورودی و تحلیل | **قضاوت نهایی** |
-| انگیزه، ناامیدی، مشکل شخصی یا مالی | خیر | **بله** |
-| موارد حساس (بخش ۹) | خیر | **بله** |
+| First-pass feedback on a proposal, job or showcase | **Yes, instantly**, per the rubric | Sees it, confirms or corrects |
+| Passing a stage gate | **Never** | **Yes, always** |
+| Creating an "assignment" | Only default tasks; suggests a next task for the mentor to confirm | Yes |
+| Answering a common, knowledge-based question | Draft from the answer library, labeled "AI first-pass answer" with a "I want a mentor to see this too" button | Answers where review was requested, or where AI confidence is low |
+| Answering a situation-dependent question (this client, this price, this offer) | Draft for the mentor only, not directly for the student | **Yes** |
+| Record summary before a review or call | Yes | Reads it |
+| Draft of the weekly review note | Yes | Edits and saves |
+| Detecting health alerts | System rules (no AI) | Confirms and acts |
+| Choosing a niche, pricing in a negotiation, deciding on a client offer | Input and analysis | **Final judgment** |
+| Motivation, discouragement, personal or financial problems | No | **Yes** |
+| Sensitive cases (section 9) | No | **Yes** |
 
-**قواعد:**
-- مشاور قبل از نوشتن بازخورد، بازخورد AI را می‌بیند تا تکرار نکند و فقط اضافه یا اصلاح کند.
-- اگر مشاور با AI مخالف است، روی آن خروجی «AI اشتباه کرد» + دلیل کوتاه ثبت می‌کند. این داده به ai-engineer برای ارزیابی کیفیت می‌رسد (ریسک R7؛ هدف: توافق ≥ ۸۰٪).
-- هنرجو همیشه می‌داند متن را AI نوشته یا انسان.
+**Rules:**
+- Before writing feedback, the mentor sees the AI feedback so as not to repeat it and only to add or correct.
+- If the mentor disagrees with the AI, they mark that output "AI was wrong" with a short reason. This data goes to ai-engineer for quality evaluation (risk R7; target: agreement ≥ 80%).
+- The student always knows whether the text was written by AI or a human.
 
 ---
 
-## ۸. کتابخانه‌ی پاسخ (کاهش سؤال تکراری)
+## 8. Answer library (reducing repeated questions)
 
-| بخش | توضیح |
+| Part | Description |
 |---|---|
-| منبع | پاسخ‌هایی که مشاورها «قابل‌استفاده‌ی مجدد» علامت زده‌اند + پاسخ‌های بنیان‌گذار |
-| تأیید | بنیان‌گذار یا مشاور ارشد هر پاسخ را پیش از ورود به کتابخانه تأیید می‌کند |
-| ساختار | سؤال، پاسخ، برچسب (مرحله، شاخه، موضوع)، تاریخ آخرین بازبینی، نویسنده |
-| تاریخ انقضا | پاسخ‌های وابسته به قواعد پلتفرم (Connects، کارمزد، نشان‌ها) هر ۶ ماه بازبینی می‌شوند |
-| استفاده | منبع پیش‌نویس‌های AI، و پیشنهاد «شاید جوابت این‌جاست» به هنرجو پیش از ثبت سؤال |
+| Source | Answers mentors marked "reusable" + the founder's answers |
+| Approval | The founder or a senior mentor approves each answer before it enters the library |
+| Structure | Question, answer, tags (stage, branch, topic), last review date, author |
+| Expiry | Answers that depend on platform rules (Connects, fees, badges) are reviewed every 6 months |
+| Use | Source of AI drafts, and a "Maybe your answer is here" suggestion to the student before they submit a question |
 
 ---
 
-## ۹. موارد حساس و خطوط قرمز
+## 9. Sensitive cases and red lines
 
-| موقعیت | اقدام مشاور |
+| Situation | Mentor action |
 |---|---|
-| درخواست راهنمایی برای خرید یا اجاره‌ی اکانت، استفاده از هویت دیگران یا دور زدن تأیید هویت | پاسخ استاندارد (متن را بنیان‌گذار تأیید می‌کند): پلتفرم در این موضوع راهنمایی نمی‌دهد + اشاره به ریسک‌ها؛ ثبت در پرونده با پرچم؛ بدون قضاوت شخصی |
-| درخواست ارتباط یا پرداخت خارج از پلتفرم (از طرف کارفرما یا پیشنهاد هنرجو) | توضیح قاعده‌ی پلتفرم و ریسک بسته شدن حساب؛ پیشنهاد مسیر مجاز |
-| مشکوک به اسکم با پول یا اطلاعات در میان | **فوری**؛ توصیه به قطع ادامه‌ی تعامل و گزارش به پلتفرم مربوط |
-| اختلاف با کارفرما، تهدید به نظر منفی | فوری؛ کمک به نوشتن پیام آرام و حرفه‌ای؛ اگر جدی است، ارجاع به بنیان‌گذار |
-| نشانه‌های پریشانی جدی روانی یا مالی | پاسخ انسانی و همدلانه؛ فشار تکلیف برداشته شود (پیشنهاد توقف موقت)؛ اطلاع به بنیان‌گذار. مشاور درمانگر نیست و در صورت نیاز به منابع تخصصی ارجاع می‌دهد |
-| درخواست تضمین درآمد یا قرارداد | توضیح صادقانه که نتیجه تضمینی نیست |
-| مشاور بخواهد هنرجو را برای کار شخصی جذب کند | خلاف قواعد همکاری مشاور (پیشنهاد: بند قرارداد مشاور، ریسک R5) |
+| Request for guidance on buying or renting an account, using someone else's identity or bypassing identity verification | Standard response (text approved by the founder): the platform gives no guidance on this + mention of the risks; log it in the record with a flag; no personal judgment |
+| Request for communication or payment outside the platform (from a client or suggested by the student) | Explain the platform rule and the risk of account closure; suggest the permitted route |
+| Suspected scam involving money or information | **Urgent**; advise cutting off further interaction and reporting to the relevant platform |
+| Dispute with a client, threat of a negative review | Urgent; help write a calm, professional message; if serious, escalate to the founder |
+| Signs of serious psychological or financial distress | A human, empathetic reply; take the task pressure off (suggest a temporary pause); inform the founder. The mentor is not a therapist and refers to specialist resources if needed |
+| Request for a guarantee of income or a contract | Honestly explain that the outcome is not guaranteed |
+| A mentor wants to recruit the student for personal work | Against the mentor collaboration rules (suggestion: a clause in the mentor contract, risk R5) |
 
 ---
 
-## ۱۰. کیفیت و نظارت بر مشاورها
+## 10. Quality and oversight of mentors
 
-| شاخص | چرا | هشدار درباره‌ی سوءاستفاده |
+| Metric | Why | Warning about misuse |
 |---|---|---|
-| رعایت SLA (٪ پاسخ در زمان) | سرعت | به‌تنهایی معیار نیست؛ پاسخ سریع و سطحی هم SLA را رعایت می‌کند |
-| انجام مرور هفتگی (٪ هنرجوها) | پیگیری | — |
-| سهم هنرجوهای قرمز و مدت قرمز ماندن | اثر واقعی | بدون در نظر گرفتن ترکیب هنرجوها مقایسه نشود |
-| پیشروی مرحله‌ها و رسیدن به M6 در هنرجوهای مشاور | نتیجه | با تعداد کم، نوسان زیاد است؛ روند ۳ ماهه ملاک است |
-| امتیاز هنرجو به پاسخ (۱ تا ۵، اختیاری) | رضایت | — |
-| نمونه‌برداری کیفیت بنیان‌گذار | هم‌راستایی با روش | — |
+| SLA compliance (% answered on time) | Speed | Not a standalone measure; a fast, shallow answer also meets the SLA |
+| Weekly review completion (% of students) | Follow-up | — |
+| Share of red students and how long they stay red | Real impact | Do not compare without accounting for each mentor's mix of students |
+| Stage progression and reaching M6 among the mentor's students | Outcome | With small numbers, fluctuation is high; the 3-month trend is the yardstick |
+| Student rating of answers (1 to 5, optional) | Satisfaction | — |
+| Founder's quality sampling | Alignment with the method | — |
 
 ---
 
-## ۱۱. دامنه‌ی MVP
+## 11. MVP scope
 
-| در MVP | بعداً |
+| In the MVP | Later |
 |---|---|
-| یک مشاور مسئول برای هر هنرجو + جانشین | مسیریابی خودکار بر اساس تخصص |
-| صف‌های چهارگانه و ترتیب اولویت | پیشنهاد خودکار ظرفیت و تخصیص |
-| SLA با یادآور و نمایش به جانشین | گزارش کامل عملکرد مشاور |
-| قالب بازخورد و قالب مرور هفتگی | پیش‌نویس خودکار مرور هفتگی با AI |
-| بازخورد AI روی تحویل‌های مرتبط با ابزارهای P0 | پیش‌نویس AI برای پاسخ سؤال‌ها و کتابخانه‌ی پاسخ کامل |
-| دکمه‌ی «AI اشتباه کرد» | — |
+| One responsible mentor per student + backup | Automatic routing by specialty |
+| The four queues and their priority order | Automatic capacity and assignment suggestions |
+| SLA with reminders and showing to the backup | Full mentor performance report |
+| Feedback template and weekly review template | Automatic AI draft of the weekly review |
+| AI feedback on submissions tied to P0 tools | AI drafts for question answers and the full answer library |
+| "AI was wrong" button | — |
 
 ---
 
-## ۱۲. سؤال‌های باز
+## 12. Open questions
 
-| # | سؤال | اثر |
+| # | Question | Impact |
 |---|---|---|
-| ۱ | چند مشاور، چند ساعت در هفته، و مدل پرداخت (ثابت، به ازای هنرجو، به ازای پاسخ)؟ (سؤال باز ۴) | ظرفیت، SLA، شاخص‌های عملکرد |
-| ۲ | ساعت کاری و روزهای پاسخ‌گویی؟ | محاسبه‌ی SLA |
-| ۳ | ارتباط با هنرجو کاملاً داخل پلتفرم باشد یا در MVP تلگرام کنار پلتفرم بماند؟ (سؤال باز ۷) | ثبت خط زمانی، ریسک R5 |
-| ۴ | آیا AI مجاز است سؤال‌های رایج را بدون بازبینی مشاور مستقیم جواب دهد؟ (پیشنهاد: بله، فقط از کتابخانه‌ی تأییدشده و با برچسب) | بار مشاورها |
-| ۵ | متن پاسخ استاندارد درباره‌ی اکانت و تحریم (بخش ۹) | ریسک R4 و R11 |
+| 1 | How many mentors, how many hours a week, and what payment model (fixed, per student, per answer)? (open question 4) | Capacity, SLA, performance metrics |
+| 2 | Working hours and response days? | SLA calculation |
+| 3 | Should communication with students be entirely inside the platform, or should Telegram stay alongside the platform in the MVP? (open question 7) | Timeline logging, risk R5 |
+| 4 | May AI answer common questions directly without mentor review? (Suggestion: yes, only from the approved library and with a label) | Mentor load |
+| 5 | Text of the standard answer about accounts and sanctions (section 9) | Risks R4 and R11 |

@@ -6,7 +6,7 @@ import { cn } from '@/components/ui/cn';
 import type { ContentLinkDTO } from '@/modules/catalog/contracts';
 import type { MyPathDTO, MyPathStageDTO } from '@/modules/path/contracts';
 
-/** Full stepper (mockups §7 `.stepper`): done = filled with a check, current = ringed + «اینجایی». */
+/** Full stepper (mockups §7 `.stepper`): done = filled with a check, current = ringed + "You are here". */
 export function PathStepper({ stages }: { stages: MyPathStageDTO[] }) {
   return (
     <ol
@@ -94,7 +94,7 @@ export function ContentLinks({ links }: { links: ContentLinkDTO[] }) {
   );
 }
 
-/** S1 «مسیر من» card (mockups/student-home.html): stepper, this stage's output, next, links. */
+/** S1 "My path" card (mockups/student-home.html): stepper, this stage's output, next, links. */
 export function PathCard({ path, showAllLink = true }: { path: MyPathDTO; showAllLink?: boolean }) {
   return (
     <Card aria-labelledby="h-path">
@@ -133,7 +133,7 @@ export function PathCard({ path, showAllLink = true }: { path: MyPathDTO; showAl
   );
 }
 
-/** «مرحله‌ی ۱ از ۸: انتخاب نیچ» */
+/** "Stage 1 of 8: Choose a niche" */
 export function stageLine(path: MyPathDTO): string {
   const last = path.stages.at(-1);
   return last

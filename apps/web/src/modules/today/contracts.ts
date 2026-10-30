@@ -16,7 +16,7 @@ export const todayQuery = z.strictObject({
 });
 export type TodayQuery = z.infer<typeof todayQuery>;
 
-/** «منتظر ما» (data-model.md 4-3): team-side waiting items with their SLA. */
+/** "Waiting on us" (data-model.md 4-3): team-side waiting items with their SLA. */
 export type WaitingOnUsItemDTO = {
   kind: 'review' | 'question' | 'red_no_action';
   studentId: string;
@@ -39,7 +39,7 @@ export type WaitingOnUsItemDTO = {
 export type UnansweredQuestionDTO = StaffQuestionListItemDTO;
 
 /**
- * F-14 (ADR-0005 «پیامدها»): is the hourly health sweep still running? Admin only. The UI
+ * F-14 (ADR-0005 "Consequences"): is the hourly health sweep still running? Admin only. The UI
  * shows a small warning when `stale` (an active/paused student's result older than 3 h).
  */
 export type HealthFreshnessDTO = {

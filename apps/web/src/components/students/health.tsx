@@ -8,8 +8,8 @@ import type { HealthBall } from '@/modules/health/contracts';
 import type { HealthSummaryDTO } from '@/modules/students/contracts';
 
 /**
- * Staff-only health UI (design-system §2-4: colour + SHAPE + text; PRD F7 «دلیل همیشه کنار
- * وضعیت»). Students never see any of it: no `(student)` page imports this file.
+ * Staff-only health UI (design-system §2-4: colour + SHAPE + text; PRD F7 "the reason is always next to
+ * the status"). Students never see any of it: no `(student)` page imports this file.
  * `untracked` (graduated / dropped) renders nothing.
  */
 export function HealthPill({
@@ -17,7 +17,7 @@ export function HealthPill({
   pausedUntil,
 }: {
   health: HealthSummaryDTO;
-  /** `YYYY-MM-DD` return day of a paused student, for «متوقف تا ۶ آبان». */
+  /** `YYYY-MM-DD` return day of a paused student, for "Paused until 6 Aban". */
   pausedUntil?: string | null;
 }) {
   const kind = healthKind(health.status, health.churnRisk);
@@ -55,7 +55,7 @@ function statusWord(kind: ReturnType<typeof healthKind>): string {
   }
 }
 
-/** «توپ: هنرجو» (mockups `.ball`). */
+/** "Ball: student" (mockups `.ball`). */
 export function BallChip({ ball }: { ball: HealthBall }) {
   return (
     <span
@@ -71,7 +71,7 @@ export function BallChip({ ball }: { ball: HealthBall }) {
 
 /**
  * The reasons as one line with the small rule codes at the end (mockups `.reason` + `.rule`):
- * «۲ کار معوق (بیشترین: ۹ روز) · ۹ روز بی‌فعالیت  R-OVERDUE, R-INACT».
+ * "2 overdue tasks (max: 9 days) · 9 days inactive  R-OVERDUE, R-INACT".
  */
 export function HealthReasonLine({
   health,
@@ -92,7 +92,7 @@ export function HealthReasonLine({
   );
 }
 
-/** Badge + reason line (students table «وضعیت و دلیل», kanban card). */
+/** Badge + reason line (students table "Status and reason", kanban card). */
 export function HealthCell({ health, extra }: { health: HealthSummaryDTO; extra?: ReactNode }) {
   return (
     <div className="flex min-w-0 flex-col items-start gap-1 max-md:items-end">

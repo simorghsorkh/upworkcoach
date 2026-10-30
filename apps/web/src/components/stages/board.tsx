@@ -36,14 +36,14 @@ function daysLabel(s: BoardStudentDTO): string {
 /**
  * M4 kanban (mockups/kanban.html, design-system §3-3): 272px columns scrolling inside the
  * board (never the page); on mobile one column ≈ 85% wide with mandatory snap and a row of
- * stage chips. «انتقال به…» on every card is the accessible way to move (WCAG 2.5.7); no drag.
+ * stage chips. "Move to…" on every card is the accessible way to move (WCAG 2.5.7); no drag.
  */
 export function Board({
   columns,
   templates,
 }: {
   columns: Column[];
-  /** Task templates, for «کارهای پیش‌فرض» of the target stage. */
+  /** Task templates, for "Default tasks" of the target stage. */
   templates?: readonly SuggestedTemplate[];
 }) {
   const [moving, setMoving] = useState<StageMoveTarget | null>(null);

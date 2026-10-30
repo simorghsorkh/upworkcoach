@@ -105,7 +105,7 @@ function ToolbarSelect({
 }
 
 /**
- * M2 toolbar (mockups/students.html): search + selects on desktop, search + «فیلتر» sheet on
+ * M2 toolbar (mockups/students.html): search + selects on desktop, search + "Filter" sheet on
  * mobile. Everything lives in the URL, so the server renders the filtered list and links can
  * be shared. Works as a plain GET form without JavaScript.
  */
@@ -286,7 +286,7 @@ export function StudentFilters({
   );
 }
 
-/** «همه‌ی دوره‌ها», then per course: all its phases, then each phase. */
+/** "All courses", then per course: all its phases, then each phase. */
 function CourseOptions({ courses }: { courses: NonNullable<FilterOptions['courses']> }) {
   return (
     <>

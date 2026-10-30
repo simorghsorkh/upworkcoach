@@ -29,8 +29,8 @@ import { type HealthSummary, toHealthReasons, toHealthSummary } from './summary'
 
 /**
  * health — staff API of health, flags and snooze (api.md section 9, PRD F7). Staff only:
- * every function rejects students with 403 (ADR-0004: «سلامت، دلیل‌ها، پرچم، snooze —
- * هنرجو هرگز»), and single resources go through `loadInScope` (missing = out of scope = 404).
+ * every function rejects students with 403 (ADR-0004: "health, reasons, flag, snooze —
+ * never the student"), and single resources go through `loadInScope` (missing = out of scope = 404).
  */
 
 function assertStaff(actor: Actor): void {
@@ -100,7 +100,7 @@ export async function getStudentHealth(
   return loadDetail(db, studentId, new Date());
 }
 
-// ---- snooze («نادیده تا تاریخ») ---------------------------------------------------------
+// ---- snooze ("Snooze until a date") ---------------------------------------------------------
 
 /**
  * PUT /students/:id/health/snooze (A, M in scope): hidden from the stuck lists until the end
@@ -411,7 +411,7 @@ export async function adminRecompute(
   return result;
 }
 
-// ---- «منتظر ما»: red without action (data-model.md 4-3) ---------------------------------
+// ---- "Waiting on us": red without action (data-model.md 4-3) ---------------------------------
 
 /**
  * Red students of the scope with no staff note since `red_since` (read-only SQL). The

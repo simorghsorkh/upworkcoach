@@ -108,7 +108,7 @@ export const stages = pgTable(
     pathId: uuid()
       .notNull()
       .references(() => learningPaths.id),
-    /** Display label such as «۵». Code never depends on it. */
+    /** Display label such as «۵» (the Persian digit 5). Code never depends on it. */
     displayCode: text().notNull(),
     name: text().notNull(),
     /** Order in the path and of the kanban columns. Not unique: reordering is one transaction. */
@@ -199,7 +199,7 @@ export const milestoneTypes = pgTable(
     organizationId: organizationId(),
     name: text().notNull(),
     countsForNorthStar: boolean().notNull().default(false),
-    /** «اولین …» types: at most one APPROVED milestone of this type per student. */
+    /** "First …" types: at most one APPROVED milestone of this type per student. */
     uniquePerStudent: boolean().notNull().default(false),
     /** A student proposal needs evidence (text or an image). */
     requiresEvidence: boolean().notNull().default(false),

@@ -53,9 +53,9 @@ type Field = (typeof FIELDS)[number];
 const DEFAULT_DUE_DAYS = 3;
 
 /**
- * M5a «کار جدید» (mockups/tasks.html #new-task, user-flows §4): one or several students
+ * M5a "New task" (mockups/tasks.html #new-task, user-flows §4): one or several students
  * (a separate task each — bulk), optional template, verb-first title, description with the
- * acceptance criterion, submission type, Jalali deadline with shortcuts, and under «بیشتر»
+ * acceptance criterion, submission type, Jalali deadline with shortcuts, and under "More"
  * the stage, gate, urgent and reviewer. Writes `POST /students/:id/tasks` or `POST /tasks/bulk`.
  */
 export function TaskForm({

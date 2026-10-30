@@ -22,7 +22,7 @@ function expected(stage: StageDTO) {
 }
 
 /**
- * M11 «مراحل مسیر» (admin): name, code, usual duration, order, student text and content links;
+ * M11 "Path stages" (admin): name, code, usual duration, order, student text and content links;
  * deactivate (409 while active students are in it) and reactivate. No code change needed to
  * adjust the path (tech-stack rule 7: the UI never depends on stage names or ids).
  */

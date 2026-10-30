@@ -17,8 +17,8 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? '';
 
 /**
- * S5 «سؤال جدید». `?taskId=` attaches one of my tasks (from «سؤال درباره‌ی این کار»);
- * `&kind=extension` is «وقت بیشتری لازم دارم». A task id that is not mine is ignored.
+ * S5 "New question". `?taskId=` attaches one of my tasks (from "Question about this task");
+ * `&kind=extension` is "I need more time". A task id that is not mine is ignored.
  */
 export default async function NewQuestionPage({ searchParams }: { searchParams: SearchParams }) {
   const { actor, student } = await loadOwn();

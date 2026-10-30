@@ -87,7 +87,7 @@ export type QuestionSlaDTO = {
   warning: boolean;
 };
 
-/** Staff list row (GET /questions, «امروز»). */
+/** Staff list row (GET /questions, "Today"). */
 export type StaffQuestionListItemDTO = {
   id: string;
   subject: string;
@@ -158,7 +158,7 @@ export type StudentQuestionDTO = {
 
 export type StudentQuestionListDTO = {
   items: StudentQuestionDTO[];
-  /** e.g. «معمولاً تا ۲۴ ساعت» (settings.questions; F8). */
+  /** e.g. "Usually within 24 hours" (settings.questions; F8). */
   expectedResponseText: string;
 };
 

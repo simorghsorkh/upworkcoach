@@ -1,6 +1,6 @@
 import type { Role } from '@/server/auth/current-user';
 
-/** First page after sign-in (sitemap: staff → «امروز», student → «خانه»). */
+/** First page after sign-in (sitemap: staff → "Today", student → "Home"). */
 export function homeFor(role: Role): string {
   return role === 'student' ? '/home' : '/today';
 }

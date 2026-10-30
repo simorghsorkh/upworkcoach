@@ -36,7 +36,7 @@ export function avatarTone(id: string): number {
   return (h >>> 0) % 8;
 }
 
-/** First visible letter of the name («زهرا کریمی» → «ز»). */
+/** First visible letter of the name («زهرا کریمی» → «ز» (Zahra Karimi → Z)). */
 export function initialOf(name: string): string {
   const trimmed = name.trim();
   const first = Array.from(trimmed)[0];

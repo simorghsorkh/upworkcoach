@@ -1,48 +1,48 @@
-# چشم‌انداز — UpworkCoach
+# Vision — UpworkCoach
 
-> نسخه‌ی ۱ — فاز ۰ (کشف) — ۲۷ مهر ۱۴۰۵ — نویسنده: product-strategist
-> وضعیت: پیش‌نویس، منتظر پاسخ‌های بنیان‌گذار (`founder-questions.md`)
+> Version 1 — Phase 0 (discovery) — 27 Mehr 1405 (2026-10-19) — author: product-strategist
+> Status: draft, waiting for the founder's answers (`founder-questions.md`)
 
-## مسئله
-| بُعد | شرح |
+## Problem
+| Dimension | Description |
 |---|---|
-| مسئله‌ی اصلی | هنرجوی فریلنسری دوره را می‌بیند، پروفایل می‌سازد و پروپوزال می‌فرستد، ولی **بازخورد سریع و دقیق روی کار واقعی‌اش** (همین جاب، همین پروپوزال) ندارد؛ در نتیجه Connects و انگیزه می‌سوزد و به اولین قرارداد نمی‌رسد. |
-| مسئله‌ی مربی | پاسخ به سؤال‌های تکراری در تلگرام/جلسه، مقیاس‌پذیر نیست؛ مربی نمی‌بیند کدام هنرجو کجا گیر کرده؛ کیفیت پاسخ مشاورها یکدست نیست. |
-| شکاف بازار | دوره‌های فارسی «محتوا + پشتیبانی تلگرامی» می‌فروشند؛ ابزارهای خارجی (GigRadar، Vollna، Uma) انگلیسی‌اند، روی **تولید/ارسال** پروپوزال تمرکز دارند نه **یادگیری**، و برای کاربر ایرانی پرداختشان سخت است. |
+| Core problem | The freelancing student watches the course, builds a profile and sends proposals, but gets no **fast, precise feedback on their real work** (this very job, this very proposal); as a result Connects and motivation burn away and they never reach their first contract. |
+| The coach's problem | Answering repetitive questions in Telegram/sessions does not scale; the coach cannot see which student is stuck where; the quality of mentors' answers is inconsistent. |
+| Market gap | Persian courses sell "content + Telegram support"; foreign tools (GigRadar, Vollna, Uma) are in English, focus on **generating/sending** proposals rather than **learning**, and are hard to pay for as an Iranian user. |
 
-## برای چه کسی
-- **اول:** هنرجوهای فعلی و آینده‌ی خود بنیان‌گذار (بازار گرم، بدون هزینه‌ی جذب).
-- **بعد (فرضیه):** فریلنسرهای فارسی‌زبانی که دوره‌ی دیگری دیده‌اند و فقط «ابزار + بازخورد» می‌خواهند.
+## For whom
+- **First:** the founder's current and future students (a warm market, no acquisition cost).
+- **Later (hypothesis):** Persian-speaking freelancers who took another course and only want "tools + feedback".
 
-## چرا الان
-| عامل | توضیح |
+## Why now
+| Factor | Explanation |
 |---|---|
-| LLMها ارزان و فارسی‌دان شده‌اند | بررسی یک پروپوزال با مدل میان‌رده کمتر از چند سنت هزینه دارد (ر.ک. `business-model.md`). |
-| خود آپورک AI را عادی کرده | Uma پیش‌نویس پروپوزال می‌نویسد و سمت کارفرما پروپوزال‌ها را غربال می‌کند → پروپوزال‌های ژنریک AI بیشتر شده و **کیفیت و تمایز** مهم‌تر از سرعت است. |
-| فشار ارزی | با دلار حدود ۲۶۶ هزار تومان (مهر ۱۴۰۵)، انگیزه‌ی درآمد دلاری بالاست؛ ولی دوره‌های ۹ تا ۳۰ میلیون تومانی گران‌اند → جای محصول ارزان‌تر و مستمر هست. |
+| LLMs have become cheap and Persian-capable | Reviewing one proposal with a mid-tier model costs less than a few cents (see `business-model.md`). |
+| Upwork itself has normalized AI | Uma drafts proposals and the client side screens proposals → generic AI proposals have multiplied, and **quality and differentiation** matter more than speed. |
+| Currency pressure | With the dollar at about 266 thousand toman (Mehr 1405), the motivation to earn in dollars is high; but courses costing 9 to 30 million toman are expensive → there is room for a cheaper, ongoing product. |
 
-## ارزش پیشنهادی (یک جمله)
-**«مربی و مشاورت کنار تو هستند و هر جاب، پروپوزال و پروفایلی که داری را در چند دقیقه به فارسی نقد می‌کنند — تا با Connects کمتر، زودتر اولین قراردادت را بگیری.»**
+## Value proposition (one sentence)
+**"Your coach and mentors are by your side, and any job, proposal and profile you have gets critiqued in Persian within minutes — so you land your first contract sooner, with fewer Connects."**
 
-## اصول محصول
-1. **یادگیری، نه اتوماسیون.** ابزار نقد می‌کند و آموزش می‌دهد؛ هیچ‌وقت از طرف کاربر در آپورک کاری انجام نمی‌دهد (ToS).
-2. **انسان در حلقه.** AI لایه‌ی اول است؛ مشاور برای موارد مهم/مبهم.
-3. **روش بنیان‌گذار، نه روش عمومی.** rubricها از متدولوژی مربی ساخته می‌شوند — مزیت رقابتی اصلی.
-4. **فارسی، RTL، موبایل‌اول، پرداخت ریالی.**
+## Product principles
+1. **Learning, not automation.** The tool critiques and teaches; it never does anything on Upwork on the user's behalf (ToS).
+2. **Human in the loop.** AI is the first layer; a mentor handles important/ambiguous cases.
+3. **The founder's method, not a generic method.** Rubrics are built from the coach's methodology — the main competitive advantage.
+4. **Persian, RTL, mobile-first, rial payments.**
 
-## معیار موفقیت ۶ ماهه (پیشنهادی — اعداد پایه را بنیان‌گذار باید بدهد)
-| معیار | هدف پیشنهادی | چطور اعتبارسنجی |
+## 6-month success metrics (proposed — the founder must supply the baseline numbers)
+| Metric | Proposed target | How to validate |
 |---|---|---|
-| North Star: هنرجوهایی که **اولین قرارداد** را گرفتند | ۲ برابر نرخ فعلی کوهورت‌های قبلی (پایه: نامعلوم ← سؤال ۲) | ثبت خوداظهاری + اسکرین‌شات قرارداد |
-| هنرجوی فعال هفتگی (حداقل ۱ استفاده از ابزار) | ≥ ۶۰٪ هنرجوهای ثبت‌نامی | آنالیتیکس محصول |
-| زمان پاسخ به سؤال هنرجو (AI یا مشاور) | میانه < ۴ ساعت | لاگ تیکت‌ها |
-| رضایت از بازخورد AI | ≥ ۴ از ۵ | امتیاز درون‌محصولی پس از هر بررسی |
-| اقتصاد واحد | هزینه‌ی AI < ۱۵٪ درآمد هر هنرجو | داشبورد هزینه |
+| North Star: students who landed their **first contract** | 2x the rate of previous cohorts (baseline: unknown ← question 2) | Self-reporting + contract screenshot |
+| Weekly active student (at least 1 tool use) | ≥ 60% of enrolled students | Product analytics |
+| Response time to a student's question (AI or mentor) | Median < 4 hours | Ticket logs |
+| Satisfaction with AI feedback | ≥ 4 out of 5 | In-product rating after each review |
+| Unit economics | AI cost < 15% of revenue per student | Cost dashboard |
 
-## فرض‌های کلیدی که باید آزمود
-| فرض | ریسک اگر غلط باشد | آزمون ارزان |
+## Key assumptions to test
+| Assumption | Risk if wrong | Cheap test |
 |---|---|---|
-| گلوگاه هنرجو «کیفیت پروپوزال/انتخاب جاب» است، نه «ساخت اکانت/نقد کردن پول» | ابزارها مسئله‌ی اصلی را حل نمی‌کنند | مصاحبه با ۱۰ هنرجو + نگاه به سؤال‌های تلگرامی ۳ ماه اخیر |
-| هنرجو حاضر است متن جاب/پروپوزال را دستی paste کند | استفاده کم | نمونه‌ی اولیه با یک ربات تلگرام یا فرم ساده |
-| بازخورد AI با روش مربی هم‌خوان و قابل‌اعتماد است | از دست رفتن اعتماد | ۲۰ پروپوزال واقعی؛ مقایسه‌ی نقد AI با نقد مربی |
-| هنرجو برای ابزار، جدا از دوره پول می‌دهد | مدل درآمد اشتراکی شکست می‌خورد | پیش‌فروش به کوهورت فعلی |
+| The student's bottleneck is "proposal quality/job selection", not "creating an account/criticizing money" | The tools do not solve the main problem | Interviews with 10 students + a look at the last 3 months of Telegram questions |
+| The student is willing to paste the job/proposal text manually | Low usage | Early prototype with a Telegram bot or a simple form |
+| AI feedback is consistent with the coach's method and trustworthy | Loss of trust | 20 real proposals; compare the AI critique with the coach's critique |
+| The student pays for the tool separately from the course | The subscription revenue model fails | Pre-sale to the current cohort |

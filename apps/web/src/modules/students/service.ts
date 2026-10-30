@@ -349,7 +349,7 @@ export async function createStudent(
 
 /**
  * Sprint-2 frontend gap 6: a 409 PHONE_TAKEN for an admin carries
- * `error.data.existingStudentId` («رفتن به پرونده‌ی موجود») when the phone belongs to a
+ * `error.data.existingStudentId` ("Go to the existing record") when the phone belongs to a
  * student (admins see every student). Mentors get the plain 409.
  */
 async function withExistingStudent(
@@ -568,7 +568,7 @@ export async function listStudentTags(
 
 /**
  * Internal (today, stuck): list items of the scope with health filters, already sorted by
- * health (red → yellow, then the oldest status). `includeSnoozed: false` hides «نادیده تا».
+ * health (red → yellow, then the oldest status). `includeSnoozed: false` hides "Snoozed until".
  */
 export async function listStudentItemsByHealth(
   db: DbOrTx,
@@ -953,7 +953,7 @@ async function profileOwnerFor(db: DbOrTx, actor: Actor, profileId: string): Pro
 
 /**
  * Platform facts kept in profile.* timeline events (sprint-3 frontend gap 6), so the
- * timeline can still say «ویترین Upwork» after the showcase is deleted. A catalog name,
+ * timeline can still say "Upwork showcase" after the showcase is deleted. A catalog name,
  * no personal data; erasure clears the data like every other event.
  */
 function platformFacts(profile: ProfileDTO) {

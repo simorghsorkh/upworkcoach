@@ -1,61 +1,61 @@
-# اسپرینت ۵ Coach Office — تکلیف‌های برنامه و پیشرفت
+# Coach Office sprint 5 — program tasks and progress
 
-- **تاریخ:** ۸ آبان ۱۴۰۵
-- **مبنا:** `docs/08-saas-evolution/architecture-review.md` (اسپرینت ۵)، ADR-0012 بند ۶ (پیشرفت)، `prd-coach-office.md` بخش ۶ (قدم‌های ۹ تا ۱۲)
-- **وضعیت:** کد و تست کامل؛ روی لوکال در مرورگر آزموده شد (نمای کارکنان)؛ **روی تولید اجرا نشده**؛ کامیت نشده.
+- **Date:** 8 Aban 1405 (2026-10-30)
+- **Basis:** `docs/08-saas-evolution/architecture-review.md` (sprint 5), ADR-0012 item 6 (progress), `prd-coach-office.md` section 6 (steps 9 to 12)
+- **Status:** code and tests complete; tried in the browser locally (staff view); **not run on production**; not committed.
 
-## چه چیزی ساخته شد
-| بخش | خلاصه |
+## What was built
+| Area | Summary |
 |---|---|
-| کار از گره‌ی تکلیف | «واگذاری به گروه» روی هر فعالیت تکلیف در صفحه‌ی اجرا: برای هر عضو فعال یا متوقف که هنوز این کار را ندارد یک کار (`path_assignment`) ساخته می‌شود. دوباره زدن فقط برای کسانی می‌سازد که ندارند. بازبین: مشاور اصلی هنرجو، وگرنه مشاور اجرا، وگرنه همان کسی که دکمه را زد |
-| مهلت نسبی | مهلت = شروع اجرا + روزهای معمول فازهای قبلی (فاز بی‌پایان صفر حساب می‌شود) + `dueOffsetDays` فعالیت (یا ۷ روز اگر خالی باشد). مهلتی که گذشته باشد امروز می‌شود. می‌شود تاریخ را هم صریح فرستاد |
-| پیوند کار و برنامه | ستون‌های `tasks.enrollment_id` و `tasks.node_id`؛ هر عضویت برای هر گره حداکثر یک کار زنده دارد (کار لغوشده جا را آزاد می‌کند). ماژول programs کار را از راه `insertProgramTasks` ماژول tasks می‌سازد، نه مستقیم |
-| تکمیل فعالیت | جدول `node_completions` (عضویت × گره): هنرجو درس و منبع را «انجامش دادم» می‌زند و تیک‌های چک‌لیست را می‌زند؛ برگرداندن هم دارد. فعالیت فاز قفل را نمی‌شود علامت زد. کارکنان هم می‌توانند علامت بزنند، و فقط آن‌ها نقطه‌ی عطف بدون نوع را علامت می‌زنند (فعلاً فقط API) |
-| تابع پیشرفت | `programs/progress.ts`، تابع خالص با تست واحد: پیشرفت = فعالیت‌های الزامی انجام‌شده ÷ فعالیت‌های الزامی (فاز شمرده نمی‌شود). تکلیف وقتی «پذیرفته» شد، درس و منبع با علامت، چک‌لیست وقتی همه‌ی موردها تیک خوردند، نقطه‌ی عطف وقتی دستاورد تأییدشده از همان نوع وجود دارد. وقتی هیچ فعالیت الزامی نیست، پیشرفت «نامعلوم» است، نه ۰٪ و نه ۱۰۰٪ |
-| نقطه‌ی عطف در قالب | فیلد «دستاوردِ لازم» در ویرایشگر قالب (`milestone_type_id` روی گره‌های قالب و اجرا)؛ ردیف قالب می‌گوید «انجام‌شده با دستاورد تأییدشده‌ی …» یا «مشاور دستی علامت می‌زند» |
-| صفحه‌ی اجرا | پیشرفت هر عضو (نوار و «۴۰٪ · ۲ از ۵»)، میانگین پیشرفت اجرا، و برای هر تکلیف «تکلیف: n نفر · پذیرفته: m» |
-| «برنامه‌های من» (هنرجو) | نوار پیشرفت هر برنامه، «انجام شد» روی هر فعالیت، دکمه‌ی علامت و تیک چک‌لیست، و برای تکلیف وضعیت کار و پیوند «مشاهده‌ی تکلیف» (بازخورد مشاور همان‌جاست) |
-| پرونده‌ی هنرجو | کارت «برنامه‌ها و مشاورها» پیشرفت هر عضویت را نشان می‌دهد (مسیر اصلی نه) |
-| صف بازبینی | فیلتر برنامه و وضعیت مهلت بازبینی (گذشته، نزدیک، در مهلت) در زبانه‌ی «منتظر بازبینی» صفحه‌ی کارها؛ API فیلتر هنرجو هم دارد. نام برنامه کنار هر تحویل (صفحه‌ی کارها و «امروز») |
-| API | `POST /program-runs/:id/nodes/:nodeId/assign` (۲۰۱: ساخته‌شده، ردشده، شناسه‌ها)، `PUT /enrollments/:id/nodes/:nodeId/completion`؛ `GET /review-queue` حالا `runId`، `studentId` و `sla` می‌گیرد؛ DTOهای اجرا، عضویت و «برنامه‌های من» فیلد `progress` دارند |
+| Tasks from a task node | "Assign to group" on every task activity on the run page: for each active or paused member who does not have this task yet, one task (`path_assignment`) is created. Pressing it again only creates tasks for those who lack one. Reviewer: the mentee's primary mentor, otherwise the run's mentor, otherwise whoever pressed the button |
+| Relative due date | Due date = run start + the usual days of the earlier phases (an open-ended phase counts as zero) + the activity's `dueOffsetDays` (or 7 days if empty). A due date already in the past becomes today. An explicit date can also be sent |
+| Link between task and program | Columns `tasks.enrollment_id` and `tasks.node_id`; each enrollment has at most one live task per node (a cancelled task frees the slot). The programs module creates the task through the tasks module's `insertProgramTasks`, not directly |
+| Activity completion | Table `node_completions` (enrollment × node): the mentee presses "I did it" on a lesson or resource and ticks checklist items; both can be undone. An activity in a locked phase cannot be marked. Staff can mark too, and only they mark an untyped milestone (API only for now) |
+| Progress function | `programs/progress.ts`, a pure function with unit tests: progress = required activities done ÷ required activities (a phase is not counted). A task counts once it is "accepted", a lesson and a resource once marked, a checklist once all items are ticked, a milestone once an approved achievement of the same type exists. When there is no required activity, progress is "unknown", not 0% and not 100% |
+| Milestone in the template | The "Required achievement" field in the template editor (`milestone_type_id` on template and run nodes); the template row says "Done with an approved … achievement" or "Mentor marks it manually" |
+| Run page | Each member's progress (bar and "40% · 2 of 5"), the run's average progress, and for each task "Task: n people · Accepted: m" |
+| "My programs" (mentee) | A progress bar for each program, "Done" on each activity, the mark button and checklist ticks, and for a task the task status and a "View task" link (the mentor's feedback is there) |
+| Student record | The "Programs and mentors" card shows the progress of each enrollment (not of the main path) |
+| Review queue | Program filter and review-deadline status (overdue, near, within deadline) on the "Awaiting review" tab of the Tasks page; the API also has a mentee filter. The program name next to each submission (Tasks page and "Today") |
+| API | `POST /program-runs/:id/nodes/:nodeId/assign` (201: created, rejected, ids), `PUT /enrollments/:id/nodes/:nodeId/completion`; `GET /review-queue` now takes `runId`, `studentId` and `sla`; the run, enrollment and "My programs" DTOs have a `progress` field |
 
-## معیارهای پذیرش (قدم‌های ۹ تا ۱۲ سناریوی PRD)
-| قدم | نتیجه |
+## Acceptance criteria (steps 9 to 12 of the PRD scenario)
+| Step | Result |
 |---|---|
-| ۹. هنرجو بازخورد و پیشرفت فعلی را می‌بیند | تست خودکار پیشرفت هنرجو پس از پذیرش تکلیف و علامت‌ها؛ صفحه‌ی «برنامه‌های من» ساخته شد ولی **در مرورگر با حساب هنرجو دیده نشد** (پایین را ببینید) |
-| ۱۰. مشاور کار عقب‌افتاده و بازبینی‌های منتظر را می‌بیند | زبانه‌های «معوق» و «منتظر بازبینی» با فیلتر برنامه و مهلت؛ تست خودکار فیلترهای صف |
-| ۱۱. مدیر پیشرفت کلی و بار مشاورها را می‌بیند، نه یادداشت خصوصی | میانگین پیشرفت اجرا (تست خودکار: ۳۳٪)، دایرکتوری مشاوران (اسپرینت ۴)، یادداشت خصوصی (تست اسپرینت ۴) |
-| ۱۲. جداسازی دسترسی | ماتریس دسترسی برای دو مسیر تازه؛ هنرجو فقط عضویت خودش را علامت می‌زند (برای بقیه ۴۰۴)؛ گره یا عضویت ناشناخته ۴۰۴ |
+| 9. The mentee sees feedback and current progress | Automated test of the mentee's progress after a task is accepted and after marks; the "My programs" page was built but **not seen in the browser with a mentee account** (see below) |
+| 10. The mentor sees overdue work and reviews waiting | "Overdue" and "Awaiting review" tabs with program and deadline filters; automated test of the queue filters |
+| 11. The admin sees overall progress and mentor load, not the private note | Run average progress (automated test: 33%), mentor directory (sprint 4), private note (sprint 4 test) |
+| 12. Access separation | Access matrix for the two new routes; a mentee marks only their own enrollment (404 for others); unknown node or enrollment gives 404 |
 
-## تست
-- واحد: `src/modules/programs/progress.test.ts` (۱۲ تست: هر نوع فعالیت، الزامی و اختیاری، «نامعلوم»، میانگین، مهلت نسبی).
-- یکپارچه: `tests/integration/program-progress.test.ts` (۵ تست: واگذاری یک‌باره و تکرار، مهلت‌ها، خطاهای ۴۲۲ و ۴۰۴، علامت هنرجو و فاز قفل، فیلترهای صف، پذیرش و نقطه‌ی عطف، میانگین، علامت کارکنان) به‌اضافه‌ی ماتریس دسترسی.
-- کل مجموعه: ۸۴ فایل، ۱۸۸۴ تست، همه سبز. typecheck، Biome و نگهبان i18n تمیز.
-- مرورگر (لوکال، حساب مدیر):
-  - صفحه‌ی اجرا: نوار پیشرفت هر عضو و میانگین؛ «واگذاری به گروه» دو کار ساخت و شمارش شد «۲ نفر».
-  - صفحه‌ی کارها: فیلترهای برنامه و مهلت.
-  - ویرایشگر قالب: انتخاب و ذخیره‌ی «دستاوردِ لازم».
-  - پرونده‌ی هنرجو: نوار پیشرفت.
-  - خطای کنسول نبود.
-- **دیده نشده:**
-  - «برنامه‌های من» با حساب هنرجو. برای یکی از هنرجوهای آزمایشی لوکال رمز ساختم (در `.data/local-test-accounts.md`)، ولی ورود با آن در این جلسه مسدود شد. بنیان‌گذار می‌تواند با همان حساب وارد شود.
-  - نام برنامه کنار تحویل در صف، چون تحویل منتظری نبود. تست خودکار دارد.
+## Tests
+- Unit: `src/modules/programs/progress.test.ts` (12 tests: every activity type, required and optional, "unknown", average, relative due date).
+- Integration: `tests/integration/program-progress.test.ts` (5 tests: one-time assignment and repeat, due dates, 422 and 404 errors, mentee marks and locked phase, queue filters, acceptance and milestone, average, staff marks) plus the access matrix.
+- Whole suite: 84 files, 1884 tests, all green. typecheck, Biome and the i18n guard are clean.
+- Browser (local, admin account):
+  - Run page: each member's progress bar and the average; "Assign to group" created two tasks and the count became "2 people".
+  - Tasks page: program and deadline filters.
+  - Template editor: choosing and saving the "Required achievement".
+  - Student record: the progress bar.
+  - No console errors.
+- **Not seen:**
+  - "My programs" with a mentee account. I created a password for one of the local test mentees (in `.data/local-test-accounts.md`), but signing in with it was blocked in this session. The founder can sign in with that account.
+  - The program name next to a submission in the queue, because there was no pending submission. An automated test covers it.
 
-## اجرا روی تولید (کار بنیان‌گذار)
-1. اول ۰۰۰۶ تا ۰۰۰۹ به ترتیب، طبق سندهای اسپرینت ۱ تا ۴. **۰۰۱۰ بدون آن‌ها اجرا نشود.**
-2. `pg_dump` تازه.
-3. `pnpm db:migrate`. مهاجرت `0010_program_progress` فقط ستون و جدول تازه می‌سازد و به داده‌ی موجود دست نمی‌زند. کارهای قدیمی `enrollment_id` و `node_id` خالی دارند و در پیشرفت شمرده نمی‌شوند.
-4. استقرار.
+## Running on production (founder's job)
+1. First 0006 to 0009 in order, per the sprint 1 to 4 documents. **Do not run 0010 without them.**
+2. A fresh `pg_dump`.
+3. `pnpm db:migrate`. Migration `0010_program_progress` only creates a new column and table and does not touch existing data. Old tasks have an empty `enrollment_id` and `node_id` and are not counted in progress.
+4. Deploy.
 
-## تصمیم‌ها
-- پیشرفت فقط از فعالیت‌های الزامی است؛ اختیاری‌ها علامت می‌خورند ولی درصد را عوض نمی‌کنند.
-- درصد به پایین گرد می‌شود، پس ۱۰۰٪ فقط وقتی است که همه‌ی کارها واقعاً انجام شده‌اند.
-- میانگین اجرا فقط عضوهای فعال و متوقف را می‌شمرد و عضوهایی که پیشرفتشان نامعلوم است کنار می‌روند.
-- نقطه‌ی عطف دارای نوع را علامت دستی انجام‌شده نمی‌کند؛ فقط دستاورد تأییدشده.
-- در مسیر اصلی (اجرای قدیمی) نه واگذاری هست و نه نوار پیشرفت؛ آن‌جا پیشرفت همان مرحله‌ی مسیر است.
+## Decisions
+- Progress comes only from required activities; optional ones can be marked but do not change the percentage.
+- The percentage is rounded down, so 100% appears only when all the work is really done.
+- The run average counts only active and paused members, and members whose progress is unknown are left out.
+- A typed milestone is not completed by a manual mark; only an approved achievement does it.
+- The main path (the legacy run) has neither assignment nor a progress bar; there, progress is simply the path stage.
 
-## مانده
-- **اسپرینت ۵b:** جلسه‌های مشاوره (`mentoring_sessions`) و مصرف بسته، هدف‌ها (`goals`).
-- رابط کارکنان برای علامت زدن نقطه‌ی عطف بدون نوع (API دارد).
-- «اعمال تغییرات قالب روی اجرا» (P2) و پیوندهای محتوا در ویرایشگر قالب.
-- گام contract (حذف `current_stage_id`، `primary_mentor_id`، `stage_entered_at`، `cohort`، `mentor_assignments`).
+## Remaining
+- **Sprint 5b:** mentoring sessions (`mentoring_sessions`) and package use, goals (`goals`).
+- Staff UI for marking an untyped milestone (the API has it).
+- "Apply template changes to the run" (P2) and content links in the template editor.
+- The contract step (dropping `current_stage_id`, `primary_mentor_id`, `stage_entered_at`, `cohort`, `mentor_assignments`).

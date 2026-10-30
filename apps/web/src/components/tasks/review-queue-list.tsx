@@ -16,7 +16,7 @@ export function sortQueue(items: ReviewQueueItemDTO[]): ReviewQueueItemDTO[] {
   );
 }
 
-/** «تحویل‌های منتظر بازبینی» rows (mockups/today.html #reviews). */
+/** "Submissions awaiting review" rows (mockups/today.html #reviews). */
 export function ReviewQueueList({
   items,
   viewerId,

@@ -12,7 +12,7 @@ export const kpiTones = {
 } as const;
 
 /**
- * A number tile that jumps somewhere (an anchor or a page): «امروز» and the organization
+ * A number tile that jumps somewhere (an anchor or a page): "Today" and the organization
  * dashboard (sprint 6). `sub` is a small red pill next to the number.
  */
 export async function Kpi({
@@ -58,4 +58,4 @@ export async function Kpi({
   );
 }
 
-/** «از زمان پاسخ گذشته» (mockups `.priority`): breached waiting items, oldest first. */
+/** "Past response time" (mockups `.priority`): breached waiting items, oldest first. */

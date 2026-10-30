@@ -45,7 +45,7 @@ export function transitionFor(
 const OTHER = '__other__';
 
 /**
- * M3g / kanban «انتقال به…»: one click for the next stage (preselected), previous stage with a
+ * M3g / kanban "Move to…": one click for the next stage (preselected), previous stage with a
  * required reason, any other stage from a list. `PUT /api/v1/students/:id/stage`.
  */
 export type SuggestedTemplate = Pick<
@@ -69,7 +69,7 @@ export function ChangeStageDialog({
   onClose: () => void;
   /** Task templates; those of the target stage with `suggestOnStageEntry` are offered. */
   templates?: readonly SuggestedTemplate[];
-  /** The student's unfinished tasks («کارهای باز مرحله‌ی قبل: باز بمانند / لغو شوند»). */
+  /** The student's unfinished tasks ("Open tasks of the previous stage: stay open / be cancelled"). */
   openTasks?: readonly OpenStageTask[];
 }) {
   const firstName = student?.displayName.trim().split(/\s+/)[0] ?? '';

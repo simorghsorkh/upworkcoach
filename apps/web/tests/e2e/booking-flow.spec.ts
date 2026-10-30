@@ -5,7 +5,7 @@ import { E2E_PORT, readState } from './server/state';
 /**
  * Coach Office sprint 7 (ADR-0014): a mentor opens bookings for a one-on-one program and sets
  * weekly hours; the mentee picks the mentor, a free time on the calendar and sends a request;
- * the mentor approves it on «تقویم» and the session shows in the mentee's programs.
+ * the mentor approves it on "Calendar" and the session shows in the mentee's programs.
  */
 
 const ORIGIN = `http://localhost:${E2E_PORT}`;
@@ -135,7 +135,7 @@ test('a mentee books a session from the mentor calendar; the mentor approves it'
     200,
   );
 
-  // --- The mentor opens bookings on «تقویم» and sets weekly hours ---------------------------
+  // --- The mentor opens bookings on "Calendar" and sets weekly hours ---------------------------
   await mentor.page.goto('/calendar');
   await expect(mentor.page.getByRole('heading', { level: 1, name: 'تقویم من' })).toBeVisible(SLOW);
   const offeringRow = mentor.page.getByRole('listitem').filter({ hasText: title });
@@ -180,7 +180,7 @@ test('a mentee books a session from the mentor calendar; the mentor approves it'
   const myRequests = mentee.page.getByRole('region', { name: 'درخواست‌های جلسه‌ی من' });
   await expect(myRequests.getByText('در انتظار تأیید')).toBeVisible(SLOW);
 
-  // --- The mentor approves it on «تقویم» ------------------------------------------------------
+  // --- The mentor approves it on "Calendar" ------------------------------------------------------
   await mentor.page.goto('/calendar');
   const requests = mentor.page.getByRole('region', { name: 'درخواست‌های در انتظار' });
   await expect(requests.getByText(`درباره‌ی پروپوزال ${tag}`)).toBeVisible(SLOW);

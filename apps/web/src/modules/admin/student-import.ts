@@ -34,7 +34,7 @@ import { recordAudit } from './service';
  * - Errors give the line and the column, never the value (SEC-V5). The response contains
  *   invite links: `no-store` (route) and never logged.
  * - Sprint 6 (Coach Office): with `runId` every row joins that open group course, at the phase
- *   of the optional «فاز» column (number or title). A mentee of the organization already
+ *   of the optional "Phase" column (number or title). A mentee of the organization already
  *   registered with the row's mobile is only enrolled; the rest of the row is ignored.
  */
 

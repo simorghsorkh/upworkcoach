@@ -24,7 +24,7 @@ const SHORTCUTS = [
   { label: '۱ هفته', days: 7 },
 ];
 
-/** «۱۰:۳۰» / «10:30» → [10, 30]; null when not a valid time. */
+/** «۱۰:۳۰» (Persian digits) / «10:30» → [10, 30]; null when not a valid time. */
 function parseTime(text: string): [number, number] | null {
   const m = /^(\d{1,2})[:٫.](\d{2})$/.exec(toLatinDigits(text.trim()));
   if (!m) return null;
@@ -34,8 +34,8 @@ function parseTime(text: string): [number, number] | null {
 }
 
 /**
- * «یادآور» sheet (mockups/today.html #reminder, F6): student (optional), what, when (Jalali day
- * + optional time; without a time it is 09:00 Tehran), and for an admin «برای» any mentor.
+ * "Reminder" sheet (mockups/today.html #reminder, F6): student (optional), what, when (Jalali day
+ * + optional time; without a time it is 09:00 Tehran), and for an admin "For" any mentor.
  * `POST /api/v1/reminders`.
  */
 export function ReminderForm({

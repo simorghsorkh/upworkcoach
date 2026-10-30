@@ -1,29 +1,29 @@
-# مجموعه‌ی ارزیابی — بررسی جاب و تشخیص اسکم
+# Evaluation set — job review and scam detection
 
-> **نمونه‌ی ساختگی — باید با نمونه‌های واقعی بنیان‌گذار کالیبره شود.**
-> همه‌ی آگهی‌ها، کارفرماها و عددها (از جمله `connects_required`) ساختگی‌اند و هزینه‌ی واقعی Connects را نشان نمی‌دهند. rubric مرجع: `../job-analysis.md` (v0.1).
-> upwork-domain-expert — ۲۷ مهر ۱۴۰۵
+> **Synthetic samples — must be calibrated against the founder's real samples.**
+> All postings, clients and numbers (including `connects_required`) are synthetic and do not reflect real Connects costs. Reference rubric: `../job-analysis.md` (v0.1).
+> upwork-domain-expert — 27 Mehr 1405 (2026-10-19)
 
-## نحوه‌ی استفاده در ارزیابی خودکار
-خروجی ابزار وقتی «قبول» است که:
-1. `verdict` دقیقاً برابر مقدار مورد انتظار باشد (مهم‌ترین شرط)؛
-2. همه‌ی `red_flags` مورد انتظار وجود داشته باشند (**recall پرچم قرمز باید ۱۰۰٪ باشد**) و هیچ پرچم قرمز اضافه‌ای نباشد؛
-3. پرچم‌های زرد «الزامی» وجود داشته باشند (پرچم زرد اضافه، اگر شاهد درست داشته باشد، مجاز است)؛
-4. `overall_score` در بازه باشد (برای نمونه‌هایی که پرچم قرمز دارند بررسی نمی‌شود)؛
-5. موارد «باید بگوید» آمده باشند و موارد «نباید بگوید» نیامده باشند.
+## How to use in automated evaluation
+The tool output "passes" when:
+1. `verdict` is exactly equal to the expected value (the most important condition);
+2. all expected `red_flags` are present (**red-flag recall must be 100%**) and there are no extra red flags;
+3. the "required" yellow flags are present (an extra yellow flag is allowed if it has correct evidence);
+4. `overall_score` is within the range (not checked for samples that have red flags);
+5. the "must say" items appear and the "must not say" items do not appear.
 
 ---
 
-## JA-01 — خوب (اپلای کن)
+## JA-01 — Good (apply)
 
-| فیلد | مقدار |
+| Field | Value |
 |---|---|
-| امتیاز مورد انتظار | **۸۵ تا ۹۸** |
-| حکم | `apply` |
-| پرچم قرمز / زرد الزامی | ندارد / ندارد |
+| Expected score | **85 to 98** |
+| Verdict | `apply` |
+| Required red / yellow flags | none / none |
 | confidence | `high` |
 
-### ورودی
+### Input
 ```yaml
 client:
   payment_verified: true
@@ -80,49 +80,49 @@ student:
   connects_balance: 60
 ```
 
-### سطح مورد انتظار معیارها
-| معیار | سطح | بازه | دلیل |
+### Expected criterion levels
+| Criterion | Level | Range | Reason |
 |---|---|---|---|
-| A1 | ۴ | ۴ | تأیید شده |
-| A2 | ۴ | ۴ | ۴۸ هزار دلار، ۳۷ استخدام |
-| A3 | ۳ | ۳ | ۷۸٪ |
-| A4 | ۴ | ۴ | ۴٫۹ از ۲۹ نظر، متن مثبت درباره‌ی ارتباط و پرداخت |
-| A5 | ۴ | ۴ | ۳۸٫۵ بیشتر از نرخ هدف ۳۰ |
-| B1 | ۴ | ۳ تا ۴ | خروجی‌ها، زمینه و زمان‌بندی مشخص |
-| B2 | ۴ | ۳ تا ۴ | ۱۱ ایمیل + راه‌اندازی، تخمین حدود ۳۰ تا ۴۵ ساعت → نرخ مؤثر حدود ۲۷ تا ۴۰ دلار |
-| B3 | ۴ | ۳ تا ۴ | انتظارات معقول، فرایند بازبینی روشن |
-| C1 | ۳ | ۳ تا ۴ | ۲ ساعت، ۵ تا ۱۰ پروپوزال |
-| C2 | ۴ | ۴ | فعال، بدون مصاحبه |
-| D1 | ۴ | ۴ | دقیقاً نیچ هنرجو |
-| D2 | ۴ | ۳ تا ۴ | flow مشابه با نتیجه‌ی عددی |
-| D3 | ۴ | ۴ | Intermediate و بودجه مناسب |
+| A1 | 4 | 4 | Verified |
+| A2 | 4 | 4 | 48 thousand dollars, 37 hires |
+| A3 | 3 | 3 | 78% |
+| A4 | 4 | 4 | 4.9 from 29 reviews, positive text about communication and payment |
+| A5 | 4 | 4 | 38.5 is higher than the target rate of 30 |
+| B1 | 4 | 3 to 4 | Deliverables, context and timeline are specified |
+| B2 | 4 | 3 to 4 | 11 emails + setup, estimated at about 30 to 45 hours → effective rate about 27 to 40 dollars |
+| B3 | 4 | 3 to 4 | Reasonable expectations, a clear review process |
+| C1 | 3 | 3 to 4 | 2 hours, 5 to 10 proposals |
+| C2 | 4 | 4 | Active, no interviews |
+| D1 | 4 | 4 | Exactly the student's niche |
+| D2 | 4 | 3 to 4 | A similar flow with a numeric result |
+| D3 | 4 | 4 | Intermediate and a suitable budget |
 
-محاسبه با سطح‌های مرکزی: ۳۳٫۲۵ + ۲۵ + ۱۳ + ۲۵ = **۹۶٫۲۵**
+Calculation with central levels: 33.25 + 25 + 13 + 25 = **96.25**
 
-### بازخورد مورد انتظار
-**باید بگوید:**
-- حکم «اپلای کن» با ۳ دلیل: کارفرمای خوش‌سابقه با پرداخت بالاتر از نرخ تو، شرح کار کاملاً روشن، و تناسب دقیق با نمونه‌کار candle store.
-- نکات پروپوزال: (۱) در hook به مهاجرت تازه از Mailchimp و ۶ هزار مشترک اشاره کن؛ (۲) نمونه‌ی candle store را با عدد ۹٪ بیاور، چون آگهی صریحاً «results» خواسته؛ (۳) جواب سؤال screening را مشخص بده (مثلاً چرا welcome یا abandoned cart اول) و دلیلش را به درآمد و تعداد مشترک‌ها وصل کن؛ (۴) زود اپلای کن، چون آگهی تازه است.
-- یادداشت Connects: فقط هزینه را اعلام کند (۱۴ از ۶۰).
+### Expected feedback
+**Must say:**
+- The verdict "apply" with 3 reasons: a client with a good track record who pays above your rate, a completely clear job description, and an exact match with the candle store portfolio piece.
+- Proposal tips: (1) in the hook, mention the recent migration from Mailchimp and the 6 thousand subscribers; (2) cite the candle store sample with the 9% figure, since the posting explicitly asked for "results"; (3) give a specific answer to the screening question (e.g. why welcome or abandoned cart first) and tie the reason to revenue and subscriber count; (4) apply early, because the posting is fresh.
+- Connects note: only state the cost (14 of 60).
 
-**نباید بگوید:**
-- پیشنهاد Boost به‌عنوان توصیه‌ی پیش‌فرض.
-- عدد قیمت Connects از حافظه.
-- هر اشاره‌ی منفی به کشور.
+**Must not say:**
+- Suggesting Boost as the default recommendation.
+- A Connects price figure from memory.
+- Any negative reference to the country.
 
 ---
 
-## JA-02 — متوسط (با احتیاط)
+## JA-02 — Medium (with caution)
 
-| فیلد | مقدار |
+| Field | Value |
 |---|---|
-| امتیاز مورد انتظار | **۵۰ تا ۶۸** |
-| حکم | `caution` |
-| پرچم قرمز | ندارد |
-| پرچم زرد الزامی | `Y5_bad_reviews` (scope creep) |
-| پرچم زرد مجاز | `Y4_vague_urgent` |
+| Expected score | **50 to 68** |
+| Verdict | `caution` |
+| Red flag | none |
+| Required yellow flag | `Y5_bad_reviews` (scope creep) |
+| Allowed yellow flag | `Y4_vague_urgent` |
 
-### ورودی
+### Input
 ```yaml
 client:
   payment_verified: true
@@ -167,51 +167,51 @@ student:
   connects_balance: 30
 ```
 
-### سطح مورد انتظار معیارها
-| معیار | سطح | بازه | دلیل |
+### Expected criterion levels
+| Criterion | Level | Range | Reason |
 |---|---|---|---|
-| A1 | ۴ | ۴ | |
-| A2 | ۳ | ۲ تا ۳ | ۲٬۹۰۰ دلار، ۵ استخدام |
-| A3 | ۲ | ۲ | ۴۴٪ |
-| A4 | ۲ | ۱ تا ۲ | ۴٫۴؛ یک نظر درباره‌ی scope creep |
-| A5 | ۱ | ۱ | ۱۴٫۲ ≈ ۵۷٪ نرخ هدف |
-| B1 | ۲ | ۱ تا ۲ | مشکل چک‌اوت روشن است؛ «small design changes»، «landing page later» و «other tasks» مبهم‌اند |
-| B2 | ۳ | ۲ تا ۳ | سقف ۱۸ بین حداقل ۱۵ و هدف ۲۵ |
-| B3 | ۲ | ۱ تا ۲ | ASAP + «other tasks ongoing» = ریسک scope creep |
-| C1 | ۱ | ۱ | ۹ ساعت، ۱۵ تا ۲۰ پروپوزال |
-| C2 | ۲ | ۲ | ۲ مصاحبه |
-| D1 | ۳ | ۳ تا ۴ | مهارت اصلی |
-| D2 | ۳ | ۳ تا ۴ | قانون حمل‌ونقل سفارشی در WooCommerce = بسیار مرتبط با مشکل shipping |
-| D3 | ۳ | ۲ تا ۳ | سطح مناسب؛ نرخ کمی پایین |
+| A1 | 4 | 4 | |
+| A2 | 3 | 2 to 3 | 2,900 dollars, 5 hires |
+| A3 | 2 | 2 | 44% |
+| A4 | 2 | 1 to 2 | 4.4; one review about scope creep |
+| A5 | 1 | 1 | 14.2 ≈ 57% of the target rate |
+| B1 | 2 | 1 to 2 | The checkout problem is clear; "small design changes", "landing page later" and "other tasks" are vague |
+| B2 | 3 | 2 to 3 | The cap of 18 sits between the minimum of 15 and the target of 25 |
+| B3 | 2 | 1 to 2 | ASAP + "other tasks ongoing" = scope creep risk |
+| C1 | 1 | 1 | 9 hours, 15 to 20 proposals |
+| C2 | 2 | 2 | 2 interviews |
+| D1 | 3 | 3 to 4 | Core skill |
+| D2 | 3 | 3 to 4 | Custom shipping rules in WooCommerce = highly relevant to the shipping problem |
+| D3 | 3 | 2 to 3 | Suitable level; rate slightly low |
 
-محاسبه با سطح‌های مرکزی: ۲۰٫۷۵ + ۱۵ + ۵٫۵ + ۱۸٫۷۵ = **۶۰**
+Calculation with central levels: 20.75 + 15 + 5.5 + 18.75 = **60**
 
-### بازخورد مورد انتظار
-**باید بگوید:**
-- حکم «با احتیاط» با دلیل: نمونه‌کار تو با مشکل shipping عالی جور است (نقطه‌ی قوت)، ولی کارفرما کم‌پرداخت است (میانگین ۱۴ دلار)، رقابت متوسط تا زیاد است و یک نظر قبلی از بزرگ شدن کار خبر می‌دهد.
-- پرچم `Y5` با نقل همان نظر.
-- نکات پروپوزال اگر اپلای کرد: (۱) hook را روی دو مشکل مشخص چک‌اوت بگذار (پرداخت‌های ناموفق گاه‌به‌گاه، و shipping برای بعضی کشورها) و نمونه‌ی custom shipping rules را بیاور؛ (۲) بپرس کدام درگاه پرداخت و کدام کشورها مشکل دارند؛ (۳) پیشنهاد کن رفع چک‌اوت **جدا** و اول انجام شود و کارهای طراحی بعد از آن تعریف شوند، تا scope کنترل شود.
-- یادداشت Connects: ۱۰ از ۳۰ (یک‌سوم موجودی). اگر جاب بهتری در نیچت می‌بینی، Connects را برای آن نگه دار.
+### Expected feedback
+**Must say:**
+- The verdict "with caution" with the reason: your portfolio piece matches the shipping problem very well (a strength), but the client pays little (average 14 dollars), competition is medium to high, and a previous review reports that the work grew.
+- Flag `Y5` quoting that same review.
+- Proposal tips if the student applies: (1) build the hook around the two specific checkout problems (occasional failed payments, and shipping for some countries) and cite the custom shipping rules sample; (2) ask which payment gateway and which countries have the problem; (3) suggest that the checkout fix be done **separately** and first, with the design work defined after it, to keep scope under control.
+- Connects note: 10 of 30 (a third of the balance). If you see a better job in your niche, keep the Connects for it.
 
-**نباید بگوید:**
-- «اپلای نکن» به‌خاطر کشور یا hire rate به‌تنهایی.
-- اینکه کارفرما اسکم است (هیچ شاهدی نیست).
+**Must not say:**
+- "Do not apply" because of the country or the hire rate alone.
+- That the client is a scammer (there is no evidence).
 
 ---
 
-## JA-03 — بد / اسکم (اپلای نکن)
+## JA-03 — Bad / scam (do not apply)
 
-| فیلد | مقدار |
+| Field | Value |
 |---|---|
-| امتیاز | بررسی نمی‌شود (پرچم قرمز) |
-| حکم | `do_not_apply` |
-| پرچم قرمز الزامی | `R1_off_platform_contact`، `R2_off_platform_payment`، `R3_freelancer_pays`، `R5_malicious_file` |
-| پرچم زرد الزامی | `Y1_payment_unverified`، `Y3_too_good` |
-| پرچم زرد مجاز | `Y2_new_empty_client` |
+| Score | Not evaluated (red flag) |
+| Verdict | `do_not_apply` |
+| Required red flags | `R1_off_platform_contact`, `R2_off_platform_payment`, `R3_freelancer_pays`, `R5_malicious_file` |
+| Required yellow flags | `Y1_payment_unverified`, `Y3_too_good` |
+| Allowed yellow flag | `Y2_new_empty_client` |
 | `report_suggested` | `true` |
-| `proposal_tips_fa` | **خالی** |
+| `proposal_tips_fa` | **empty** |
 
-### ورودی
+### Input
 ```yaml
 client:
   payment_verified: false
@@ -252,28 +252,28 @@ student:
   connects_balance: 20
 ```
 
-### بازخورد مورد انتظار
-**باید بگوید:**
-- حکم «اپلای نکن» در خط اول، با لحن صریح: این آگهی الگوی شناخته‌شده‌ی اسکم دارد.
-- هر پرچم قرمز با نقل‌قول:
-  - `R1`: «contact our HR manager on Telegram» → ارتباط بیرون از آپورک پیش از قرارداد ممنوع است.
-  - `R2` و `R3`: «receive a check to purchase work equipment from our approved vendor» → الگوی «چک جعلی»: چک برگشت می‌خورد و پولی که برای «تجهیزات» فرستاده‌ای از دست می‌رود.
-  - `R5`: «download the attached Job_Details.zip and run the file» → **فایل را باز نکن**؛ ممکن است بدافزار باشد. اگر باز کرده‌ای، اینترنت را قطع کن، آنتی‌ویروس کامل اجرا کن و رمزها را عوض کن.
-- پرچم‌های زرد: پرداخت تأییدنشده، حساب یک‌روزه، ۴۵ دلار برای ورود داده بدون تجربه.
-- پیشنهاد گزارش آگهی با «Flag as inappropriate».
-- هیچ Connectی خرج نکن.
+### Expected feedback
+**Must say:**
+- The verdict "do not apply" on the first line, in a direct tone: this posting follows a well-known scam pattern.
+- Every red flag with a quotation:
+  - `R1`: "contact our HR manager on Telegram" → contact outside Upwork before a contract is prohibited.
+  - `R2` and `R3`: "receive a check to purchase work equipment from our approved vendor" → the "fake check" pattern: the check bounces and the money you sent for "equipment" is lost.
+  - `R5`: "download the attached Job_Details.zip and run the file" → **do not open the file**; it may be malware. If you have opened it, disconnect from the internet, run a full antivirus scan and change your passwords.
+- Yellow flags: unverified payment, a one-day-old account, 45 dollars for data entry with no experience.
+- Suggest reporting the posting via "Flag as inappropriate".
+- Do not spend any Connects.
 
-**نباید بگوید:**
-- هیچ نکته‌ی پروپوزال یا «اگر خواستی با احتیاط اپلای کن».
-- هیچ راهنمایی برای پیام دادن در Telegram «برای اطمینان».
-- امتیاز عددی به‌عنوان معیار تصمیم.
+**Must not say:**
+- Any proposal tip or "if you want, apply with caution".
+- Any guidance on messaging on Telegram "to be sure".
+- A numeric score as a decision criterion.
 
 ---
 
-## JA-04 — مورد مرزی: تست رایگان (دو نسخه)
-هدف: آزمودن مرز `R6_unpaid_real_work` (قرمز) و `Y7_small_unpaid_test` (زرد اطلاع‌رسانی).
+## JA-04 — Borderline case: free test (two versions)
+Purpose: to test the boundary between `R6_unpaid_real_work` (red) and `Y7_small_unpaid_test` (informational yellow).
 
-### ورودی مشترک
+### Shared input
 ```yaml
 client:
   payment_verified: true
@@ -311,32 +311,32 @@ student:
   portfolio_items: ["Two CRM comparison articles for a SaaS client (off-Upwork)"]
 ```
 
-### JA-04a — تست = کار واقعی رایگان
-متن اضافه به آگهی:
+### JA-04a — test = free real work
+Text added to the posting:
 ```text
 As part of our selection, all applicants must write a complete 1,500-word article on
 "Best CRMs for Real Estate Agents in 2026". We'll publish the best one on our blog.
 This test is unpaid.
 ```
-| مورد انتظار | مقدار |
+| Expected | Value |
 |---|---|
-| حکم | `do_not_apply` |
-| پرچم قرمز | `R6_unpaid_real_work` (فقط همین) |
-| باید بگوید | «we'll publish the best one» یعنی کار کامل و قابل‌انتشار بدون پرداخت. کارفرما در بقیه‌ی شاخص‌ها خوب است و اسکمر نیست، ولی این شرط کار مجانی است. اگر می‌خواهی، در یک پیام کوتاه و مؤدب قرارداد آزمایشی کوچک و پولی پیشنهاد بده |
-| نباید بگوید | که کارفرما کلاهبردار است؛ `R1` تا `R5` |
+| Verdict | `do_not_apply` |
+| Red flag | `R6_unpaid_real_work` (only this) |
+| Must say | "we'll publish the best one" means a complete, publishable piece of work without payment. The client is good on the other indicators and is not a scammer, but this condition is free work. If you want, offer a small paid trial contract in a short, polite message |
+| Must not say | That the client is a fraudster; `R1` to `R5` |
 
-### JA-04b — تست کوچک و معقول
-متن اضافه به آگهی:
+### JA-04b — small, reasonable test
+Text added to the posting:
 ```text
 Shortlisted writers will be asked to write a 100-word intro for one of our topics
 (unpaid, about 15 minutes) before we hire.
 ```
-| مورد انتظار | مقدار |
+| Expected | Value |
 |---|---|
-| حکم | `apply` |
-| امتیاز | **۸۰ تا ۹۵** (مرکزی حدود ۹۰) |
-| پرچم | `Y7_small_unpaid_test` (اطلاع‌رسانی؛ حکم را محدود نمی‌کند) |
-| باید بگوید | تست کوچک و معقول است؛ مرزش را بدان (اگر بعداً مقاله‌ی کامل خواستند، قرارداد پولی پیشنهاد بده). نکته‌ی پروپوزال: نمونه‌ی مقایسه‌ی CRM را در hook بیاور و یک جمله درباره‌ی شناختت از کار مشاوران املاک بگو، **فقط اگر واقعی است** |
-| نباید بگوید | «اپلای نکن» یا «با احتیاط» فقط به‌خاطر تست |
+| Verdict | `apply` |
+| Score | **80 to 95** (central about 90) |
+| Flag | `Y7_small_unpaid_test` (informational; does not limit the verdict) |
+| Must say | The test is small and reasonable; know its limit (if they later ask for a full article, offer a paid contract). Proposal tip: cite the CRM comparison sample in the hook and add one sentence about your understanding of real estate agents' work, **only if it is true** |
+| Must not say | "Do not apply" or "with caution" merely because of the test |
 
-> «[قضاوت مربی]» مرز بین JA-04a و JA-04b (چند دقیقه یا چند کلمه کار رایگان قابل‌قبول است) باید با نظر بنیان‌گذار تنظیم شود (`job-analysis.md` بخش ۹، ردیف ۵).
+> "[Coach's judgment]" The boundary between JA-04a and JA-04b (how many minutes or words of free work are acceptable) must be set with the founder's input (`job-analysis.md` section 9, row 5).

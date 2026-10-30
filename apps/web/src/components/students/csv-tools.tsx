@@ -55,7 +55,7 @@ function downloadSample() {
 }
 
 /**
- * M2b «ورود از اکسل» (F11, security C6): CSV only (Excel → «ذخیره به‌صورت CSV UTF-8»), up to
+ * M2b "Import from Excel" (F11, security C6): CSV only (Excel → "Save as CSV UTF-8"), up to
  * 1 MB and 500 rows. Step 1 sends `dryRun=true` and shows every row with its errors (line and
  * column, never the value); step 2 imports the valid rows. Invite links are shown only here,
  * once (SEC-V3). Sprint 6: optionally into one open group course (`runId`).
@@ -353,7 +353,7 @@ export function ImportFlow({
 }
 
 /**
- * «خروجی CSV» (F11): students and tasks, after the SEC-V3 warning. Plain links: the browser
+ * "CSV export" (F11): students and tasks, after the SEC-V3 warning. Plain links: the browser
  * downloads with the session cookie; the server audits each export.
  */
 export function ExportButton() {

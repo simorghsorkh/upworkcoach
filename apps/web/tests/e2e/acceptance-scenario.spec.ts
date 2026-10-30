@@ -17,7 +17,7 @@ import { E2E_PORT, readState } from './server/state';
  *   4–6  a mentor's template approved by the admin, a group run with two mentors, a solo run;
  *   7    a one-on-one package: a held session, a next action and the package use;
  *   8–9  submit → review; the mentee sees the result, the progress and the notifications;
- *   10   the mentor's «امروز»: pending reviews and upcoming sessions;
+ *   10   the mentor's "Today": pending reviews and upcoming sessions;
  *   11   the admin overview, without the mentor's private note;
  *   12   the owner of a second organization sees none of it;
  *   13   main pages in English: `dir=ltr`, no horizontal overflow (both sizes).
@@ -333,7 +333,7 @@ test('Coach Office acceptance scenario, steps 1–12', async ({ page, browser })
   );
   expect(progress.find((p) => p.run.id === run.id)?.progress.done).toBe(1);
 
-  // --- 10. The mentor's «امروز»: the pending review and the upcoming session ----------------
+  // --- 10. The mentor's "Today": the pending review and the upcoming session ----------------
   await m1.page.goto('/today');
   await expect(m1.page.locator('#reviews').getByText(mahsa.name)).toBeVisible(SLOW);
   await expect(

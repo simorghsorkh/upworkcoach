@@ -1,31 +1,31 @@
-# مجموعه‌ی ارزیابی — بررسی پروپوزال
+# Evaluation set — proposal review
 
-> **نمونه‌ی ساختگی — باید با نمونه‌های واقعی بنیان‌گذار کالیبره شود.**
-> همه‌ی آگهی‌ها، نام‌ها و عددها ساختگی‌اند. rubric مرجع: `../proposal-review.md` (v0.1).
-> upwork-domain-expert — ۲۷ مهر ۱۴۰۵
+> **Synthetic samples — must be calibrated against the founder's real samples.**
+> All postings, names and numbers are synthetic. Reference rubric: `../proposal-review.md` (v0.1).
+> upwork-domain-expert — 27 Mehr 1405 (2026-10-19)
 
-## نحوه‌ی استفاده در ارزیابی خودکار
-- هر نمونه یک **بازه‌ی امتیاز قابل‌قبول** دارد، نه یک عدد دقیق. خروجی ابزار وقتی «قبول» است که:
-  1. `overall_score` در بازه باشد؛
-  2. `verdict` دقیقاً برابر مقدار مورد انتظار باشد؛
-  3. همه‌ی `critical_flags` مورد انتظار (و نه بیشتر) وجود داشته باشند؛
-  4. سطح هر معیار در بازه‌ی جدول باشد (حداکثر یک معیار با اختلاف ۱ سطح بیرون از بازه مجاز است)؛
-  5. همه‌ی موارد «باید بگوید» در بازخورد فارسی آمده باشند (ارزیابی با LLM-as-judge یا مشاور)؛
-  6. هیچ‌کدام از موارد «نباید بگوید» نیامده باشد.
-- بعد از جمع‌آوری نمونه‌های واقعی، این سه نمونه می‌مانند و به‌عنوان «تست دود» (smoke test) استفاده می‌شوند.
+## How to use in automated evaluation
+- Each sample has an **acceptable score range**, not an exact number. The tool output "passes" when:
+  1. `overall_score` is within the range;
+  2. `verdict` is exactly equal to the expected value;
+  3. all expected `critical_flags` (and no more) are present;
+  4. the level of each criterion is within the table's range (at most one criterion may be outside the range, by 1 level);
+  5. all "must say" items appear in the Persian feedback (evaluated by LLM-as-judge or a mentor);
+  6. none of the "must not say" items appear.
+- After real samples are collected, these three samples remain and are used as a "smoke test".
 
 ---
 
-## PR-01 — خوب
+## PR-01 — Good
 
-| فیلد | مقدار |
+| Field | Value |
 |---|---|
-| برچسب | good |
-| امتیاز مورد انتظار | **۸۵ تا ۹۷** |
-| حکم مورد انتظار | `ready` |
-| خطای حیاتی | ندارد |
+| Label | good |
+| Expected score | **85 to 97** |
+| Expected verdict | `ready` |
+| Critical flag | none |
 
-### ورودی: آگهی
+### Input: job posting
 ```text
 Title: Shopify store speed optimization – mobile PageSpeed score is 28
 
@@ -45,7 +45,7 @@ Fixed price: $400 · Experience level: Intermediate
 Screening question: Have you worked with the Dawn theme before? Share a store you optimized.
 ```
 
-### ورودی: پروپوزال
+### Input: proposal
 ```text
 Hi Emma,
 
@@ -73,49 +73,49 @@ Screening answer: Yes. The store I mentioned above runs Dawn 12; the before/afte
 is in my profile portfolio ("Dawn store: mobile 31 → 74").
 ```
 
-### ورودی: پروفایل هنرجو
+### Input: student profile
 ```text
 Niche: Shopify performance & theme development. Stage: 3 contracts on Upwork.
 Portfolio: "Dawn store: mobile 31 → 74" (real client, Aug 2026); "Custom product page sections".
 ```
 
-### سطح مورد انتظار معیارها
-| معیار | سطح | بازه‌ی مجاز | دلیل |
+### Expected criterion levels
+| Criterion | Level | Allowed range | Reason |
 |---|---|---|---|
-| hook | ۴ | ۳ تا ۴ | عدد ۲۸، نام اپ‌ها و یک تشخیص اولیه + نتیجه‌ی مشابه در دو جمله |
-| personalization | ۴ | ۴ | به محدودیت «تصویر را فشرده کرده‌ایم» و «اپ‌ها نباید خراب شوند» پاسخ داده |
-| client_focus | ۴ | ۳ تا ۴ | برنامه‌ی سه‌مرحله‌ای؛ سابقه فقط در خدمت اثبات |
-| proof | ۳ | ۳ تا ۴ | یک نمونه‌ی بسیار مرتبط با عدد؛ لینک مستقیم ندارد |
-| requirements | ۴ | ۳ تا ۴ | «۲ چیز اول» و سؤال screening هر دو جواب مشخص دارند |
-| cta | ۴ | ۳ تا ۴ | سؤال مشخص و آسان + قدم بعدی |
-| length_structure | ۳ | ۳ تا ۴ | حدود ۱۹۰ کلمه برای آگهی فنی؛ قابل‌اسکن |
-| tone | ۴ | ۳ تا ۴ | هم‌سطح و مشاوره‌ای |
-| language | ۴ | ۳ تا ۴ | بی‌خطا |
-| authenticity | ۴ | ۳ تا ۴ | جزئیات فنی که فقط کسی که کار را کرده می‌داند؛ بدون عبارت کلیشه‌ای |
+| hook | 4 | 3 to 4 | The number 28, the app names and an initial diagnosis + a similar result in two sentences |
+| personalization | 4 | 4 | Addresses the constraints "we've compressed images" and "the apps must not break" |
+| client_focus | 4 | 3 to 4 | A three-step plan; experience serves only as proof |
+| proof | 3 | 3 to 4 | One highly relevant example with a number; no direct link |
+| requirements | 4 | 3 to 4 | The "first 2 things" and the screening question both get specific answers |
+| cta | 4 | 3 to 4 | A specific, easy question + the next step |
+| length_structure | 3 | 3 to 4 | About 190 words for a technical posting; scannable |
+| tone | 4 | 3 to 4 | Peer-level and consultative |
+| language | 4 | 3 to 4 | Error-free |
+| authenticity | 4 | 3 to 4 | Technical details only someone who did the work would know; no cliché phrases |
 
-### بازخورد مورد انتظار
-**باید بگوید:**
-- نقطه‌ی قوت: شروع با عدد ۲۸ و تشخیص اولیه‌ی اسکریپت اپ‌ها، که دقیقاً به آگهی وصل است.
-- اصلاح اختیاری: لینک مستقیم نمونه‌کار را در جواب screening بگذار، یا اسم دقیق آیتم پورتفولیو را برجسته کن تا کارفرما مجبور به جستجو نشود.
-- (اختیاری) جمله‌ی «nothing gets removed without your OK» نقطه‌ی قوت است و با نگرانی کارفرما درباره‌ی اپ‌ها جور است.
+### Expected feedback
+**Must say:**
+- Strength: opening with the number 28 and the initial diagnosis of app scripts, which connects exactly to the posting.
+- Optional fix: put a direct link to the portfolio piece in the screening answer, or highlight the exact name of the portfolio item so the client does not have to search.
+- (Optional) The sentence "nothing gets removed without your OK" is a strength and matches the client's concern about the apps.
 
-**نباید بگوید:**
-- پیشنهاد اضافه کردن فهرست مهارت‌ها یا «years of experience».
-- پیشنهاد کوتاه کردن شدید (طول برای این آگهی مناسب است).
-- هر ایراد ساختگی برای پر کردن «۳ اصلاح». اگر اصلاح مهمی نیست، ابزار باید همین را بگوید.
+**Must not say:**
+- Suggesting adding a skills list or "years of experience".
+- Suggesting drastic shortening (the length suits this posting).
+- Any made-up flaw to fill "3 fixes". If there is no important fix, the tool should say exactly that.
 
 ---
 
-## PR-02 — متوسط
+## PR-02 — Medium
 
-| فیلد | مقدار |
+| Field | Value |
 |---|---|
-| برچسب | medium |
-| امتیاز مورد انتظار | **۵۰ تا ۶۴** |
-| حکم مورد انتظار | `revise` |
-| خطای حیاتی | ندارد |
+| Label | medium |
+| Expected score | **50 to 64** |
+| Expected verdict | `revise` |
+| Critical flag | none |
 
-### ورودی: آگهی
+### Input: job posting
 ```text
 Title: B2B SaaS blog writer – cybersecurity topics for small business owners
 
@@ -135,7 +135,7 @@ Screening questions:
 2. What is your rate per 1,200-word article?
 ```
 
-### ورودی: پروپوزال
+### Input: proposal
 ```text
 Hi Daniel,
 
@@ -163,52 +163,52 @@ Screening answers:
 2. $90 per 1,200-word article.
 ```
 
-### ورودی: پروفایل هنرجو
+### Input: student profile
 ```text
 Niche: B2B SaaS content writing. Stage: 2 contracts on Upwork, plus off-Upwork clients.
 Portfolio: the two articles above (real, published).
 ```
 
-### سطح مورد انتظار معیارها
-| معیار | سطح | بازه‌ی مجاز | دلیل |
+### Expected criterion levels
+| Criterion | Level | Allowed range | Reason |
 |---|---|---|---|
-| hook | ۳ | ۲ تا ۳ | موضوع‌های مشخص و اشاره به نمونه‌ها؛ ولی زاویه‌ای درباره‌ی «مخاطب غیرفنی» ندارد |
-| personalization | ۲ | ۱ تا ۲ | بعد از خط اول، متن برای هر آگهی نویسندگی SEO قابل‌ارسال است |
-| client_focus | ۲ | ۱ تا ۲ | درباره‌ی «من» و ویژگی‌ها؛ هیچ ایده‌ای درباره‌ی نوشتن برای صاحب کسب‌وکار کوچک ندارد |
-| proof | ۲ | ۲ تا ۳ | نمونه‌های مرتبط در جواب‌ها هست، ولی هیچ نتیجه‌ای (ترافیک، رتبه) گفته نشده |
-| requirements | ۳ | ۳ تا ۴ | هر دو سؤال مشخص جواب داده شده |
-| cta | ۱ | ۱ | «Looking forward to hearing from you» |
-| length_structure | ۳ | ۲ تا ۳ | طول مناسب |
-| tone | ۲ | ۲ | مؤدب و خنثی |
-| language | ۳ | ۳ | تقریباً بی‌خطا («SEO optimized»، «Plagiarism free» بدون خط تیره، جزئی) |
-| authenticity | ۱ | ۰ تا ۱ | `high quality, engaging content`، `drives organic traffic`، بولت‌های «What you can expect»، `Looking forward to hearing from you` |
+| hook | 3 | 2 to 3 | Specific topics and a reference to the samples; but no angle on the "non-technical audience" |
+| personalization | 2 | 1 to 2 | After the first line, the text could be sent to any SEO writing posting |
+| client_focus | 2 | 1 to 2 | About "me" and features; no idea about writing for a small business owner |
+| proof | 2 | 2 to 3 | Relevant samples are in the answers, but no results (traffic, rankings) are given |
+| requirements | 3 | 3 to 4 | Both questions are specifically answered |
+| cta | 1 | 1 | "Looking forward to hearing from you" |
+| length_structure | 3 | 2 to 3 | Suitable length |
+| tone | 2 | 2 | Polite and neutral |
+| language | 3 | 3 | Nearly error-free ("SEO optimized" and "Plagiarism free" without hyphens, minor) |
+| authenticity | 1 | 0 to 1 | `high quality, engaging content`, `drives organic traffic`, the "What you can expect" bullets, `Looking forward to hearing from you` |
 
-محاسبه با سطح‌های مرکزی: ۱۵ + ۷٫۵ + ۵ + ۷٫۵ + ۷٫۵ + ۱٫۲۵ + ۳٫۷۵ + ۲٫۵ + ۳٫۷۵ + ۲٫۵ = **۵۶٫۲۵**
+Calculation with central levels: 15 + 7.5 + 5 + 7.5 + 7.5 + 1.25 + 3.75 + 2.5 + 3.75 + 2.5 = **56.25**
 
-### بازخورد مورد انتظار
-**باید بگوید (به ترتیب اولویت):**
-1. **اثبات:** نمونه‌ها عالی و مرتبط‌اند، ولی نتیجه ندارند. اگر داده‌ی واقعی (رتبه، ترافیک، تعداد share) داری، یک عدد کنار هر نمونه بنویس؛ با جای خالی، نه عدد ساختگی.
-2. **پاراگراف دوم و بولت‌ها:** این بخش عمومی و AI‌گونه است (نقل همان عبارت‌ها). به‌جایش یک جمله درباره‌ی **چطور برای صاحب کسب‌وکار غیرفنی درباره‌ی SSO می‌نویسی** بگذار؛ نکته‌ای که آگهی روی آن تأکید کرده.
-3. **CTA:** با یک سؤال مشخص تمام کن، مثلاً درباره‌ی اینکه brief تیم SEO شامل internal linking هست یا نه، یا پیشنهاد یک outline برای اولین موضوع.
-- نکته‌ی جانبی (خارج از امتیاز): «Unlimited revisions» برای همکاری ماهانه ریسک کاری دارد؛ تعداد بازبینی را مشخص کن.
+### Expected feedback
+**Must say (in priority order):**
+1. **Proof:** the samples are excellent and relevant, but have no results. If you have real data (rankings, traffic, share counts), write one number next to each sample; use a placeholder, not an invented number.
+2. **Second paragraph and bullets:** this part is generic and AI-sounding (quoting those same phrases). Instead put in one sentence about **how you write about SSO for a non-technical business owner**, which is what the posting emphasized.
+3. **CTA:** end with a specific question, for example about whether the SEO team's brief includes internal linking, or offer an outline for the first topic.
+- Side note (outside the score): "Unlimited revisions" is a work risk for a monthly engagement; specify the number of revisions.
 
-**نباید بگوید:**
-- که hook بد است (خط اول نسبتاً خوب است).
-- که سؤال‌ها بی‌جواب مانده‌اند.
-- نظر قطعی درباره‌ی بالا یا پایین بودن ۹۰ دلار، جز یک اشاره‌ی کوتاه (قیمت‌گذاری ابزار جداگانه دارد).
+**Must not say:**
+- That the hook is bad (the first line is fairly good).
+- That the questions went unanswered.
+- A definitive opinion on whether 90 dollars is high or low, apart from a brief mention (pricing has a separate tool).
 
 ---
 
-## PR-03 — بد
+## PR-03 — Bad
 
-| فیلد | مقدار |
+| Field | Value |
 |---|---|
-| برچسب | bad |
-| امتیاز مورد انتظار | **۰ تا ۲۰** (سقف C1) |
-| حکم مورد انتظار | `do_not_send` |
-| خطای حیاتی | `C1_off_platform`، `C2_wrong_job`، `C3_unanswered_required`، `C4_inconsistent_claim`، `C5_unpaid_work_offer` |
+| Label | bad |
+| Expected score | **0 to 20** (C1 cap) |
+| Expected verdict | `do_not_send` |
+| Critical flags | `C1_off_platform`, `C2_wrong_job`, `C3_unanswered_required`, `C4_inconsistent_claim`, `C5_unpaid_work_offer` |
 
-### ورودی: آگهی
+### Input: job posting
 ```text
 Title: Logo for a small organic coffee roaster
 
@@ -221,7 +221,7 @@ Fixed price: $300 · Experience level: Intermediate
 – Megan
 ```
 
-### ورودی: پروپوزال
+### Input: proposal
 ```text
 Dear Sir/Madam,
 
@@ -242,36 +242,36 @@ Kindly give me a chance, I will not disappoint you.
 Thanks
 ```
 
-### ورودی: پروفایل هنرجو
+### Input: student profile
 ```text
 Niche: logo & brand identity. Stage: newcomer, no client work yet, ~1 year of practice.
 Portfolio: 4 practice logos for fictional tech startups.
 ```
 
-### سطح مورد انتظار معیارها
-| معیار | سطح | بازه‌ی مجاز |
+### Expected criterion levels
+| Criterion | Level | Allowed range |
 |---|---|---|
-| hook | ۰ | ۰ |
-| personalization | ۰ | ۰ |
-| client_focus | ۰ | ۰ |
-| proof | ۰ | ۰ |
-| requirements | ۰ | ۰ |
-| cta | ۰ | ۰ |
-| length_structure | ۲ | ۱ تا ۲ |
-| tone | ۰ | ۰ تا ۱ |
-| language | ۲ | ۲ تا ۳ |
-| authenticity | ۰ | ۰ |
+| hook | 0 | 0 |
+| personalization | 0 | 0 |
+| client_focus | 0 | 0 |
+| proof | 0 | 0 |
+| requirements | 0 | 0 |
+| cta | 0 | 0 |
+| length_structure | 2 | 1 to 2 |
+| tone | 0 | 0 to 1 |
+| language | 2 | 2 to 3 |
+| authenticity | 0 | 0 |
 
-### بازخورد مورد انتظار
-**باید بگوید (به ترتیب):**
-1. **خط قرمز:** شماره‌ی WhatsApp را حذف کن. دادن اطلاعات تماس پیش از قرارداد خلاف قوانین آپورک است و می‌تواند به محدودیت یا بسته شدن حساب منجر شود. (همچنین هشدار حریم خصوصی: شماره‌ی شخصی در متنی که برای غریبه‌ها می‌رود.)
-2. **ادعای ناسازگار:** «10+ years» و «500+ projects» با پرونده‌ات (تازه‌کار، نمونه‌های تمرینی) نمی‌خواند. کارفرما در مصاحبه یا از روی پروفایل متوجه می‌شود. فقط آنچه واقعی است بنویس. لحن غیراتهامی.
-3. **دستورهای آگهی:** آگهی خواسته بود با کلمه‌ی «roast» شروع کنی و ۳ نمونه‌ی food/beverage بفرستی؛ هیچ‌کدام انجام نشده. همچنین به «website» اشاره کرده‌ای در حالی که آگهی درباره‌ی لوگوست (نشانه‌ی کپی).
-- همچنین: پیشنهاد ۳ کانسپت رایگان ارزش کارت را پایین می‌آورد؛ پیشنهاد «Dear Sir/Madam» در حالی که نام کارفرما Megan است؛ «Kindly give me a chance» لحن التماسی دارد.
-- پیشنهاد سازنده: hook نمونه با جای خالی، مثلاً `Roast – a hand-drawn mark for Hill & Hearth needs to read clearly at bag size and on a small sign, so I'd start with [your approach].` و اینکه نمونه‌های تمرینی را صادقانه به‌عنوان «concept work» معرفی کند یا پیش از اپلای یک نمونه‌ی مرتبط با food/beverage بسازد.
+### Expected feedback
+**Must say (in order):**
+1. **Red line:** remove the WhatsApp number. Giving contact details before a contract violates Upwork's rules and can lead to restriction or closure of the account. (Also a privacy warning: a personal number in text that goes to strangers.)
+2. **Inconsistent claim:** "10+ years" and "500+ projects" do not match your file (newcomer, practice samples). The client will notice in an interview or from the profile. Write only what is true. Non-accusatory tone.
+3. **The posting's instructions:** the posting asked you to start with the word "roast" and to send 3 food/beverage samples; neither was done. You also mention a "website" while the posting is about a logo (a sign of copy-paste).
+- Also: offering 3 free concepts lowers the value of your card; "Dear Sir/Madam" while the client's name is Megan; "Kindly give me a chance" has a pleading tone.
+- Constructive suggestion: a sample hook with a placeholder, for example `Roast – a hand-drawn mark for Hill & Hearth needs to read clearly at bag size and on a small sign, so I'd start with [your approach].` and that the student should honestly present the practice samples as "concept work" or create a relevant food/beverage sample before applying.
 
-**نباید بگوید:**
-- هیچ راه جایگزینی برای «ارتباط سریع‌تر» بیرون از آپورک.
-- بازنویسی کامل پروپوزال آماده‌ی ارسال.
-- نقد کشور یا پیش‌شماره‌ی تلفن. مشکل اطلاعات تماس است، نه ملیت.
-- عدد ساختگی جایگزین (مثلاً «بنویس 3 years»).
+**Must not say:**
+- Any alternative for "faster communication" outside Upwork.
+- A full rewrite of the proposal that is ready to send.
+- Criticism of the country or the phone prefix. The problem is the contact details, not nationality.
+- An invented replacement number (e.g. "write 3 years").

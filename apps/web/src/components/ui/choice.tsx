@@ -214,7 +214,7 @@ export function MenuButton({
   buttonClassName,
 }: {
   label: ReactNode;
-  /** Small heading inside the panel, e.g. «تعویق تا…». */
+  /** Small heading inside the panel, e.g. "Postpone until…". */
   title?: string;
   items: ReadonlyArray<{ label: string; onSelect: () => void }>;
   buttonClassName?: string;

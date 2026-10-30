@@ -1,84 +1,84 @@
-# ADR-0013 — زیرساخت چندزبانگی: فارسی و انگلیسی، RTL و LTR، قالب‌بندی وابسته به زبان
+# ADR-0013 — Multilingual foundation: Persian and English, RTL and LTR, locale-dependent formatting
 
-- **وضعیت:** پذیرفته‌شده (پیاده‌سازی پایه: اسپرینت ۲ Coach Office)
-- **تاریخ:** ۶ آبان ۱۴۰۵ (2026-10-28)
-- **منبع الزامات:** سند بنیان‌گذار بند ۱۰؛ `docs/08-saas-evolution/prd-coach-office.md` بخش ۴؛ پاسخ Q6 (انگلیسی برای پایلوت لازم نیست ولی به‌زودی برای ارائه به سرمایه‌گذار لازم است)
-- **اثر روی ADRهای قبلی:** ADR-0008 (زمان، تقویم شمسی و متن فارسی) **گسترش** می‌یابد: ذخیره‌ی UTC و نرمال‌سازی متن فارسی همان می‌ماند؛ منطقه‌ی زمانی ثابت `Asia/Tehran` به تنظیم سازمانی تبدیل می‌شود.
+- **Status:** Accepted (base implementation: Coach Office sprint 2)
+- **Date:** 6 Aban 1405 (2026-10-28)
+- **Source of requirements:** founder document item 10; `docs/08-saas-evolution/prd-coach-office.md` section 4; answer to Q6 (English is not needed for the pilot but will soon be needed for presenting to investors)
+- **Effect on earlier ADRs:** ADR-0008 (time, the Solar Hijri calendar and Persian text) is **extended**: UTC storage and Persian text normalization stay the same; the fixed `Asia/Tehran` time zone becomes an organization-level setting.
 
-## زمینه (از کد)
-- `app/layout.tsx`: `<html lang="fa" dir="rtl">` ثابت. هیچ کتابخانه‌ی i18n نصب نیست.
-- حدود ۲۵۰۰ خط متن فارسی در ۲۲۷ فایل؛ از جمله ۱۱۹ پیام در `server/http/errors.ts` و پیام‌های zod در `contracts.ts`ها.
-- کامپوننت‌ها از کلاس‌های منطقی Tailwind استفاده می‌کنند (`ms-`، `me-`، `ps-`، `pe-`، `start-`، `end-`) و کلاس فیزیکی ندارند.
-- `lib/jalali` و `lib/tehran-day` فقط فارسی و تهران را پشتیبانی می‌کنند؛ تنظیم `timezone` یک `z.literal('Asia/Tehran')` است.
+## Context (from the code)
+- `app/layout.tsx`: a fixed `<html lang="fa" dir="rtl">`. No i18n library is installed.
+- About 2500 lines of Persian text in 227 files, including 119 messages in `server/http/errors.ts` and the zod messages in the `contracts.ts` files.
+- Components use Tailwind logical classes (`ms-`, `me-`, `ps-`, `pe-`, `start-`, `end-`) and have no physical classes.
+- `lib/jalali` and `lib/tehran-day` support only Persian and Tehran; the `timezone` setting is a `z.literal('Asia/Tehran')`.
 
-## گزینه‌ها
-| گزینه | ارزیابی |
+## Options
+| Option | Assessment |
 |---|---|
-| **A. next-intl** | برای App Router و Server Components ساخته شده؛ قالب ICU (جمع، جنسیت)؛ بدون الزام پیشوند URL؛ پذیرفته |
-| B. i18next + react-i18next | بالغ، ولی با Server Components کار اضافه می‌خواهد |
-| C. لایه‌ی خانگی | کمترین وابستگی، ولی ICU و جمع را خودمان باید بسازیم؛ رد |
+| **A. next-intl** | Built for the App Router and Server Components; ICU format (plural, gender); no URL prefix required; accepted |
+| B. i18next + react-i18next | Mature, but needs extra work with Server Components |
+| C. Home-grown layer | Fewest dependencies, but we would have to build ICU and plurals ourselves; rejected |
 
-## تصمیم: next-intl، بدون پیشوند زبان در URL
+## Decision: next-intl, with no locale prefix in the URL
 
-### ۱. تعیین زبان
-اولویت: `user_preferences.locale` ← `organizations.default_locale` ← `fa`. زبان در URL نیست (برنامه پشت ورود است و سئو ندارد). اگر صفحه‌ی عمومی لازم شد، پیشوند `/en` بعداً اضافه می‌شود.
+### 1. Choosing the locale
+Priority: `user_preferences.locale` ← `organizations.default_locale` ← `fa`. The locale is not in the URL (the app is behind login and has no SEO). If a public page is needed, an `/en` prefix can be added later.
 
 ```
 user_preferences
   user_id PK, locale text ('fa' | 'en' | 'nl'), updated_at
 ```
-تغییر زبان از صفحه‌ی «حساب من». زبان‌های فعال در یک ثابت (`SUPPORTED_LOCALES = ['fa', 'en']`)؛ `nl` بعداً با افزودن فایل پیام فعال می‌شود.
+The language is changed from the "My account" page. Active languages live in one constant (`SUPPORTED_LOCALES = ['fa', 'en']`); `nl` is enabled later by adding a message file.
 
-### ۲. جهت و فونت
+### 2. Direction and font
 - `<html lang={locale} dir={locale === 'fa' ? 'rtl' : 'ltr'}>`.
-- فقط کلاس‌های منطقی Tailwind؛ یک بررسی در CI جلوی `ml-`، `mr-`، `pl-`، `pr-`، `left-`، `right-`، `text-left`، `text-right` را در `src/` می‌گیرد (استثنا با کامنت).
-- آیکون‌های جهت‌دار (فلش، «بعدی»، «قبلی») با `rtl:rotate-180`.
-- Vazirmatn حروف لاتین هم دارد؛ برای انگلیسی همان فونت در پایلوت کافی است.
+- Only Tailwind logical classes; a CI check blocks `ml-`, `mr-`, `pl-`, `pr-`, `left-`, `right-`, `text-left`, `text-right` in `src/` (an exception is allowed with a comment).
+- Directional icons (arrow, "next", "previous") use `rtl:rotate-180`.
+- Vazirmatn also has Latin letters; for English the same font is enough in the pilot.
 
-### ۳. پیام‌ها
-- `apps/web/messages/fa.json` و `en.json`، با فضای نام برای هر بخش (`shell`، `auth`، `students`، `tasks`، `programs`، `errors`، `validation` و …).
-- **خطاهای سرور:** `errors.ts` به‌جای متن فارسی **کد** برمی‌گرداند (مثل `task.not_found`، `auth.locked` با پارامتر). پاسخ API: `{ error: { code, params, message } }` که `message` با زبان درخواست ترجمه شده است؛ فرانت ترجیحاً از `code` استفاده می‌کند.
-- **zod:** یک errorMap مشترک که کد اعتبارسنجی را به کلید `validation.*` تبدیل می‌کند. پیام‌های سفارشی فعلی (`'حداکثر ۲۰ لینک مجاز است.'`) به کلید تبدیل می‌شوند.
-- **جمع و عدد:** قالب ICU (`{count, plural, ...}`).
-- متن‌های سیستمی ذخیره‌شده در دیتابیس (مثل نام مراحل seed، پاسخ‌های آماده) **محتوای سازمان** حساب می‌شوند، نه رابط کاربری؛ ترجمه نمی‌شوند.
+### 3. Messages
+- `apps/web/messages/fa.json` and `en.json`, with a namespace for each area (`shell`, `auth`, `students`, `tasks`, `programs`, `errors`, `validation`, and so on).
+- **Server errors:** instead of Persian text, `errors.ts` returns a **code** (such as `task.not_found`, `auth.locked` with a parameter). The API response is `{ error: { code, params, message } }`, where `message` is translated into the request's language; the frontend should prefer `code`.
+- **zod:** one shared errorMap that turns the validation code into a `validation.*` key. The current custom messages (`'حداکثر ۲۰ لینک مجاز است.'` (Persian for "At most 20 links are allowed.")) become keys.
+- **Plurals and numbers:** ICU format (`{count, plural, ...}`).
+- System text stored in the database (such as the names of seeded stages, canned replies) counts as **organization content**, not user interface; it is not translated.
 
-### ۴. قالب‌بندی تاریخ، زمان و عدد
-یک ماژول `lib/format` تنها راه نمایش تاریخ و عدد است:
-| زبان | تقویم | ارقام | مثال |
+### 4. Formatting dates, times and numbers
+A `lib/format` module is the only way to display dates and numbers:
+| Locale | Calendar | Digits | Example |
 |---|---|---|---|
-| fa | جلالی (همان `lib/jalali`) | فارسی | ۶ آبان ۱۴۰۵، ۱۴:۳۰ |
-| en | میلادی | لاتین | Oct 28, 2026, 2:30 PM |
-| nl (آینده) | میلادی | لاتین | 28 okt 2026, 14:30 |
+| fa | Jalali (the existing `lib/jalali`) | Persian | ۶ آبان ۱۴۰۵، ۱۴:۳۰ (6 Aban 1405, 14:30) |
+| en | Gregorian | Latin | Oct 28, 2026, 2:30 PM |
+| nl (future) | Gregorian | Latin | 28 okt 2026, 14:30 |
 
-- ذخیره همچنان `timestamptz` در UTC (ADR-0008).
-- **منطقه‌ی زمانی از سازمان** (`organizations.timezone`، IANA، پیش‌فرض `Asia/Tehran`). «پایان روز» مهلت‌ها، ساعت کاری، تعطیلات و «امروز» با منطقه‌ی زمانی سازمان محاسبه می‌شوند. `lib/tehran-day` به `lib/org-day(timezone)` تعمیم می‌یابد و تست‌های فعلی‌اش با `Asia/Tehran` همان نتیجه را می‌دهند.
-- ورودی تاریخ در فرم: fa با انتخابگر جلالی، en با انتخابگر میلادی؛ هر دو به یک تاریخ ISO تبدیل می‌شوند.
-- ورودی عدد: ارقام فارسی و عربی همچنان به لاتین نرمال می‌شوند (ADR-0008)، در هر زبانی.
+- Storage is still `timestamptz` in UTC (ADR-0008).
+- **The time zone comes from the organization** (`organizations.timezone`, IANA, default `Asia/Tehran`). The "end of day" of deadlines, working hours, holidays and "today" are computed in the organization's time zone. `lib/tehran-day` is generalized to `lib/org-day(timezone)`, and its existing tests give the same result with `Asia/Tehran`.
+- Date input in forms: fa uses a Jalali picker, en uses a Gregorian picker; both convert to one ISO date.
+- Number input: Persian and Arabic digits are still normalized to Latin (ADR-0008), in any locale.
 
-### ۵. محتوای کاربر
-- **ترجمه‌ی خودکار نداریم.** محتوای برنامه، تکلیف، یادداشت و پیام به همان زبانی که نوشته شده نمایش داده می‌شود.
-- `source_locale` روی `program_templates` و `program_runs` (ADR-0012) ذخیره می‌شود تا ترجمه‌ی دستی در آینده ممکن باشد.
-- متن دوجهته: محتوای کاربر با `dir="auto"` نمایش داده می‌شود (مثلاً متن انگلیسی پروپوزال در صفحه‌ی فارسی)؛ نام‌ها و شناسه‌های کوتاه داخل جمله با `<bdi>`.
+### 5. User content
+- **No automatic translation.** Program, task, note and message content is shown in the language in which it was written.
+- `source_locale` is stored on `program_templates` and `program_runs` (ADR-0012) so that manual translation is possible in the future.
+- Bidirectional text: user content is shown with `dir="auto"` (for example the English text of a proposal on a Persian page); names and short identifiers inside a sentence use `<bdi>`.
 
-### ۶. روش انتقال متن‌ها (تدریجی)
-1. **اسپرینت ۲:** نصب و پیکربندی؛ `lang` و `dir` پویا؛ `user_preferences`؛ `lib/format`؛ منطقه‌ی زمانی سازمانی؛ کد خطای سرور؛ errorMap زود؛ استخراج پوسته، ناوبری، ورود و دعوت، داشبوردها، کارها و صف بازبینی.
-2. **اسپرینت‌های بعد:** هر صفحه‌ای که برای امکانات جدید باز می‌شود، همان‌جا استخراج می‌شود. صفحه‌های جدید از روز اول فقط کلید پیام دارند.
-3. **پس از پایلوت (پیش از ارائه به سرمایه‌گذار):** ترجمه‌ی کامل `en.json` برای صفحه‌های اصلی و یک سازمان دموی انگلیسی.
-4. **قاعده‌ی CI:** یک اسکریپت (مثل `scripts/ci-no-server-actions.sh`) متن فارسی **تازه** در فایل‌های `.tsx` بیرون از `messages/` را رد می‌کند؛ فایل‌های قدیمی در یک فهرست استثنا که فقط کوچک می‌شود.
+### 6. How strings are migrated (incrementally)
+1. **Sprint 2:** installation and configuration; dynamic `lang` and `dir`; `user_preferences`; `lib/format`; the organization time zone; server error codes; the errorMap early; extraction of the shell, navigation, login and invitation, dashboards, tasks and the review queue.
+2. **Later sprints:** every page that is opened for new features is extracted at that point. New pages have only message keys from day one.
+3. **After the pilot (before presenting to investors):** a full `en.json` translation for the main pages and an English demo organization.
+4. **CI rule:** a script (like `scripts/ci-no-server-actions.sh`) rejects **new** Persian text in `.tsx` files outside `messages/`; old files go on an exception list that can only shrink.
 
-## پیامدها
-**مثبت:** چیدمان از قبل آماده‌ی LTR است؛ هزینه‌ی اصلی استخراج متن است که تدریجی پخش می‌شود؛ خطاهای کددار برای API عمومی آینده هم مفیدند.
+## Consequences
+**Positive:** the layout is already ready for LTR; the main cost is extracting strings, which is spread out incrementally; coded errors are also useful for a future public API.
 
-**منفی:** تا استخراج کامل، صفحه‌های قدیمی در انگلیسی فارسی می‌مانند (برای پایلوت مشکلی نیست)؛ بسته‌ی پیام‌ها حجم صفحه را کمی بالا می‌برد (تقسیم بر اساس فضای نام).
+**Negative:** until extraction is complete, old pages stay Persian in English mode (not a problem for the pilot); the message bundle adds a little to page weight (split by namespace).
 
-**تست الزامی:** e2e صفحه‌های استخراج‌شده در هر دو زبان (`dir`، تاریخ، ارقام)؛ تست `lib/format` و `org-day` با دو منطقه‌ی زمانی (تهران و آمستردام، شامل تغییر ساعت تابستانی)؛ تست اینکه هر کلید `fa.json` در `en.json` هست (کلید جاافتاده = شکست CI، متن ترجمه‌نشده = هشدار).
+**Required tests:** e2e of the extracted pages in both languages (`dir`, dates, digits); tests for `lib/format` and `org-day` with two time zones (Tehran and Amsterdam, including the daylight-saving change); a test that every `fa.json` key exists in `en.json` (a missing key = CI failure, an untranslated string = warning).
 
-## تطبیق با پیاده‌سازی (اسپرینت ۲، ۱۴۰۵/۰۸/۰۶)
-- **کتابخانه:** `next-intl` 4.14.9 بدون پیشوند زبان در URL. پیکربندی در `src/i18n/request.ts`: زبان = ترجیح کاربر ← زبان پیش‌فرض سازمان ← کوکی `uc_locale` (صفحه‌های بیرون از حساب) ← `fa`. منطقه‌ی زمانی = منطقه‌ی سازمان.
-- **کوکی `uc_locale`:** با ورود، پذیرش دعوت و تغییر زبان تنظیم می‌شود (یک سال، HttpOnly) تا صفحه‌ی ورود همین مرورگر هم به همان زبان باشد.
-- **خطاهای API:** متن پیش‌فرض هر کد در `messages/*.json` (`errors.code`). زبان پاسخ از سرآیند `Accept-Language` است که کلاینت از `<html lang>` می‌فرستد. متن فارسی‌ای که سرویس‌ها هنوز مستقیم می‌سازند با جست‌وجوی معکوس در کاتالوگ فارسی ترجمه می‌شود؛ متن بیرون از کاتالوگ فارسی می‌ماند (تا استخراج). پیام‌های zod به‌جای errorMap سراسری در `issueMessage(issue, locale)` ساخته می‌شوند و فیلدهای ۴۲۲ برای هر زبان دوباره ساخته می‌شوند.
-- **قالب‌بندی:** `lib/format` (`createFormat(locale, timeZone)`)؛ خروجی فارسی دقیقاً همان `components/format/fa.ts` قبلی است (که حالا نمای ثابت فارسی/تهران آن است). کامپوننت‌ها `useFormat()` و صفحه‌های سرور `getFormat()`.
-- **منطقه‌ی زمانی:** `lib/org-day` (همه‌ی تابع‌ها با پارامتر منطقه) با تست تهران و آمستردام (۲۳ و ۲۵ ساعت روزهای تغییر ساعت). `lib/tehran-day` حالا نمای ثابت تهران آن است. **انتقال سرویس‌ها، قاعده‌های سلامت و jobها به منطقه‌ی سازمان عقب افتاد**: همه‌ی سازمان‌ها فعلاً تهرانی‌اند؛ اولین سازمان غیرتهرانی این کار را پیش‌نیاز می‌کند.
-- **تعویض زبان:** کارت «زبان» در «حساب من» (`PATCH /api/v1/auth/preferences`، جدول `user_preferences`، مهاجرت ۰۰۰۷). زبان پیش‌فرض سازمان: `pnpm org:create --locale en`.
-- **قاعده‌ی CI:** `scripts/ci-i18n-guard.mjs` با خط پایه‌ی `scripts/i18n-baseline.json` (تعداد خط فارسی هر فایل قدیمی؛ فقط کوچک می‌شود) و همین قاعده برای کلاس‌های فیزیکی Tailwind (فعلاً صفر). کلید جاافتاده در `en.json` یا placeholder ناهمسان در تست واحد `src/i18n/i18n.test.ts` شکست می‌خورد.
-- **استخراج‌شده در اسپرینت ۲:** پوسته و ناوبری (کارکنان و هنرجو)، افزودن سریع، ورود، فراموشی رمز، دعوت و بازیابی رمز، «حساب من»، تأیید دوباره‌ی رمز، صفحه‌ی «امروز»، برچسب‌های کار و وضعیت، جدول کارها، صف بازبینی، فیلتر کارها. **مانده برای اسپرینت ۳:** فرم‌های کار (ساخت، تحویل، بازبینی، اقدام‌ها)، صفحه‌های جزئیات کار، خانه‌ی هنرجو و بقیه‌ی صفحه‌ها (فهرست کامل در خط پایه‌ی CI).
+## Alignment with the implementation (sprint 2, 6 Aban 1405 (2026-10-28))
+- **Library:** `next-intl` 4.14.9 with no locale prefix in the URL. Configuration is in `src/i18n/request.ts`: locale = user preference ← organization default locale ← `uc_locale` cookie (pages outside the account) ← `fa`. Time zone = the organization's time zone.
+- **`uc_locale` cookie:** set on login, invitation acceptance and language change (one year, HttpOnly) so that this browser's login page is also in the same language.
+- **API errors:** the default text of each code is in `messages/*.json` (`errors.code`). The response language comes from the `Accept-Language` header, which the client sends from `<html lang>`. Persian text that services still build directly is translated by reverse lookup in the Persian catalog; text outside the catalog stays Persian (until extraction). zod messages are built in `issueMessage(issue, locale)` instead of a global errorMap, and the 422 fields are rebuilt for each locale.
+- **Formatting:** `lib/format` (`createFormat(locale, timeZone)`); the Persian output is exactly the earlier `components/format/fa.ts` (which is now its fixed Persian/Tehran view). Components use `useFormat()` and server pages use `getFormat()`.
+- **Time zone:** `lib/org-day` (all functions take a zone parameter) with Tehran and Amsterdam tests (23- and 25-hour days on daylight-saving change days). `lib/tehran-day` is now its fixed Tehran view. **Moving services, health rules and jobs to the organization time zone was deferred**: all organizations are Tehran-based for now; the first non-Tehran organization makes this work a prerequisite.
+- **Switching language:** a "Language" card in "My account" (`PATCH /api/v1/auth/preferences`, the `user_preferences` table, migration 0007). Organization default language: `pnpm org:create --locale en`.
+- **CI rule:** `scripts/ci-i18n-guard.mjs` with the baseline `scripts/i18n-baseline.json` (the count of Persian lines per old file; it can only shrink) and the same rule for physical Tailwind classes (currently zero). A missing key in `en.json` or a mismatched placeholder fails the unit test `src/i18n/i18n.test.ts`.
+- **Extracted in sprint 2:** the shell and navigation (staff and student), quick add, login, forgot password, invitation and password recovery, "My account", password re-confirmation, the "Today" page, task and status labels, the task table, the review queue, the task filter. **Left for sprint 3:** task forms (create, submit, review, actions), task detail pages, the student home and the remaining pages (the full list is in the CI baseline).

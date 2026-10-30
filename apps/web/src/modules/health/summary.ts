@@ -5,16 +5,16 @@ import type { StoredHealthReason } from './schema';
 
 /**
  * Staff-only health summary embedded in the student list, the record header, the kanban
- * and «امروز» (api.md section 4). Pure (no I/O); the students and path modules JOIN
+ * and "Today" (api.md section 4). Pure (no I/O); the students and path modules JOIN
  * `student_health` read-only and call this. Never used on a `/me` route (ADR-0004).
  */
 export type HealthSummary = {
   status: HealthStatus;
   reasons: HealthReasonDTO[];
   churnRisk: boolean;
-  /** «نادیده تا …»: only while in the future. */
+  /** "Snoozed until …": only while in the future. */
   snoozedUntil: string | null;
-  /** «توپ در زمین کیست» for the student as a whole. */
+  /** "Whose court is the ball in" for the student as a whole. */
   ball: HealthBall | null;
   statusSince: string;
   computedAt: string;

@@ -7,7 +7,7 @@ import { enrollments, programRuns, runNodes } from './schema';
 /**
  * Where a mentee stands in each of their courses (Coach Office sprint 5c): the current phase of
  * every enrollment that holds a seat in an open run other than the main path. The main path
- * keeps its 0.1 stage column; these are shown next to it on the student list, «امروز» and the
+ * keeps its 0.1 stage column; these are shown next to it on the student list, "Today" and the
  * board. Read-only; callers have already scoped the students.
  */
 export async function coursePhasesOf(

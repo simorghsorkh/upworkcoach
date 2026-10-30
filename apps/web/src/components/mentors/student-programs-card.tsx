@@ -27,8 +27,8 @@ type Capacity = Pick<MentorCardDTO, 'id' | 'displayName' | 'profile' | 'counts'>
  * «Programs and mentors» on the staff student page (Coach Office sprint 4): each enrollment
  * with its phase and current mentors. The admin adds a primary (which hands over) or a
  * secondary mentor, and ends one; on the main path the primary is the student's mentor.
- * Sprint 5: the program progress of each enrollment (not for the main path). Sprint 5c: «تغییر
- * فاز» for a course other than the main path (the main path keeps «تغییر مرحله»).
+ * Sprint 5: the program progress of each enrollment (not for the main path). Sprint 5c: "Change
+ * phase" for a course other than the main path (the main path keeps "Change stage").
  */
 export function StudentProgramsCard({
   studentName,

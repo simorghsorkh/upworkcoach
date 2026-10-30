@@ -462,7 +462,7 @@ export async function listMilestonesForExport(db: DbOrTx, organizationId: string
     .orderBy(asc(milestones.occurredOn), asc(milestones.createdAt));
 }
 
-/** Pending proposals in a scope («منتظر ما» could show them; used by today counts). */
+/** Pending proposals in a scope ("Waiting on us" could show them; used by today counts). */
 export async function countPendingProposals(db: DbOrTx, studentIds: readonly string[]) {
   if (studentIds.length === 0) return 0;
   const [row] = await db

@@ -46,7 +46,7 @@ import { questionThreads } from './schema';
  * questions — question threads (PRD F8, api.md section 10, ADR-0004).
  *
  * Staff see threads of their scope, plus threads assigned to them outside the scope while
- * those are open or answered («فقط همان رشته» — and the record summary next to it, nothing
+ * those are open or answered ("only that thread" — and the record summary next to it, nothing
  * else). Students only their own threads, through `/me` and the shared `/questions/:id`
  * routes whose DTO is chosen by a `switch` on the role with an error default (SEC-A5).
  *
@@ -194,7 +194,7 @@ function eqText(column: AnyPgColumn, value: string): SQL {
 }
 
 /**
- * Internal («امروز»): threads awaiting the team inside the actor's view, most urgent first.
+ * Internal ("Today"): threads awaiting the team inside the actor's view, most urgent first.
  * Admin with `assigneeId`: only that person's threads.
  */
 export async function unansweredQuestionsFor(

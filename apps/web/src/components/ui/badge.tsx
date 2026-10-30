@@ -26,7 +26,7 @@ export function Count({
   value: number;
   /** 18px variant (tabs, bottom bar, student top bar). */
   small?: boolean;
-  /** Full phrase for screen readers, e.g. «۳ سؤال بی‌پاسخ». Defaults to the number. */
+  /** Full phrase for screen readers, e.g. "3 unanswered questions". Defaults to the number. */
   label?: string;
   tone?: CountTone;
   className?: string;
@@ -125,7 +125,7 @@ export function TaskStatusChip({
   className,
 }: {
   status: TaskStatus;
-  /** Override the default label (e.g. «نیاز به اصلاح · دور ۲», «تحویل دادی»). */
+  /** Override the default label (e.g. "Needs changes · round 2", "Submitted"). */
   children?: ReactNode;
   className?: string;
 }) {
@@ -191,11 +191,11 @@ export function HealthBadge({
   className,
 }: {
   health: Health;
-  /** Alert snoozed («هشدار خاموش تا …»): dashed outline, transparent fill. */
+  /** Alert snoozed ("Alert muted until …"): dashed outline, transparent fill. */
   muted?: boolean;
   /** Shape + text without the pill (summary rows). */
   dot?: boolean;
-  /** Override text, e.g. «متوقف تا ۶ آبان». */
+  /** Override text, e.g. "Paused until 6 Aban". */
   children?: ReactNode;
   className?: string;
 }) {
@@ -225,7 +225,7 @@ const healthDotColor: Record<Health, string> = {
   paused: 'text-h-paused-fg',
 };
 
-/** «توپ در زمین …» — who should act next. */
+/** "Ball in the … court" — who should act next. */
 export function Ball({ children }: { children: ReactNode }) {
   return (
     <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-line-2 px-2 py-[3px] text-xs leading-4 font-medium text-fg-2">

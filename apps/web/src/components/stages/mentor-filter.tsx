@@ -4,7 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useId } from 'react';
 import { Icon } from '@/components/icons/icon';
 
-/** «مشاور: همه» select of the kanban (admin only); the value lives in the URL. */
+/** "Mentor: all" select of the kanban (admin only); the value lives in the URL. */
 export function MentorFilter({
   value,
   mentors,
@@ -17,11 +17,11 @@ export function MentorFilter({
   mentors: Array<{ id: string; label: string }>;
   /** Query-string key (default `mentorId`). */
   param?: string;
-  /** Offer «بدون مشاور» (students without a mentor). */
+  /** Offer "No mentor" (students without a mentor). */
   allowNone?: boolean;
   /** Other query-string values to keep (e.g. the current tab). */
   keep?: Record<string, string>;
-  /** Prefix of the options and the accessible name, e.g. «پاسخ‌گو». */
+  /** Prefix of the options and the accessible name, e.g. "Responder". */
   label?: string;
 }) {
   const router = useRouter();

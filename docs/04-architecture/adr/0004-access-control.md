@@ -1,143 +1,143 @@
-# ADR-0004 — کنترل دسترسی: نقش + دامنه‌ی مالکیت، در لایه‌ی سرویس، با DTO جدا برای هنرجو
+# ADR-0004 — Access control: role + ownership scope, in the service layer, with a separate DTO for the student
 
-- **وضعیت:** پیشنهادشده (منتظر گیت بنیان‌گذار). بازبینی security-reviewer انجام شد و تغییر **C3** (`security.md` بخش ۴) در این نسخه اعمال شده است.
-- **تاریخ:** ۲۷ مهر ۱۴۰۵ (2026-10-19)؛ ویرایش امنیتی: ۲۸ مهر ۱۴۰۵؛ **تطبیق با کد اسپرینت‌های ۱ تا ۴: ۳۰ مهر ۱۴۰۵ (بخش ۶)**
-- **نویسنده:** software-architect
-- **منبع الزامات:** PRD بخش ۵ (جدول دسترسی)، F5 («هنرجو یادداشت داخلی را در هیچ صفحه و API نمی‌بیند — تست دسترسی الزامی»)، فرض A8، `progress-tracking.md` بخش ۸ (هنرجو سلامت و پرچم را نمی‌بیند)
+- **Status:** Proposed (awaiting the founder gate). The security-reviewer review is done and change **C3** (`security.md` section 4) is applied in this version.
+- **Date:** 27 Mehr 1405 (2026-10-19); security revision: 28 Mehr 1405; **aligned with the code of sprints 1 to 4: 30 Mehr 1405 (section 6)**
+- **Author:** software-architect
+- **Requirements source:** PRD section 5 (access table), F5 ("The student sees the internal note on no page and no API — an access test is mandatory"), assumption A8, `progress-tracking.md` section 8 (the student does not see health and flags)
 
-## زمینه
-سه قاعده‌ی سخت:
-1. **هنرجو فقط داده‌ی خودش** را می‌بیند، و از آن هم فقط بخش‌های غیرداخلی را.
-2. **مشاور فقط هنرجوهای تخصیص‌یافته به خودش** را می‌بیند (D2/A8). این باید با یک تنظیم به «همه» قابل‌تغییر باشد.
-3. **یادداشت داخلی، وضعیت سلامت، دلیل‌ها و پرچم‌ها هرگز به هنرجو نمی‌رسند.**
+## Context
+Three hard rules:
+1. **The student sees only their own data**, and of that only the non-internal parts.
+2. **The mentor sees only the students assigned to them** (D2/A8). This must be switchable to "all" with one setting.
+3. **The internal note, the health status, the reasons and the flags never reach the student.**
 
-مدیر همه‌چیز را می‌بیند.
+The admin sees everything.
 
-## گزینه‌ها
-| گزینه | ارزیابی |
+## Options
+| Option | Assessment |
 |---|---|
-| A. بررسی در هر Route Handler | پراکنده؛ صفحه‌های سرور (RSC) که مستقیم داده می‌خوانند جا می‌مانند؛ رد |
-| **B. سیاست متمرکز در لایه‌ی سرویس + فیلتر دامنه در repository + DTO جدا برای هنرجو + ماتریس تست خودکار** | یک مسیر برای API و صفحه‌ها؛ نشت فیلد داخلی به‌صورت ساختاری ناممکن؛ قابل‌تست |
-| C. Row-Level Security در Postgres | دفاع عمیق قوی؛ ولی با ORM و pool اتصال باید برای هر درخواست تراکنش و `SET LOCAL` بسازیم؛ خطاهایش برای یک توسعه‌دهنده سخت‌یاب است؛ قاعده‌ی «فیلد داخلی» (نه ردیف) را هم حل نمی‌کند |
+| A. A check in every Route Handler | Scattered; server pages (RSC) that read data directly get missed; rejected |
+| **B. A centralized policy in the service layer + a scope filter in the repository + a separate DTO for the student + an automated test matrix** | One path for the API and the pages; leaking an internal field is structurally impossible; testable |
+| C. Row-Level Security in Postgres | Strong defense in depth; but with an ORM and a connection pool we would have to build a transaction and `SET LOCAL` for every request; its errors are hard for a developer to find; it also does not solve the "internal field" rule (a field, not a row) |
 
-## تصمیم: گزینه‌ی B (RLS برای 1.0 دوباره بررسی می‌شود)
+## Decision: option B (RLS will be revisited for 1.0)
 
-### ۱. مدل
-- `actor = { userId, role }` از نشست. هر تابع service اولین پارامترش `actor` است.
-- **دامنه‌ی هنرجو برای کارکنان** (`modules/access/scope.ts`):
+### 1. Model
+- `actor = { userId, role }` from the session. The first parameter of every service function is `actor`.
+- **Student scope for staff** (`modules/access/scope.ts`):
   ```
   staffStudentScope(actor):
     admin  -> ALL
     mentor -> settings.access.mentorScope == 'all' ? ALL
               : students.primary_mentor_id = actor.userId
-    student -> NONE (هنرجو هرگز از مسیرهای کارکنان عبور نمی‌کند)
+    student -> NONE (a student never passes through staff routes)
   ```
-  همین تابع یک شرط SQL (Drizzle `SQL`) برمی‌گرداند که **همه‌ی** پرس‌وجوهای فهرستی کارکنان (`students`، `tasks`، `question_threads`، `reminders` درباره‌ی هنرجو، `today`، `board`، `stuck`) به آن `AND` می‌شوند.
-- **دامنه‌ی هنرجو برای خودش:** همه‌ی مسیرهای هنرجو زیر `/api/v1/me/**` هستند و `student_id = actor.userId` را **سرور** می‌گذارد. شناسه‌ی هنرجو هرگز از ورودی هنرجو گرفته نمی‌شود.
-- برای منبع تکی (مثلاً `GET /tasks/:id`): service منبع را می‌خواند ← `student_id` آن را با دامنه می‌سنجد ← اگر خارج از دامنه بود **`404 NOT_FOUND`** (نه 403) تا وجود منبع لو نرود. (امنیت C3، SEC-A1) این کار فقط از یک تابع کمکی می‌گذرد: `loadInScope(tx, actor, kind, id)` در `modules/access/scope.ts` که `student_id` را از والد تا ریشه پیدا می‌کند (مثلاً `review` ← `submission` ← `task` ← `student_id`؛ `attachment` ← والد وصل‌شده ← …). service هیچ منبع تکی را بدون این تابع نمی‌خواند.
+  The same function returns an SQL condition (Drizzle `SQL`) that is `AND`-ed into **all** staff list queries (`students`, `tasks`, `question_threads`, `reminders` about the student, `today`, `board`, `stuck`).
+- **The student's scope over themselves:** all student routes are under `/api/v1/me/**` and the **server** sets `student_id = actor.userId`. The student id is never taken from the student's input.
+- For a single resource (e.g. `GET /tasks/:id`): the service reads the resource → checks its `student_id` against the scope → if it is out of scope, **`404 NOT_FOUND`** (not 403) so the existence of the resource is not revealed. (Security C3, SEC-A1) This goes through one helper only: `loadInScope(tx, actor, kind, id)` in `modules/access/scope.ts`, which finds the `student_id` by walking from the parent to the root (e.g. `review` → `submission` → `task` → `student_id`; `attachment` → its attached parent → …). A service never reads a single resource without this function.
 
-### ۱-۱. قاعده‌ی شناسه‌های ارجاعی (امنیت C3)
-**قاعده‌ی عمومی:** هر شناسه‌ای که در **بدنه یا query** یک درخواست نوشتنی می‌آید و به منبع دیگری اشاره می‌کند (نه شناسه‌ی مسیر `:id`)، **مثل منبع اصلی** بررسی می‌شود، و اگر آن منبع به یک هنرجو وابسته است، باید **به همان هنرجوی منبع اصلی** تعلق داشته باشد. دامنه‌سنجیِ منبع اصلی به‌تنهایی کافی نیست؛ وگرنه مشاور با `profileId` یک هنرجوی دیگر روی پروفایل او می‌نویسد، یا هنرجو با `taskId` کار دیگری را به سؤالش وصل می‌کند.
+### 1-1. The rule for referenced ids (Security C3)
+**General rule:** every id that appears in the **body or query** of a write request and points to another resource (not the path id `:id`) is checked **like the main resource**, and if that resource belongs to a student, it must belong to **the same student as the main resource**. Checking the scope of the main resource alone is not enough; otherwise a mentor could write onto another student's profile using a `profileId`, or a student could attach someone else's task to their question using a `taskId`.
 
-پیاده‌سازی: تابع `assertRefs(tx, actor, refs)` در `modules/access/refs.ts` که service **درون همان تراکنش نوشتن** و **پیش از هر نوشتن** صدا می‌زند (تا بین بررسی و نوشتن چیزی عوض نشود). هر شناسه‌ی ارجاعی تازه در API باید یک ردیف در جدول زیر داشته باشد؛ بدون آن، code review رد می‌کند.
+Implementation: the function `assertRefs(tx, actor, refs)` in `modules/access/refs.ts`, which the service calls **inside the same write transaction** and **before any write** (so nothing can change between the check and the write). Every new referenced id in the API must have a row in the table below; without one, code review rejects it.
 
-| شناسه (در کدام endpoint) | شرط |
+| Id (in which endpoint) | Condition |
 |---|---|
-| `profileId` (کار) | `platform_profiles.student_id = task.student_id` و `deleted_at IS NULL` |
-| `taskId` (سؤال) | `tasks.student_id = thread.student_id` (برای هنرجو یعنی کار خودش) |
-| `attachmentIds` (تحویل، پیام، نقطه‌ی عطف) | `status = 'pending'` و `uploaded_by = actor.userId`؛ وصل کردن اتمی (C4، `data-model.md` ۲-۵) |
-| `mentorId`، `reviewerId`، `assigneeId`، `ownerId` | کاربر `status = 'active'` با نقش `admin` یا `mentor`. اگر actor مشاور است: `ownerId` فقط خودش؛ `mentorId` در `POST /students` نادیده و برابر خودش |
-| `studentId` (یادآور، فیلترهای نوشتنی)، `studentIds` (کار گروهی) | **همه** در `staffStudentScope(actor)`؛ اگر حتی یکی بیرون بود، کل درخواست رد و هیچ ردیفی ساخته نمی‌شود |
-| `stageId`، `toStageId`، `platformId`، `primaryPlatformId`، `trackId`، `templateId`، `typeId`، `cannedResponseId` | ردیف وجود داشته باشد و `is_active = true` (برای `stageIds` در `PUT /stages/order`: دقیقاً مجموعه‌ی کامل مرحله‌های همان مسیر) |
-| `createTemplateIds` (`PUT /students/:id/stage`) (هماهنگ با کد، اسپرینت ۴) | همان شرط `templateId` برای **هر** عضو: قالب وجود دارد و فعال است، و اگر قالب مرحله دارد، آن مرحله هم فعال است. حداکثر ۳۰؛ تکراری یک بار. نوع ref در کد: `catalog` با `template` |
-| `cancelTaskIds` (`PUT /students/:id/stage`) (هماهنگ با کد، اسپرینت ۴) | همان شرط `taskId`: هر کار مال **همان** هنرجوی مسیر (`tasks.student_id = :id`). حداکثر ۱۰۰. کار مجاز ولی نهایی‌شده (`accepted`/`cancelled`) ← `409 INVALID_TRANSITION`، نه `422`. نوع ref در کد: `taskOfStudent` |
-| `cannedResponseId` از هنرجو (هماهنگ با کد، اسپرینت ۴) | هنرجو اصلاً مجاز نیست ← `422` (حتی اگر شناسه معتبر باشد) |
-| `existingStudentId` در پاسخ `409 PHONE_TAKEN` (هماهنگ با کد، اسپرینت ۴) | شناسه‌ی ارجاعی **ورودی** نیست، ولی چون شناسه‌ای را لو می‌دهد: فقط برای **مدیر** برگردانده می‌شود (که همه را می‌بیند)؛ مشاور آن را نمی‌گیرد |
+| `profileId` (task) | `platform_profiles.student_id = task.student_id` and `deleted_at IS NULL` |
+| `taskId` (question) | `tasks.student_id = thread.student_id` (for a student this means their own task) |
+| `attachmentIds` (submission, message, milestone) | `status = 'pending'` and `uploaded_by = actor.userId`; attached atomically (C4, `data-model.md` 2-5) |
+| `mentorId`, `reviewerId`, `assigneeId`, `ownerId` | A user with `status = 'active'` and the role `admin` or `mentor`. If the actor is a mentor: `ownerId` only themselves; `mentorId` in `POST /students` is ignored and set to themselves |
+| `studentId` (reminder, write filters), `studentIds` (bulk task) | **All** inside `staffStudentScope(actor)`; if even one is outside, the whole request is rejected and no row is created |
+| `stageId`, `toStageId`, `platformId`, `primaryPlatformId`, `trackId`, `templateId`, `typeId`, `cannedResponseId` | The row exists and `is_active = true` (for `stageIds` in `PUT /stages/order`: exactly the complete set of stages of that track) |
+| `createTemplateIds` (`PUT /students/:id/stage`) (aligned with the code, sprint 4) | The same condition as `templateId` for **every** member: the template exists and is active, and if the template has a stage, that stage is active too. At most 30; duplicates are counted once. Ref kind in code: `catalog` with `template` |
+| `cancelTaskIds` (`PUT /students/:id/stage`) (aligned with the code, sprint 4) | The same condition as `taskId`: every task belongs to **the same** student as the path (`tasks.student_id = :id`). At most 100. A permitted but finalized task (`accepted`/`cancelled`) → `409 INVALID_TRANSITION`, not `422`. Ref kind in code: `taskOfStudent` |
+| `cannedResponseId` from a student (aligned with the code, sprint 4) | A student is not allowed at all → `422` (even if the id is valid) |
+| `existingStudentId` in the `409 PHONE_TAKEN` response (aligned with the code, sprint 4) | It is not an **input** referenced id, but because it reveals an id: it is returned only to the **admin** (who sees everything); a mentor does not receive it |
 
-**پاسخ خطا:** هر شناسه‌ی ارجاعی که شرطش رد شود (ناموجود، خارج از دامنه، مال هنرجوی دیگر، غیرفعال) ← **`422 VALIDATION_FAILED`** با `fields.<نام فیلد> = "مقدار نامعتبر است"`. پیام برای همه‌ی این حالت‌ها **یکی** است، پس وجود منبع لو نمی‌رود. (`404` فقط برای شناسه‌ی **مسیر** است.)
+**Error response:** every referenced id whose condition fails (nonexistent, out of scope, another student's, inactive) → **`422 VALIDATION_FAILED`** with `fields.<field name> = "Invalid value"`. The message is **the same** for all these cases, so the existence of the resource is not revealed. (`404` is only for the **path** id.)
 
-**فیلترهای خواندنی در query** (مثل `studentId`، `mentorId`، `stageId` در `GET`ها) با شرط دامنه `AND` می‌شوند و **هرگز جای آن را نمی‌گیرند**؛ فیلتر خارج از دامنه فقط فهرست خالی برمی‌گرداند.
+**Read filters in the query** (such as `studentId`, `mentorId`, `stageId` in `GET`s) are `AND`-ed with the scope condition and **never replace it**; a filter outside the scope just returns an empty list.
 
-**schema ورودی:** همه‌ی schemaهای zod با `.strict()` (کلید ناشناخته ← `422`). فیلدهای ممنوع برای هر نقش (`primaryMentorId`، `currentStageId`، `lifecycleStatus` در `PATCH /students/:id`؛ `status` در `POST /me/milestones`؛ هر `studentId` در مسیرهای `/me`) اصلاً در schema آن مسیر نیستند (SEC-A7).
+**Input schema:** all zod schemas use `.strict()` (an unknown key → `422`). Fields forbidden for each role (`primaryMentorId`, `currentStageId`, `lifecycleStatus` in `PATCH /students/:id`; `status` in `POST /me/milestones`; any `studentId` in the `/me` routes) are simply not in that route's schema (SEC-A7).
 
-### ۲. ماتریس دسترسی (پیاده‌سازی PRD بخش ۵)
-`A` = مدیر، `M` = مشاور (در دامنه)، `S` = هنرجو (فقط خودش)، `—` = ممنوع.
+### 2. Access matrix (implementation of PRD section 5)
+`A` = admin, `M` = mentor (within scope), `S` = student (own data only), `—` = forbidden.
 
-| منبع / عمل | A | M | S |
+| Resource / action | A | M | S |
 |---|---|---|---|
-| ساخت هنرجو و دعوت | ✓ | ✓ اگر `mentorsCanInviteStudents`؛ تخصیص اجباری به خودش | — |
-| ساخت دوباره‌ی لینک دعوت (`POST /users/:id/invite-link`) | ✓ (هر کاربر `invited`) | (امنیت C3) فقط اگر کاربر هدف **`role = 'student'`** و `status = 'invited'` و در دامنه است؛ هر حالت دیگر (از جمله کاربر `invited` با نقش `admin` یا `mentor` که ردیف `students` ندارد) ← `404`. شرط نقش **صریح** بررسی می‌شود، نه از راه «اگر ردیف `students` هست» | — |
-| دعوت مشاور یا مدیر، تغییر نقش، غیرفعال‌سازی، لینک بازنشانی رمز | ✓ | — | — |
-| فهرست و پرونده‌ی هنرجو (نمای کارکنان، شامل سلامت) | همه | در دامنه | — |
-| پرونده‌ی خود (نمای هنرجو، **بدون** سلامت و پرچم) | — | — | ✓ |
-| ویرایش فیلدهای پرونده | ✓ | ✓ | فقط فهرست سفید (`data-model.md` ۲-۳) |
-| تغییر مشاور اصلی | ✓ | — | — |
-| تغییر وضعیت هنرجو (توقف، فارغ‌التحصیل، …) | ✓ | ✓ | — |
-| پروفایل‌های پلتفرم: دیدن، افزودن، ویرایش، حذف | ✓ | ✓ | ✓ (مال خودش) |
-| تأیید پروفایل | ✓ | ✓ | — |
-| تغییر مرحله؛ تاریخچه‌ی مرحله | ✓ | ✓ | فقط «مسیر من» (مرحله‌ی فعلی، بعدی، گذشته) |
-| ساخت، ویرایش، تمدید، لغو کار؛ بازبینی تحویل | ✓ | ✓ | — |
-| دیدن کار و تحویل‌ها و بازخورد | ✓ | ✓ | ✓ (مال خودش؛ **بدون** `reviewer_id` و یادداشت داخلی) |
-| شروع کار، تحویل | — | — | ✓ |
-| یادداشت **داخلی** | ✓ | ✓ | **هرگز** |
-| یادداشت **اشتراکی** | ✓ | ✓ | خواندن |
-| ویرایش و حذف یادداشت | ✓ | (امنیت C3) نویسنده **و** هنرجو در دامنه‌ی فعلی‌اش. مشاور سابق پس از تغییر مشاور یادداشت‌های قبلی‌اش را هم نمی‌بیند | — |
-| ویرایش متن بازبینی (`PATCH /reviews/:id`، تا ۲۴ ساعت) | ✓ | (امنیت C3) بازبین همان بازبینی **و** در دامنه | — |
-| تایم‌لاین پرونده | ✓ | ✓ | — (در 0.1) |
-| یادآور | برای خودش و هر کس | فقط برای خودش، درباره‌ی هنرجوهای در دامنه | — |
-| «امروز»، «گیرکرده»، کانبان | همه (با فیلتر مشاور) | در دامنه | — |
-| سلامت، دلیل‌ها، پرچم، snooze | ✓ | ✓ | **هرگز** |
-| سؤال: ساخت | — | — | ✓ |
-| سؤال: پاسخ، بستن | ✓ | ✓ (در دامنه یا وقتی `assignee` خودش است) | پیام بعدی، بستن (مال خودش) |
-| سؤال: تغییر مسئول پاسخ | ✓ | — | — |
-| check-in: ثبت | — | — | ✓ |
-| check-in: دیدن | ✓ | ✓ | مال خودش |
-| نقطه‌ی عطف: پیشنهاد | — | — | ✓ |
-| نقطه‌ی عطف: ثبت مستقیم، تأیید، رد | ✓ | ✓ | — |
-| داشبورد North Star | ✓ | — | — |
-| تنظیمات (مراحل، پلتفرم، انواع نقطه‌ی عطف، قالب کار، آستانه‌ها، متن‌های استاندارد) | ✓ | خواندن فهرست‌ها | خواندن مرحله‌ها و پلتفرم‌ها |
-| خروجی CSV، ورود گروهی | ✓ | — | — |
-| پیوست | به اندازه‌ی دسترسی به والد | همان | همان |
+| Create a student and invite | ✓ | ✓ if `mentorsCanInviteStudents`; assigned to themselves by force | — |
+| Recreate the invite link (`POST /users/:id/invite-link`) | ✓ (any `invited` user) | (Security C3) only if the target user has **`role = 'student'`** and `status = 'invited'` and is in scope; every other case (including an `invited` user with the role `admin` or `mentor`, who has no `students` row) → `404`. The role condition is checked **explicitly**, not via "if a `students` row exists" | — |
+| Invite a mentor or admin, change a role, deactivate, password reset link | ✓ | — | — |
+| Student list and file (staff view, including health) | all | in scope | — |
+| Own file (student view, **without** health and flags) | — | — | ✓ |
+| Edit file fields | ✓ | ✓ | allow-list only (`data-model.md` 2-3) |
+| Change the primary mentor | ✓ | — | — |
+| Change student status (pause, graduate, …) | ✓ | ✓ | — |
+| Platform profiles: view, add, edit, delete | ✓ | ✓ | ✓ (own) |
+| Approve a profile | ✓ | ✓ | — |
+| Change stage; stage history | ✓ | ✓ | only "My path" (current, next, past stage) |
+| Create, edit, extend, cancel a task; review a submission | ✓ | ✓ | — |
+| See a task, its submissions and feedback | ✓ | ✓ | ✓ (own; **without** `reviewer_id` and the internal note) |
+| Start a task, submit | — | — | ✓ |
+| **Internal** note | ✓ | ✓ | **never** |
+| **Shared** note | ✓ | ✓ | read |
+| Edit and delete a note | ✓ | (Security C3) the author **and** the student in their current scope. A former mentor, after a mentor change, does not see even their earlier notes | — |
+| Edit the review text (`PATCH /reviews/:id`, up to 24 hours) | ✓ | (Security C3) the reviewer of that review **and** in scope | — |
+| File timeline | ✓ | ✓ | — (in 0.1) |
+| Reminder | for themselves and anyone | only for themselves, about students in scope | — |
+| "Today", "Stuck", kanban | all (with mentor filter) | in scope | — |
+| Health, reasons, flags, snooze | ✓ | ✓ | **never** |
+| Question: create | — | — | ✓ |
+| Question: reply, close | ✓ | ✓ (in scope, or when they are the `assignee`) | next message, close (own) |
+| Question: change the person responsible for the reply | ✓ | — | — |
+| Check-in: submit | — | — | ✓ |
+| Check-in: view | ✓ | ✓ | own |
+| Milestone: propose | — | — | ✓ |
+| Milestone: record directly, approve, reject | ✓ | ✓ | — |
+| North Star dashboard | ✓ | — | — |
+| Settings (stages, platforms, milestone types, task templates, thresholds, canned responses) | ✓ | read the lists | read stages and platforms |
+| CSV export, bulk import | ✓ | — | — |
+| Attachment | as much as access to the parent | same | same |
 
-**نکته‌ی سؤال‌ها:** مشاوری که مسئول پاسخ (`assignee`) سؤال یک هنرجوی خارج از دامنه‌اش شده (مدیر واگذار کرده)، **فقط همان رشته** و خلاصه‌ی پرونده‌ی کنار آن را می‌بیند (F8)، نه کل پرونده را. (امنیت C3) خلاصه‌ی پرونده (`GET /students/:id/summary`) برای چنین مشاوری فقط تا وقتی مجاز است که **دست‌کم یک رشته‌ی باز** (`status IN ('open','answered')`) از این هنرجو داشته باشد که `assignee_id = actor.userId`. با بسته شدن آخرین رشته، `404`.
+**Note on questions:** a mentor who is the person responsible for replying (`assignee`) to a question from a student outside their scope (the admin delegated it) sees **only that thread** and the file summary next to it (F8), not the whole file. (Security C3) The file summary (`GET /students/:id/summary`) is allowed for such a mentor only as long as the student has **at least one open thread** (`status IN ('open','answered')`) with `assignee_id = actor.userId`. When the last thread is closed, `404`.
 
-**دسترسی‌های نوشتنی هم دامنه‌ی لحظه‌ی درخواست را می‌سنجند** (امنیت C3): «نویسنده بودن» یا «بازبین بودن» به‌تنهایی دسترسی نمی‌دهد. شرط همیشه «نقش/نویسندگی **و** دامنه‌ی فعلی» است، تا مشاوری که هنرجو از او گرفته شده با شناسه‌هایی که از قبل دیده کاری نکند.
+**Write access also checks the scope at the moment of the request** (Security C3): "being the author" or "being the reviewer" alone does not grant access. The condition is always "role/authorship **and** the current scope", so that a mentor who has had the student taken away cannot act with ids they saw before.
 
-**نشست‌ها:** `GET /auth/sessions` و `DELETE /auth/sessions/:id` فقط با شرط `user_id = actor.userId`؛ نشست کاربر دیگر ← `404`.
+**Sessions:** `GET /auth/sessions` and `DELETE /auth/sessions/:id` only with the condition `user_id = actor.userId`; another user's session → `404`.
 
-**تغییر مشاور:** با تغییر `primary_mentor_id`، دسترسی مشاور قبلی فوراً قطع می‌شود. یادآورهای باز او درباره‌ی آن هنرجو به مشاور جدید منتقل می‌شوند و سؤال‌های باز به مشاور جدید واگذار می‌شوند (همه در یک تراکنش، با رویداد `mentor.changed`).
+**Mentor change:** when `primary_mentor_id` changes, the previous mentor's access is cut immediately. Their open reminders about that student are moved to the new mentor and open questions are reassigned to the new mentor (all in one transaction, with the event `mentor.changed`).
 
-### ۳. جداسازی ساختاری فیلدهای داخلی
-1. **DTO جدا:** نمای هنرجو نوع‌های خودش را دارد (`SelfStudentDTO`، `StudentTaskDTO`، `StudentQuestionDTO`، `SharedNoteDTO`) که فیلدهای `health`، `flags`، `reviewer_id`، `notes(internal)` را **اصلاً ندارند**. تبدیل با تابع صریح (`toStudentTaskDTO`) انجام می‌شود، نه با «حذف فیلد» از شیء کامل.
-2. **یک تابع برای یادداشت هنرجو:** `notes.repo.listSharedNotesForStudent(studentId)` تنها راه خواندن `notes` در مسیرهای هنرجو است و شرط `visibility='shared' AND deleted_at IS NULL` را درون خودش دارد.
-3. **مسیرهای جدا:** پوشه‌ی `app/(student)` و `api/v1/me/**` فقط serviceهای `*.forStudent()` را import می‌کنند. یک قاعده‌ی lint (Biome `noRestrictedImports` یا تست ساده‌ی import) جلوی import ماژول‌های `health` و `notes.internal` را در این مسیرها می‌گیرد.
-4. **صفحه‌های RSC** هم از همان serviceها می‌خوانند؛ پس دسترسی صفحه و API یکی است.
+### 3. Structural separation of internal fields
+1. **Separate DTOs:** the student view has its own types (`SelfStudentDTO`, `StudentTaskDTO`, `StudentQuestionDTO`, `SharedNoteDTO`) that **do not have at all** the fields `health`, `flags`, `reviewer_id`, `notes(internal)`. Conversion is done with an explicit function (`toStudentTaskDTO`), not by "removing a field" from the full object.
+2. **One function for the student's notes:** `notes.repo.listSharedNotesForStudent(studentId)` is the only way to read `notes` in student routes and it contains the condition `visibility='shared' AND deleted_at IS NULL` inside itself.
+3. **Separate routes:** the folder `app/(student)` and `api/v1/me/**` import only the `*.forStudent()` services. A lint rule (Biome `noRestrictedImports` or a simple import test) blocks importing the `health` and `notes.internal` modules in these routes.
+4. **RSC pages** also read from the same services; so page access and API access are the same.
 
-### ۴. تست‌های الزامی (معیار پذیرش F5؛ مالک: qa-engineer با backend-engineer)
-1. **ماتریس خودکار:** فهرست همه‌ی endpointها (از یک فایل `routes.manifest.ts`) × نقش‌ها × کد وضعیت مورد انتظار. اگر endpoint تازه‌ای به manifest اضافه نشود، تست شکست می‌خورد. نقش‌ها (امنیت C3، T-MATRIX): **A**، **M-مالک**، **M-غیرمالک**، **M-سابق** (مشاور پیش از تغییر مشاور)، **M-assignee** (مسئول سؤال خارج از دامنه؛ با رشته‌ی باز و پس از بستن آن)، **S-مالک**، **S-دیگر**، **بی‌نشست**، **کاربر غیرفعال‌شده با کوکی قدیمی**، **کاربر `invited`**. برای منابع تکی، شناسه‌ی منبع هنرجوی دیگر و شناسه‌ی ناموجود باید **یک** پاسخ (`404` با بدنه‌ی یکسان) بدهند.
-1. **شناسه‌های ارجاعی (امنیت C3، T-REF):** برای هر ردیف جدول بخش ۱-۱ یک مورد منفی (مثلاً `profileId` هنرجوی دیگر، `taskId` هنرجوی دیگر، `attachmentIds` کاربر دیگر یا `linked`، `reviewerId` = شناسه‌ی یک هنرجو، `studentIds` با یک عضو خارج از دامنه ← `422` و **هیچ** ردیفی ساخته نشود).
-1. **ارتقای دسترسی (امنیت C3، T-ESC):** مشاور `POST /users/:id/invite-link` برای کاربر `invited` با نقش `admin` و `mentor` ← `404`؛ مشاور `PATCH /users/:id/role` ← `403`؛ هنرجو `PATCH /me/student { primaryMentorId }` ← `422`؛ هنرجو `POST /me/milestones { status: 'approved' }` ← `422`.
-2. **تست قناری یادداشت داخلی:** یک یادداشت داخلی، یک پرچم و یک دلیل سلامت با رشته‌ی یکتا (مثلاً `CANARY-7f3a`) ساخته می‌شود. سپس **همه‌ی** endpointهای GET سمت هنرجو و صفحه‌های HTML سمت هنرجو فراخوانی می‌شوند و بررسی می‌شود که این رشته در هیچ پاسخی نیست.
-3. **تست تغییر مشاور:** پس از تغییر مشاور، مشاور قبلی برای همه‌ی منابع آن هنرجو `404` بگیرد.
-4. **تست `mentorScope='all'`:** با تغییر تنظیم، مشاور همه را ببیند و پس از برگرداندن، دوباره نبیند.
+### 4. Mandatory tests (acceptance criterion of F5; owner: qa-engineer with backend-engineer)
+1. **Automated matrix:** the list of all endpoints (from a file `routes.manifest.ts`) × roles × expected status code. If a new endpoint is not added to the manifest, the test fails. The roles (Security C3, T-MATRIX): **A**, **M-owner**, **M-non-owner**, **M-former** (the mentor before the mentor change), **M-assignee** (responsible for a question outside scope; with an open thread and after it is closed), **S-owner**, **S-other**, **no session**, **deactivated user with an old cookie**, **`invited` user**. For single resources, the id of another student's resource and the id of a nonexistent resource must give **one** response (`404` with an identical body).
+1. **Referenced ids (Security C3, T-REF):** for each row of the table in section 1-1, one negative case (e.g. another student's `profileId`, another student's `taskId`, another user's or `linked` `attachmentIds`, `reviewerId` = a student's id, `studentIds` with one member outside the scope → `422` and **no** row is created).
+1. **Privilege escalation (Security C3, T-ESC):** a mentor `POST /users/:id/invite-link` for an `invited` user with the role `admin` and `mentor` → `404`; a mentor `PATCH /users/:id/role` → `403`; a student `PATCH /me/student { primaryMentorId }` → `422`; a student `POST /me/milestones { status: 'approved' }` → `422`.
+2. **Internal-note canary test:** an internal note, a flag and a health reason are created with a unique string (e.g. `CANARY-7f3a`). Then **all** student-side GET endpoints and student-side HTML pages are called and it is verified that this string is in no response.
+3. **Mentor-change test:** after a mentor change, the former mentor gets `404` for all of that student's resources.
+4. **`mentorScope='all'` test:** when the setting is changed, the mentor sees everyone, and after reverting, no longer does.
 
-### ۵. ثبت ممیزی
-کارهای حساس در `audit_log` ثبت می‌شوند: تغییر نقش، غیرفعال‌سازی، لینک بازنشانی، تغییر مشاور، تغییر تنظیمات، خروجی CSV، ورود گروهی. (هماهنگ با کد، اسپرینت ۱ تا ۴) به‌علاوه: `user.invite_link_created`، `auth.token_revoked_mismatch`، `auth.locked` (فقط لایه‌های موبایلِ حساب موجود؛ قفل IP فقط لاگ می‌شود)، `note.visibility_changed`، `question.assignee_changed`، `export.milestones`، اجرای `admin/health/recompute`، `user.erased`.
+### 5. Audit logging
+Sensitive actions are recorded in `audit_log`: role change, deactivation, reset link, mentor change, settings change, CSV export, bulk import. (Aligned with the code, sprints 1 to 4) In addition: `user.invite_link_created`, `auth.token_revoked_mismatch`, `auth.locked` (only the mobile layers of an existing account; the IP lock is only logged), `note.visibility_changed`, `question.assignee_changed`, `export.milestones`, running `admin/health/recompute`, `user.erased`.
 
-### ۶. تطبیق با پیاده‌سازی (هماهنگ با کد، اسپرینت ۱ تا ۴)
-| # | موضوع | آنچه ساخته شد | حکم معماری |
+### 6. Alignment with the implementation (aligned with the code, sprints 1 to 4)
+| # | Topic | What was built | Architecture verdict |
 |---|---|---|---|
-| 6-1 | **`access` جدول‌های دیگر را می‌خواند** | `modules/access/repo.ts` جدول‌های `students`، `platform_profiles`، `tasks`، `submissions`، `reviews` و (اسپرینت ۳ و ۴) `notes`، `attachments`، `question_threads`، `question_messages`، `milestones`، `checkins` و `student_flags` را **مستقیم و فقط‌خواندنی** می‌خواند (resolverهای `loadInScope` و `assertRefs`). دلیل: `students → identity → access`؛ رفتن از serviceها چرخه‌ی import می‌سازد (اسپرینت ۲، فرض ۱) | **پذیرفته** به‌عنوان سومین read-model بعد از `today` و `health` (`overview.md` بخش ۳ و `tech-stack.md` قاعده‌ی ۳ اصلاح شدند). شرط: فقط SELECT، فقط ستون‌های لازم برای پیدا کردن `student_id` و وضعیت؛ هرگز نوشتن |
-| 6-2 | **repo `students` برای نمایش JOIN دارد** | JOIN فقط‌خواندنی با `users`، `stages`، `tracks`، `platforms` برای نام، موبایل، وضعیت حساب | **پذیرفته**؛ نوشتن همیشه در ماژول صاحب جدول است |
-| 6-3 | **ساخت دوباره‌ی لینک دعوت توسط مشاور** | به `mentorsCanInviteStudents` وابسته نیست | **پذیرفته.** تنظیم فقط «ساخت کاربر تازه» را کنترل می‌کند؛ لینک دوباره برای هنرجوی موجودِ در دامنه کاربر تازه نمی‌سازد. شرط C3 (`role='student'`، `invited`، در دامنه) بی‌تغییر اجرا می‌شود |
-| 6-4 | **بازبینی توسط هر کارمند در دامنه** | `POST /submissions/:id/review` برای هر A یا M در دامنه، نه فقط `tasks.reviewer_id`؛ ویرایش متن (`PATCH /reviews/:id`) فقط بازبین همان بازبینی یا مدیر، پنجره‌ی ۲۴ ساعت برای مدیر هم | **پذیرفته**؛ با ماتریس بخش ۲ («بازبینی تحویل: M ✓») هم‌خوان است |
-| 6-5 | **نام بازبین برای هنرجو** | `StudentReviewDTO.reviewer = { displayName }` (اسپرینت ۴). `reviewerId` و هر شناسه‌ی کارکنان همچنان در DTO هنرجو نیست (تست T-DTO سخت‌گیر) | **پذیرفته**، هم‌ارز `SharedNoteDTO.author.displayName`. بند ۳-۱ («`reviewer_id` را ندارند») هنوز درست است. اطلاع به security-reviewer: F-07 |
-| 6-6 | **`GET /tasks`** (اسپرینت ۴) | فهرست کار بین هنرجوها با `staffStudentScope` در SQL؛ فیلترهای `mentorId`، `reviewerId`، `studentId` با دامنه AND | هم‌خوان با بخش ۱ و ۱-۱ (فیلتر خواندنی) |
-| 6-7 | **M-assignee و پیوست** (اسپرینت ۴) | assignee خارج از دامنه رشته، `summary` و پیوست‌های پیام همان رشته را فقط تا وقتی رشته باز/پاسخ‌داده است می‌بیند؛ بقیه‌ی پرونده `404` | هم‌خوان با بخش ۲ (نکته‌ی سؤال‌ها) |
-| 6-8 | **lint import برای مسیرهای هنرجو** (بخش ۳ بند ۳) | قاعده‌ی Biome `noRestrictedImports` هنوز **اضافه نشده** (`biome.json` بیرون از مرز بک‌اند بود). جداسازی امروز با DTO جدا و تست canary تضمین می‌شود | **لازم است و مانع استقرار:** F-03 |
-| 6-9 | **ماتریس T-MATRIX** | همه‌ی ۹۳ مسیر manifest × ۶ حالت (A، M، S، بی‌نشست، غیرفعال با کوکی قدیمی، `invited`) + تست‌های جدا برای M-مالک، M-غیرمالک، M-سابق، M-assignee، S-مالک، S-دیگر | هم‌خوان با بخش ۴. تست T-ESC برای `PATCH /users/:id/role` تا ساخت آن مسیر اجرا نمی‌شود (F-02) |
+| 6-1 | **`access` reads other tables** | `modules/access/repo.ts` reads the tables `students`, `platform_profiles`, `tasks`, `submissions`, `reviews` and (sprints 3 and 4) `notes`, `attachments`, `question_threads`, `question_messages`, `milestones`, `checkins` and `student_flags` **directly and read-only** (the resolvers `loadInScope` and `assertRefs`). Reason: `students → identity → access`; going through the services creates an import cycle (sprint 2, assumption 1) | **Accepted** as the third read-model after `today` and `health` (`overview.md` section 3 and `tech-stack.md` rule 3 were corrected). Condition: SELECT only, only the columns needed to find `student_id` and the status; never writing |
+| 6-2 | **The `students` repo has JOINs for display** | A read-only JOIN with `users`, `stages`, `tracks`, `platforms` for name, mobile number, account status | **Accepted**; writing is always in the module that owns the table |
+| 6-3 | **A mentor recreating the invite link** | Does not depend on `mentorsCanInviteStudents` | **Accepted.** The setting only controls "creating a new user"; recreating the link for an existing student in scope does not create a new user. The C3 condition (`role='student'`, `invited`, in scope) is enforced unchanged |
+| 6-4 | **Review by any staff member in scope** | `POST /submissions/:id/review` for any A or M in scope, not only `tasks.reviewer_id`; editing the text (`PATCH /reviews/:id`) only by the reviewer of that review or the admin, with the 24-hour window applying to the admin too | **Accepted**; consistent with the matrix in section 2 ("review a submission: M ✓") |
+| 6-5 | **Reviewer name for the student** | `StudentReviewDTO.reviewer = { displayName }` (sprint 4). `reviewerId` and any staff id are still not in the student DTO (strict T-DTO test) | **Accepted**, equivalent to `SharedNoteDTO.author.displayName`. Item 3-1 ("do not have `reviewer_id`") is still true. Reported to security-reviewer: F-07 |
+| 6-6 | **`GET /tasks`** (sprint 4) | Cross-student task list with `staffStudentScope` in SQL; the filters `mentorId`, `reviewerId`, `studentId` are AND-ed with the scope | Consistent with sections 1 and 1-1 (read filter) |
+| 6-7 | **M-assignee and attachments** (sprint 4) | An assignee outside the scope sees the thread, the `summary` and the attachments of that thread's messages only while the thread is open/answered; the rest of the file is `404` | Consistent with section 2 (note on questions) |
+| 6-8 | **Import lint for student routes** (section 3 item 3) | The Biome `noRestrictedImports` rule has **not yet been added** (`biome.json` was outside the backend boundary). Today the separation is guaranteed by the separate DTOs and the canary test | **Required and a deployment blocker:** F-03 |
+| 6-9 | **T-MATRIX matrix** | All 93 manifest routes × 6 states (A, M, S, no session, deactivated with an old cookie, `invited`) + separate tests for M-owner, M-non-owner, M-former, M-assignee, S-owner, S-other | Consistent with section 4. The T-ESC test for `PATCH /users/:id/role` does not run until that route is built (F-02) |
 
-## پیامدها
-- **مثبت:** یک نقطه برای قواعد؛ صفحه و API هم‌سان؛ نشت فیلد داخلی به هنرجو به‌صورت ساختاری ناممکن و با تست قناری قابل‌اثبات.
-- **منفی:** هیچ لایه‌ی دفاعی در دیتابیس نداریم. اگر کسی در کد service شرط دامنه را فراموش کند، فقط تست ماتریس آن را می‌گیرد. پس تست ماتریس **بخشی از CI و مانع merge** است.
-- **1.0:** با اضافه شدن worker و ابزارهای AI، RLS (حداقل روی `notes` و `student_health`) دوباره بررسی می‌شود. دسترسی مشاور به خروجی AI هنرجوهای خودش (PRD بخش ۵) از همین `staffStudentScope` استفاده می‌کند.
+## Consequences
+- **Positive:** one place for the rules; the page and the API are consistent; leaking an internal field to the student is structurally impossible and provable with the canary test.
+- **Negative:** we have no defensive layer in the database. If someone forgets the scope condition in service code, only the matrix test catches it. So the matrix test is **part of CI and blocks merge**.
+- **1.0:** with the addition of the worker and the AI tools, RLS (at least on `notes` and `student_health`) will be revisited. The mentor's access to the AI output of their own students (PRD section 5) uses this same `staffStudentScope`.

@@ -33,7 +33,7 @@ const VIEWS = [
 }>;
 
 /**
- * M7 — the question queue (F8; same list pattern as M5). Default view «منتظر ما»: threads
+ * M7 — the question queue (F8; same list pattern as M5). Default view "Waiting on us": threads
  * where the ball is with the team, the oldest SLA first (backend order). An admin can narrow
  * it to one person's threads. Mentors see their scope plus threads assigned to them.
  */

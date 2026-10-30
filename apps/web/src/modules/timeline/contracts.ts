@@ -57,7 +57,7 @@ export const sharedNotesQuery = z.strictObject({
 export type SharedNotesQuery = z.infer<typeof sharedNotesQuery>;
 
 /**
- * Timeline filter categories (F5 «فیلتر نوع»): `note` = manual notes; the others group the
+ * Timeline filter categories (F5 "Filter by type"): `note` = manual notes; the others group the
  * automatic event types (e.g. `task` = task.*, submission.*, review.*).
  */
 export const TIMELINE_CATEGORIES = [
@@ -167,7 +167,7 @@ export type TimelineItemDTO =
 
 /**
  * `refs`: display names for ids that appear in event data (stages, users), so the UI can
- * render «از مرحله‌ی ۲ به ۳» without extra calls.
+ * render "from stage 2 to 3" without extra calls.
  */
 export type TimelineDTO = {
   items: TimelineItemDTO[];

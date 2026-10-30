@@ -20,9 +20,9 @@ const RETURN_SHORTCUTS = [
 ];
 
 /**
- * «توقف موقت (با تاریخ بازگشت)» (progress-tracking §7-1, user-flows §7 D3): the student gets
- * the status «متوقف» and no alerts; the day before the return a reminder is created and on
- * that day they come back automatically. For a paused student: «بازگشت به فعال» now.
+ * "Pause (with a return date)" (progress-tracking §7-1, user-flows §7 D3): the student gets
+ * the status "Paused" and no alerts; the day before the return a reminder is created and on
+ * that day they come back automatically. For a paused student: "Back to active" now.
  */
 export function LifecycleDialog({
   studentId,

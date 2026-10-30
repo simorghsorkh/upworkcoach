@@ -7,7 +7,7 @@ import { call, createUser, loginAs, type TestUser } from './helpers';
 
 /**
  * Coach Office sprint 5c: every course has its own phases, and the staff screens read them —
- * the student list (course and phase filter, each student's place in their courses), «امروز»
+ * the student list (course and phase filter, each student's place in their courses), "Today"
  * (same list items), the record's phase change and the health rules (R-STALL per course).
  */
 

@@ -66,7 +66,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 
 const ACCEPT_MARK = 'وقتی قبول است که:';
 
-/** «شرح کار» with the acceptance criterion pulled out (mockups `.alert-neutral`). */
+/** "Task description" with the acceptance criterion pulled out (mockups `.alert-neutral`). */
 function Description({ text }: { text: string | null }) {
   if (!text) return <p className="text-sm text-fg-3">شرحی نوشته نشده است.</p>;
   const at = text.indexOf(ACCEPT_MARK);

@@ -17,7 +17,7 @@ export type NewTaskContext = {
   reviewers: Option[];
 };
 
-/** «کار جدید» sheet; the form mounts fresh on every open. */
+/** "New task" sheet; the form mounts fresh on every open. */
 export function NewTaskDialog({
   open,
   onClose,

@@ -43,7 +43,7 @@ const KEYS = [
   'cursor',
 ] as const;
 
-/** Default: «نیاز به رسیدگی» = red → yellow → waiting submission → green (progress-tracking §8). */
+/** Default: "Needs attention" = red → yellow → waiting submission → green (progress-tracking §8). */
 const DEFAULT_SORT = 'health';
 
 const SORTS = [

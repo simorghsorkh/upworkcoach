@@ -23,7 +23,7 @@ const fakeUsers = {
  * checked (and tested by Playwright) before the session module exists.
  * Returns 404 in every non-development build.
  * `?role=admin|mentor|student` · `?active=/today` (highlighted nav item) ·
- * `?view=account` (the «حساب من» panel instead of the component gallery).
+ * `?view=account` (the "My account" panel instead of the component gallery).
  */
 export default async function DevShellPage({ searchParams }: PageProps<'/dev/shell'>) {
   if (process.env.NODE_ENV !== 'development') notFound();

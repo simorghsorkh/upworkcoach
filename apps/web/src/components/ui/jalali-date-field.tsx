@@ -23,7 +23,7 @@ import { cn } from './cn';
 
 export type DateShortcut = { label: string; days: number };
 
-/** Default shortcuts under a deadline field (design-system §4-1: «فردا، ۳ روز، ۱ هفته»). */
+/** Default shortcuts under a deadline field (design-system §4-1: "Tomorrow, 3 days, 1 week"). */
 export const DUE_SHORTCUTS: DateShortcut[] = [
   { label: '۳ روز', days: 3 },
   { label: '۱ هفته', days: 7 },
@@ -54,10 +54,10 @@ export function JalaliDateField({
   onChange: (day: string) => void;
   /** Earliest selectable day (inclusive). */
   min?: string;
-  /** Latest selectable day (inclusive), e.g. today for «کی اتفاق افتاد؟». */
+  /** Latest selectable day (inclusive), e.g. today for "When did it happen?". */
   max?: string;
   shortcuts?: DateShortcut[];
-  /** e.g. «بدون تغییر» next to the shortcuts. */
+  /** e.g. "No change" next to the shortcuts. */
   extraShortcut?: { label: string; pressed: boolean; onSelect: () => void };
   hint?: ReactNode;
   error?: string | null;
@@ -75,7 +75,7 @@ export function JalaliDateField({
   const [open, setOpen] = useState(false);
 
   // Follow outside changes (shortcuts, template defaults, reset), but never rewrite what the
-  // user is typing: «۱۴۰۵/۰۸/۱» is already a valid day on the way to «۱۴۰۵/۰۸/۱۰».
+  // user is typing: the Jalali text «۱۴۰۵/۰۸/۱» is already a valid day on the way to «۱۴۰۵/۰۸/۱۰».
   const typed = useRef<string | null>(null);
   useEffect(() => {
     if (typed.current !== null && typed.current === value) return;

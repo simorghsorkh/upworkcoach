@@ -10,29 +10,29 @@ import { translate } from '../i18n/translate';
 import { daysBetweenIn } from './org-day';
 
 export type Format = {
-  /** 18 → «۱۸» / «18». Use `grouped` for large amounts (۱٬۲۳۴). */
+  /** 18 → «۱۸» (Persian digits) / «18». Use `grouped` for large amounts (۱٬۲۳۴). */
   number(value: number, options?: { grouped?: boolean }): string;
-  /** «۲۷ مهر» / «Oct 27» */
+  /** «۲۷ مهر» (27 Mehr) / «Oct 27» */
   dayMonth(date: Date): string;
-  /** «دوشنبه ۲۷ مهر ۱۴۰۵» / «Monday, October 27, 2026» */
+  /** «دوشنبه ۲۷ مهر ۱۴۰۵» (Monday 27 Mehr 1405) / «Monday, October 27, 2026» */
   fullDate(date: Date): string;
-  /** «۱۲ شهریور ۱۴۰۵» / «Sep 3, 2026» */
+  /** «۱۲ شهریور ۱۴۰۵» (12 Shahrivar 1405) / «Sep 3, 2026» */
   date(date: Date): string;
-  /** «۱۷:۱۰» / «5:10 PM» (wall clock of the organization) */
+  /** «۱۷:۱۰» (Persian digits) / «5:10 PM» (wall clock of the organization) */
   time(date: Date): string;
-  /** Seconds → short duration for wait messages: «۴۵ ثانیه», «۳ دقیقه», «۱ ساعت و ۵ دقیقه». */
+  /** Seconds → short duration for wait messages: «۴۵ ثانیه» (45 seconds), «۳ دقیقه» (3 minutes), «۱ ساعت و ۵ دقیقه» (1 hour 5 minutes). */
   duration(totalSeconds: number): string;
-  /** «امروز»، «دیروز»، «۵ روز پیش»؛ older than a month → day and month. */
+  /** «امروز» (today), «دیروز» (yesterday), «۵ روز پیش» (5 days ago); older than a month → day and month. */
   relativeDay(date: Date, now?: Date): string;
-  /** «۱۲ روز» */
+  /** «۱۲ روز» (12 days) */
   days(count: number): string;
-  /** «امروز ۱۰:۰۰»، «دیروز ۱۷:۱۰»، «۲۴ مهر ۱۷:۱۰» (relative within a week). */
+  /** «امروز ۱۰:۰۰» (today 10:00), «دیروز ۱۷:۱۰» (yesterday 17:10), «۲۴ مهر ۱۷:۱۰» (24 Mehr 17:10) (relative within a week). */
   dayTime(date: Date, now?: Date): string;
-  /** «۵۲ ساعت» */
+  /** «۵۲ ساعت» (52 hours) */
   hours(hours: number): string;
-  /** «۶ ساعت پیش»، «۲ روز پیش» — for submissions and waiting times. */
+  /** «۶ ساعت پیش» (6 hours ago), «۲ روز پیش» (2 days ago) — for submissions and waiting times. */
   ago(date: Date, now?: Date): string;
-  /** Days until a deadline: «امروز»، «فردا»، «۳ روز مانده»؛ past → «N روز گذشته». */
+  /** Days until a deadline: «امروز» (today), «فردا» (tomorrow), «۳ روز مانده» (3 days left); past → «N روز گذشته» (N days overdue). */
   daysLeft(due: Date, now?: Date): string;
 };
 
@@ -80,7 +80,7 @@ export function createFormat(locale: Locale, timeZone: string): Format {
   const format: Format = {
     number: (value, { grouped = false } = {}) => (grouped ? groupedFmt : numberFmt).format(value),
     dayMonth: (date) => dayMonthFmt.format(date),
-    // Intl puts a comma after the weekday in fa-IR («دوشنبه، ۲۷ مهر ۱۴۰۵»; Chrome uses a Latin
+    // Intl puts a comma after the weekday in fa-IR («دوشنبه، ۲۷ مهر ۱۴۰۵» (Monday, 27 Mehr 1405); Chrome uses a Latin
     // «,»); the Persian design has none.
     fullDate: (date) =>
       locale === 'fa'

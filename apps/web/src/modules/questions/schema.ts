@@ -36,7 +36,7 @@ export const questionThreads = pgTable(
       .references(() => students.userId),
     subject: text().notNull(),
     status: text({ enum: QUESTION_STATUSES }).notNull().default('open'),
-    /** «توپ در زمین کیست». */
+    /** "Whose court is the ball in". */
     awaiting: text({ enum: QUESTION_AWAITING }).notNull().default('team'),
     /** Start of the SLA clock: set by a student message, cleared by a team reply. */
     awaitingTeamSince: ts(),
@@ -44,7 +44,7 @@ export const questionThreads = pgTable(
     assigneeId: uuid()
       .notNull()
       .references(() => users.id),
-    /** A question about one task (e.g. «درخواست تمدید مهلت»). */
+    /** A question about one task (e.g. "Deadline extension request"). */
     taskId: uuid().references(() => tasks.id),
     priority: text({ enum: QUESTION_PRIORITIES }).notNull().default('normal'),
     source: text({ enum: QUESTION_SOURCES }).notNull().default('student'),

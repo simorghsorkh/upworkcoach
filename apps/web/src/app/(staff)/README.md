@@ -1,4 +1,4 @@
-# (staff) — صفحه‌های مدیر و مشاور
+# (staff) — admin and mentor pages
 
-قاب: `src/components/shell/staff-shell.tsx` (سایدبار تیره‌ی دسکتاپ، نوار پایین موبایل با «+»). `layout.tsx` با `requireUser(['admin', 'mentor'])`؛ زیرگروه `(admin)` (نتایج، تنظیمات) فقط `admin`.
-دسترسی در serviceها هم بررسی می‌شود، نه فقط در layout (ADR-0004). صفحه‌های اسپرینت‌های بعد فعلاً «به‌زودی» هستند.
+Shell: `src/components/shell/staff-shell.tsx` (dark sidebar on desktop, bottom bar with a "+" on mobile). `layout.tsx` uses `requireUser(['admin', 'mentor'])`; the `(admin)` sub-group (results, settings) is `admin` only.
+Access is also checked in the services, not only in the layout (ADR-0004). Pages from later sprints are currently "coming soon".

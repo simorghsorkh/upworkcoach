@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { Icon, type IconName } from '@/components/icons/icon';
 import { cn } from './cn';
 
-/** Segmented switch between views (mockups §10 `.seg`), e.g. «فهرست | مراحل». */
+/** Segmented switch between views (mockups §10 `.seg`), e.g. "List | Stages". */
 export function SegNav({
   label,
   items,

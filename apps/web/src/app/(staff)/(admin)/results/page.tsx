@@ -41,7 +41,7 @@ function shift({ jy, jm }: { jy: number; jm: number }, delta: number) {
 const key = (m: { jy: number; jm: number }) => `${m.jy}-${String(m.jm).padStart(2, '0')}`;
 
 /**
- * M10 «نتایج» (admin, F9): two numbers and one median — approved North Star milestones in the
+ * M10 "Results" (admin, F9): two numbers and one median — approved North Star milestones in the
  * month and in total, and the median days from joining to the first one. Nothing more.
  */
 export default async function ResultsPage({ searchParams }: { searchParams: SearchParams }) {

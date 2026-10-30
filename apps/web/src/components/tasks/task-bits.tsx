@@ -17,14 +17,14 @@ export function TaskStatusBadge({
   label,
 }: {
   status: TaskStatus;
-  /** «منتظر بازبینی · نسخه‌ی ۴» */
+  /** "Awaiting review · version 4" */
   version?: number;
-  /** «نیاز به اصلاح · دور ۳» */
+  /** "Needs changes · round 3" */
   round?: number;
-  /** Student wording («تحویل دادی»). */
+  /** Student wording ("Submitted"). */
   student?: boolean;
   suffix?: string;
-  /** Replaces the status word, e.g. «منتظر بازبینی شما». */
+  /** Replaces the status word, e.g. "Awaiting your review". */
   label?: string;
 }) {
   const t = useTranslations('tasks');
@@ -39,8 +39,8 @@ export function TaskStatusBadge({
 }
 
 /**
- * Deadline: red «معوق · ۹ روز» tag when overdue (F4: a label, not a status), otherwise
- * «تا ۳۰ مهر (۳ روز مانده)». Final tasks only show the date.
+ * Deadline: red "Overdue · 9 days" tag when overdue (F4: a label, not a status), otherwise
+ * "by 30 Mehr (3 days left)". Final tasks only show the date.
  */
 export function DueText({
   dueAt,
@@ -90,7 +90,7 @@ export function DueText({
   );
 }
 
-/** Review SLA: «دیر · ۵۲ ساعت» once breached, «۶ ساعت تا موعد» when close, else the age. */
+/** Review SLA: "Late · 52 hours" once breached, "6 hours until due" when close, else the age. */
 export function SlaText({
   breached,
   warning,

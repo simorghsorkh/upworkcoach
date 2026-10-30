@@ -77,7 +77,7 @@ export async function lockThread(db: DbOrTx, id: string) {
 
 /**
  * Staff visibility: inside the scope, OR assigned to `assigneeId` while open/answered
- * (ADR-0004 «نکته‌ی سؤال‌ها»).
+ * (ADR-0004 "Questions note").
  */
 export function staffVisibility(scope: SQL, assigneeId: string): SQL {
   return (

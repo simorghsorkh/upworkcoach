@@ -1,65 +1,65 @@
-# طرح رزرو جلسه با تقویم مشاور (پیشنهاد اسپرینت ۷)
+# Session booking with the mentor's calendar (Sprint 7 proposal)
 
-- **تاریخ:** ۷ آبان ۱۴۰۵
-- **درخواست بنیان‌گذار:** مشاور برای هر نوع برنامه‌اش زمان‌های خالی تنظیم کند؛ هنرجو مشاور را انتخاب کند، انواع مشاوره‌اش را ببیند و از تقویم جلسه رزرو کند.
-- **وضعیت:** تصمیم‌ها گرفته شد (۷ آبان ۱۴۰۵، بخش آخر)؛ ساخت در اسپرینت ۷.
+- **Date:** 7 Aban 1405 (2026-10-29)
+- **Founder's request:** for each type of their program, a mentor sets free times; a mentee chooses a mentor, sees the mentor's types of mentoring and books a session from the calendar.
+- **Status:** decisions made (7 Aban 1405, last section); to be built in Sprint 7.
 
-## این یک تغییر دامنه است
-PRD (بخش ۳-۲) و ADR-0012 «رزرو خودکار با ساعت آزاد مشاور» را صریحاً بیرون از MVP گذاشته بودند. امروز فقط مشاور یا مدیر جلسه را دستی ثبت می‌کند و **هیچ بررسی هم‌پوشانی وجود ندارد**: یک مشاور می‌تواند دو جلسه‌ی هم‌زمان داشته باشد. رزرو این را باید درست کند. با این طرح، رزرو جزو امکانات پایلوت می‌شود و ADR تازه‌ای (ADR-0014) می‌گیرد.
+## This is a scope change
+The PRD (section 3-2) and ADR-0012 had explicitly put "automatic booking from the mentor's free hours" outside the MVP. Today only a mentor or admin records a session manually and **there is no overlap check at all**: one mentor can have two simultaneous sessions. Booking must fix this. With this design, booking becomes part of the pilot features and gets a new ADR (ADR-0014).
 
-## الگوی رایج (Calendly، Cal.com، پلتفرم‌های منتورینگ)
-همه روی چهار مفهوم می‌چرخند:
-1. **ساعت‌های هفتگی:** برای هر روز هفته چند بازه («شنبه ۱۷ تا ۲۱»).
-2. **استثنا:** یک روز خاص تعطیل، یا بازه‌ی اضافه در یک روز خاص.
-3. **نوع جلسه:** مدت، فاصله‌ی بین جلسه‌ها، حداقل زمان پیش از رزرو («دست‌کم ۱۲ ساعت قبل»)، افق رزرو («تا ۳ هفته جلوتر»)، و لینک جلسه.
-4. **ساعت آزاد = ساعت‌های هفتگی − استثناها − جلسه‌های موجود (هر نوعی) − فاصله‌ها.** ساعت‌های آزاد ذخیره نمی‌شوند؛ هر بار از روی قاعده‌ها حساب می‌شوند.
+## The common pattern (Calendly, Cal.com, mentoring platforms)
+All revolve around four concepts:
+1. **Weekly hours:** for each day of the week, several ranges ("Saturday 17 to 21").
+2. **Exceptions:** a specific day off, or an extra range on a specific day.
+3. **Session type:** duration, buffer between sessions, minimum notice before booking ("at least 12 hours ahead"), booking horizon ("up to 3 weeks ahead"), and the meeting link.
+4. **Free hours = weekly hours − exceptions − existing sessions (of any type) − buffers.** Free hours are not stored; each time they are computed from the rules.
 
-نکته‌ی کلیدی: **تقویم مشاور یکی است.** هر جلسه‌ای، از هر نوع، آن ساعت را برای بقیه‌ی انواع هم پر می‌کند. پس «زمان خالی برای هر نوع برنامه» بهتر است این‌طور ساخته شود: یک برنامه‌ی هفتگی، و روی هر بازه مشخص شود کدام انواع در آن رزرو می‌شوند (پیش‌فرض: همه). اگر هر نوع تقویم جدای خودش را داشته باشد، دو هنرجو از دو نوع مختلف می‌توانند یک ساعت را بگیرند، یا مشاور باید یک ساعت را چند بار وارد کند.
+Key point: **the mentor's calendar is one.** Any session, of any type, also fills that time for the other types. So "free times for each type of program" is better built this way: one weekly schedule, and on each range it is specified which types can be booked in it (default: all). If each type had its own calendar, two mentees of two different types could take the same hour, or the mentor would have to enter the same hour several times.
 
-## پیشنهاد
-### مشاور (صفحه‌ی «تقویم من»)
-- **ساعت‌های هفتگی:** جدول شنبه تا جمعه، چند بازه برای هر روز، و برای هر بازه انواع مجاز.
-- **استثناها:** «این روز نیستم» (مرخصی، سفر) یا «این روز این ساعت هم هستم».
-- **انواع مشاوره‌ی من:** از قالب‌های تک‌به‌تکی که مشاور در کادرشان است. برای هر کدام فعال یا غیرفعال، فاصله بعد از جلسه (پیش‌فرض ۱۵ دقیقه)، حداقل زمان پیش از رزرو (پیش‌فرض ۱۲ ساعت)، افق (پیش‌فرض ۲۱ روز)، و لینک یا محل پیش‌فرض (Google Meet، اسکای‌روم یا هر لینک دیگر). مدت جلسه از خود قالب می‌آید.
-- **پیش‌نمایش:** همان تقویمی که هنرجو می‌بیند.
-- مدیر می‌تواند برای هر مشاوری همین‌ها را تنظیم کند.
+## Proposal
+### Mentor ("My calendar" page)
+- **Weekly hours:** a table from Saturday to Friday, several ranges per day, and for each range the allowed types.
+- **Exceptions:** "I am not available this day" (leave, travel) or "I am also available this day at this hour".
+- **My mentoring types:** from the one-on-one templates the mentor is on the staff of. For each: active or inactive, buffer after the session (default 15 minutes), minimum notice before booking (default 12 hours), horizon (default 21 days), and the default link or location (Google Meet, Skyroom or any other link). The session duration comes from the template itself.
+- **Preview:** the same calendar the mentee sees.
+- The admin can set the same for any mentor.
 
-### هنرجو
-1. **«مشاوران»:** فهرست مشاوران سازمان با عکس، تخصص و معرفی (همان پروفایل اسپرینت ۴). فقط مشاورهایی دیده می‌شوند که «پذیرش هنرجو» دارند و دست‌کم یک نوع مشاوره‌ی فعال.
-2. **صفحه‌ی مشاور:** انواع مشاوره‌اش با مدت و تعداد جلسه‌ی بسته.
-3. **تقویم:** روزهای هفته‌ی جاری و بعدی (تاریخ شمسی، به وقت تهران) با ساعت‌های آزاد به‌شکل دکمه.
-4. **رزرو:** ساعت را می‌زند و تأیید می‌کند. جلسه در «برنامه‌های من»، «خانه» و «امروز»ِ مشاور می‌آید و مشاور اعلان می‌گیرد.
-5. **لغو یا جابه‌جایی:** تا مهلتی که سازمان تعیین می‌کند (پیش‌فرض ۲۴ ساعت پیش از جلسه). دیرتر از آن فقط با مشاور.
+### Mentee
+1. **"Mentors":** the list of the organization's mentors with photo, expertise and introduction (the same profile from Sprint 4). Only mentors who are "accepting mentees" and have at least one active mentoring type are shown.
+2. **Mentor page:** their mentoring types with duration and the package's session count.
+3. **Calendar:** the days of the current and next week (Jalali date, Tehran time) with free hours as buttons.
+4. **Booking:** the mentee taps the hour and confirms. The session appears in "My programs", "Home" and the mentor's "Today", and the mentor gets a notification.
+5. **Cancel or reschedule:** up to a deadline the organization sets (default 24 hours before the session). Later than that, only with the mentor.
 
-### چه کسی مستقیم رزرو می‌کند (مهم‌ترین تصمیم)
-چون پرداخت در سیستم نیست، رزرو باید به «بسته» گره بخورد. پیشنهاد:
-- **هنرجویی که بسته‌ی فعال همان نوع را با همان مشاور دارد** (جلسه‌ی باقی‌مانده و اعتبار تمام‌نشده) مستقیم رزرو می‌کند. رزرو همان «جلسه»ی امروز است و مصرف بسته همان‌طور حساب می‌شود.
-- **هنرجوی بدون بسته** تقویم را می‌بیند، ولی دکمه‌اش «درخواست» است: ساعت را موقت نگه می‌دارد (پیش‌فرض ۲۴ ساعت) و به مدیر و مشاور اعلان می‌دهد. مدیر پس از دریافت پول (بیرون از سیستم) او را در بسته ثبت و درخواست را تأیید می‌کند؛ اگر نکند، ساعت آزاد می‌شود.
-- جلسه‌ی گروهی رزروی نیست؛ مثل امروز مشاور ثبتش می‌کند و ساعتش از تقویم مشاور کم می‌شود.
+### Who books directly (the most important decision)
+Since payment is not in the system, booking must be tied to the "package". Proposal:
+- **A mentee who has an active package of the same type with the same mentor** (remaining sessions and unexpired validity) books directly. The booking is today's "session" and package consumption is counted the same way.
+- **A mentee without a package** sees the calendar, but their button is "Request": it holds the hour temporarily (default 24 hours) and notifies the admin and the mentor. After receiving the money (outside the system), the admin enrolls the mentee in the package and approves the request; if not, the hour is released.
+- A group session is not bookable; as today the mentor records it and its hour is deducted from the mentor's calendar.
 
-### جزئیات فنی (خلاصه، برای ADR-0014)
-- **جدول‌ها:**
-  - `availability_rules`: مشاور، روز هفته، شروع و پایان به دقیقه، انواع مجاز.
-  - `availability_exceptions`: مشاور، تاریخ، تعطیل یا اضافه، بازه.
-  - `mentor_offerings`: مشاور، قالب، فعال، فاصله، حداقل زمان، افق، محل پیش‌فرض.
-  - روی `mentoring_sessions`: `source` (دستی یا رزرو)، `booked_by` و وضعیت تازه‌ی `requested` با `hold_until`.
-- **قاعده‌ها به ساعت دیواری منطقه‌ی زمانی سازمان** ذخیره می‌شوند (ساعت ۱۷ یعنی ۱۷ تهران) و ساعت‌های آزاد در لحظه حساب می‌شوند.
-- **جلوگیری از رزرو هم‌زمان:** هر رزرو در تراکنش با قفل روی مشاور، و پیش از درج هم‌پوشانی با همه‌ی جلسه‌های زنده‌ی او بررسی می‌شود. همین بررسی برای جلسه‌ی دستی هم اضافه می‌شود؛ آن‌جا هشدار است و مشاور می‌تواند عمداً رد شود.
-- **اعلان:** دو نوع تازه، «جلسه رزرو شد» و «جلسه لغو شد»، روی همان سیستم ۶ب.
-- **بیرون از این مرحله:** همگام‌سازی Google Calendar (OAuth و تحریم)، ساخت خودکار لینک، یادآور پیامکی، فایل `.ics` (می‌تواند بعداً کوچک اضافه شود)، فهرست انتظار.
+### Technical details (summary, for ADR-0014)
+- **Tables:**
+  - `availability_rules`: mentor, day of week, start and end in minutes, allowed types.
+  - `availability_exceptions`: mentor, date, day off or extra, range.
+  - `mentor_offerings`: mentor, template, active, buffer, minimum notice, horizon, default location.
+  - On `mentoring_sessions`: `source` (manual or booking), `booked_by` and a new status `requested` with `hold_until`.
+- **Rules are stored as wall-clock time in the organization's time zone** (17:00 means 17:00 Tehran) and free hours are computed on the fly.
+- **Preventing simultaneous booking:** each booking, in a transaction with a lock on the mentor, checks overlap with all of the mentor's live sessions before insert. The same check is added for manual sessions; there it is a warning and the mentor can skip it deliberately.
+- **Notifications:** two new kinds, "session booked" and "session cancelled", on the same Sprint 6b system.
+- **Outside this stage:** Google Calendar sync (OAuth and sanctions), automatic link creation, SMS reminders, an `.ics` file (can be added small later), a waiting list.
 
-### اندازه
-حدود یک اسپرینت (۸ تا ۱۰ روز کاری): مهاجرت و ماژول `scheduling`، محاسبه‌ی ساعت آزاد با تست کامل (روزهای تعطیل، فاصله‌ها، مرز افق، جلسه‌های موجود)، تقویم مشاور، صفحه‌های مشاوران و رزرو هنرجو، درخواست و تأیید، لغو، و e2e.
+### Size
+About one sprint (8 to 10 working days): the migration and the `scheduling` module, free-hours computation with full tests (holidays, buffers, horizon boundary, existing sessions), the mentor calendar, the mentors and booking pages for the mentee, request and approval, cancellation, and e2e.
 
-## تصمیم‌های بنیان‌گذار (۷ آبان ۱۴۰۵)
-| سؤال | تصمیم |
+## Founder's decisions (7 Aban 1405)
+| Question | Decision |
 |---|---|
-| چه کسی رزرو می‌کند | فقط هنرجوی دارای بسته‌ی فعال همان نوع و همان مشاور مستقیم درخواست قطعی‌شدنی می‌دهد؛ بقیه «درخواست» می‌دهند و مدیر پس از پرداخت بیرون از سیستم ثبتشان می‌کند |
-| انتخاب مشاور | همه‌ی مشاوران سازمان که «پذیرش هنرجو» و نوع مشاوره‌ی فعال دارند؛ مدیر می‌تواند پنهان کند |
-| تأیید | **هر رزرو تأیید مشاور می‌خواهد** (برخلاف پیشنهاد اولیه). تا تأیید، ساعت موقت برای هنرجو نگه داشته می‌شود |
-| لغو | هنرجو تا ۲۴ ساعت پیش از جلسه خودش لغو می‌کند؛ دیرتر فقط مشاور، و او تصمیم می‌گیرد از بسته کم شود یا نه |
+| Who books | Only a mentee with an active package of the same type and the same mentor directly submits a confirmable request; the rest "request" and the admin enrolls them after payment outside the system |
+| Choosing a mentor | All the organization's mentors who are "accepting mentees" and have an active mentoring type; the admin can hide them |
+| Approval | **Every booking needs mentor approval** (contrary to the initial proposal). Until approval, the hour is held temporarily for the mentee |
+| Cancellation | The mentee cancels up to 24 hours before the session; later, only the mentor, who decides whether to deduct from the package |
 
-### پیامد تصمیم «تأیید مشاور»
-- هر رزرو اول یک **درخواست** است (جدول جدای `booking_requests`)، نه جلسه. با تأیید، جلسه‌ی معمولی ساخته می‌شود.
-- درخواست ساعت را تا پاسخ مشاور نگه می‌دارد، حداکثر ۴۸ ساعت و هرگز بعد از شروع خود جلسه. بعد از آن خودبه‌خود منقضی می‌شود و ساعت آزاد است.
-- درخواست هنرجوی بی‌بسته را مشاور فقط وقتی می‌تواند تأیید کند که مدیر او را در بسته‌ی همان نوع ثبت کرده باشد.
+### Consequence of the "mentor approval" decision
+- Every booking is first a **request** (a separate `booking_requests` table), not a session. On approval, a regular session is created.
+- A request holds the hour until the mentor answers, at most 48 hours and never past the start of the session itself. After that it expires automatically and the hour is free.
+- A mentor can approve the request of a mentee without a package only if the admin has enrolled them in a package of the same type.

@@ -23,9 +23,9 @@ const SNOOZE_SHORTCUTS = [
 ];
 
 /**
- * «خاموش کردن هشدار تا تاریخ…» (user-flows §7, mockups #mute): the student stays computed but
- * leaves «امروز» and the stuck list until the end of that Tehran day. With an active snooze
- * the same dialog offers «روشن کردن دوباره».
+ * "Mute alert until a date…" (user-flows §7, mockups #mute): the student stays computed but
+ * leaves "Today" and the stuck list until the end of that Tehran day. With an active snooze
+ * the same dialog offers "Turn back on".
  */
 export function SnoozeDialog({
   studentId,
@@ -143,7 +143,7 @@ const CATEGORY_OPTIONS = (Object.entries(flagCategoryLabel) as Array<[FlagCatego
   ([value, label]) => ({ value, label }),
 );
 
-/** «پرچم دستی» (R-FLAG): category, level, a note and an optional expiry day. */
+/** "Manual flag" (R-FLAG): category, level, a note and an optional expiry day. */
 export function FlagDialog({
   studentId,
   firstName,
@@ -241,7 +241,7 @@ export function FlagDialog({
   );
 }
 
-/** Active manual flags of the record with «برداشتن». */
+/** Active manual flags of the record with "Remove". */
 export function FlagsList({ flags, viewerId }: { flags: FlagDTO[]; viewerId: string }) {
   const router = useRouter();
   const toast = useToast();

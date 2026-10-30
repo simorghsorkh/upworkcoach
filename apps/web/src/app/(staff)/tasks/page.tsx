@@ -99,8 +99,8 @@ function fromQueue(q: ReviewQueueItemDTO): TaskRow {
 }
 
 /**
- * M5 «کارها» (mockups/tasks.html): tabs for the review queue (late and urgent first), overdue,
- * open, changes requested and everything; search and filters in the URL; «کار جدید» opens the
+ * M5 "Tasks" (mockups/tasks.html): tabs for the review queue (late and urgent first), overdue,
+ * open, changes requested and everything; search and filters in the URL; "New task" opens the
  * M5a sheet (also from `/tasks/new` and the quick-add «+», via `?new=1`).
  */
 export default async function TasksPage({ searchParams }: { searchParams: SearchParams }) {

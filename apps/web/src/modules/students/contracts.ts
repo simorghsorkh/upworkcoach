@@ -114,7 +114,7 @@ export const listStudentsQuery = z.strictObject({
     })
     .optional(),
   cohort: z.string().max(160).optional(),
-  /** One health status or a comma-separated list (`yellow,red` = «نیاز به رسیدگی»). */
+  /** One health status or a comma-separated list (`yellow,red` = "Needs attention"). */
   health: commaList(HEALTH_FILTERS).optional(),
   /** `health`: red → yellow → green → paused, then oldest status first (F7). */
   sort: z.enum(STUDENT_SORTS).optional(),
@@ -266,7 +266,7 @@ export type PrimaryProfileDTO = {
 /**
  * Staff-only health (sprint 4; `null` only until the first computation of a student).
  * `reasons` are sorted red first; `facts` are raw numbers for the Persian sentence;
- * `ball` = «توپ در زمین کیست». Task columns (sprint 3): `openTaskCount` = not
+ * `ball` = "Whose court is the ball in". Task columns (sprint 3): `openTaskCount` = not
  * accepted/cancelled, `overdueTaskCount` = open, in_progress or changes_requested past the
  * deadline, `nextTask` = earliest deadline of what the student still has to do.
  */

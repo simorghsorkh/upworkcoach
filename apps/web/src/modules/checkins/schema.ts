@@ -41,7 +41,7 @@ export const checkins = pgTable(
     mood: smallint().notNull(),
     nextWeekPlan: text(),
     needsHelp: boolean().notNull().default(false),
-    /** The question opened by «به کمک مشاور نیاز دارم». */
+    /** The question opened by "I need a mentor's help". */
     questionId: uuid().references(() => questionThreads.id),
     submittedAt: ts().notNull().defaultNow(),
   },

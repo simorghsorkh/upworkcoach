@@ -6,7 +6,7 @@ import { getDb } from '@/server/db';
 import { dayFromToday, reminderFixture, submittedTaskFixture } from './fixtures';
 import { call, createUser, loginAs, type TestUser } from './helpers';
 
-/** Reminders and «امروز» (PRD F6, api.md section 8, ADR-0004 table). */
+/** Reminders and "Today" (PRD F6, api.md section 8, ADR-0004 table). */
 
 const MISSING = '01900000-0000-7000-8000-00000000d00d';
 

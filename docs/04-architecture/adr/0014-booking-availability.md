@@ -1,77 +1,77 @@
-# ADR-0014 — رزرو جلسه: ساعت‌های آزاد مشاور، نوع جلسه و درخواست با تأیید مشاور
+# ADR-0014 — Session booking: mentor availability, session type and request with mentor approval
 
-- **وضعیت:** پذیرفته‌شده (پیاده‌سازی: اسپرینت ۷ Coach Office)
-- **تاریخ:** ۷ آبان ۱۴۰۵ (2026-10-29)
-- **منبع الزامات:** درخواست بنیان‌گذار (۷ آبان ۱۴۰۵)؛ `docs/08-saas-evolution/booking-design.md` و جدول تصمیم‌های بنیان‌گذار در همان سند
-- **اثر روی ADRهای قبلی:** ADR-0012 «رزرو خودکار با ساعت آزاد مشاور» را بیرون از MVP گذاشته بود؛ این ADR آن را به دامنه می‌آورد. جلسه همان `mentoring_sessions` ADR-0012 می‌ماند و رزرو فقط راه تازه‌ای برای ساختنش است.
+- **Status:** Accepted (implementation: Coach Office sprint 7)
+- **Date:** 7 Aban 1405 (2026-10-29)
+- **Source of requirements:** founder's request (7 Aban 1405); `docs/08-saas-evolution/booking-design.md` and the founder decisions table in the same document
+- **Effect on earlier ADRs:** ADR-0012 put "automatic booking by mentor availability" outside the MVP; this ADR brings it into scope. A session remains the `mentoring_sessions` row from ADR-0012, and booking is only a new way to create it.
 
-## زمینه
-- جلسه را تا امروز فقط مشاور یا مدیر دستی ثبت می‌کرد (`POST /sessions`). هم‌پوشانی فقط هشدار بود (`overlaps` در پاسخ).
-- بسته‌ی تک‌به‌تک (`one_on_one`) سهمیه و اعتبار دارد و مصرفش از جلسه‌های `held` و `no_show` حساب می‌شود (`packageUsage`).
-- پرداخت در سیستم نیست (تصمیم ۱۴۰۵/۰۷/۲۷)؛ پس «حق رزرو» فقط از بسته‌ی ثبت‌شده می‌آید.
+## Context
+- Until now only a mentor or an admin created sessions, by hand (`POST /sessions`). Overlap was only a warning (`overlaps` in the response).
+- A one-on-one package (`one_on_one`) has a quota and a validity period, and its usage is counted from `held` and `no_show` sessions (`packageUsage`).
+- There is no payment in the system (decision of 27 Mehr 1405 (2026-10-19)); so the "right to book" comes only from a registered package.
 
-## تصمیم
-### ۱. یک تقویم برای هر مشاور، با برچسب نوع روی هر بازه
-- `availability_rules`: روز هفته، شروع و پایان به دقیقه از نیمه‌شب (به ساعت دیواری منطقه‌ی زمانی سازمان؛ `24:00` = پایان روز) و `template_ids` (خالی = همه‌ی انواع).
-- `availability_exceptions`: یک روز مشخص، `off` (کل روز یا یک بازه) یا `extra` (بازه‌ی اضافه).
-- `mentor_offerings`: کلید `(mentor_id, template_id)`؛ فعال بودن، فاصله‌ی بین جلسه‌ها (پیش‌فرض ۱۵ دقیقه)، حداقل فاصله تا جلسه (۱۲ ساعت)، افق (۲۱ روز)، مهلت لغو هنرجو (۲۴ ساعت) و محل یا لینک. مدت جلسه از خود قالب می‌آید (`session_minutes`، پیش‌فرض ۶۰).
-- **نوع قابل‌ارائه:** قالب تک‌به‌تکِ منتشرشده که یا برای سازمان است یا مال خود مشاور.
-- **چرا یک تقویم:** هر جلسه، از هر نوع، آن ساعت را برای همه‌ی انواع پر می‌کند. تقویم جدا برای هر نوع یا یک ساعت را دو بار می‌فروخت یا مشاور را مجبور به ورود تکراری می‌کرد.
+## Decision
+### 1. One calendar per mentor, with a type label on each range
+- `availability_rules`: day of week, start and end in minutes from midnight (in the organization's time zone wall-clock time; `24:00` = end of day) and `template_ids` (empty = all types).
+- `availability_exceptions`: one specific day, `off` (the whole day or one range) or `extra` (an additional range).
+- `mentor_offerings`: key `(mentor_id, template_id)`; enabled flag, buffer between sessions (default 15 minutes), minimum notice before a session (12 hours), horizon (21 days), mentee cancellation deadline (24 hours) and location or link. The session length comes from the template itself (`session_minutes`, default 60).
+- **Offerable type:** a published one-on-one template that either belongs to the organization or belongs to the mentor.
+- **Why one calendar:** every session, of any type, fills that hour for all types. A separate calendar per type would either sell one hour twice or force the mentor to enter the same hours repeatedly.
 
-### ۲. ساعت آزاد حساب می‌شود، ذخیره نمی‌شود
-`modules/scheduling/slots.ts` (تابع خالص، با تست واحد):
+### 2. Free slots are computed, not stored
+`modules/scheduling/slots.ts` (a pure function, with unit tests):
 
 ```
-پنجره‌ها = قاعده‌های آن روز هفته که این نوع را می‌پذیرند + استثنای extra − استثنای off
-            (off کل‌روز همه را خالی می‌کند)
-اسلات    = هر ۳۰ دقیقه از شروع هر پنجره، تا جایی که جلسه کامل جا شود
-آزاد      = نه زودتر از حداقل فاصله، نه دیرتر از افق، و با فاصله‌ی بین جلسه‌ها
-            از هر بازه‌ی مشغول (جلسه‌ی scheduled یا held از هر نوع + درخواست در انتظارِ زنده)
+windows = the rules of that weekday that accept this type + extra exceptions − off exceptions
+            (a whole-day off empties everything)
+slot    = every 30 minutes from the start of each window, as long as the whole session fits
+free    = not sooner than the minimum notice, not later than the horizon, and with the buffer between sessions
+            from every busy range (a scheduled or held session of any type + a live pending request)
 ```
-ساعت هر اسلات با offset همان لحظه‌ی منطقه‌ی زمانی سازمان به UTC تبدیل می‌شود (`lib/org-day`)، پس روزهای تغییر ساعت درست‌اند.
+Each slot's time is converted to UTC using the offset of that moment in the organization's time zone (`lib/org-day`), so daylight-saving change days are correct.
 
-### ۳. هر رزرو اول درخواست است (تصمیم بنیان‌گذار: تأیید مشاور لازم)
-- جدول جدای `booking_requests` (نه وضعیت تازه روی `mentoring_sessions` که طرح اولیه گفته بود): `pending` → `approved` | `declined` | `cancelled`. وضعیت `expired` ذخیره نمی‌شود؛ `pending` که `hold_until`اش گذشته در DTO «منقضی» گزارش می‌شود.
-- درخواست ساعت را تا `hold_until = min(اکنون + ۴۸ ساعت، شروع جلسه)` نگه می‌دارد. بعد از آن خودبه‌خود آزاد است؛ کار پس‌زمینه لازم نیست.
-- هر هنرجو حداکثر ۳ درخواست زنده دارد.
-- **تأیید** (مشاور همان درخواست یا مدیر): بسته دوباره پیدا می‌شود، ظرفیت و هم‌پوشانی دوباره بررسی می‌شود و جلسه‌ی معمولی با `insertBookedSession` ماژول mentoring ساخته می‌شود. `session_id` روی درخواست می‌ماند.
-- **رد:** با دلیل اختیاری که هنرجو می‌بیند؛ ساعت آزاد می‌شود.
+### 3. Every booking is first a request (founder decision: mentor approval required)
+- A separate `booking_requests` table (not a new status on `mentoring_sessions`, as the initial draft said): `pending` → `approved` | `declined` | `cancelled`. An `expired` status is not stored; a `pending` request whose `hold_until` has passed is reported as "expired" in the DTO.
+- A request holds the slot until `hold_until = min(now + 48 hours, session start)`. After that the slot is free again automatically; no background job is needed.
+- Each mentee has at most 3 live requests.
+- **Approval** (the mentor of that request, or an admin): the package is looked up again, capacity and overlap are re-checked, and a regular session is created with the mentoring module's `insertBookedSession`. `session_id` stays on the request.
+- **Decline:** with an optional reason that the mentee sees; the slot becomes free.
 
-### ۴. حق رزرو از بسته
-- **بسته** = جدیدترین عضویت فعال هنرجو در اجرای باز (`draft` یا `active`) تک‌به‌تکِ همان قالب، که مشاور در کادر اجرا یا مشاور همان عضویت است، با اعتبار تمام‌نشده.
-- **قابل رزرو** = باقی‌مانده‌ی بسته − جلسه‌های `scheduled` − درخواست‌های زنده‌ی گره‌خورده به همان بسته (`null` = بی‌سقف).
-- هنرجوی بی‌بسته هم درخواست می‌دهد (مدیرها هم اعلان می‌گیرند). مشاور فقط وقتی می‌تواند تأیید کند که مدیر او را ثبت‌نام کرده باشد (پرداخت بیرون از سیستم). در غیر این صورت ۴۰۹ با پیام روشن.
+### 4. Right to book comes from the package
+- **Package** = the mentee's most recent active membership in an open run (`draft` or `active`) of a one-on-one template for that same template, where the mentor is on the run's staff or is the mentor of that membership, with a validity period that has not ended.
+- **Bookable** = package remaining − `scheduled` sessions − live requests tied to the same package (`null` = unlimited).
+- A mentee without a package can also submit a request (admins are notified too). The mentor can approve only if an admin has enrolled the mentee (payment happens outside the system). Otherwise the response is 409 with a clear message.
 
-### ۵. لغو
-- هنرجو درخواست در انتظار را همیشه لغو می‌کند، و جلسه‌ی تأییدشده را تا `cancel_notice_hours` پیش از شروع. با لغو، جلسه `cancelled` می‌شود (`cancelBookedSession`) و مشاور اعلان می‌گیرد.
-- دیرتر فقط مشاور، از همان «ویرایش جلسه»ی ADR-0012، و خودش تصمیم می‌گیرد از بسته کم شود یا نه (`countsTowardQuota`).
+### 5. Cancellation
+- A mentee can always cancel a pending request, and can cancel an approved session up to `cancel_notice_hours` before it starts. On cancellation the session becomes `cancelled` (`cancelBookedSession`) and the mentor is notified.
+- After that deadline only the mentor can cancel, from the same "edit session" of ADR-0012, and the mentor decides whether it is deducted from the package (`countsTowardQuota`).
 
-### ۶. هم‌زمانی
-ساختن و تأیید درخواست در تراکنش با `pg_advisory_xact_lock(hashtext('scheduling.mentor:'||mentor_id))` انجام می‌شود و اسلات داخل همان قفل دوباره با `isFreeSlot` بررسی می‌شود. دو هنرجو نمی‌توانند یک ساعت را بگیرند (پاسخ دومی ۴۰۹ است و صفحه تقویم را تازه می‌کند).
+### 6. Concurrency
+Creating and approving a request run in a transaction with `pg_advisory_xact_lock(hashtext('scheduling.mentor:'||mentor_id))`, and the slot is re-checked with `isFreeSlot` inside that same lock. Two mentees cannot take the same hour (the second gets 409 and the page refreshes the calendar).
 
-### ۷. دسترسی
-| مسیر | نقش |
+### 7. Access
+| Route | Role |
 |---|---|
-| `GET`، `PUT /mentors/:id/availability` و `PUT /mentors/:id/offerings/:templateId` | مدیر برای هر کادر؛ مشاور فقط برای خودش (دیگری ۴۰۴) |
-| `GET /mentors/:id/slots?templateId=` | هنرجو فقط برای مشاوری که «پذیرش هنرجو» دارد؛ مشاور فقط تقویم خودش؛ مدیر همه |
-| `GET /booking/mentors` | فقط هنرجو |
-| `GET /booking-requests` | هنرجو مال خودش، مشاور مال خودش، مدیر همه (`status=open` پیش‌فرض کادر) |
-| `POST /booking-requests`، `POST /booking-requests/:id/cancel` | فقط هنرجو (لغو فقط مال خودش) |
-| `POST /booking-requests/:id/approve` و `decline` | مشاور همان درخواست یا مدیر |
+| `GET`, `PUT /mentors/:id/availability` and `PUT /mentors/:id/offerings/:templateId` | Admin for any staff member; mentor only for themselves (anyone else gets 404) |
+| `GET /mentors/:id/slots?templateId=` | Mentee only for a mentor who has "accepts mentees"; mentor only their own calendar; admin all |
+| `GET /booking/mentors` | Mentee only |
+| `GET /booking-requests` | Mentee their own, mentor their own, admin all (`status=open` is the staff default) |
+| `POST /booking-requests`, `POST /booking-requests/:id/cancel` | Mentee only (cancel only their own) |
+| `POST /booking-requests/:id/approve` and `decline` | The mentor of that request, or an admin |
 
-همه در ماتریس دسترسی (`routes.manifest.ts`) ثبت‌اند.
+All of them are registered in the access matrix (`routes.manifest.ts`).
 
-### ۸. اعلان و حذف حساب
-- سه نوع اعلان تازه روی سیستم ۶ب: `booking_requested` (مشاور، و مدیرها وقتی بسته نیست)، `booking_decided` (هنرجو؛ `outcome` = approved یا declined)، `booking_cancelled` (مشاور).
-- حذف حساب (ADR-0010): ساعت‌ها، استثناها، انواع و درخواست‌های آن شخص (به‌عنوان هنرجو یا مشاور) پاک می‌شوند. جلسه‌های ساخته‌شده طبق ADR-0012 می‌مانند.
+### 8. Notifications and account deletion
+- Three new notification types on notification system 6b: `booking_requested` (the mentor, and admins when there is no package), `booking_decided` (the mentee; `outcome` = approved or declined), `booking_cancelled` (the mentor).
+- Account deletion (ADR-0010): the hours, exceptions, offerings and requests of that person (as mentee or mentor) are deleted. Sessions already created remain, per ADR-0012.
 
-## پیامدها
-- مهاجرت `0013_scheduling`: چهار جدول تازه و بازسازی CHECK نوع اعلان. به داده‌ی موجود دست نمی‌زند.
-- ماژول mentoring دو تابع داخلی تازه دارد (`insertBookedSession`، `cancelBookedSession`)؛ scheduling جدول جلسه را مستقیم نمی‌نویسد (قاعده‌ی ماژول).
-- ثبت دستی جلسه مثل قبل است و هم‌پوشانی آن‌جا فقط هشدار می‌ماند (مشاور ممکن است عمداً جلسه‌ی گروهی را روی ساعت آزادش بگذارد). ساعت آن جلسه از تقویم رزرو کم می‌شود.
+## Consequences
+- Migration `0013_scheduling`: four new tables and a rebuild of the notification-type CHECK. It does not touch existing data.
+- The mentoring module has two new internal functions (`insertBookedSession`, `cancelBookedSession`); scheduling does not write the session table directly (module rule).
+- Manual session entry is as before, and overlap there remains only a warning (a mentor may deliberately put a group session on their free hour). That session's hour is subtracted from the booking calendar.
 
-## بیرون از این تصمیم
-همگام‌سازی Google Calendar (OAuth و تحریم)، فایل `.ics`، ساخت خودکار لینک جلسه، یادآور پیامکی یا ایمیلی، فهرست انتظار، جابه‌جایی درخواست به‌وسیله‌ی هنرجو (فعلاً: لغو و درخواست تازه)، منطقه‌ی زمانی جدا برای هر مشاور.
+## Out of scope for this decision
+Google Calendar sync (OAuth and sanctions), `.ics` file, automatic creation of session links, SMS or email reminders, waiting list, rescheduling of a request by the mentee (for now: cancel and submit a new request), a separate time zone per mentor.
 
 ## Amendment — sprint 7b (2026-10-29): dates replace the weekly hours
 **Request (founder, 2026-10-29):** a calendar that opens like Google Calendar, where the mentor says which dates they can meet; mentors set days and hours month by month, not the same every week.

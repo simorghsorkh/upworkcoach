@@ -12,7 +12,7 @@ import type { StaffTaskDTO } from '../tasks/contracts';
  * Optional, atomic with the stage change (sprint-3 frontend gap 4): `createTemplateIds`
  * (active templates → one task each, like `POST /students/:id/tasks { templateId }`) and
  * `cancelTaskIds` (non-final tasks of THIS student, cancelled with `cancelReason`, default
- * «با تغییر مرحله لغو شد.»). One bad id → 422 and nothing (not even the stage) changes.
+ * "Cancelled by the stage change."). One bad id → 422 and nothing (not even the stage) changes.
  */
 export const changeStageInput = z.strictObject({
   toStageId: uuidInput,
@@ -65,7 +65,7 @@ export type BoardStudentDTO = {
   lifecycleStatus: 'active' | 'paused' | 'graduated' | 'dropped';
   /** Staff-only health; null only until the first computation (sprint 4). */
   health: HealthSummary | null;
-  /** `invited` = «هنوز وارد نشده» (sprint-2 frontend gap 3). */
+  /** `invited` = "Not signed in yet" (sprint-2 frontend gap 3). */
   accountStatus: 'invited' | 'active' | 'disabled';
 };
 

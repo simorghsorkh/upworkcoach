@@ -3,7 +3,7 @@ import { expectPersianPage, isMobile } from './helpers';
 import { E2E_PORT, readState } from './server/state';
 
 /**
- * «تیم» (admin): new mentor → (SEC-S7 password check) → one-time invite link → the mentor
+ * "Team" (admin): new mentor → (SEC-S7 password check) → one-time invite link → the mentor
  * opens it, sets a password, signs in and sees only their own students. 1440px and 375px.
  * The first POST /invitations is answered with `403 REAUTH_REQUIRED` by the test (a fresh
  * e2e session is always within the 30-minute window), so the real `POST /auth/reauth` and the
@@ -38,7 +38,7 @@ test('admin invites a mentor (with password re-check); the mentor sees only own 
 
   await signIn(page, state.admin.phone, state.admin.password);
 
-  // --- «تیم» in the admin menu ----------------------------------------------------------
+  // --- "Team" in the admin menu ----------------------------------------------------------
   if (desktop) {
     await page.getByRole('link', { name: 'تیم' }).click();
   } else {
@@ -147,7 +147,7 @@ test('admin invites a mentor (with password re-check); the mentor sees only own 
   expect(team?.status() ?? 200).toBeLessThan(500);
   await context.close();
 
-  // --- back in «تیم»: active, with the accepted date and 1 student ------------------------
+  // --- back in "Team": active, with the accepted date and 1 student ------------------------
   await page.goto('/team');
   const active = page.getByRole('listitem').filter({ hasText: mentorName });
   await expect(active.getByText('فعال', { exact: true })).toBeVisible(SLOW);

@@ -78,8 +78,8 @@ export function seedIdsFor(org: string): SeedIds {
 }
 
 /**
- * Default milestone types (PRD F9). Only «اولین قرارداد یا سفارش پولی» counts for the
- * North Star (flag, not name). «اولین …» types are unique per student.
+ * Default milestone types (PRD F9). Only "First paid contract or order" counts for the
+ * North Star (flag, not name). "First …" types are unique per student.
  */
 const milestoneTypeRows = (ids: SeedIds) =>
   [

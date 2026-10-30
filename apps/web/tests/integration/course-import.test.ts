@@ -4,7 +4,7 @@ import { toLocalMobile } from '@/lib/phone';
 import { call, createUser, loginAs, type TestUser, uniquePhone } from './helpers';
 
 /**
- * Coach Office sprint 6: CSV import into one course (`runId`), with the optional «فاز» column;
+ * Coach Office sprint 6: CSV import into one course (`runId`), with the optional "Phase" column;
  * a mentee already registered with the row's mobile is only enrolled.
  */
 

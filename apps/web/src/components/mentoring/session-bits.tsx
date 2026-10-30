@@ -27,7 +27,7 @@ export function SessionStatusTag({ status }: { status: SessionStatus }) {
   );
 }
 
-/** «۵ از ۸ جلسه · ۱۲ روز تا پایان اعتبار» (ADR-0012 §4); nothing for a run without a quota. */
+/** "5 of 8 sessions · 12 days until the quota expires" (ADR-0012 §4); nothing for a run without a quota. */
 export function UsageLine({ usage, className }: { usage: PackageUsageDTO; className?: string }) {
   const t = useTranslations('mentoring.usage');
   if (usage.quota === null && usage.daysLeft === null) return null;

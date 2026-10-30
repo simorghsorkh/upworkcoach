@@ -10,7 +10,7 @@ import type { StudentListDTO } from '@/modules/students/contracts';
 export type PickedStudent = { id: string; displayName: string; stage?: string };
 
 /**
- * Student search box (mockups/today.html «یادداشت تازه» → `.suggest`): an ARIA combobox over
+ * Student search box (mockups/today.html "New note" → `.suggest`): an ARIA combobox over
  * `GET /api/v1/students?q=` (name, mobile, tag; already limited to the actor's scope).
  * Two letters are enough (user-flows §5). `multiple` keeps the chosen students as chips
  * (bulk task, user-flows §4).

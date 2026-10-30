@@ -58,8 +58,8 @@ function uploadError(status: number, message: string): string {
 }
 
 /**
- * S3 «تحویل نسخه‌ی N» (mockups/student-task.html #submit). Fields follow the submission type:
- * text, links (https only), images up to 5 MB, and for «پروپوزال برای بررسی» separate
+ * S3 "Submit version N" (mockups/student-task.html #submit). Fields follow the submission type:
+ * text, links (https only), images up to 5 MB, and for "Proposal for review" separate
  * platform, job post and proposal boxes in English (LTR) with the anonymous-use consent OFF by
  * default (D6). A new version starts from the previous one; the text stays on this device until
  * it is sent. Images go to `POST /attachments` first, then the submission links them.
@@ -488,7 +488,7 @@ export function SubmitForm({
   );
 }
 
-/** «شروع کردم» (optional, open → in progress). */
+/** "I started" (optional, open → in progress). */
 export function StartTaskButton({ taskId }: { taskId: string }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);

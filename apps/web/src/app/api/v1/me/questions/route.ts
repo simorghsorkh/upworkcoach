@@ -9,7 +9,7 @@ export const GET = route({
   handler: async ({ auth, query }) => ok(await listOwnQuestions(auth.actor, query)),
 });
 
-/** POST /api/v1/me/questions — S: a new thread (also «درخواست تمدید مهلت» with `taskId`). */
+/** POST /api/v1/me/questions — S: a new thread (also "Deadline extension request" with `taskId`). */
 export const POST = route({
   auth: true,
   input: createQuestionInput,

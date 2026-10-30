@@ -104,7 +104,7 @@ export function EmptyState({
   );
 }
 
-/** Load error inside a section: red icon + «تلاش دوباره». */
+/** Load error inside a section: red icon + "Try again". */
 export function ErrorState({
   title = 'این بخش بار نشد',
   children = 'اتصال اینترنت را بررسی کن.',
@@ -160,8 +160,8 @@ const rowWidths = [
 ] as const;
 
 /**
- * List placeholder while loading. Announces «در حال بارگذاری…» once and, after
- * 10 seconds, «اتصال کند است…» (design-system §6).
+ * List placeholder while loading. Announces "Loading…" once and, after
+ * 10 seconds, "The connection is slow…" (design-system §6).
  */
 export function SkeletonRows({
   rows = 3,

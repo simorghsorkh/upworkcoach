@@ -1,5 +1,5 @@
 /**
- * pnpm admin:create --phone 0912… --name "نام مدیر" [--org <slug>]
+ * pnpm admin:create --phone 0912… --name "Admin Name" [--org <slug>]
  * Creates the FIRST admin (owner) of an organization — default: the organization of the 0.1
  * data — refuses when it has an admin already, and prints a 1-hour setup link.
  * ADR-0003 section 1 (`admin:bootstrap`), ADR-0011, security.md SEC-T6 / SEC-E3.

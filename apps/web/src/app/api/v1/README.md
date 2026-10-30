@@ -1,4 +1,4 @@
 # /api/v1 — REST API
 
-هر endpoint یک `route.ts` نازک است: احراز هویت ← اعتبارسنجی zod ← فراخوانی `service` ماژول ← DTO.
-منطق کسب‌وکار و بررسی دسترسی داخل service است (tech-stack.md بخش ۳). قرارداد: `docs/04-architecture/api.md`.
+Each endpoint is a thin `route.ts`: authentication → zod validation → call the module's `service` → DTO.
+Business logic and access checks live inside the service (tech-stack.md section 3). Contract: `docs/04-architecture/api.md`.

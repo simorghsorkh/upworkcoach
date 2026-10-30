@@ -24,8 +24,8 @@ export type ActionTask = Pick<
 type Panel = 'extend' | 'cancel' | 'edit' | 'menu' | null;
 
 /**
- * M6 header actions (mockups/task-detail.html): «تمدید مهلت» with a reason and «لغو کار» with
- * a required reason. On mobile they sit in the «این کار» sheet. Final tasks show nothing.
+ * M6 header actions (mockups/task-detail.html): "Extend deadline" with a reason and "Cancel task" with
+ * a required reason. On mobile they sit in the "This task" sheet. Final tasks show nothing.
  */
 export function TaskActions({
   task,

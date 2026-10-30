@@ -250,9 +250,9 @@ export async function cancelReminder(
 // ---- internal (other modules' services; no actor) --------------------------------------
 
 /**
- * «امروز»: open reminders due before the end of today (Tehran), past ones included.
- * Mentor: own. Admin: `mentorId` → that owner; otherwise everybody's (F6 «مدیر همه را با
- * فیلتر مشاور»). The caller already checked the role.
+ * "Today": open reminders due before the end of today (Tehran), past ones included.
+ * Mentor: own. Admin: `mentorId` → that owner; otherwise everybody's (F6 "the admin sees everyone, with a
+ * mentor filter"). The caller already checked the role.
  */
 export async function remindersForToday(
   db: DbOrTx,

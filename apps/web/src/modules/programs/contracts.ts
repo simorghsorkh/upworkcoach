@@ -314,7 +314,7 @@ export type RunDTO = RunSummaryDTO & {
 
 /**
  * Where a mentee stands in one course other than the main path (sprint 5c): shown on the
- * student list, «امروز» and the course board next to the 0.1 stage.
+ * student list, "Today" and the course board next to the 0.1 stage.
  */
 export type CoursePhaseDTO = {
   enrollmentId: string;

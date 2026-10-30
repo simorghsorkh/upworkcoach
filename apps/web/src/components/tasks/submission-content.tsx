@@ -33,7 +33,7 @@ function LtrLabel({ children, count }: { children: string; count?: number }) {
 }
 
 /**
- * One submission version (M6 «تحویل امیر», S3 history): Persian text, the English Upwork
+ * One submission version (M6 "Amir's submission", S3 history): Persian text, the English Upwork
  * content in its own LTR blocks (design-system §7), links with their destination visible
  * (SEC-X6) and image attachments served by our API.
  */

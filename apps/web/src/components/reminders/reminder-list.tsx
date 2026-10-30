@@ -17,7 +17,7 @@ import type { ReminderDTO } from '@/modules/reminders/contracts';
 const UNDO_SECONDS = 10;
 
 /**
- * «انجام شد» is sent after the undo window (user-flows §6: «برگرداندن» تا ۱۰ ثانیه), because
+ * "Done" is sent after the undo window (user-flows §6: "Undo" for 10 seconds), because
  * the API has no «undo done». Pending ones are flushed with `keepalive` if the tab closes.
  */
 const pending = new Map<string, ReturnType<typeof setTimeout>>();
@@ -45,7 +45,7 @@ if (typeof window !== 'undefined') {
   });
 }
 
-/** «از دیروز»، «۲ روز گذشته» for overdue reminders. */
+/** "Since yesterday", "2 days overdue" for overdue reminders. */
 function lateLabel(dueAt: Date, now: Date): string {
   const days = tehranDaysBetween(dueAt, now);
   if (days <= 0) return 'از امروز';
@@ -55,7 +55,7 @@ function lateLabel(dueAt: Date, now: Date): string {
 
 /**
  * Reminder rows (mockups/today.html #reminders): student and text link to the record, late
- * ones get a red start line and «از دیروز», «انجام شد» (with undo) and «تعویق» 1 day / 3 days
+ * ones get a red start line and "Since yesterday", "Done" (with undo) and "Postpone" 1 day / 3 days
  * / 1 week (`POST /reminders/:id/snooze`).
  */
 export function ReminderList({

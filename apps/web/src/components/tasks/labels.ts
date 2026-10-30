@@ -73,7 +73,7 @@ export const noteKindLabel: Record<NoteKind, string> = fa.noteKind;
 /** Kinds offered in the composer (weekly review is written from the weekly review flow). */
 export const COMPOSER_KINDS: readonly NoteKind[] = ['note', 'session', 'call', 'external_message'];
 
-/** user-flows §5: «جلسه» opens with a short, deletable template. */
+/** user-flows §5: "Session" opens with a short, deletable template. */
 export const SESSION_TEMPLATE = fa.sessionTemplate;
 
 /** mentor-workflow §6: the feedback template (verdict, strength, ≤ 3 fixes, next step). */

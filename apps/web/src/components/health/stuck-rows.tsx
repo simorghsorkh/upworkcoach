@@ -14,8 +14,8 @@ import { ruleAdvice } from './reasons';
 export type RedNoAction = { escalated: boolean; breached: boolean };
 
 /**
- * «هنرجوهای گیرکرده» rows (mockups/today.html #stuck, user-flows §7): badge, the reason in
- * plain Persian with the rule code, «توپ در زمین …», «قرمز از N روز · بدون اقدام» and the
+ * "Stuck students" rows (mockups/today.html #stuck, user-flows §7): badge, the reason in
+ * plain Persian with the rule code, "Ball in the … court", "red for N days · no action" and the
  * escalation tag. Churn risk always comes first.
  */
 export function StuckRows({

@@ -1,198 +1,200 @@
-# وضعیت پروژه
+# Project status
 
-**Current phase:** evolving into **Coach Office** (a multi-tenant mentoring platform). **Sprint 7b (month calendar: mentors set dates and hours month by month, at the founder's request) is done;** next is pilot preparation (production rollout with the founder's approval, trying Takanesh data). Sprints 1–7 are done too; none is committed or on production (migrations 0006–0014). Sprint 0 (docs and ADR-0011 to 0013) was approved. Version 0.1 runs on Vercel and Supabase and the founder tested it.
-**Last updated:** 2026-10-29 (8 Aban 1405, Coach Office sprint 7b)
+**Current phase:** evolving into **Coach Office** (a multi-tenant mentoring platform). **Sprint 7b (month calendar: mentors set dates and hours month by month, at the founder's request) is done;** next is pilot preparation (production rollout with the founder's approval, trying Takanesh data). Sprints 1–7 are done too; all of them are committed (`e83c8bc`, 2026-10-30) but not on production (migrations 0006–0014 not applied). Sprint 0 (docs and ADR-0011 to 0013) was approved. Version 0.1 runs on Vercel and Supabase and the founder tested it.
+**Last updated:** 2026-10-30 (8 Aban 1405, documentation translated to English)
 
-## تکامل به Coach Office (از ۶ آبان ۱۴۰۵)
-- **اسناد:** `docs/08-saas-evolution/architecture-review.md` (بازبینی کد، تحلیل شکاف، معماری هدف، نقشه‌ی راه، ریسک)، `docs/08-saas-evolution/prd-coach-office.md`، ADR-0011 تا ADR-0013.
-- **اولین مشتری:** آکادمی تکانش؛ پایلوت با ۳ مشاور و ۱۰۰ هنرجو (کل: ۱۰ مشاور، بیش از ۳۰۰۰ هنرجو). هنرجوهای فعلی بنیان‌گذار به سازمان تکانش می‌روند.
-- **نقشه‌ی راه:** اسپرینت ۰ (سند) ← ۱ چندسازمانی ← ۲ چندزبانگی ← ۳ مدل برنامه ← ۴ مشاور و دایرکتوری ← ۵ تکلیف و پیشرفت ← ۵ب بسته، جلسه، هدف ← ۵ج مراحل هر دوره ← ۶الف نمای کلی و ورود به دوره ← ۶ب داشبورد و ورود تکانش؛ حدود ۱۴ تا ۱۷ هفته.
-- **سؤال‌های باز:** Q2 تاریخ شروع پایلوت (هنوز مشخص نیست)؛ پلن تجاری Vercel پیش از داده‌ی تکانش (Hobby غیرتجاری است)؛ پشتیبان شبانه‌ی مستقل از Supabase؛ به‌روزرسانی `CLAUDE.md` برای جهت تازه.
-- **گیت اسپرینت ۰:** تأیید شد؛ پاسخ‌ها: فروش بسته، زمان‌بندی ساده در MVP، قالب توسط مدیر و مشاور، یادداشت خصوصی خصوصی می‌ماند، ورود با موبایل و لینک دستی فعلاً کافی است، Vercel و Supabase تا روشن شدن مدل همکاری و سرور می‌مانند.
-- **اسپرینت ۱ (چندسازمانی):** `docs/05-delivery/saas-sprint-1.md`. مهاجرت `0006_organizations`، جداسازی سازمان در همه‌ی queryها، تنظیمات و فهرست‌های سازمانی، جابه‌جایی سازمان در «حساب من»، CLIهای `org:*`. همه‌ی تست‌ها سبز؛ مهاجرت روی داده‌ی شبیه 0.1 تست شد. **روی تولید اجرا نشده و کامیت نشده.** ترتیب اجرا (پشتیبان ← migrate ← استقرار ← `org:rename` به تکانش) در سند اسپرینت است.
-- **اسپرینت ۲ (چندزبانگی):** `docs/05-delivery/saas-sprint-2.md`. next-intl، `lang`/`dir` پویا، ترجیح زبان در «حساب من» (مهاجرت `0007_user_preferences`)، خطاهای API به زبان درخواست، `lib/format` و `lib/org-day` (تست تهران و آمستردام)، استخراج پوسته، ورود و دعوت، «امروز» و فهرست کارها، `org:create --locale`، نگهبان CI برای متن فارسی تازه. **روی تولید اجرا نشده و کامیت نشده.** مانده برای اسپرینت ۳: فرم‌های کار و بقیه‌ی صفحه‌ها (خط پایه‌ی CI).
-- **اسپرینت ۳ (مدل برنامه):** `docs/05-delivery/saas-sprint-3.md`، ADR-0012 (پذیرفته‌شده، گام expand). مهاجرت `0008_programs`: قالب با فاز و فعالیت، انتشار، کپی، بایگانی، قالب خصوصی مشاور با تأیید مدیر؛ اجرا با کپی ثابت قالب (گروهی و تک‌نفره، تک‌به‌تک بی‌قالب)؛ عضویت، توقف، پایان و تغییر فاز؛ مسیر فعلی برای هر سازمان به برنامه‌ی «منتورینگ فریلنسری» با عضویت همه‌ی هنرجوها تبدیل و با trigger هم‌زمان می‌ماند. صفحه‌های «برنامه‌ها»، ویرایشگر قالب، صفحه‌ی اجرا و «برنامه‌های من» به دو زبان. سه معیار پذیرش برقرار (تست و مرورگر لوکال). **روی تولید اجرا نشده و کامیت نشده؛ ۰۰۰۸ فقط بعد از ۰۰۰۶ و ۰۰۰۷.** دامنه‌ی مشاور، کانبان، «امروز» و سلامت هنوز روی مسیر قدیمی‌اند (اسپرینت ۴ و ۵).
-- **نتیجه‌ی بررسی‌ها (پایان اسپرینت ۳):** ۱۷۹۷ تست (واحد و یکپارچه، ۸۱ فایل): ۱۷۹۶ سبز؛ یک تست قدیمی فرم پروفایل فقط زیر بار کل مجموعه از مهلت ۵ ثانیه گذشت و جداگانه سبز است (در اجرای کامل قبلی هم سبز بود)؛ typecheck، Biome و نگهبان i18n سبز.
-- **اسپرینت ۴ (مشاور و دایرکتوری):** `docs/05-delivery/saas-sprint-4.md`. مهاجرت `0009_mentors`: `enrollment_mentors` (مشاور اصلی و همراه، با انتقال تاریخچه‌ی `mentor_assignments`) و `mentor_profiles`. دامنه‌ی مشاور حالا از عضویت و کادر اجرا می‌آید. یادداشت `private` که مدیر نمی‌بیند. صفحه‌ی «مشاوران» و صفحه‌ی هر مشاور (کارت، ظرفیت، انتقال همه). کارت «برنامه‌ها و مشاورها» در پرونده‌ی هنرجو. تنظیم «مشاورها اجرای گروهی بسازند». سه معیار پذیرش با تست خودکار برقرارند. **روی تولید اجرا نشده و کامیت نشده؛ ۰۰۰۹ فقط بعد از ۰۰۰۶ تا ۰۰۰۸.**
-- **بنیان‌گذار (۷ آبان):** «این اسپرینت تموم شد، اسپرینت بعدی را هم شروع کن». اسپرینت ۵ بلافاصله شروع شد.
-- **اسپرینت ۵ (تکلیف و پیشرفت):** `docs/05-delivery/saas-sprint-5.md`.
-  - مهاجرت `0010_program_progress`: `tasks.enrollment_id` و `tasks.node_id`، جدول `node_completions`، و `milestone_type_id` روی گره‌ها.
-  - «واگذاری به گروه» از فعالیت تکلیف، با مهلت نسبی به شروع اجرا.
-  - علامت «انجام شد» و چک‌لیست برای هنرجو.
-  - تابع خالص پیشرفت (فقط فعالیت‌های الزامی؛ بدون فعالیت الزامی، «نامعلوم»).
-  - نوار پیشرفت در اجرا، پرونده‌ی هنرجو و «برنامه‌های من».
-  - فیلتر برنامه و مهلت در صف بازبینی.
-  - کل مجموعه سبز است: ۱۸۸۴ تست.
-  - «برنامه‌های من» با حساب هنرجو در مرورگر دیده نشد.
-  - **روی تولید اجرا نشده و کامیت نشده؛ ۰۰۱۰ فقط بعد از ۰۰۰۶ تا ۰۰۰۹.**
-- **اسپرینت ۵ب (بسته، جلسه، هدف):** `docs/05-delivery/saas-sprint-5b.md`.
-  - مهاجرت `0011_sessions_goals`: جدول‌های `mentoring_sessions` و `goals`، و ستون `tasks.session_id`.
-  - جلسه‌ی تک‌نفره و گروهی: ثبت، برگزار، غیبت، لغو و تغییر زمان. هم‌پوشانی فقط هشدار است.
-  - اقدام بعدی جلسه به‌صورت کار پیگیری هنرجو.
-  - مصرف بسته («۱ از ۸ جلسه · ۶۰ روز تا پایان اعتبار»). غیبت به‌طور پیش‌فرض شمرده می‌شود و برای هر جلسه می‌شود معافش کرد.
-  - هدف‌ها، و پیشرفت تک‌به‌تک بر اساس هدف.
-  - جلسه‌های ۷ روز آینده در «امروز»، با برچسب برای ۲۴ ساعت آینده.
-  - معیار پذیرش قدم ۷ برقرار است (تست و مرورگر لوکال).
-  - کل مجموعه سبز است: ۱۹۴۸ تست.
-  - «برنامه‌های من» با حساب هنرجو در مرورگر دیده نشد.
-  - **روی تولید اجرا نشده و کامیت نشده؛ ۰۰۱۱ فقط بعد از ۰۰۰۶ تا ۰۰۱۰.**
-- **بنیان‌گذار:** «هر دوره مراحل خاص خودش را داره… می‌خوام برای هر دوره تعریف کرد». برآورد: حدود یک اسپرینت؛ بنیان‌گذار گفت انجام شود و بعد اسپرینت ۶.
-- **اسپرینت ۵ج (مراحل جداگانه برای هر دوره):** `docs/05-delivery/saas-sprint-5c.md`.
-  - فازهای هر دوره از اسپرینت ۳ در قالب تعریف می‌شدند؛ حالا صفحه‌های روزانه هم آن‌ها را می‌شناسند.
-  - انتخابگر «دوره» در «مراحل» و کانبان فازهای همان دوره. مسیر اصلی همان کانبان قبلی است.
-  - فیلتر دوره و فاز در فهرست هنرجوها، و برچسب «دوره · فاز n از m» در ردیف‌ها و «امروز».
-  - «تغییر فاز» در پرونده‌ی هنرجو.
-  - R-STALL روی فاز همه‌ی عضویت‌های فعال؛ بدترین فاز تصمیم می‌گیرد.
-  - مهاجرت ندارد. کل مجموعه سبز است: ۱۹۵۶ تست.
-  - **روی تولید نرفته و کامیت نشده.**
-- **اسپرینت ۶الف (نمای کلی سازمان و ورود گروهی به دوره):** `docs/05-delivery/saas-sprint-6a.md`.
-  - اسپرینت ۶ دو بخش شد؛ ۶الف چیزهایی است که پایلوت بدون آن‌ها شروع نمی‌شود.
-  - صفحه‌ی «نمای کلی» مدیر: سلامت هنرجوها، کار منتظر تیم، جدول دوره‌ها (اعضا، پیشرفت میانگین، قرمز و زرد) و جدول مشاوران (هنرجو، ظرفیت، بازبینی دیرکرده، قرمز).
-  - «ورود از اکسل» به یک دوره‌ی گروهی باز، با ستون اختیاری «فاز». هنرجوی موجود با همان موبایل فقط به دوره اضافه می‌شود.
-  - مهاجرت ندارد. کل مجموعه سبز است: ۱۹۶۷ تست.
-  - **روی تولید نرفته و کامیت نشده.**
-- **اسپرینت ۶ب (اعلان، داشبورد هنرجو، انگلیسی، e2e سناریو):** `docs/05-delivery/saas-sprint-6b.md`.
-  - اعلان درون‌برنامه‌ای با زنگ و صفحه‌ی اعلان‌ها برای کادر و هنرجو: کار تازه، نتیجه‌ی بازبینی، تحویل تازه، پیام و پاسخ سؤال، جلسه‌ی تازه.
-  - کارت «برنامه‌های من» در «خانه»ی هنرجو: پیشرفت، فاز فعلی، جلسه‌ی بعدی و مصرف بسته.
-  - e2e سناریوی پذیرش PRD (۱۳ قدم): یک سازمان دوم در سرور e2e برای قدم جداسازی؛ انگلیسی در دو اندازه روی ۱۳ صفحه‌ی اصلی بدون شکستگی.
-  - مهاجرت `0012_notifications` (فقط جدول تازه). کل مجموعه سبز است: ۱۹۸۶ تست.
-  - **روی تولید نرفته و کامیت نشده.**
-- **اسپرینت ۷ (تقویم مشاور و رزرو جلسه):** `docs/05-delivery/saas-sprint-7.md`، ADR-0014، طرح: `docs/08-saas-evolution/booking-design.md`. تغییر دامنه با تصمیم بنیان‌گذار (۷ آبان): رزرو قبلاً بیرون از MVP بود.
+- **Documentation language (8 Aban 1405 / 2026-10-30):** all docs, ADRs, agent definitions and code comments are now in English (founder's decision). Persian is kept only where the exact Persian text is the point (Persian-text handling examples, stored constants, UI copy specs), always with an English gloss. Wireframe mockups and the app UI (`messages/fa.json`) stay Persian. Not committed yet.
+
+## Evolution into Coach Office (from 6 Aban 1405)
+- **Documents:** `docs/08-saas-evolution/architecture-review.md` (code review, gap analysis, target architecture, roadmap, risks), `docs/08-saas-evolution/prd-coach-office.md`, ADR-0011 to ADR-0013.
+- **First customer:** Takanesh Academy; pilot with 3 mentors and 100 students (total: 10 mentors, more than 3000 students). The founder's current students move to the Takanesh organization.
+- **Roadmap:** sprint 0 (docs) → 1 multi-organization → 2 multilingual → 3 program model → 4 mentors and directory → 5 tasks and progress → 5b packages, sessions, goals → 5c per-run stages → 6a overview and run enrollment → 6b dashboard and Takanesh onboarding; about 14 to 17 weeks.
+- **Open questions:** Q2 pilot start date (not yet known); a commercial Vercel plan before Takanesh data goes in (Hobby is non-commercial); an independent nightly backup of Supabase; updating `CLAUDE.md` for the new direction.
+- **Sprint 0 gate:** approved; answers: packages are sold, simple scheduling in the MVP, templates are created by admins and mentors, the mentor's private note stays private, sign-in by mobile number with a manual link is enough for now, Vercel and Supabase stay until the collaboration model and the server question are clear.
+- **Sprint 1 (multi-organization):** `docs/05-delivery/saas-sprint-1.md`. Migration `0006_organizations`, organization isolation in all queries, organization settings and lists, organization switching in "My account", `org:*` CLIs. All tests green; the migration was tested on 0.1-like data. **Not run on production and not committed.** The rollout order (backup → migrate → deploy → `org:rename` to Takanesh) is in the sprint document.
+- **Sprint 2 (multilingual):** `docs/05-delivery/saas-sprint-2.md`. next-intl, dynamic `lang`/`dir`, language preference in "My account" (migration `0007_user_preferences`), API errors in the request language, `lib/format` and `lib/org-day` (Tehran and Amsterdam tests), shell extraction, sign-in and invitation, "Today" and the task list, `org:create --locale`, a CI guard against new Persian text. **Not run on production and not committed.** Left for sprint 3: the task forms and the rest of the pages (CI baseline).
+- **Sprint 3 (program model):** `docs/05-delivery/saas-sprint-3.md`, ADR-0012 (accepted, expand step). Migration `0008_programs`: template with phases and activities, publish, copy, archive, a mentor's private template with admin approval; a run with a fixed copy of the template (group and individual, one-on-one without a template); enrollment, pause, end and phase change; for each organization the current path became the "Freelance mentoring" program (`«منتورینگ فریلنسری»`, the seeded name) with every student enrolled, and it stays in sync via a trigger. The "Programs" pages, the template editor, the run page and "My programs", in two languages. The three acceptance criteria hold (tests and local browser). **Not run on production and not committed; 0008 only after 0006 and 0007.** The mentor scope, the kanban, "Today" and health are still on the old path (sprints 4 and 5).
+- **Check results (end of sprint 3):** 1797 tests (unit and integration, 81 files): 1796 green; one old profile-form test exceeded the 5-second timeout only under the load of the whole suite and is green on its own (it was also green in the previous full run); typecheck, Biome and the i18n guard are green.
+- **Sprint 4 (mentors and directory):** `docs/05-delivery/saas-sprint-4.md`. Migration `0009_mentors`: `enrollment_mentors` (primary and companion mentor, with the `mentor_assignments` history carried over) and `mentor_profiles`. The mentor scope now comes from enrollment and run staff. A `private` note that the admin cannot see. The "Mentors" page and each mentor's page (card, capacity, transfer all). A "Programs and mentors" card in the student record. The setting "Mentors can start group runs". The three acceptance criteria are covered by automated tests. **Not run on production and not committed; 0009 only after 0006 to 0008.**
+- **Founder (7 Aban):** "This sprint is done, start the next sprint too". Sprint 5 started immediately.
+- **Sprint 5 (tasks and progress):** `docs/05-delivery/saas-sprint-5.md`.
+  - Migration `0010_program_progress`: `tasks.enrollment_id` and `tasks.node_id`, the `node_completions` table, and `milestone_type_id` on nodes.
+  - "Assign to group" from a task activity, with a deadline relative to the run start.
+  - A "Mark done" action and a checklist for the student.
+  - A pure progress function (required activities only; with no required activity, "unknown").
+  - A progress bar in the run, the student record and "My programs".
+  - Program and deadline filters in the review queue.
+  - The whole suite is green: 1884 tests.
+  - "My programs" was not viewed in the browser with a student account.
+  - **Not run on production and not committed; 0010 only after 0006 to 0009.**
+- **Sprint 5b (packages, sessions, goals):** `docs/05-delivery/saas-sprint-5b.md`.
+  - Migration `0011_sessions_goals`: the `mentoring_sessions` and `goals` tables, and the `tasks.session_id` column.
+  - One-on-one and group sessions: schedule, held, no-show, cancel and reschedule. Overlap is only a warning.
+  - A session's next action as a follow-up task for the student.
+  - Package consumption ("1 of 8 sessions · 60 days until expiry"). A no-show counts by default and can be waived per session.
+  - Goals, and per-goal progress for one-on-one mentoring.
+  - Sessions in the next 7 days in "Today", with a label for the next 24 hours.
+  - The step 7 acceptance criterion holds (tests and local browser).
+  - The whole suite is green: 1948 tests.
+  - "My programs" was not viewed in the browser with a student account.
+  - **Not run on production and not committed; 0011 only after 0006 to 0010.**
+- **Founder:** "Each course has its own stages… I want to define them for each course". Estimate: about one sprint; the founder said to do it, then sprint 6.
+- **Sprint 5c (separate stages for each course):** `docs/05-delivery/saas-sprint-5c.md`.
+  - Each course's phases were defined in the template in sprint 3; now the daily pages know them too.
+  - A "Course" selector in "Stages" and a kanban of that course's phases. The main path is the same old kanban.
+  - Course and phase filters in the student list, and a "Course · phase n of m" label in rows and "Today".
+  - "Change phase" in the student record.
+  - R-STALL runs on the phase of all active enrollments; the worst phase decides.
+  - No migration. The whole suite is green: 1956 tests.
+  - **Not on production and not committed.**
+- **Sprint 6a (organization overview and group run enrollment):** `docs/05-delivery/saas-sprint-6a.md`.
+  - Sprint 6 was split in two; 6a is what the pilot cannot start without.
+  - The admin "Overview" page: student health, work waiting for the team, a courses table (members, average progress, red and yellow) and a mentors table (students, capacity, overdue reviews, red).
+  - "Import from Excel" into an open group run, with an optional "Phase" column. An existing student with the same mobile number is only added to the course.
+  - No migration. The whole suite is green: 1967 tests.
+  - **Not on production and not committed.**
+- **Sprint 6b (notifications, student dashboard, English, e2e scenario):** `docs/05-delivery/saas-sprint-6b.md`.
+  - In-app notifications with a bell and a notifications page for staff and students: new task, review result, new submission, message and question reply, new session.
+  - A "My programs" card on the student's "Home": progress, current phase, next session and package consumption.
+  - An e2e of the PRD acceptance scenario (13 steps): a second organization on the e2e server for the isolation step; English at two sizes on the 13 main pages without breakage.
+  - Migration `0012_notifications` (a new table only). The whole suite is green: 1986 tests.
+  - **Not on production and not committed.**
+- **Sprint 7 (mentor calendar and session booking):** `docs/05-delivery/saas-sprint-7.md`, ADR-0014, design: `docs/08-saas-evolution/booking-design.md`. A scope change by the founder's decision (7 Aban): booking was previously outside the MVP.
 - **Sprint 7b (month calendar for mentor hours):** `docs/05-delivery/saas-sprint-7b.md`, ADR-0014 amendment. Dates set in a month grid replace the weekly hours of those dates; weekly hours are optional. Migration `0014_date_hours`.
-  - «تقویم» مشاور: انواع جلسه (قالب‌های تک‌به‌تک) با تنظیمات رزرو، ساعت‌های هفتگی با محدود کردن هر بازه به چند نوع، روزهای استثنا، پیش‌نمایش، و تأیید یا رد درخواست‌ها. مدیر تقویم هر مشاور را دارد.
-  - «رزرو جلسه» هنرجو: مشاوران پذیرنده با انواع جلسه و بسته‌ی خود هنرجو، تقویم شمسی ساعت‌های آزاد، درخواست با یادداشت، فهرست درخواست‌ها و لغو تا ۲۴ ساعت پیش از جلسه.
-  - تصمیم‌های بنیان‌گذار: تأیید مشاور برای هر رزرو؛ تأیید فقط با بسته‌ی فعال همان نوع و همان مشاور (بی‌بسته: درخواست، و مدیر بعد از پرداخت بیرون از سیستم ثبت‌نام می‌کند)؛ همه‌ی مشاوران پذیرنده؛ لغو دیرتر فقط با مشاور.
-  - مهاجرت `0013_scheduling` (چهار جدول تازه و CHECK نوع اعلان). کل مجموعه سبز است: ۲۰۸۲ تست؛ e2e رزرو در هر دو اندازه سبز.
-  - **روی تولید نرفته و کامیت نشده؛ ۰۰۱۳ فقط بعد از ۰۰۰۶ تا ۰۰۱۲.**
-- **قدم بعد (آماده‌سازی پایلوت):** تصمیم بنیان‌گذار درباره‌ی استقرار ۰۰۰۶ تا ۰۰۱۳ روی تولید؛ امتحان ورود داده‌ی واقعی تکانش؛ سنجش کارایی با ۳۰۰۰ هنرجو.
-- **سؤال باز تازه:** نمونه‌ی فایل یا خروجی فعلی هنرجوهای تکانش (ستون‌ها و شکل تاریخ) برای امتحان ورود واقعی پیش از پایلوت.
+  - The mentor's "Calendar": session types (one-on-one templates) with booking settings, weekly hours with each range limited to some types, exception days, a preview, and approving or declining requests. The admin has every mentor's calendar.
+  - The student's "Book a session": accepting mentors with their session types and the student's own package, a Jalali calendar of free hours, a request with a note, a list of requests, and cancelling up to 24 hours before the session.
+  - Founder decisions: mentor approval for every booking; approval only with an active package of the same type and the same mentor (without a package: a request, and the admin enrolls them after payment outside the system); all mentors accepting; later cancellation only through the mentor.
+  - Migration `0013_scheduling` (four new tables and the notification-type CHECK). The whole suite is green: 2082 tests; the booking e2e is green at both sizes.
+  - **Not on production and not committed; 0013 only after 0006 to 0012.**
+- **Next step (pilot preparation):** the founder's decision on deploying 0006 to 0013 to production; trying the import of real Takanesh data; load testing with 3000 students.
+- **New open question:** a sample file or the current export of Takanesh's students (columns and date format) to try a real import before the pilot.
 
-## پاسخ‌های بنیان‌گذار (۱۴۰۵/۰۷/۲۷)
-| سؤال | پاسخ |
+## Founder's answers (27 Mehr 1405, 2026-10-19)
+| Question | Answer |
 |---|---|
-| فقط آپورک یا چندپلتفرمی؟ | آموزش با آپورک شروع می‌شود ولی برای **کل کارهای فریلنسری** است |
-| جایگزین، مکمل یا مستقل؟ | **محصول مستقل** |
-| نقش مشاورها | کمک به هنرجو برای **رسیدن به درآمد** + جواب به **سؤال‌های تخصصی** |
-| نمونه‌ی واقعی و چک‌لیست | فعلاً نمونه ندارد؛ الان برای بررسی‌ها از AI استفاده می‌کند؛ نمونه‌ها بعداً |
-| **نیاز فوری** | مدیریت راحت‌تر هنرجوهای فعلی؛ الان یادش می‌رود هر هنرجو چه پروفایلی دارد، چه کاری از او خواسته و در چه مرحله‌ای است |
+| Upwork only or multi-platform? | Teaching starts with Upwork but is for **all freelance work** |
+| Replacement, complement or standalone? | **Standalone product** |
+| Role of the mentors | Helping the student **reach income** + answering **specialized questions** |
+| Real samples and checklist | No samples for now; currently uses AI for reviews; samples later |
+| **Urgent need** | Easier management of the current students; right now he forgets each student's profile, what he asked of them, and which stage they are at |
 
-## خروجی‌های فاز ۱
-| کار | ایجنت | خروجی | وضعیت |
+## Phase 1 outputs
+| Task | Agent | Output | Status |
 |---|---|---|---|
-| PRD، دامنه‌ی MVP، معیارها | product-strategist | `docs/02-product/prd.md`، `mvp-scope.md`، `metrics.md` | ✅ |
-| مسیر آموزشی، پیگیری پیشرفت، روال مشاور، تعامل | curriculum-designer | `docs/02-product/learning/` | ✅ |
-| rubric بررسی پروپوزال، جاب، پروفایل + نمونه‌ها | upwork-domain-expert | `docs/02-product/tool-rubrics/` | ✅ |
-| هماهنگ‌سازی و گیت | project-lead | این فایل، `docs/backlog.md` | ✅ |
+| PRD, MVP scope, criteria | product-strategist | `docs/02-product/prd.md`, `mvp-scope.md`, `metrics.md` | ✅ |
+| Learning path, progress tracking, mentor routine, engagement | curriculum-designer | `docs/02-product/learning/` | ✅ |
+| Rubrics for proposal, job and profile review + samples | upwork-domain-expert | `docs/02-product/tool-rubrics/` | ✅ |
+| Coordination and gate | project-lead | this file, `docs/backlog.md` | ✅ |
 
-## خلاصه‌ی گیت فاز ۱
+## Phase 1 gate summary
 
-### محصول در دو قدم
-- **نسخه‌ی 0.1 — «دفتر مربی»** (حدود ۵ تا ۶ هفته با ۱ توسعه‌دهنده؛ فقط با دعوت؛ بدون AI و پرداخت): پرونده‌ی هنرجو با پروفایل‌های چندپلتفرمی، مراحل مسیر و کانبان، کارها با مهلت و تحویل و بازخورد، یادداشت و تایم‌لاین، یادآور و صفحه‌ی «امروز»، وضعیت سلامت هنرجو (سبز/زرد/قرمز)، سؤال و پاسخ، ثبت نقاط عطف. کار «پروپوزال برای بررسی» نمونه‌های واقعی لازم برای AI را جمع می‌کند (هدف: ۳۰ نمونه).
-- **نسخه‌ی 1.0 — پلتفرم**: ثبت اپلای‌ها، بررسی پروپوزال و جاب با AI، ثبت‌نام عمومی، اشتراک و پرداخت ریالی، اعلان پیامکی/تلگرامی.
-- **گیت بین دو نسخه:** اگر خود مربی ۴ هفته از 0.1 استفاده نکند، ساخت 1.0 متوقف می‌شود.
+### The product in two steps
+- **Version 0.1: "Coach Office"** (about 5 to 6 weeks with 1 developer; invitation only; no AI and no payment): student record with multi-platform profiles, path stages and kanban, tasks with deadlines, submissions and feedback, notes and timeline, reminders and the "Today" page, student health status (green/yellow/red), questions and answers, milestone logging. The "proposal for review" task collects the real samples the AI needs (goal: 30 samples).
+- **Version 1.0: the platform**: logging applications, proposal and job review with AI, public sign-up, rial subscription and payment, SMS/Telegram notifications.
+- **Gate between the two versions:** if the coach himself does not use 0.1 for 4 weeks, building 1.0 stops.
 
-### مسیر آموزشی
-۹ مرحله: ۰ شروع و تعیین سطح، ۱ نیچ، ۲ ویترین، ۳ نمونه‌کار، ۴ پیدا کردن فرصت، ۵ پروپوزال و ارسال، ۶ مصاحبه و اولین قرارداد، ۷ تحویل و نظر، ۸ رشد. شاخه‌های پلتفرمی: مناقصه‌ای (آپورک، کامل در MVP)، کاتالوگی (Fiverr) و مشتری مستقیم. گیت هر مرحله را مشاور تأیید می‌کند. جای محتوای آموزشی خالی است و شما پر می‌کنید.
+### Learning path
+9 stages: 0 start and level assessment, 1 niche, 2 storefront, 3 portfolio, 4 finding opportunities, 5 proposal and submission, 6 interview and first contract, 7 delivery and review, 8 growth. Platform branches: bidding (Upwork, complete in the MVP), catalog (Fiverr) and direct client. A mentor approves each stage's gate. The place for the teaching content is empty and you fill it.
 
-### معیارهای ابزارها (همه پیش‌فرض و منتظر کالیبراسیون شما)
-- **پروپوزال:** Hook ۲۰، شخصی‌سازی ۱۵، اثبات ۱۵، تمرکز روی کارفرما ۱۰، پاسخ به سؤال‌ها ۱۰، اصالت ۱۰، بقیه ۵ تا ۵.
-- **جاب:** اول ۸ پرچم قرمز اسکم («اپلای نکن»)، بعد امتیاز: کارفرما ۳۵، آگهی ۲۵، تناسب ۲۵، رقابت ۱۵.
-- **پروفایل:** Overview ۳۰، نمونه‌کار ۲۰، تیتر ۱۵، بقیه.
-- **یافته‌ی تازه:** طبق راهنمای آپورک، Specialized Profiles از ۲۸ مه ۲۰۲۶ حذف شده‌اند (از نتیجه‌ی جستجو؛ صفحه‌ی رسمی 403 داد).
+### Tool criteria (all defaults, waiting for your calibration)
+- **Proposal:** Hook 20, personalization 15, proof 15, client focus 10, answering the questions 10, originality 10, the rest 5 each.
+- **Job:** first 8 red scam flags ("do not apply"), then a score: client 35, posting 25, fit 25, competition 15.
+- **Profile:** Overview 30, portfolio 20, headline 15, the rest.
+- **New finding:** according to the Upwork guide, Specialized Profiles were removed from 28 May 2026 (from the search result; the official page returned 403).
 
-### هماهنگ‌سازی انجام‌شده توسط مدیر پروژه
-| ناهماهنگی | حل |
+### Coordination done by the project lead
+| Inconsistency | Resolution |
 |---|---|
-| PRD سه برچسب ساده‌ی «گیرکرده» داشت؛ طراح آموزش ۱۵ قاعده‌ی سبز/زرد/قرمز | PRD (F7) حالا قواعد progress-tracking را منبع حقیقت می‌داند؛ ۸ قاعده در 0.1، ۶ قاعده‌ی وابسته به ثبت اپلای‌ها به 1.0 رفت؛ «منتظر ما» (SLA تیم) جدا ماند |
-| check-in هفتگی در طراحی آموزش بود ولی در دامنه‌ی MVP نبود | به‌عنوان Should به 0.1 اضافه شد |
-| وضعیت «در حال انجام» برای کار | به‌عنوان وضعیت اختیاری به PRD اضافه شد |
-| ارجاع PRD به `job-review.md` | به `job-analysis.md` اصلاح شد |
-| «Specialized Profile» در مسیر آموزشی و پرونده | حذف شد (منسوخ) |
-| فهرست «بیرون از دامنه» | به `docs/backlog.md` منتقل شد |
+| The PRD had three simple "stuck" labels; the curriculum designer had 15 green/yellow/red rules | The PRD (F7) now treats the progress-tracking rules as the source of truth; 8 rules in 0.1, 6 rules that depend on logging applications moved to 1.0; "waiting for us" (team SLA) stayed separate |
+| The weekly check-in was in the curriculum design but not in the MVP scope | Added to 0.1 as a Should |
+| An "in progress" status for a task | Added to the PRD as an optional status |
+| A PRD reference to `job-review.md` | Corrected to `job-analysis.md` |
+| "Specialized Profile" in the learning path and the record | Removed (obsolete) |
+| The "out of scope" list | Moved to `docs/backlog.md` |
 
-## تصمیم‌های گیت فاز ۱ (تأییدشده ۱۴۰۵/۰۷/۲۷)
-**تغییرات بنیان‌گذار:** D1 = وب‌اپ که روی **دسکتاپ و موبایل** خوب کار کند. D7 = **پرداخت و درگاه فعلاً معلق** تا مدل درآمد مشخص شود. بقیه با پیش‌فرض تیم پذیرفته شدند.
+## Phase 1 gate decisions (approved 27 Mehr 1405, 2026-10-19)
+**Founder changes:** D1 = a web app that works well on **desktop and mobile**. D7 = **payment and gateway suspended for now** until the revenue model is settled. The rest were accepted with the team's defaults.
 
-| # | تصمیم | نتیجه |
+| # | Decision | Result |
 |---|---|---|
-| D1 | وب‌اپ یا ربات تلگرام برای 0.1 | ✅ وب‌اپ، خوب روی دسکتاپ و موبایل |
-| D2 | مشاور فقط هنرجوهای خودش را ببیند یا همه را | فقط خودش |
-| D3 | ۹ مرحله‌ی مسیر و مدت هر مرحله | `learning/learning-path.md` |
-| D4 | آستانه‌های زرد/قرمز و SLA تیم | جدول‌های F7 در PRD |
-| D5 | North Star: «اولین قرارداد/سفارش پولی در هر پلتفرم یا مشتری مستقیم، با مدرک و تأیید مربی» | همین |
-| D6 | رضایت هنرجو برای استفاده‌ی بی‌نام از پروپوزال‌ها در ساخت AI | چک‌باکس رضایت |
-| D7 | اینماد/درگاه یا کارت‌به‌کارت در 1.0 | ✅ معلق تا تصمیم مدل درآمد |
-| D8 | پرداخت ارزی یا واسط ریالی برای LLM | واسط ریالی |
+| D1 | Web app or Telegram bot for 0.1 | ✅ Web app, good on desktop and mobile |
+| D2 | Should a mentor see only their own students or all | Only their own |
+| D3 | The 9 path stages and the duration of each | `learning/learning-path.md` |
+| D4 | Yellow/red thresholds and team SLA | The F7 tables in the PRD |
+| D5 | North Star: "first paid contract/order on any platform or a direct client, with evidence and the coach's confirmation" | As stated |
+| D6 | Student consent to the anonymous use of proposals to build the AI | Consent checkbox |
+| D7 | Enamad/gateway or card-to-card in 1.0 | ✅ Suspended until the revenue model is decided |
+| D8 | Foreign-currency payment or a rial intermediary for the LLM | Rial intermediary |
 
-**هنوز بی‌جواب از فاز ۰:** تعداد هنرجوها و مشاورها (فرض: ۳۰ تا ۸۰ هنرجو، ۲ تا ۴ مشاور)، بودجه و زمان‌بندی (فرض: ۱ توسعه‌دهنده‌ی فول‌استک)، محل محتوای آموزشی (فرض: جای دیگری است و لینک می‌دهیم).
+**Still unanswered from phase 0:** the number of students and mentors (assumption: 30 to 80 students, 2 to 4 mentors), budget and timeline (assumption: 1 full-stack developer), where the teaching content lives (assumption: elsewhere, and we link to it).
 
-## خلاصه‌ی گیت فاز ۲ و ۳ (نسخه‌ی 0.1)
+## Phase 2 and 3 gate summary (version 0.1)
 
-### خروجی‌ها
-| کار | ایجنت | خروجی |
+### Outputs
+| Task | Agent | Output |
 |---|---|---|
-| نقشه‌ی صفحات، ۹ جریان کاربری، سیستم طراحی، وایرفریم ۱۰ صفحه | ux-designer | `docs/03-ux/` (وایرفریم‌ها: `wireframes/index.html`) |
-| نمای کلی، استک، مدل داده، API، ۸ ADR | software-architect | `docs/04-architecture/` |
-| بررسی وایرفریم‌ها در مرورگر (۱۴۴۰px و ۳۷۵px) و هماهنگ‌سازی | project-lead | هیچ صفحه‌ای سرریز افقی ندارد؛ همه RTL؛ بدون منبع خارجی |
+| Page map, 9 user flows, design system, wireframes of 10 pages | ux-designer | `docs/03-ux/` (wireframes: `wireframes/index.html`) |
+| Overview, stack, data model, API, 8 ADRs | software-architect | `docs/04-architecture/` |
+| Browser review of the wireframes (1440px and 375px) and coordination | project-lead | No page has horizontal overflow; all RTL; no external resources |
 
-### طراحی بصری (بازخورد بنیان‌گذار: «دیزاین قوی‌تر و فونت وزیر»)
-- ماکاپ‌های با کیفیت بالا برای هر ۱۰ صفحه در `docs/03-ux/mockups/` (شروع: `index.html`). وایرفریم‌ها مرجع ساختار می‌مانند.
-- رنگ اصلی نیلی جوهری `#4A40A8`، پس‌زمینه‌ی گرم کاغذی، سایدبار تیره، حالت تاریک خودکار.
-- فونت Vazirmatn 33.0.3 (متغیر ۱۰۰ تا ۹۰۰، مجوز OFL) به‌صورت محلی در `docs/03-ux/assets/fonts/`؛ بدون CDN.
-- بررسی project-lead در مرورگر: ۲۰ حالت (۱۰ صفحه × ۱۴۴۰ و ۳۷۵ پیکسل) بدون سرریز افقی، فونت در همه بارگذاری شده، بدون منبع خارجی؛ حالت تاریک دیده شد.
+### Visual design (founder feedback: "a stronger design and the Vazir font")
+- High-quality mockups for all 10 pages in `docs/03-ux/mockups/` (start: `index.html`). The wireframes remain the structure reference.
+- Primary color ink indigo `#4A40A8`, warm paper background, dark sidebar, automatic dark mode.
+- Vazirmatn 33.0.3 font (variable 100 to 900, OFL license) stored locally in `docs/03-ux/assets/fonts/`; no CDN.
+- The project-lead's browser check: 20 states (10 pages × 1440 and 375 pixels) with no horizontal overflow, the font loaded everywhere, no external resources; dark mode was seen.
 
-### تصمیم‌های فنی پیشنهادی
-- **استک:** یک برنامه‌ی Next.js + TypeScript (رابط، API و کارهای زمان‌بندی‌شده)، PostgreSQL با Drizzle، صف pg-boss روی همان Postgres، احراز هویت داخلی (argon2id)، Tailwind + shadcn، فونت Vazirmatn محلی، یک image داکر.
-- **میزبانی:** Azure (App Service B1 + PostgreSQL B1ms + Blob)، حدود ۳۰ تا ۳۵ دلار در ماه. همان image روی سرور ایرانی هم اجرا می‌شود.
-- **وضعیت سلامت:** بعد از هر رویداد مرتبط و هر ساعت برای همه محاسبه می‌شود.
-- **حریم خصوصی:** هنرجو از مسیرهای جدا داده می‌گیرد که فیلد داخلی ندارند؛ تست خودکار نشت یادداشت داخلی را چک می‌کند.
+### Proposed technical decisions
+- **Stack:** one Next.js + TypeScript application (UI, API and scheduled jobs), PostgreSQL with Drizzle, a pg-boss queue on the same Postgres, built-in authentication (argon2id), Tailwind + shadcn, local Vazirmatn font, one Docker image.
+- **Hosting:** Azure (App Service B1 + PostgreSQL B1ms + Blob), about 30 to 35 dollars a month. The same image also runs on an Iranian server.
+- **Health status:** computed after every relevant event and hourly for everyone.
+- **Privacy:** the student gets data from separate routes that have no internal fields; an automated test checks for leaks of internal notes.
 
-### ریسک حیاتی میزبانی خارجی (H1)
-بین ژانویه و اواخر مه ۲۰۲۶ یک خاموشی ۸۸ روزه‌ی تقریباً کامل اینترنت بین‌الملل در ایران بود و بعد فقط بخشی از دسترسی برگشت (NetBlocks؛ تأیید project-lead با جستجو). وضعیت مهر ۱۴۰۵ **تأیید نشد**. در چنین قطعی‌ای، پلتفرم روی Azure یا Vercel برای هنرجوها و مشاورهای داخل ایران باز نمی‌شود. پاسخ معماری: قابلیت انتقال، پشتیبان شبانه داخل ایران، و runbook انتقال تمرین‌شده. دسترسی به دامنه‌های Azure و Vercel از اپراتورهای ایرانی هم هنوز آزموده نشده است.
+### Critical foreign-hosting risk (H1)
+Between January and late May 2026 there was an 88-day, almost complete shutdown of international internet in Iran, after which only part of the access came back (NetBlocks; confirmed by the project-lead by search). The state in Mehr 1405 is **not confirmed**. In such an outage, a platform on Azure or Vercel does not open for students and mentors inside Iran. The architecture's answer: portability, a nightly backup inside Iran, and a rehearsed migration runbook. Access to the Azure and Vercel domains from Iranian operators has also not yet been tested.
 
-### هماهنگ‌سازی
-| ناهماهنگی | حل |
+### Coordination
+| Inconsistency | Resolution |
 |---|---|
-| UX: صفحه‌ی «فراموشی رمز» درخواست را برای مدیر ثبت می‌کرد؛ API چنین endpoint عمومی‌ای ندارد | صفحه فقط راهنمایی می‌کند که به مربی پیام بدهد؛ مدیر لینک بازنشانی می‌سازد |
-| PRD: «0.1 قابل‌میزبانی در ایران» | به «میزبانی Azure/Vercel، قابل‌انتقال به میزبان ایرانی» تغییر کرد |
-| UX و API درباره‌ی تمدید مهلت | هم‌خوان: فقط مربی/مشاور تمدید می‌کند؛ هنرجو درخواست را به‌صورت سؤال می‌فرستد |
+| UX: the "forgot password" page logged the request for the admin; the API has no such public endpoint | The page only guides the user to message the coach; the admin builds a reset link |
+| PRD: "0.1 hostable in Iran" | Changed to "hosted on Azure/Vercel, portable to an Iranian host" |
+| UX and API on deadline extension | Consistent: only the coach/mentor extends; the student sends the request as a question |
 
-## تصمیم‌های گیت فاز ۲ و ۳
-**وضعیت:** بنیان‌گذار طراحی را تأیید کرد و گفت «شروع کن». E1 تا E7 جواب صریح نگرفته‌اند؛ ساخت با **پیش‌فرض تیم** جلو می‌رود. E1 تا E4 و E7 فقط پیش از **استقرار** لازم‌اند و ساخت محلی به آن‌ها وابسته نیست. E5 (check-in: ساخته می‌شود) و E6 (ساعت کاری) قابل‌تنظیم‌اند.
+## Phase 2 and 3 gate decisions
+**Status:** the founder approved the design and said "start". E1 to E7 did not get explicit answers; the build proceeds with the **team's defaults**. E1 to E4 and E7 are needed only before **deployment**, and the local build does not depend on them. E5 (check-in: it will be built) and E6 (working hours) are configurable.
 
-| # | سؤال | پیشنهاد تیم |
+| # | Question | Team proposal |
 |---|---|---|
-| E1 | میزبانی: Azure یا Vercel؟ | Azure |
-| E2 | با ریسک قطعی اینترنت بین‌الملل، باز هم سرور خارجی؟ | بله برای 0.1، به شرط پشتیبان داخل ایران و آزمون دسترسی از ۳ اپراتور قبل از شروع |
-| E3 | حساب و پرداخت Azure به نام چه کسی است و با شرایط Microsoft سازگار است؟ | فقط بنیان‌گذار می‌داند |
-| E4 | دامنه‌ی اختصاصی دارید؟ | لازم است (برای جابه‌جایی آسان میزبان) |
-| E5 | check-in هفتگی در 0.1 ساخته شود؟ | بله (حدود ۲ روز کار؛ تشخیص «خطر ریزش» به آن وابسته است) |
-| E6 | SLA تیم (۲۴ ساعت سؤال، ۴۸ ساعت بازبینی) با ساعت کاری یا تقویمی؟ | ساعت کاری |
-| E7 | آستانه‌ی مهاجرت اضطراری به سرور ایرانی | ۷۲ ساعت قطعی |
+| E1 | Hosting: Azure or Vercel? | Azure |
+| E2 | With the international-internet outage risk, still a foreign server? | Yes for 0.1, provided there is a backup inside Iran and an access test from 3 operators before the start |
+| E3 | Whose name is the Azure account and payment in, and is it compatible with Microsoft's terms? | Only the founder knows |
+| E4 | Do you have a dedicated domain? | Required (for easy host switching) |
+| E5 | Build the weekly check-in in 0.1? | Yes (about 2 days of work; detecting "churn risk" depends on it) |
+| E6 | Team SLA (24 hours for a question, 48 hours for a review): working hours or calendar? | Working hours |
+| E7 | Threshold for emergency migration to an Iranian server | 72 hours of outage |
 
-## فاز بعد (پس از تأیید)
-فاز ۴ — ساخت نسخه‌ی 0.1: backend-engineer و frontend-engineer طبق `04-architecture/` و `03-ux/`؛ پیش از آن بازبینی امنیتی طراحی (security-reviewer) و راه‌اندازی محیط و CI (devops-engineer).
+## Next phase (after approval)
+Phase 4 — building version 0.1: backend-engineer and frontend-engineer per `04-architecture/` and `03-ux/`; before that, the security review of the design (security-reviewer) and environment and CI setup (devops-engineer).
 
-## تصمیم‌ها
-| تاریخ | تصمیم | دلیل |
+## Decisions
+| Date | Decision | Reason |
 |---|---|---|
-| ۱۴۰۵/۰۷/۲۷ | تیم ۱۲ نفره‌ی ایجنت‌ها و فرآیند ۷ فازی تعریف شد | شروع پروژه |
-| ۱۴۰۵/۰۷/۲۷ | جایگاه: نقد و مربیگری، نه تولید خودکار پروپوزال | Uma و ابزارهای ارزان تولید را کالایی کرده‌اند |
-| ۱۴۰۵/۰۷/۲۷ | محصول مستقل و چندپلتفرمی؛ شروع با آپورک | پاسخ بنیان‌گذار؛ ریسک R11 را هم کم می‌کند |
-| ۱۴۰۵/۰۷/۲۷ | هسته‌ی MVP: مدیریت هنرجو برای مربی و مشاور؛ AI روی آن سوار می‌شود | نیاز فوری بنیان‌گذار |
-| ۱۴۰۵/۰۷/۲۷ | MVP دو قدمی: 0.1 «دفتر مربی» و 1.0 «پلتفرم» با گیت استفاده‌ی واقعی بینشان | کمترین ریسک؛ 0.1 داده‌ی لازم برای AI را هم جمع می‌کند |
-| ۱۴۰۵/۰۷/۲۷ | وب‌اپ واکنش‌گرا، خوب روی دسکتاپ و موبایل | تصمیم بنیان‌گذار (D1) |
-| ۱۴۰۵/۰۷/۲۷ | پرداخت و درگاه از دامنه بیرون رفت تا مدل درآمد مشخص شود | تصمیم بنیان‌گذار (D7) |
-| ۱۴۰۵/۰۷/۲۷ | میزبانی 0.1 روی Vercel یا Azure؛ معماری قابل‌انتقال به میزبان ایرانی بماند | تصمیم بنیان‌گذار؛ انتخاب بین این دو و ریسک دسترسی از ایران در ADR میزبانی |
-| ۱۴۰۵/۰۷/۲۷ | طراحی بصری (ماکاپ‌ها) تأیید شد؛ فاز ۴ شروع شد | «اوکیه شروع کن» |
-| ۱۴۰۵/۰۷/۲۷ | توسعه‌ی محلی بدون Docker: Postgres جاسازی‌شده (npm) برای dev و تست؛ Docker فقط برای استقرار و CI | روی دستگاه بنیان‌گذار Docker و Postgres نصب نیست |
-| ۱۴۰۵/۰۷/۲۸ | بازبینی امنیتی طراحی انجام شد؛ C1 تا C5 در ADRها و data-model اعمال شد؛ C6 تا C8 پیش از استقرار | `04-architecture/security.md`، ADR-0010 |
-| ۱۴۰۵/۰۷/۲۸ | اسکلت مخزن آماده شد (Next.js 16، Postgres جاسازی‌شده، Vitest، Playwright، CI)؛ lint، typecheck و ۱۵ تست سبز | ADR-0009؛ بررسی project-lead |
-| ۱۴۰۵/۰۸/۰۶ | بنیان‌گذار 0.1 را روی Vercel (Hobby) و Supabase (Postgres و Storage) مستقر و تست کرد | تصمیم بنیان‌گذار؛ `docs/07-launch/supabase-storage.md` |
-| ۱۴۰۵/۰۸/۰۶ | جهت تازه: تکامل همین برنامه به «Coach Office»، پلتفرم چندسازمانی مربیگری؛ بازنویسی نمی‌شود | تأیید بنیان‌گذار؛ `08-saas-evolution/architecture-review.md` |
-| ۱۴۰۵/۰۸/۰۶ | اولین مشتری آکادمی تکانش؛ پایلوت ۳ مشاور و ۱۰۰ هنرجو؛ فعلاً روی Vercel و Supabase؛ تصمیم سرور داخل ایران بعد از تکمیل | پاسخ بنیان‌گذار |
-| ۱۴۰۵/۰۸/۰۶ | انگلیسی: فقط زیرساخت برای پایلوت؛ ترجمه پیش از ارائه به سرمایه‌گذار | پاسخ بنیان‌گذار؛ ADR-0013 |
-| ۱۴۰۵/۰۸/۰۶ | دو نوع منتورینگ (برنامه‌محور و تک‌به‌تک) روی یک هسته؛ «پلن» = بسته‌ی قابل‌فروش با سهمیه‌ی جلسه و اعتبار، بدون پرداخت در سیستم | پاسخ بنیان‌گذار؛ ADR-0012 |
-| ۱۴۰۵/۰۸/۰۶ | زمان‌بندی ساده‌ی جلسه در MVP؛ همگام‌سازی تقویم و رزرو خودکار بعد از MVP | پاسخ بنیان‌گذار؛ ADR-0012 |
-| ۱۴۰۵/۰۸/۰۶ | قالب برنامه را مدیر و مشاور می‌سازند؛ قالب مشاور برای استفاده‌ی سازمانی تأیید مدیر می‌خواهد | پاسخ بنیان‌گذار (Q5) |
-| ۱۴۰۵/۰۸/۰۶ | یادداشت خصوصی مشاور از مدیر سازمان پنهان می‌ماند | پاسخ بنیان‌گذار (Q7)؛ ADR-0011 |
+| 27 Mehr 1405 (2026-10-19) | The 12-agent team and the 7-phase process were defined | Project start |
+| 27 Mehr 1405 (2026-10-19) | Positioning: critique and coaching, not automatic proposal generation | Uma and cheap tools have commoditized generation |
+| 27 Mehr 1405 (2026-10-19) | Standalone, multi-platform product; start with Upwork | Founder's answer; also reduces risk R11 |
+| 27 Mehr 1405 (2026-10-19) | MVP core: student management for the coach and mentors; AI is built on top of it | The founder's urgent need |
+| 27 Mehr 1405 (2026-10-19) | Two-step MVP: 0.1 "Coach Office" and 1.0 "platform", with a real-usage gate between them | Lowest risk; 0.1 also collects the data the AI needs |
+| 27 Mehr 1405 (2026-10-19) | Responsive web app, good on desktop and mobile | Founder's decision (D1) |
+| 27 Mehr 1405 (2026-10-19) | Payment and gateway left the scope until the revenue model is settled | Founder's decision (D7) |
+| 27 Mehr 1405 (2026-10-19) | 0.1 hosting on Vercel or Azure; the architecture stays portable to an Iranian host | Founder's decision; the choice between the two and the access-from-Iran risk are in the hosting ADR |
+| 27 Mehr 1405 (2026-10-19) | The visual design (mockups) was approved; phase 4 started | "Okay, start" |
+| 27 Mehr 1405 (2026-10-19) | Local development without Docker: embedded Postgres (npm) for dev and tests; Docker only for deployment and CI | Docker and Postgres are not installed on the founder's machine |
+| 28 Mehr 1405 (2026-10-20) | The design security review was done; C1 to C5 applied in the ADRs and data-model; C6 to C8 before deployment | `04-architecture/security.md`, ADR-0010 |
+| 28 Mehr 1405 (2026-10-20) | The repository skeleton is ready (Next.js 16, embedded Postgres, Vitest, Playwright, CI); lint, typecheck and 15 tests green | ADR-0009; project-lead review |
+| 6 Aban 1405 (2026-10-28) | The founder deployed and tested 0.1 on Vercel (Hobby) and Supabase (Postgres and Storage) | Founder's decision; `docs/07-launch/supabase-storage.md` |
+| 6 Aban 1405 (2026-10-28) | New direction: evolve this same application into "Coach Office", a multi-organization mentoring platform; no rewrite | Founder's approval; `08-saas-evolution/architecture-review.md` |
+| 6 Aban 1405 (2026-10-28) | First customer Takanesh Academy; pilot with 3 mentors and 100 students; for now on Vercel and Supabase; the Iran-server decision after completion | Founder's answer |
+| 6 Aban 1405 (2026-10-28) | English: only the infrastructure for the pilot; translation before presenting to investors | Founder's answer; ADR-0013 |
+| 6 Aban 1405 (2026-10-28) | Two kinds of mentoring (program-based and one-on-one) on one core; a "plan" = a sellable package with a session quota and validity, with no payment in the system | Founder's answer; ADR-0012 |
+| 6 Aban 1405 (2026-10-28) | Simple session scheduling in the MVP; calendar sync and automatic booking after the MVP | Founder's answer; ADR-0012 |
+| 6 Aban 1405 (2026-10-28) | Program templates are created by admins and mentors; a mentor's template needs admin approval for organization-wide use | Founder's answer (Q5) |
+| 6 Aban 1405 (2026-10-28) | A mentor's private note stays hidden from the organization admin | Founder's answer (Q7); ADR-0011 |

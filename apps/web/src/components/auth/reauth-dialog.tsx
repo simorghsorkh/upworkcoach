@@ -15,7 +15,7 @@ export function isReauthRequired(result: ApiResult<unknown>): boolean {
 }
 
 /**
- * «برای ادامه رمزت را دوباره وارد کن»: `POST /api/v1/auth/reauth`, then the caller repeats the
+ * "Enter your password again to continue": `POST /api/v1/auth/reauth`, then the caller repeats the
  * original request. Wrong password → the message next to the field; `429` → the wait time.
  */
 export function ReauthDialog({

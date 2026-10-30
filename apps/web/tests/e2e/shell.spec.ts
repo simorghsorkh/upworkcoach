@@ -115,7 +115,7 @@ test.describe('student shell (/dev/shell?role=student)', () => {
       ? page.getByRole('navigation', { name: 'ناوبری پایین' })
       : page.getByRole('banner').getByRole('navigation', { name: 'ناوبری اصلی' });
     await expect(nav).toBeVisible();
-    // Coach Office sprint 3: «برنامه‌های من» on desktop; on mobile it is reached from «مسیر من».
+    // Coach Office sprint 3: "My programs" on desktop; on mobile it is reached from "My path".
     await expect(nav.getByRole('link')).toHaveCount(isMobile(page) ? 5 : 6);
     await expect(nav.getByRole('link', { name: /^خانه/ })).toHaveAttribute('aria-current', 'page');
     // Students never see staff navigation.

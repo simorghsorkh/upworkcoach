@@ -1086,7 +1086,7 @@ export async function cancelTask(
 }
 
 /**
- * «مهلت نسخه‌ی بعد» of a review (gap 3): `null` when absent or equal to the current
+ * "Next-version deadline" of a review (gap 3): `null` when absent or equal to the current
  * deadline. Only with `changes_requested`, and not before today (Tehran); an earlier date
  * than the current deadline is allowed (the next round may be shorter).
  */
@@ -1366,7 +1366,7 @@ export async function submitTask(
  * Submitted tasks in the actor's scope (SQL, SEC-A2), oldest first, with the review SLA on
  * the configured clock (decision E6: business hours). `reviewerId` filters by reviewer.
  * Threshold (F-09, mentor-workflow.md section 4): `sla.reviewHours` (48) for gate tasks,
- * `sla.reviewHoursNonGate` (72) for the others; «امروز» and its counters reuse these items.
+ * `sla.reviewHoursNonGate` (72) for the others; "Today" and its counters reuse these items.
  */
 export async function reviewQueueFor(
   db: DbOrTx,

@@ -5,7 +5,7 @@ import { useToast } from '@/components/ui/toast';
 import type { MilestoneTypeDTO } from '@/modules/catalog/contracts';
 import { MilestoneForm } from './milestone-form';
 
-/** S8 wrapper: after a proposal, back to the home page where it shows «منتظر تأیید». */
+/** S8 wrapper: after a proposal, back to the home page where it shows "Awaiting approval". */
 export function ProposeMilestone({
   types,
   platforms,

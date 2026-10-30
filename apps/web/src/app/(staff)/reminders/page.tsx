@@ -24,7 +24,7 @@ const TABS = [
 ] as const;
 
 /**
- * M9 «یادآورهای من» (sitemap §3): today and past, upcoming and done. An admin can look at a
+ * M9 "My reminders" (sitemap §3): today and past, upcoming and done. An admin can look at a
  * mentor's reminders (`ownerId`). `?new=1` (quick-add «+») opens the reminder sheet.
  */
 export default async function RemindersPage({ searchParams }: { searchParams: SearchParams }) {

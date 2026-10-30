@@ -37,7 +37,7 @@ const HOME_TASKS = 5;
 /**
  * S1 — student home (mockups/student-home.html): welcome steps on the first days, the weekly
  * check-in card (Thursday–Friday until sent), path, open tasks by deadline (overdue first), my
- * questions with «پاسخ جدید», the mentor's shared notes and my milestones. Health, rules and
+ * questions with "New answer", the mentor's shared notes and my milestones. Health, rules and
  * internal notes never appear: every source here is a student DTO. Sprint 6b: a summary of the
  * courses and mentoring they are in (progress, current phase, next session, package use).
  */
@@ -166,7 +166,7 @@ export default async function HomePage() {
           )}
         </Card>
 
-        {/* slot: tools (1.0) — nothing in 0.1, not even «به‌زودی» (design-system §9). */}
+        {/* slot: tools (1.0) — nothing in 0.1, not even "Coming soon" (design-system §9). */}
         <Card aria-labelledby="h-q">
           <CardHead
             title={

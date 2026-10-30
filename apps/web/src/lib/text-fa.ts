@@ -19,9 +19,9 @@ export function toLatinDigits(input: string): string {
 /** Arabic Yeh/Alef Maksura → Persian Yeh, Arabic Kaf → Persian Keheh (step 1 of ADR-0008). */
 export function unifyArabicLetters(input: string): string {
   return input
-    .replace(/[يى]/g, 'ی') // ي ى → ی
-    .replace(/ك/g, 'ک') // ك → ک
-    .replace(/ۀ/g, 'هٔ'); // ۀ → هٔ
+    .replace(/[يى]/g, 'ی') // ي ى → ی (Arabic yeh / alef maksura → Persian yeh)
+    .replace(/ك/g, 'ک') // ك → ک (Arabic kaf → Persian keheh)
+    .replace(/ۀ/g, 'هٔ'); // ۀ → هٔ (heh with yeh above → heh + hamza)
 }
 
 /**

@@ -1,15 +1,15 @@
-# server — زیرساخت سمت سرور
+# server — server-side infrastructure
 
-| مسیر | چیست |
+| Path | What it is |
 |---|---|
-| `env.ts` | قرارداد متغیرهای محیطی با zod؛ `getEnv()` تنبل است تا `next build` به اسرار نیاز نداشته باشد |
-| `db/` | Drizzle روی `pg` با `DATABASE_URL`؛ `getDb()` برای برنامه، `createDb()` برای تست و اسکریپت؛ `migrate.ts` اجرای مهاجرت‌ها |
-| `logger.ts` | pino، JSON روی stdout؛ رمز، توکن و کوکی redact می‌شوند |
-| `jobs/` | pg-boss در schema `pgboss`؛ با `JOBS_MODE` روشن/خاموش (ADR-0007)؛ از `src/instrumentation.ts` شروع می‌شود |
-| `storage/` | رابط `FileStorage`؛ آداپتور `local` کامل، `azure-blob` و `s3` فعلاً stub |
-| `auth/` | `current-user.ts` (قرارداد مشترک با frontend: `getCurrentUser`، `requireUser`)، کوکی‌ها، خواندن نشست از درخواست |
-| `http/` | `route()` (CSRF ← نشست ← zod ← service)، خطاهای ساختاریافته با پیام فارسی، `getClientIp`، هدرهای امنیتی و CSP، `routes.manifest.ts` (ماتریس دسترسی) |
-| `concurrency.ts` | صف هم‌زمانی ساده (حداکثر ۲ عملیات argon2، SEC-P5) |
+| `env.ts` | Environment variable contract with zod; `getEnv()` is lazy so `next build` does not need secrets |
+| `db/` | Drizzle on `pg` using `DATABASE_URL`; `getDb()` for the app, `createDb()` for tests and scripts; `migrate.ts` runs migrations |
+| `logger.ts` | pino, JSON on stdout; passwords, tokens and cookies are redacted |
+| `jobs/` | pg-boss in the `pgboss` schema; switched on/off with `JOBS_MODE` (ADR-0007); started from `src/instrumentation.ts` |
+| `storage/` | `FileStorage` interface; the `local` adapter is complete, `azure-blob` and `s3` are stubs for now |
+| `auth/` | `current-user.ts` (contract shared with the frontend: `getCurrentUser`, `requireUser`), cookies, reading the session from the request |
+| `http/` | `route()` (CSRF → session → zod → service), structured errors with messages in the request language (Persian by default, `Accept-Language`), `getClientIp`, security headers and CSP, `routes.manifest.ts` (access matrix) |
+| `concurrency.ts` | Simple concurrency queue (at most 2 argon2 operations, SEC-P5) |
 
-هر endpoint تازه باید در `http/routes.manifest.ts` ثبت شود؛ وگرنه تست ماتریس دسترسی شکست می‌خورد.
-فقط کد سمت سرور اینجاست؛ از کامپوننت کلاینت import نشود.
+Every new endpoint must be registered in `http/routes.manifest.ts`; otherwise the access-matrix test fails.
+Only server-side code lives here; do not import it from a client component.

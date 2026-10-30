@@ -106,7 +106,7 @@ export async function listTasksOfStudent(
     .orderBy(asc(tasks.dueAt), asc(tasks.id));
 }
 
-/** «عقب‌افتاده» in SQL — same rule as `policy.isOverdue` (student-actionable, past due). */
+/** "Overdue" in SQL — same rule as `policy.isOverdue` (student-actionable, past due). */
 export function overdueCondition(now: Date): SQL {
   return sql`(${tasks.status} in ('open', 'in_progress', 'changes_requested') and ${tasks.dueAt} < ${now.toISOString()}::timestamptz)`;
 }

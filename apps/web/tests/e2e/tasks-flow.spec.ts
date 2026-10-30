@@ -126,7 +126,7 @@ test('task: create → submit → changes requested → resubmit → accepted', 
   await sp.getByRole('button', { name: 'تحویل نسخه‌ی ۱' }).click();
   await expect(sp.getByText('تحویل شد.')).toBeVisible(SLOW);
 
-  // --- mentor: «امروز» → review → changes requested -----------------------------------------
+  // --- mentor: "Today" → review → changes requested -----------------------------------------
   await page.goto('/today');
   const reviews = page.locator('#reviews');
   await expect(reviews.getByRole('link', { name: title, exact: true })).toBeVisible(SLOW);
@@ -222,7 +222,7 @@ test('notes: an internal note never reaches the student; a shared one does', asy
     await expectPersianPage(page);
     await composer.getByRole('button', { name: 'ثبت یادداشت' }).click();
   } else {
-    // Mobile: the action bar «یادداشت» sheet, then the «+» of the bottom bar.
+    // Mobile: the action bar "Note" sheet, then the "+" of the bottom bar.
     await visibleButton(page, 'یادداشت').click();
     const nd = page.getByRole('dialog', { name: `یادداشت برای ${st.name}` });
     await nd.getByLabel('متن').fill(internal);

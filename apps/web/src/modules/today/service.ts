@@ -14,13 +14,13 @@ import { reviewQueueFor } from '../tasks/service';
 import type { HealthFreshnessDTO, TodayDTO, TodayQuery, WaitingOnUsItemDTO } from './contracts';
 
 /**
- * today — «امروز» (PRD F6): reminders of today and before, reviews waiting (with the
- * business-hours SLA, decision E6), unanswered questions, stuck students and «منتظر ما».
+ * today — "Today" (PRD F6): reminders of today and before, reviews waiting (with the
+ * business-hours SLA, decision E6), unanswered questions, stuck students and "Waiting on us".
  * Every section is limited to the actor's scope; an admin sees everybody, or one mentor
  * with `mentorId` (reminder owner, reviewer, question assignee, primary mentor).
  */
 
-/** Urgency order of «منتظر ما»: breached first, then least time left. */
+/** Urgency order of "Waiting on us": breached first, then least time left. */
 export function sortWaiting(items: WaitingOnUsItemDTO[]): WaitingOnUsItemDTO[] {
   return [...items].sort((a, b) =>
     a.breached !== b.breached ? (a.breached ? -1 : 1) : a.remainingHours - b.remainingHours,
@@ -113,7 +113,7 @@ async function healthFreshnessFor(
 }
 
 /**
- * «قرمز بدون اقدام» (data-model.md 4-3): red students with no staff note since `red_since`,
+ * "Red without action" (data-model.md 4-3): red students with no staff note since `red_since`,
  * SLA `redNoActionHours` on the configured clock. Past `redEscalateDays` the item is
  * `escalated` and every admin sees it, even when filtering by one mentor.
  */

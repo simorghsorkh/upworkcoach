@@ -26,12 +26,12 @@ export const HEALTH_RULES = [
 ] as const;
 export type HealthRuleCode = (typeof HEALTH_RULES)[number];
 
-/** «توپ در زمین کیست»: student, team (mentor/coach) or both. R-FLAG has none. */
+/** "Whose court is the ball in": student, team (mentor/coach) or both. R-FLAG has none. */
 export type HealthBall = 'student' | 'team' | 'both';
 
 /**
  * One active rule. `facts` are raw numbers for the Persian sentence in the UI, e.g.
- * R-OVERDUE `{ overdueCount: 2, maxOverdueDays: 9 }` → «۲ کار عقب، تا ۹ روز».
+ * R-OVERDUE `{ overdueCount: 2, maxOverdueDays: 9 }` → "2 tasks behind, up to 9 days".
  *   R-INACT   { days }                       R-STALL  { daysInStage, expectedDays }
  *   R-OVERDUE { overdueCount, maxOverdueDays } R-LOOP  { maxRevisions }
  *   R-NOTASK  { days }                       R-EXTEND { maxExtensions }

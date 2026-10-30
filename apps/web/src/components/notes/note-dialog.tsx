@@ -7,7 +7,7 @@ import { Dialog, DialogActions } from '@/components/ui/dialog';
 import { NoteForm } from './note-form';
 
 /**
- * «یادداشت تازه» sheet (mockups/today.html #note). With a known student (record page) the
+ * "New note" sheet (mockups/today.html #note). With a known student (record page) the
  * form opens directly; from anywhere else (the «+» of the bottom bar) the student is searched
  * first — two letters are enough (user-flows §5).
  */

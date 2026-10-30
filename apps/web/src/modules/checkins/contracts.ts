@@ -49,6 +49,6 @@ export type CurrentCheckinDTO = {
   /** When the window of this week opens (ISO). */
   opensAt: string;
   existing: CheckinDTO | null;
-  /** «این هفته چه کردی؟» numbers since Saturday. */
+  /** "What did you do this week?" numbers since Saturday. */
   weekSummary: { tasksSubmitted: number; tasksAccepted: number };
 };

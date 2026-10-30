@@ -112,7 +112,7 @@ export type ListFilter = {
   searchPattern?: string;
   /** Health statuses (needs the `student_health` join). */
   health?: HealthFilter[];
-  /** Hide students whose health is snoozed past this instant («نادیده تا …»). */
+  /** Hide students whose health is snoozed past this instant ("Snoozed until …"). */
   hideSnoozedAt?: Date;
 };
 

@@ -6,7 +6,7 @@ import { cn } from './cn';
 
 /**
  * Dialog on desktop, bottom sheet on mobile (< 768px) — design-system §3-3
- * «فرم/پنجره» and mockups §18 (.sheet). Built on native <dialog>.showModal():
+ * "Form/window" and mockups §18 (.sheet). Built on native <dialog>.showModal():
  * the rest of the page becomes inert (focus is trapped), Esc closes, and focus
  * returns to the opener. No dependency, no portal.
  */
@@ -59,7 +59,7 @@ export function Dialog({
       aria-labelledby={titleId}
       aria-describedby={description ? descId : undefined}
       // React re-dispatches `close`/`cancel` of a nested <dialog> (e.g. the password check
-      // inside «مربی جدید») to its ancestors: only react to this element's own events.
+      // inside "New mentor") to its ancestors: only react to this element's own events.
       onClose={(event) => {
         if (event.target === event.currentTarget && openRef.current) onClose();
       }}

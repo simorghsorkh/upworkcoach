@@ -1,4 +1,4 @@
-# (student) — صفحه‌های هنرجو
+# (student) — student pages
 
-قاب: `src/components/shell/student-shell.tsx` (نوار بالای دسکتاپ با پنج آیتم، نوار پایین موبایل). `layout.tsx` با `requireUser(['student'])`.
-فقط DTOهای مخصوص هنرجو که فیلد داخلی ندارند (tech-stack.md بخش ۳، قاعده‌ی ۴). هدف: خانه کمتر از ۳ ثانیه روی 3G؛ JS سمت کلاینت کم. صفحه‌ها فعلاً «به‌زودی» هستند.
+Shell: `src/components/shell/student-shell.tsx` (top bar with five items on desktop, bottom bar on mobile). `layout.tsx` uses `requireUser(['student'])`.
+Only student-specific DTOs that carry no internal fields (tech-stack.md section 3, rule 4). Goal: home loads in under 3 seconds on 3G; little client-side JS. Pages are currently "coming soon".

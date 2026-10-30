@@ -1,5 +1,5 @@
 /**
- * pnpm org:create --slug takanesh --name "آکادمی تکانش" [--locale fa|en]
+ * pnpm org:create --slug takanesh --name "Takanesh Academy" [--locale fa|en]
  * Creates an organization with its default catalog (ADR-0011) and its default interface
  * language (ADR-0013, Persian unless given). Its first admin comes next:
  * `pnpm admin:create --org <slug> …`.

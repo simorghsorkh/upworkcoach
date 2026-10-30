@@ -1,80 +1,80 @@
-# ADR-0005 — محاسبه‌ی وضعیت سلامت هنرجو: تابع خالص + ذخیره + بازمحاسبه با رویداد و sweep ساعتی
+# ADR-0005 — Computing the student health status: a pure function + storage + recomputation on events and an hourly sweep
 
-- **وضعیت:** پیشنهادشده (منتظر گیت بنیان‌گذار)
-- **تاریخ:** ۲۷ مهر ۱۴۰۵ (2026-10-19)
-- **نویسنده:** software-architect
-- **منبع قواعد:** PRD F7 (هماهنگ با `progress-tracking.md` بخش ۷). جزئیات اجرایی در `data-model.md` بخش ۴.
+- **Status:** Proposed (awaiting the founder gate)
+- **Date:** 27 Mehr 1405 (2026-10-19)
+- **Author:** software-architect
+- **Rules source:** PRD F7 (aligned with `progress-tracking.md` section 7). Implementation details are in `data-model.md` section 4.
 
-## زمینه
-- هر هنرجو یک وضعیت سلامت دارد: سبز، زرد، قرمز یا متوقف. وضعیت برابر **بدترین قاعده‌ی فعال** است و کد قاعده و دلیل کنارش نمایش داده می‌شود.
-- در 0.1 این قواعد فعال‌اند: R-INACT، R-STALL، R-OVERDUE، R-LOOP، R-NOTASK، R-EXTEND، R-FLAG و (اگر check-in ساخته شود) R-CHECKIN و R-MOOD. به‌علاوه‌ی «خطر ریزش».
-- آستانه‌ها در تنظیمات مدیر قابل‌تغییرند و برچسب‌ها **خودکار** محاسبه می‌شوند.
-- چند قاعده **با گذشت زمان** فعال می‌شوند، بدون اینکه رویدادی رخ دهد (بی‌فعالیتی، معوق شدن، ماندن در مرحله).
-- فهرست «گیرکرده» باید مرتب‌سازی بر اساس شدت و **قدیمی‌بودن** داشته باشد، پس «از کی قرمز است» لازم است.
-- تغییر سلامت باید در تایم‌لاین ثبت شود (`progress-tracking.md` بخش ۵).
-- قواعد سمت تیم («منتظر ما») رنگ هنرجو را عوض نمی‌کنند.
+## Context
+- Every student has a health status: green, yellow, red or paused. The status equals the **worst active rule**, and the rule code and reason are shown beside it.
+- In 0.1 these rules are active: R-INACT, R-STALL, R-OVERDUE, R-LOOP, R-NOTASK, R-EXTEND, R-FLAG and (if the check-in is built) R-CHECKIN and R-MOOD. In addition to "churn risk".
+- The thresholds can be changed in the admin settings and the labels are computed **automatically**.
+- Several rules become active **with the passage of time**, without any event happening (inactivity, becoming overdue, staying in a stage).
+- The "Stuck" list must be sortable by severity and **age**, so "since when has this been red" is needed.
+- A health change must be recorded in the timeline (`progress-tracking.md` section 5).
+- Team-side rules ("waiting on us") do not change the student's color.
 
-## گزینه‌ها
-| گزینه | مزیت | عیب |
+## Options
+| Option | Advantage | Disadvantage |
 |---|---|---|
-| A. محاسبه هنگام خواندن (هر بار که فهرست باز می‌شود) | همیشه تازه؛ بدون job | «از کی قرمز است» و رویداد «تغییر سلامت» ممکن نیست، چون حالت قبلی جایی نیست؛ فیلتر و مرتب‌سازی فهرست سنگین‌تر می‌شود |
-| B. فقط job شبانه | ساده | تا ۲۴ ساعت کهنه است؛ مربی نتیجه‌ی کارش (مثلاً تعریف کار برای هنرجوی «بی‌کار») را نمی‌بیند |
-| C. Trigger یا materialized view در Postgres | نزدیک به داده | منطق در SQL پنهان می‌شود؛ تست و تغییر سخت؛ قواعد زمان‌محور باز هم job می‌خواهند |
-| **D. تابع خالص TypeScript + ذخیره در `student_health` + بازمحاسبه‌ی فوری برای همان هنرجو پس از هر رویداد مرتبط + sweep ساعتی برای همه** | تازه (فوری برای رویدادها، حداکثر ۱ ساعت برای زمان)؛ تاریخچه و «از کی» ممکن؛ فهرست سریع؛ قواعد با تست واحد | دو مسیر فراخوانی (رویداد و sweep). چون هر دو یک تابع را صدا می‌زنند، ناسازگاری ممکن نیست |
+| A. Compute at read time (every time the list is opened) | Always fresh; no job | "Since when has this been red" and a "health changed" event are impossible, because the previous state is not stored anywhere; filtering and sorting the list gets heavier |
+| B. A nightly job only | Simple | Stale by up to 24 hours; the coach does not see the result of their own action (e.g. defining a task for a "no task" student) |
+| C. A trigger or materialized view in Postgres | Close to the data | The logic is hidden in SQL; hard to test and change; time-based rules still need a job |
+| **D. A pure TypeScript function + storage in `student_health` + immediate recomputation for that student after every related event + an hourly sweep for everyone** | Fresh (immediate for events, at most 1 hour for time); history and "since when" are possible; fast list; rules covered by unit tests | Two call paths (event and sweep). Since both call the same function, inconsistency is impossible |
 
-## تصمیم: گزینه‌ی D
+## Decision: option D
 
-### ساختار
+### Structure
 ```
 modules/health/
-  rules.ts        // evaluateHealth(input, rules, now) — خالص، بدون I/O
-  input.repo.ts   // loadHealthInputs(studentIds[]) — پرس‌وجوهای تجمیعی، بدون N+1
+  rules.ts        // evaluateHealth(input, rules, now) — pure, no I/O
+  input.repo.ts   // loadHealthInputs(studentIds[]) — aggregate queries, no N+1
   service.ts      // recomputeForStudent(id), sweepAll(), snooze(), flags
-  team-queue.ts   // قواعد «منتظر ما» — فقط خواندنی، هنگام بارگذاری «امروز»
+  team-queue.ts   // "waiting on us" rules — read-only, computed when "Today" loads
 ```
 
-**ورودی تابع** (برای هر هنرجو): `lifecycleStatus`، `joinedAt`، `lastActivityAt`، `stageEnteredAt`، `stage.expectedDays`، `stage.isOpenEnded`، فهرست کارهای باز (`status`، `dueAt`، `revisionCount`، `extensionCount`)، `lastTaskClosedAt`، پرچم‌های فعال، check-inهای ۴ هفته‌ی اخیر، و `now`.
+**Function input** (for each student): `lifecycleStatus`, `joinedAt`, `lastActivityAt`, `stageEnteredAt`, `stage.expectedDays`, `stage.isOpenEnded`, the list of open tasks (`status`, `dueAt`, `revisionCount`, `extensionCount`), `lastTaskClosedAt`, active flags, check-ins of the last 4 weeks, and `now`.
 
-**خروجی:** `{ status, reasons: [{rule, level, ball, facts}], churnRisk }`.
+**Output:** `{ status, reasons: [{rule, level, ball, facts}], churnRisk }`.
 
-### کی اجرا می‌شود
-1. **پس از commit** هر عملی که ورودی را تغییر می‌دهد (فهرست کامل در `data-model.md` ۴-۱): `health.recomputeForStudent(studentId)`. در تراکنش اصلی نیست تا شکست آن عمل کاربر را خراب نکند. خطا لاگ می‌شود و sweep جبران می‌کند.
-2. **job ساعتی `health.sweep`** (pg-boss cron `5 * * * *` با `tz: 'Asia/Tehran'`؛ ADR-0007): همه‌ی هنرجوهای `active` و `paused`. هنرجوی `paused` که `paused_until` او گذشته، در همین job به `active` برمی‌گردد.
-3. **تغییر `settings['health.rules']`:** یک `health.sweep` فوری صف می‌شود.
+### When it runs
+1. **After the commit** of any action that changes the input (full list in `data-model.md` 4-1): `health.recomputeForStudent(studentId)`. It is not in the main transaction so that its failure does not break the user's action. The error is logged and the sweep compensates.
+2. **Hourly job `health.sweep`** (pg-boss cron `5 * * * *` with `tz: 'Asia/Tehran'`; ADR-0007): all `active` and `paused` students. A `paused` student whose `paused_until` has passed is returned to `active` in this same job.
+3. **Change of `settings['health.rules']`:** an immediate `health.sweep` is queued.
 
-### نوشتن نتیجه (idempotent)
-- با `INSERT … ON CONFLICT (student_id) DO UPDATE`.
-- اگر `status` یا مجموعه‌ی `(rule, level)` با قبل فرق کند: `status_since` و `red_since` طبق `data-model.md` ۴-۲ و یک `timeline_events(health.changed)`. اگر فقط `facts` تغییر کرده (مثلاً ۹ روز ← ۱۰ روز)، رویدادی ثبت نمی‌شود تا تایم‌لاین شلوغ نشود.
-- هم‌زمانی: `recomputeForStudent` با `pg_advisory_xact_lock(hash(student_id))` اجرا می‌شود تا دو محاسبه‌ی هم‌زمان رویداد تکراری نسازند.
+### Writing the result (idempotent)
+- With `INSERT … ON CONFLICT (student_id) DO UPDATE`.
+- If `status` or the set of `(rule, level)` differs from before: `status_since` and `red_since` per `data-model.md` 4-2 and a `timeline_events(health.changed)`. If only `facts` changed (e.g. 9 days → 10 days), no event is recorded so the timeline does not get cluttered.
+- Concurrency: `recomputeForStudent` runs with `pg_advisory_xact_lock(hash(student_id))` so two simultaneous computations do not create a duplicate event.
 
-### تصمیم‌های تفسیری (برای تأیید بنیان‌گذار؛ همه قابل‌تنظیم)
-| مورد | تفسیر ما |
+### Interpretation decisions (for founder confirmation; all configurable)
+| Item | Our interpretation |
 |---|---|
-| «روز» در آستانه‌ها | مدت واقعی گذشته (۲۴ ساعت = ۱ روز)، نه روز تقویمی |
-| R-OVERDUE قرمز «۲ کار معوق» | دو کار با **هر** میزان تأخیر. تنظیم `redCountMinDays` (پیش‌فرض ۰) |
-| R-NOTASK «کار باز» | هر کاری که `accepted` یا `cancelled` نیست (`submitted` هم باز حساب می‌شود) |
-| R-NOTASK مبدأ زمان | دیرترینِ زمان بسته شدن آخرین کار، ورود به مرحله‌ی فعلی و ساخت پرونده |
-| R-INACT «فعالیت» | ورود، تحویل، پیام سؤال، check-in و پیشنهاد نقطه‌ی عطف **از طرف هنرجو** (`students.last_activity_at`) |
-| «جز مرحله‌ی ۸» | پرچم `stages.is_open_ended`؛ کد به شماره یا نام مرحله وابسته نیست |
-| snooze | محاسبه ادامه دارد؛ فقط از فهرست‌ها پنهان می‌شود |
-| ساعت SLA تیم | ساعت کاری (`mentor-workflow.md`)؛ با `sla.clock = "calendar"` به ساعت تقویمی برمی‌گردد. PRD F7 فقط «۴۸ ساعت» و «۲۴ ساعت» گفته است. سؤال باز |
+| "Day" in the thresholds | Actual elapsed time (24 hours = 1 day), not a calendar day |
+| R-OVERDUE red "2 overdue tasks" | Two tasks with **any** amount of delay. Setting `redCountMinDays` (default 0) |
+| R-NOTASK "open task" | Any task that is not `accepted` or `cancelled` (`submitted` also counts as open) |
+| R-NOTASK time origin | The latest of: the time the last task was closed, entering the current stage, and creating the file |
+| R-INACT "activity" | Login, submission, question message, check-in and milestone proposal **by the student** (`students.last_activity_at`) |
+| "Except stage 8" | The flag `stages.is_open_ended`; the code does not depend on the stage number or name |
+| snooze | The computation continues; it is only hidden from the lists |
+| Team SLA clock | Business hours (`mentor-workflow.md`); with `sla.clock = "calendar"` it goes back to calendar hours. PRD F7 only said "48 hours" and "24 hours". Open question |
 
-### قواعد سمت تیم
-ذخیره نمی‌شوند و هنگام بارگذاری «امروز» با SQL محاسبه می‌شوند (`data-model.md` ۴-۳). برای ۸۰ هنرجو هزینه ناچیز است و همیشه تازه‌اند.
+### Team-side rules
+They are not stored and are computed with SQL when "Today" loads (`data-model.md` 4-3). For 80 students the cost is negligible and they are always fresh.
 
-### گسترش در 1.0
-قواعد R-LOWVOL، R-NOREPLY، R-BADJOBS، R-SKIPREVIEW، R-INTERVIEW و R-POSTCONTRACT فقط با این‌ها اضافه می‌شوند: (۱) فیلدهای تازه در ورودی (از `opportunities`)؛ (۲) شاخه‌ی تازه در `evaluateHealth`؛ (۳) کلید تازه در `health.rules`. ساختار ذخیره و فراخوانی تغییر نمی‌کند. R-LOWVOL به مجموعه‌ی «خطر ریزش» اضافه می‌شود.
+### Extension in 1.0
+The rules R-LOWVOL, R-NOREPLY, R-BADJOBS, R-SKIPREVIEW, R-INTERVIEW and R-POSTCONTRACT are added with only these: (1) new fields in the input (from `opportunities`); (2) a new branch in `evaluateHealth`; (3) a new key in `health.rules`. The storage and call structure does not change. R-LOWVOL is added to the "churn risk" set.
 
-### تطبیق با پیاده‌سازی (هماهنگ با کد، اسپرینت ۴؛ ۳۰ مهر ۱۴۰۵)
-- **ساختار واقعی:** `rules.ts` (خالص: `evaluateHealth`، `overallBall`، `missedCheckinWeeks`، `lowMoodStreak`)، `input-repo.ts` (۶ پرس‌وجوی تجمیعی)، `recompute.ts` (`recomputeHealthSafe` پس از commit با `pg_advisory_xact_lock`، `sweepAllHealth`، `getLastHealthSweepAt`)، `summary.ts`، `service.ts`. قواعد «منتظر ما» در `modules/today` است، نه `team-queue.ts`.
-- **sweep فوری** (تغییر `health.rules`، `checkin`، یا `expectedDays`/`isOpenEnded` مرحله) **صف نمی‌شود**؛ داخل همان درخواست پس از commit و best-effort اجرا می‌شود. برای ۸۰ هنرجو کمتر از یک ثانیه است و یک مسیر کمتر (job) دارد. اگر sweep از ۲ ثانیه گذشت، به `boss.send('health.sweep')` تبدیل شود.
-- **sweep ساعتی** پیش از محاسبه، توقف‌های تمام‌شده را به `active` برمی‌گرداند (`students/lifecycle-auto.ts`) و `graduated`/`dropped` را نمی‌خواند (با تغییر وضعیت `untracked` ذخیره می‌شوند).
-- **تفسیرها:** R-OVERDUE کار `submitted` را نمی‌شمرد (توپ با بازبین)، R-NOTASK آن را باز می‌شمرد؛ R-CHECKIN فقط هفته‌هایی که پنجره‌شان پس از شروع دوره‌ی فعال باز شده (حداکثر ۱۲)؛ R-MOOD بر اساس check-in این هفته یا هفته‌ی قبل و `redConsecutiveWeeks`؛ اولین محاسبه رویداد `health.changed` نمی‌سازد. جزئیات: `data-model.md` ۴-۱ تا ۴-۳.
-- **«قرمز بدون اقدام»:** هر یادداشت حذف‌نشده‌ی کارکنان پس از `red_since` اقدام است؛ پس از `redEscalateDays` با `escalated` برای مدیر با هر فیلتر هم دیده می‌شود.
-- **«مهلت نسخه‌ی بعد» تمدید نیست (تصمیم اسپرینت ۴، تأیید معماری):** `nextDueDate` در بازبینی `changes_requested` مهلت را عوض می‌کند ولی `extension_count` را بالا نمی‌برد. دلیل: R-EXTEND تمدیدهای پیاپی را نشانه‌ی گیر کردن هنرجو می‌شمرد؛ مهلت دور اصلاح بخش عادی چرخه‌ی بازبینی است و تکرار آن را R-LOOP (`revision_count`) از قبل می‌سنجد. اگر تمدید حساب می‌شد، هر هنرجویی که دو بار اصلاح بگیرد به‌اشتباه زرد می‌شد. ردپا در `review.created` (`previousDueAt`، `nextDueAt`) می‌ماند.
-- **هشدار کهنگی** («`computed_at` قدیمی‌تر از ۳ ساعت» در UI مدیر و `/healthz`): `lastHealthSweepAt` در `/healthz` هست، ولی پرچم کهنگی و هشدار UI هنوز نیستند (F-08، F-14).
+### Alignment with the implementation (aligned with the code, sprint 4; 30 Mehr 1405 (2026-10-22))
+- **Actual structure:** `rules.ts` (pure: `evaluateHealth`, `overallBall`, `missedCheckinWeeks`, `lowMoodStreak`), `input-repo.ts` (6 aggregate queries), `recompute.ts` (`recomputeHealthSafe` after commit with `pg_advisory_xact_lock`, `sweepAllHealth`, `getLastHealthSweepAt`), `summary.ts`, `service.ts`. The "waiting on us" rules are in `modules/today`, not `team-queue.ts`.
+- **The immediate sweep** (change of `health.rules`, `checkin`, or a stage's `expectedDays`/`isOpenEnded`) is **not queued**; it runs inside the same request after the commit, best-effort. For 80 students it takes under a second and has one fewer path (job). If the sweep exceeds 2 seconds, it should be converted to `boss.send('health.sweep')`.
+- **The hourly sweep** returns finished pauses to `active` before computing (`students/lifecycle-auto.ts`) and does not read `graduated`/`dropped` (they are stored with the status `untracked` on a status change).
+- **Interpretations:** R-OVERDUE does not count a `submitted` task (the ball is with the reviewer), R-NOTASK counts it as open; R-CHECKIN only counts weeks whose window opened after the start of the active period (at most 12); R-MOOD is based on this week's or last week's check-in and `redConsecutiveWeeks`; the first computation does not create a `health.changed` event. Details: `data-model.md` 4-1 to 4-3.
+- **"Red without action":** every non-deleted staff note after `red_since` counts as an action; after `redEscalateDays` it is also seen by the admin with `escalated`, under any filter.
+- **"Next-version deadline" is not an extension (sprint 4 decision, architecture-confirmed):** `nextDueDate` in a `changes_requested` review changes the deadline but does not increase `extension_count`. Reason: R-EXTEND treats repeated extensions as a sign the student is stuck; the deadline of a revision round is a normal part of the review cycle, and R-LOOP (`revision_count`) already measures its repetition. If it counted as an extension, every student who gets two revisions would wrongly turn yellow. The trace stays in `review.created` (`previousDueAt`, `nextDueAt`).
+- **Staleness warning** ("`computed_at` older than 3 hours" in the admin UI and `/healthz`): `lastHealthSweepAt` is in `/healthz`, but the staleness flag and the UI warning are not there yet (F-08, F-14).
 
-## پیامدها
-- **مثبت:** قواعد در یک فایل خالص با تست جدولی؛ نتیجه سریع و قابل‌فیلتر؛ تاریخچه در تایم‌لاین.
-- **منفی:** بیشترین تأخیر برای قواعد زمانی ۱ ساعت است (مثلاً کاری که ساعت ۰۰:۰۱ معوق می‌شود، تا ۰۱:۰۵ در وضعیت دیده نمی‌شود). برای کاربرد مربی کافی است.
-- **وابستگی:** به زمان‌بند پایدار (ADR-0007). اگر job اجرا نشود، وضعیت‌ها کهنه می‌شوند. پس `computed_at` قدیمی‌تر از ۳ ساعت در UI مدیر هشدار کوچک نشان می‌دهد و در `/healthz` گزارش می‌شود.
+## Consequences
+- **Positive:** the rules are in one pure file with table-driven tests; the result is fast and filterable; history is in the timeline.
+- **Negative:** the maximum delay for time-based rules is 1 hour (e.g. a task that becomes overdue at 00:01 does not show up in the status until 01:05). This is enough for the coach's use.
+- **Dependency:** on a stable scheduler (ADR-0007). If the job does not run, statuses become stale. So a `computed_at` older than 3 hours shows a small warning in the admin UI and is reported in `/healthz`.

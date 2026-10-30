@@ -206,7 +206,7 @@ export async function getLastHealthSweepAt(db: DbOrTx = getDb()): Promise<Date |
   return row?.at ?? null;
 }
 
-/** ADR-0005 «پیامدها»: results older than this mean the hourly sweep is not running. */
+/** ADR-0005 "Consequences": results older than this mean the hourly sweep is not running. */
 export const HEALTH_STALE_AFTER_MS = 3 * 3600 * 1000;
 
 export type HealthFreshness = {
@@ -229,7 +229,7 @@ export function isHealthStale(oldestComputedAt: Date | null, now: Date): boolean
   );
 }
 
-/** `/healthz` (F-08, every organization) and the admin's «امروز» (F-14, their organization). */
+/** `/healthz` (F-08, every organization) and the admin's "Today" (F-14, their organization). */
 export async function getHealthFreshness(
   db: DbOrTx = getDb(),
   now: Date = new Date(),

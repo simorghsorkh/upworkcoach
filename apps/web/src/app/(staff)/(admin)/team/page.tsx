@@ -9,7 +9,7 @@ import { requireUser, toActor } from '@/server/auth/current-user';
 export const metadata: Metadata = { title: 'تیم' };
 
 /**
- * «تیم» (admin only; the (admin) layout redirects mentors): mentors and admins, invites,
+ * "Team" (admin only; the (admin) layout redirects mentors): mentors and admins, invites,
  * fresh links, disable / enable and role change (F1, followups F-02 and F-06).
  */
 export default async function TeamPage() {

@@ -24,7 +24,7 @@ export function StudentQuestionState({
   return <TaskStatusChip status="accepted">پاسخ داده شد</TaskStatusChip>;
 }
 
-/** «سؤال‌های من» rows (mockups/student-home.html #h-q). New replies first. */
+/** "My questions" rows (mockups/student-home.html #h-q). New replies first. */
 export function StudentQuestionRows({
   items,
   expectedResponseText,

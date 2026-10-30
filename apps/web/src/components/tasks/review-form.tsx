@@ -37,7 +37,7 @@ function readDraft(submissionId: string): Draft | null {
 }
 
 /**
- * M6 «بازبینی شما» (mockups/task-detail.html #review): outcome (accepted / changes), Persian
+ * M6 "Your review" (mockups/task-detail.html #review): outcome (accepted / changes), Persian
  * feedback with the mentor template (verdict, strength, ≤ 3 fixes, next step), optional score.
  * The draft stays on this device until it is sent. `POST /submissions/:id/review`.
  */
@@ -53,7 +53,7 @@ export function ReviewForm({
   version: number;
   studentFirstName: string;
   scoreLabel?: string;
-  /** Where «ثبت بازبینی و رفتن به بعدی» goes (next item in the queue, or «امروز»). */
+  /** Where "Save review and go to the next" goes (next item in the queue, or "Today"). */
   nextHref?: string | null;
   onReviewed?: (task: StaffTaskDetailDTO) => void;
 }) {
@@ -63,7 +63,7 @@ export function ReviewForm({
   const [outcome, setOutcome] = useState<ReviewOutcome | null>(null);
   const [feedback, setFeedback] = useState(FEEDBACK_TEMPLATE);
   const [score, setScore] = useState<number | null>(null);
-  /** «مهلت نسخه‌ی بعد» (sprint-3 gap 3): only with «نیاز به اصلاح»; '' = keep the deadline. */
+  /** "Next-version deadline" (sprint-3 gap 3): only with "Needs changes"; '' = keep the deadline. */
   const [nextDue, setNextDue] = useState('');
   const [errors, setErrors] = useState<{
     outcome?: string;
@@ -299,7 +299,7 @@ export function ReviewForm({
   );
 }
 
-/** «ویرایش بازخورد» within 24 h (only when `review.editable`). `PATCH /reviews/:id`. */
+/** "Edit feedback" within 24 h (only when `review.editable`). `PATCH /reviews/:id`. */
 export function EditReviewButton({ review }: { review: StaffReviewDTO }) {
   const router = useRouter();
   const toast = useToast();

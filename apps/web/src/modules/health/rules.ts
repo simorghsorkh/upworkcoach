@@ -74,7 +74,7 @@ const BALL: Record<HealthRuleCode, HealthBall | null> = {
   'R-MOOD': 'student',
 };
 
-/** «خطر ریزش» set (R-LOWVOL joins in 1.0). */
+/** "Churn risk" set (R-LOWVOL joins in 1.0). */
 export const CHURN_RULES: readonly HealthRuleCode[] = ['R-INACT', 'R-CHECKIN', 'R-MOOD'];
 
 const WEEKDAY_INDEX: Record<Weekday, number> = {

@@ -8,7 +8,7 @@ import { openBookingCount } from '@/modules/scheduling/service';
 import { getToday } from '@/modules/today/service';
 import { requireUser, toActor } from '@/server/auth/current-user';
 
-/** «امروز» badge: everything waiting today (TodayDTO.counts). A failure never blocks the page. */
+/** "Today" badge: everything waiting today (TodayDTO.counts). A failure never blocks the page. */
 async function navCounts(actor: ReturnType<typeof toActor>): Promise<NavCounts | undefined> {
   try {
     const { counts: c } = await getToday(actor);

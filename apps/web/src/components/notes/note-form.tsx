@@ -53,8 +53,8 @@ export type FollowUp = { kind: 'reminder'; days: number } | { kind: 'task' } | n
 
 /**
  * Quick note (F5, user-flows §5, mockups/student-profile.html `.composer` and `#note`):
- * kind (default: last used), text (a short template for «جلسه»), who sees it (internal by
- * default; shared shows «هنرجو این را می‌بیند», SEC-F6) and an optional next step. The text
+ * kind (default: last used), text (a short template for "Session"), who sees it (internal by
+ * default; shared shows "The student sees this", SEC-F6) and an optional next step. The text
  * is kept on this device until it is saved, so a dropped connection never loses it.
  * `POST /students/:id/notes` (+ `POST /reminders` for the follow-up).
  */
@@ -71,7 +71,7 @@ export function NoteForm({
   variant: 'inline' | 'sheet';
   onSaved?: (note: NoteDTO) => void;
   onCancel?: () => void;
-  /** «+ کار از این یادداشت»: opens the task form with a suggested title. */
+  /** "+ Task from this note": opens the task form with a suggested title. */
   onCreateTask?: (suggestedTitle: string, body: string) => void;
   autoFocus?: boolean;
 }) {
@@ -364,7 +364,7 @@ export function NoteForm({
   );
 }
 
-/** Segmented «داخلی / اشتراکی» switch of the inline composer (`.seg.vis-switch`). */
+/** Segmented "Internal / Shared" switch of the inline composer (`.seg.vis-switch`). */
 function VisibilitySwitch({
   value,
   onChange,

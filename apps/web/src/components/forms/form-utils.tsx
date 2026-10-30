@@ -17,13 +17,13 @@ export function isHttpsUrl(value: string): boolean {
 
 export const HTTPS_MESSAGE = 'آدرس کامل را با https بنویس.';
 
-/** «۲۵٫۵» / «25.50» → «25.5»; null when it is not a non-negative amount with ≤ 2 decimals. */
+/** «۲۵٫۵» (Persian digits and decimal separator) / «25.50» → «25.5»; null when it is not a non-negative amount with ≤ 2 decimals. */
 export function cleanDecimal(value: string): string | null {
   const text = toLatinDigits(value.trim()).replace('٫', '.').replace(',', '.');
   return /^\d{1,10}(\.\d{1,2})?$/.test(text) ? text : null;
 }
 
-/** «React، طراحی UI, کوهورت پاییز» → ['React', 'طراحی UI', 'کوهورت پاییز'] */
+/** «React، طراحی UI, کوهورت پاییز» → ['React', 'طراحی UI', 'کوهورت پاییز'] (the Persian comma ، also separates; "UI design", "autumn cohort") */
 export function splitTags(value: string): string[] {
   return value
     .split(/[,،\n]/)

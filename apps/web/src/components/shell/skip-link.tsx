@@ -1,6 +1,6 @@
 import { useTranslations } from 'next-intl';
 
-/** «پرش به محتوا» — first focusable element of every shell (design-system §8). */
+/** "Skip to content" — first focusable element of every shell (design-system §8). */
 export function SkipLink() {
   const t = useTranslations('shell');
   return (

@@ -7,7 +7,7 @@ export const questionStatusLabel: Record<QuestionStatus, string> = {
   closed: 'بسته',
 };
 
-/** Subject of the student's «وقت بیشتری لازم دارم» question (sprint-4 frontend guide). */
+/** Subject of the student's "I need more time" question (sprint-4 frontend guide). */
 export const EXTENSION_SUBJECT = 'درخواست تمدید مهلت';
 
 /** One-line reminder of the red lines under the student's question form (user-flows §8). */

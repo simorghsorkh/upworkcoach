@@ -1,26 +1,26 @@
-# ADR-0006 — آمادگی برای لایه‌ی AI در 1.0: مسیر کلی فراخوانی LLM (بدون پیاده‌سازی در 0.1)
+# ADR-0006 — Readiness for the AI layer in 1.0: the general LLM call path (no implementation in 0.1)
 
-- **وضعیت:** پیشنهادشده. جزئیات پرامپت، rubric، ارزیابی و انتخاب مدل با **ai-engineer** است. این ADR فقط مسیر و مرزها را تعیین می‌کند.
-- **تاریخ:** ۲۷ مهر ۱۴۰۵ (2026-10-19)
-- **نویسنده:** software-architect
-- **مرتبط:** ADR-0002 (میزبانی)، ADR-0007 (صف)، ریسک‌های R1 و R2 در `01-discovery/risks.md`، فرض A4 و تصمیم D8
+- **Status:** Proposed. The details of the prompt, rubric, evaluation and model selection belong to the **ai-engineer**. This ADR only sets the path and the boundaries.
+- **Date:** 27 Mehr 1405 (2026-10-19)
+- **Author:** software-architect
+- **Related:** ADR-0002 (hosting), ADR-0007 (queue), risks R1 and R2 in `01-discovery/risks.md`, assumption A4 and decision D8
 
-## زمینه
-- 1.0 ابزارهای «بررسی پروپوزال» و «بررسی جاب» را اضافه می‌کند: ورودی انگلیسی، خروجی فارسی، میانه‌ی پاسخ کمتر از ۳۰ ثانیه، سهمیه به ازای کاربر، و «در خطای سرویس پیام فارسی روشن و بدون کسر سهمیه» (F13، F14، F17).
-- API مدل‌های زبانی (Anthropic، OpenAI و …) از IP ایران در دسترس نیستند (R1).
-- با ADR-0002، سرور 0.1 **خارج از ایران** (Azure) است. ولی ممکن است روزی به میزبان ایرانی منتقل شود.
+## Context
+- 1.0 adds the "Proposal review" and "Job review" tools: English input, Persian output, median response under 30 seconds, a per-user quota, and "on a service error, a clear Persian message and no quota deduction" (F13, F14, F17).
+- The APIs of language models (Anthropic, OpenAI, etc.) are not reachable from an Iranian IP (R1).
+- With ADR-0002, the 0.1 server is **outside Iran** (Azure). But it may someday be moved to an Iranian host.
 
-## مسیرهای ممکن فراخوانی LLM
-| مسیر | وقتی سرور روی Azure است | وقتی سرور به ایران منتقل شده |
+## Possible LLM call paths
+| Path | When the server is on Azure | When the server has moved to Iran |
 |---|---|---|
-| **P1. مستقیم:** سرور برنامه ← API ارائه‌دهنده | **از نظر شبکه کار می‌کند.** ساده‌ترین مسیر | از نظر شبکه کار نمی‌کند |
-| **P2. رله‌ی خودمان:** سرور ایرانی ← رله‌ی کوچک خارج از ایران (کانتینر بی‌حالت با احراز هویت و فهرست سفید) ← API ارائه‌دهنده | لازم نیست | مسیر اصلی. در قطعی بین‌الملل کار نمی‌کند، مگر سرور ایرانی در فهرست سفید باشد (**تأیید نشد**) |
-| **P3. واسط ریالی ایرانی** با API سازگار با OpenAI (مثلاً AvalAI که ادعای دسترسی به مدل‌های زیادی دارد؛ قیمت، پایداری و حریم خصوصی آن **بررسی نشد**؛ `risks.md` R1) | ممکن، ولی سرویس ایرانی ممکن است درخواست از IP خارجی را نپذیرد (**تأیید نشد**) | ممکن؛ به D8 (پرداخت ریالی) جواب می‌دهد |
+| **P1. Direct:** app server → provider API | **Works network-wise.** The simplest path | Does not work network-wise |
+| **P2. Our own relay:** Iranian server → a small relay outside Iran (a stateless container with authentication and an allow-list) → provider API | Not needed | The main path. Does not work during an international outage, unless the Iranian server is on the allow-list (**not confirmed**) |
+| **P3. An Iranian rial-based intermediary** with an OpenAI-compatible API (e.g. AvalAI, which claims access to many models; its price, stability and privacy were **not checked**; `risks.md` R1) | Possible, but the Iranian service may not accept requests from a foreign IP (**not confirmed**) | Possible; answers D8 (rial payment) |
 
-**هشدار حقوقی:** P1 و P2 فقط **مشکل شبکه** را حل می‌کنند. شرایط استفاده‌ی ارائه‌دهنده درباره‌ی محل و هویت مشتری (اینکه سرویس به کاربران کشور پشتیبانی‌نشده ارائه می‌شود) با سرور خارجی حل نمی‌شود. اینکه ایران در فهرست مناطق پشتیبانی‌شده‌ی Anthropic نیست، فقط از منابع ثانویه آمده و **از صفحه‌ی رسمی تأیید نشد** (`risks.md` R1). این ADR راه دور زدن شرایط ارائه‌دهنده را پیشنهاد نمی‌کند. تصمیم درباره‌ی صاحب حساب و قرارداد با بنیان‌گذار و مشاور حقوقی است (سؤال باز).
+**Legal warning:** P1 and P2 solve only the **network problem**. The provider's terms of use about the customer's location and identity (that the service is provided to users in an unsupported country) are not solved by a foreign server. That Iran is not on Anthropic's list of supported regions comes only from secondary sources and was **not confirmed from the official page** (`risks.md` R1). This ADR does not propose any way to circumvent the provider's terms. The decision about the account owner and the contract is for the founder and a legal advisor (open question).
 
-## تصمیم
-1. **لایه‌ی انتزاع `LlmGateway`** در ماژول `ai` (فقط در 1.0 ساخته می‌شود):
+## Decision
+1. **An abstraction layer `LlmGateway`** in the `ai` module (built only in 1.0):
    ```ts
    interface LlmGateway {
      generate(req: {
@@ -30,36 +30,36 @@
      }): Promise<{ output: unknown; model: string; usage: { inputTokens: number; outputTokens: number }; }>;
    }
    ```
-   آداپتورها: `anthropic` (P1)، `openai-compatible` (P3 و بسیاری از رله‌ها)، `relay` (P2). انتخاب با `LLM_PROVIDER`، `LLM_BASE_URL` و `LLM_API_KEY`. **کد ابزارها به ارائه‌دهنده وابسته نیست.**
-2. **مسیر پیش‌فرض 1.0 روی Azure: P1.** P3 به‌عنوان آداپتور پشتیبان. P2 فقط اگر به ایران منتقل شدیم.
-3. **جریان درخواست (ناهمگام، برای اینترنت ضعیف):**
+   Adapters: `anthropic` (P1), `openai-compatible` (P3 and many relays), `relay` (P2). Selected with `LLM_PROVIDER`, `LLM_BASE_URL` and `LLM_API_KEY`. **The tools' code does not depend on the provider.**
+2. **The default 1.0 path on Azure: P1.** P3 as a backup adapter. P2 only if we move to Iran.
+3. **Request flow (asynchronous, for weak internet):**
    ```
    POST /api/v1/ai/runs {tool, input}
-     -> اعتبارسنجی + قواعد قطعی بدون LLM (مثلاً پرچم‌های اسکم در F14)
-     -> بررسی سهمیه (رزرو، نه کسر)
-     -> کش: hash(tool + rubric_version + model + ورودی نرمال‌شده) -> اگر بود، فوری برگردان
+     -> validation + deterministic non-LLM rules (e.g. scam flags in F14)
+     -> quota check (reserve, not deduct)
+     -> cache: hash(tool + rubric_version + model + normalized input) -> if present, return immediately
      -> ai_runs(status=queued) + pg-boss job 'ai.run'
      <- 202 { runId }
-   worker: LlmGateway.generate با timeout و ۲ تلاش مجدد -> اعتبارسنجی خروجی با schema
-     -> ai_runs(status=succeeded, output, usage, cost) + کسر سهمیه
-     -> یا failed: پیام فارسی و آزاد کردن رزرو سهمیه (F13: «بدون کسر سهمیه»)
-   GET /api/v1/ai/runs/:id   (polling هر ۲ ثانیه؛ SSE بعداً)
+   worker: LlmGateway.generate with a timeout and 2 retries -> validate the output against the schema
+     -> ai_runs(status=succeeded, output, usage, cost) + deduct the quota
+     -> or failed: a Persian message and release the quota reservation (F13: "no quota deduction")
+   GET /api/v1/ai/runs/:id   (polling every 2 seconds; SSE later)
    ```
-   polling به‌جای streaming انتخاب شد، چون روی اینترنت ناپایدار، قطع شدن اتصال نتیجه را از بین نمی‌برد.
-4. **محدودیت هزینه:** سهمیه‌ی هر کاربر (F17)، محدودیت نرخ (مثلاً ۱ اجرای هم‌زمان و ۱۰ در ساعت برای هر کاربر)، سقف روزانه‌ی کل هزینه (کلید `ai.budget` در تنظیمات؛ با عبور از آن ابزارها موقتاً بسته می‌شوند)، و کش نتیجه.
-5. **حریم خصوصی:** ورودی همان چیزی است که کاربر paste کرده؛ هیچ fetch یا اسکرپی نیست (R3). پیش از ارسال، ایمیل و شماره تلفن داخل متن با الگو حذف می‌شوند (R3b). از ارائه‌دهنده‌ای استفاده می‌شود که داده‌ی API را برای آموزش استفاده نمی‌کند (تأیید با ai-engineer).
-6. **تخریب مهربان:** اگر LLM در دسترس نیست (قطعی، تحریم، سقف بودجه)، فقط ابزارهای AI غیرفعال می‌شوند با پیام فارسی. هسته‌ی 0.1 (پرونده، کارها، سؤال‌ها) هیچ وابستگی به `ai` ندارد. **جهت وابستگی: `ai` ← هسته، هرگز برعکس.**
+   Polling was chosen over streaming because on an unstable internet connection, a dropped connection does not destroy the result.
+4. **Cost limits:** a per-user quota (F17), rate limiting (e.g. 1 concurrent run and 10 per hour per user), a daily cap on total cost (the key `ai.budget` in settings; once exceeded, the tools are temporarily closed), and result caching.
+5. **Privacy:** the input is exactly what the user pasted; there is no fetch or scraping (R3). Before sending, emails and phone numbers inside the text are removed by pattern (R3b). A provider that does not use API data for training is used (to be confirmed with the ai-engineer).
+6. **Graceful degradation:** if the LLM is unavailable (outage, sanctions, budget cap), only the AI tools are disabled, with a Persian message. The 0.1 core (file, tasks, questions) has no dependency on `ai`. **Dependency direction: `ai` → core, never the reverse.**
 
-## آنچه 0.1 از همین حالا آماده می‌کند (بدون کد AI)
-| آمادگی | کجا |
+## What 0.1 prepares from now (without AI code)
+| Preparation | Where |
 |---|---|
-| زیرساخت صف و worker | pg-boss (ADR-0007) |
-| داده‌ی ارزیابی: پروپوزال + آگهی + نقد مربی + امتیاز + رضایت | `submissions` و `reviews` (`data-model.md` ۲-۵) |
-| ورودی ساخت‌یافته‌ی ابزارها (پلتفرم، متن آگهی، متن پروپوزال) | همان فیلدهای `submissions`؛ ابزار 1.0 همین فرم را دارد |
-| جای ارجاع خروجی AI به مشاور | `question_threads` (ستون nullable `ai_run_id` در 1.0) |
-| جای سهمیه و اجرای AI | جدول‌های 1.0 در `data-model.md` بخش ۵؛ هیچ جدول 0.1 تغییر نمی‌کند |
-| متغیرهای محیطی رزروشده | `LLM_PROVIDER`، `LLM_BASE_URL`، `LLM_API_KEY` |
+| Queue and worker infrastructure | pg-boss (ADR-0007) |
+| Evaluation data: proposal + job post + coach critique + score + satisfaction | `submissions` and `reviews` (`data-model.md` 2-5) |
+| Structured tool input (platform, job post text, proposal text) | The same `submissions` fields; the 1.0 tool has the same form |
+| A place to refer AI output to a mentor | `question_threads` (a nullable `ai_run_id` column in 1.0) |
+| A place for quota and AI runs | The 1.0 tables in `data-model.md` section 5; no 0.1 table changes |
+| Reserved environment variables | `LLM_PROVIDER`, `LLM_BASE_URL`, `LLM_API_KEY` |
 
-## پیامدها
-- انتخاب Azure (ADR-0002) مسیر AI را در 1.0 ساده می‌کند (P1، بدون رله). اگر به ایران منتقل شویم، فقط آداپتور و یک کانتینر رله اضافه می‌شود.
-- **ai-engineer** باید روی همین قرارداد طراحی کند و اگر به چیزی بیشتر نیاز دارد (مثلاً streaming یا ابزارهای چندمرحله‌ای)، ADR تازه بنویسد. خروجی ai-engineer هنوز وجود ندارد. تناقضی برای حل نیست و این ADR نقطه‌ی شروع هماهنگی است.
+## Consequences
+- Choosing Azure (ADR-0002) simplifies the AI path in 1.0 (P1, no relay). If we move to Iran, only an adapter and a relay container are added.
+- The **ai-engineer** must design against this contract, and if they need something more (e.g. streaming or multi-step tools), write a new ADR. The ai-engineer's output does not exist yet. There is no contradiction to resolve and this ADR is the starting point for coordination.

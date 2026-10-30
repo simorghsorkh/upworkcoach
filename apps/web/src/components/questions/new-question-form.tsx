@@ -15,9 +15,9 @@ import { EXTENSION_SUBJECT, RED_LINES_HINT } from './labels';
 type Field = 'subject' | 'body' | 'links' | 'form';
 
 /**
- * S5 «سؤال جدید» (user-flows §8): subject, text, an optional link and images; when it comes
- * from a task page the task travels with it (`taskId`). `kind="extension"` is «وقت بیشتری
- * لازم دارم»: the same question with a fixed subject (only staff extend deadlines). Under the
+ * S5 "New question" (user-flows §8): subject, text, an optional link and images; when it comes
+ * from a task page the task travels with it (`taskId`). `kind="extension"` is "I need more
+ * time": the same question with a fixed subject (only staff extend deadlines). Under the
  * button: when the answer usually comes and the red lines in one line.
  */
 export function NewQuestionForm({

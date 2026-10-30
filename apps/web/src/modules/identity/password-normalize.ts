@@ -1,7 +1,8 @@
 /**
  * SEC-P1 — applied identically before hashing and before verifying. Changing it later
  * would invalidate every stored hash.
- * 1. NFKC  2. Persian/Arabic digits → ASCII  3. ي/ى → ی, ك → ک
+ * 1. NFKC  2. Persian/Arabic digits → ASCII  3. Arabic yeh/alef maksura ي/ى → Persian yeh ی,
+ *    Arabic kaf ك → Persian keheh ک
  * 4. no trim, no case change
  *
  * Kept in its own dependency-free module so the blocklist generator

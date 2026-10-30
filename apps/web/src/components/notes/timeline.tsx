@@ -30,7 +30,7 @@ import type {
 
 type Filter = { key: string; label: string; types: TimelineCategory[] | null };
 
-/** mockups/student-profile.html `.filter-chips` (F5 «فیلتر نوع»). */
+/** mockups/student-profile.html `.filter-chips` (F5 "Filter by type"). */
 const FILTERS: Filter[] = [
   { key: 'all', label: 'همه', types: null },
   { key: 'notes', label: 'یادداشت و جلسه', types: ['note'] },
@@ -52,7 +52,7 @@ const HEALTH_WORD: Record<string, string> = {
 };
 
 export type TimelineLookups = {
-  /** taskId → title (the student's tasks, so task events read «… «سند نیچ»»). */
+  /** taskId → title (the student's tasks, so task events read "… 'Niche document'"). */
   tasks: Record<string, string>;
   /** stage transition id → the note written with it. */
   stageNotes: Record<string, string>;
@@ -64,8 +64,8 @@ export type TimelineLookups = {
 
 /**
  * F5 record timeline (mockups/student-profile.html #timeline): automatic events as small grey
- * dots, notes as cards — internal = dashed with a lock and «داخلی — هنرجو نمی‌بیند», shared =
- * indigo with an eye and «اشتراکی — هنرجو می‌بیند». Filter chips and «موارد قدیمی‌تر» read
+ * dots, notes as cards — internal = dashed with a lock and "Internal — the student can't see it", shared =
+ * indigo with an eye and "Shared — the student can see it". Filter chips and "Older items" read
  * `GET /students/:id/timeline`. The author (or an admin) can edit, delete or change the
  * visibility of a note; internal → shared asks first (SEC-F6).
  */

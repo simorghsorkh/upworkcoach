@@ -15,11 +15,11 @@ import { Icon } from '@/components/icons/icon';
 
 /**
  * Toast — design-system §4 `.toast`: ink background, green check, optional
- * «برگرداندن» (undo) with a seconds countdown; role="status" (polite).
+ * "Undo" with a seconds countdown; role="status" (polite).
  */
 type ToastInput = {
   message: string;
-  /** Optional undo action; shows «برگرداندن» and a countdown. */
+  /** Optional undo action; shows "Undo" and a countdown. */
   onUndo?: () => void;
   undoLabel?: string;
   /** Seconds before the toast disappears (default 5; 10 when undo is offered). */

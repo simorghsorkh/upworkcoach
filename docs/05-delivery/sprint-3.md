@@ -1,230 +1,230 @@
-# اسپرینت ۳ — یادداشت تحویل
+# Sprint 3 — Delivery notes
 
-> فاز ۴، نسخه‌ی 0.1 «دفتر مربی». هر نقش بخش خودش را می‌نویسد.
+> Phase 4, version 0.1 "Coach Office". Each role writes its own section.
 
 ---
 
-## بک‌اند (backend-engineer) — ۲۹ مهر ۱۴۰۵
+## Backend (backend-engineer) — 29 Mehr 1405 (2026-10-21)
 
-**دامنه:** کارها، تحویل، بازبینی و تمدید (F4)؛ یادداشت و تایم‌لاین (F5)؛ یادآور و «امروز» (F6)؛ پیوست تصویر (C4)؛ ورود و خروجی CSV (F11، Should)؛ حذف حساب برای جدول‌های تازه (ADR-0010). مرجع: `data-model.md` ۲-۲ تا ۲-۷ و ۳-۱، `api.md` بخش ۶، ۷، ۸، ۱۳، ۱۴.
+**Scope:** tasks, submissions, reviews and extensions (F4); notes and timeline (F5); reminders and "Today" (F6); image attachments (C4); CSV import and export (F11, Should); account erasure for the new tables (ADR-0010). Reference: `data-model.md` 2-2 to 2-7 and 3-1, `api.md` sections 6, 7, 8, 13, 14.
 
-### endpointها (`/api/v1`) — ۳۷ ورودی تازه در `routes.manifest.ts`
-| متد و مسیر | نقش | نکته |
+### Endpoints (`/api/v1`) — 37 new entries in `routes.manifest.ts`
+| Method and path | Role | Note |
 |---|---|---|
-| `GET/POST /students/:id/tasks` | A، M در دامنه | ساخت: `templateId` فیلدهای خالی را پر می‌کند؛ `dueDate` ← ۲۳:۵۹:۵۹ تهران؛ بازبین پیش‌فرض = مشاور اصلی فعال، وگرنه actor؛ مهلت گذشته ← `422` |
-| `POST /tasks/bulk` | A، M | یک هنرجوی خارج از دامنه ← `422` و هیچ کاری ساخته نمی‌شود؛ `batchId` مشترک |
-| `GET /tasks/:id` | A، M در دامنه؛ S مال خود | `switch` روی نقش (SEC-A5): کارکنان `StaffTaskDetailDTO`، هنرجو `StudentTaskDTO` |
-| `PATCH /tasks/:id` | A، M | مهلت از این مسیر عوض نمی‌شود (`dueDate` ← `422`)؛ `ifUpdatedAt` |
-| `POST /tasks/:id/extend`، `/cancel` | A، M | دلیل الزامی؛ تمدید فقط به بعد از مهلت فعلی و در وضعیت غیرنهایی |
-| `POST /tasks/:id/start`، `/submissions` | S | نسخه‌ی تازه؛ checkbox مستقیم `accepted`؛ پیوست اتمی (C4)؛ snapshot پروفایل از خود کار |
-| `POST /submissions/:id/review` | A، M در دامنه | فقط آخرین نسخه و فقط `submitted`؛ `changes_requested` ← `revisionCount + 1`؛ پاسخ = جزئیات کار |
-| `PATCH /reviews/:id` | A؛ M بازبین همان بازبینی و در دامنه | فقط متن و امتیاز، تا ۲۴ ساعت (`409` پس از آن) |
-| `GET /review-queue` | A، M | دامنه در SQL؛ `mentorId` = بازبین؛ SLA ساعت کاری |
-| `GET/POST /task-templates`، `PATCH /task-templates/:id` | خواندن A، M؛ نوشتن A | غیرفعال‌سازی با `isActive: false` |
-| `GET /me/tasks` | S | معوق‌ها اول، بعد مهلت؛ لغوشده فقط با `?status=cancelled` |
-| `GET/POST /students/:id/notes` | A، M در دامنه | پیش‌فرض `internal`؛ `occurredAt` آینده ← `422` |
-| `PATCH/DELETE /notes/:id` | A؛ M نویسنده و در دامنه‌ی فعلی | internal ← shared در `audit_log(note.visibility_changed)`؛ حذف نرم |
-| `GET /me/shared-notes` | S | تنها مسیر یادداشت برای هنرجو |
-| `GET /students/:id/timeline` | A، M در دامنه | رویدادها + یادداشت‌ها، جدیدترین اول؛ `types=` دسته‌ها؛ `refs` برای نام مرحله و کاربر |
-| `GET/POST /reminders`، `PATCH/DELETE /reminders/:id`، `POST …/done`، `…/snooze` | A، M | M فقط یادآور خودش و هنرجوی در دامنه؛ A برای هر کارمند فعال |
-| `GET /today` | A، M | یادآورهای امروز و گذشته، صف بازبینی با SLA، `unansweredQuestions: []`، `stuckStudents: []`، `waitingOnUs`، `counts` |
-| `POST /attachments` | * | multipart؛ سقف پیش از بافر؛ نوع از محتوا؛ بازکدگذاری بدون EXIF؛ سهمیه ۲۰/۱۰۰ |
-| `GET /attachments/:id` | دسترسی والد؛ `pending` فقط آپلودکننده | سرآیندهای SEC-U6 |
-| `POST /imports/students` | A | CSV UTF-8، ۱ مگابایت، ۵۰۰ ردیف؛ `dryRun` پیش‌فرض |
-| `GET /exports/students.csv`، `/exports/tasks.csv` | A | BOM، خنثی‌سازی فرمول، موبایل `0912…`، `audit_log` |
+| `GET/POST /students/:id/tasks` | A, M in scope | Create: `templateId` fills empty fields; `dueDate` → 23:59:59 Tehran; default reviewer = active primary mentor, otherwise the actor; past due date → `422` |
+| `POST /tasks/bulk` | A, M | One student out of scope → `422` and no task is created; shared `batchId` |
+| `GET /tasks/:id` | A, M in scope; S own only | `switch` on role (SEC-A5): staff get `StaffTaskDetailDTO`, student gets `StudentTaskDTO` |
+| `PATCH /tasks/:id` | A, M | Due date cannot be changed through this route (`dueDate` → `422`); `ifUpdatedAt` |
+| `POST /tasks/:id/extend`, `/cancel` | A, M | Reason required; extension only to a date after the current due date and in a non-final status |
+| `POST /tasks/:id/start`, `/submissions` | S | New version; checkbox goes straight to `accepted`; atomic attachments (C4); profile snapshot taken from the task itself |
+| `POST /submissions/:id/review` | A, M in scope | Latest version only and only `submitted`; `changes_requested` → `revisionCount + 1`; response = task detail |
+| `PATCH /reviews/:id` | A; M who is the reviewer of that review and in scope | Text and score only, up to 24 hours (`409` after that) |
+| `GET /review-queue` | A, M | Scope enforced in SQL; `mentorId` = reviewer; business-hours SLA |
+| `GET/POST /task-templates`, `PATCH /task-templates/:id` | read A, M; write A | Deactivate with `isActive: false` |
+| `GET /me/tasks` | S | Overdue first, then due date; cancelled only with `?status=cancelled` |
+| `GET/POST /students/:id/notes` | A, M in scope | Default `internal`; future `occurredAt` → `422` |
+| `PATCH/DELETE /notes/:id` | A; M who is the author and in current scope | internal → shared recorded in `audit_log(note.visibility_changed)`; soft delete |
+| `GET /me/shared-notes` | S | The only note route for the student |
+| `GET /students/:id/timeline` | A, M in scope | Events + notes, newest first; `types=` categories; `refs` for stage and user names |
+| `GET/POST /reminders`, `PATCH/DELETE /reminders/:id`, `POST …/done`, `…/snooze` | A, M | M only their own reminders and students in scope; A for any active staff member |
+| `GET /today` | A, M | Today's and past reminders, review queue with SLA, `unansweredQuestions: []`, `stuckStudents: []`, `waitingOnUs`, `counts` |
+| `POST /attachments` | * | multipart; size cap before buffering; type from content; re-encoding without EXIF; quota 20/100 |
+| `GET /attachments/:id` | parent's access; `pending` only the uploader | SEC-U6 headers |
+| `POST /imports/students` | A | CSV UTF-8, 1 MB, 500 rows; `dryRun` by default |
+| `GET /exports/students.csv`, `/exports/tasks.csv` | A | BOM, formula neutralization, mobile `0912…`, `audit_log` |
 
-### جدول‌ها و migration
-`apps/web/drizzle/0003_tasks_timeline_reminders.sql` (drizzle-kit، بازبینی‌شده): `task_templates`، `tasks` (CHECK دلیل لغو و هم‌خوانی `closed_at`، indexهای data-model)، `task_extensions`، `submissions` (یکتای `(task_id, version)`، CHECK رضایت)، `reviews` (یکتای `submission_id`، امتیاز ۱..۵)، `attachments` (CHECK «`pending` ⇔ بی‌والد، `linked` ⇔ دقیقاً یک والد»؛ ستون‌های `question_message_id`/`milestone_id` بدون FK تا اسپرینت ۴)، `notes`، `timeline_events`، `reminders` (یکتای `system_key`). به‌علاوه‌ی FK دستی `profile_snapshots.source_submission_id`. seed: ۱۶ قالب کار پیش‌فرض مرحله‌ها با `suggestOnStageEntry`.
+### Tables and migration
+`apps/web/drizzle/0003_tasks_timeline_reminders.sql` (drizzle-kit, reviewed): `task_templates`, `tasks` (CHECK on cancel reason and `closed_at` consistency, data-model indexes), `task_extensions`, `submissions` (unique `(task_id, version)`, consent CHECK), `reviews` (unique `submission_id`, score 1..5), `attachments` (CHECK "`pending` ⇔ no parent, `linked` ⇔ exactly one parent"; the `question_message_id`/`milestone_id` columns have no FK until sprint 4), `notes`, `timeline_events`, `reminders` (unique `system_key`). Plus the manual FK `profile_snapshots.source_submission_id`. Seed: 16 default stage task templates with `suggestOnStageEntry`.
 
-### ساختار کد
-- `lib/tehran-day` (پایان/شروع روز، ساعت دیواری، `addDays`، روز هفته، `jalaliDate`)، `lib/business-hours` (`elapsedBusinessHours`، `slaState`)، `lib/csv` (`toSafeCsvCell`، `toCsv`).
-- `modules/tasks`: schema، contracts، policy (ماشین وضعیت خالص)، repo، `counts.ts` (شمارنده‌ها برای students، بی‌چرخه)، `erasure.ts`، service.
-- `modules/files`: schema، `image.ts` (sharp، صف ۲تایی)، repo، service (`linkAttachmentsToSubmission`، `cleanupPendingAttachments`). job `files.cleanup` (۳:۴۵ تهران) ثبت شد.
-- `modules/timeline`: schema، **بدنه‌ی `recordTimelineEvent`** (همه‌ی رویدادهای اسپرینت ۲ حالا ذخیره می‌شوند)، repo (`listSharedNotesForStudent` تنها تابع هنرجو)، service، `erasure.ts`.
-- `modules/reminders`، `modules/today` (read-model)، `modules/admin/csv-export.ts` و `student-import.ts` (فایل جدا تا `admin/service` بی‌چرخه بماند).
-- `access`: resolverهای `task`، `submission`، `review` (دولایه)، `note`، `attachment`؛ ref `template` در `assertRefs`.
-- `students`: شمارش واقعی کارها در فهرست، پرونده و summary؛ `initialNote`؛ انتقال یادآورها در تغییر مشاور؛ یادآور سیستمی یک روز پیش از پایان توقف (لغو با خروج از توقف). `path`: `suggestedTemplates` واقعی.
-- `server/http`: `route({ multipart: true })`، `readBodyBytes`، `parseMultipart`، پاسخ دودویی `raw`؛ `isoInstantInput`، `requiredLongText`، `englishText`؛ تنظیمات `sla`، `business_hours`، `tasks` در catalog.
-- `admin:erase-user`: کارها، تحویل‌ها، بازبینی‌ها، تمدیدها، یادداشت‌ها (حذف سخت)، `timeline_events.data = {}`، یادآورها، پیوست‌ها (فایل پس از commit؛ شکست ← ردیف `pending` قدیمی که `files.cleanup` دوباره امتحان می‌کند). کارمند با یادآور باز ← رد.
+### Code structure
+- `lib/tehran-day` (end/start of day, wall-clock hour, `addDays`, weekday, `jalaliDate`), `lib/business-hours` (`elapsedBusinessHours`, `slaState`), `lib/csv` (`toSafeCsvCell`, `toCsv`).
+- `modules/tasks`: schema, contracts, policy (pure state machine), repo, `counts.ts` (counters for students, cycle-free), `erasure.ts`, service.
+- `modules/files`: schema, `image.ts` (sharp, queue of 2), repo, service (`linkAttachmentsToSubmission`, `cleanupPendingAttachments`). Job `files.cleanup` (03:45 Tehran) registered.
+- `modules/timeline`: schema, **the body of `recordTimelineEvent`** (all sprint 2 events are now stored), repo (`listSharedNotesForStudent` is the only student-facing function), service, `erasure.ts`.
+- `modules/reminders`, `modules/today` (read model), `modules/admin/csv-export.ts` and `student-import.ts` (separate files so `admin/service` stays cycle-free).
+- `access`: resolvers for `task`, `submission`, `review` (two-layer), `note`, `attachment`; `template` ref in `assertRefs`.
+- `students`: real task counts in the list, file and summary; `initialNote`; reminder transfer on mentor change; system reminder one day before a pause ends (cancelled when the pause is exited). `path`: real `suggestedTemplates`.
+- `server/http`: `route({ multipart: true })`, `readBodyBytes`, `parseMultipart`, binary `raw` response; `isoInstantInput`, `requiredLongText`, `englishText`; `sla`, `business_hours`, `tasks` settings in the catalog.
+- `admin:erase-user`: tasks, submissions, reviews, extensions, notes (hard delete), `timeline_events.data = {}`, reminders, attachments (file after commit; failure → old `pending` row that `files.cleanup` retries). A staff member with an open reminder → rejected.
 
-### نتیجه‌ی فرمان‌ها (اجرای واقعی، پس از آخرین تغییر)
-| فرمان | نتیجه |
+### Command results (real runs, after the last change)
+| Command | Result |
 |---|---|
-| `pnpm lint` | تمیز (۳۴۲ فایل) |
-| `pnpm typecheck` | تمیز |
-| `pnpm test` | ۴۹ فایل، **۹۷۹ تست سبز**: واحد ۲۹۵ (۳۲ فایل، شامل تست‌های کامپوننت فرانت) و یکپارچه ۶۸۴ (۱۷ فایل) |
-| `pnpm build` | موفق؛ ۶۲ مسیر API، همه dynamic |
-| دود واقعی | Postgres موقت 55433 + `next start` روی 3100 (production): migrate + seed (۱۶ قالب)، seed دوباره (۰)، `admin:create`، پذیرش دعوت با ارقام فارسی، `POST /students` با `initialNote`، پذیرش هنرجو، کار، **آپلود JPEG با sharp در build واقعی** و دانلود بدون EXIF، تحویل با پیوست، `/today`، بازبینی، `/me/shared-notes` بدون یادداشت داخلی، تایم‌لاین، یادآور، `403` بدون Origin، `students.csv`. هر دو پردازه بسته شدند |
+| `pnpm lint` | clean (342 files) |
+| `pnpm typecheck` | clean |
+| `pnpm test` | 49 files, **979 tests green**: unit 295 (32 files, including the frontend component tests) and integration 684 (17 files) |
+| `pnpm build` | success; 62 API routes, all dynamic |
+| Real smoke run | Temporary Postgres 55433 + `next start` on 3100 (production): migrate + seed (16 templates), seed again (0), `admin:create`, invite acceptance with Persian digits, `POST /students` with `initialNote`, student acceptance, task, **JPEG upload with sharp in the real build** and download without EXIF, submission with attachment, `/today`, review, `/me/shared-notes` without internal notes, timeline, reminder, `403` without Origin, `students.csv`. Both processes were shut down |
 
-**تست‌های تازه:** واحد — ماشین وضعیت کار (جدول کامل action × status)، معوق و روز تأخیر، ترتیب هنرجو، اعتبار تحویل، پنجره‌ی ۲۴ ساعت، ساعت کاری و SLA، روز تهران و شمسی، CSV injection، sharp (EXIF، چرخش، ۴۰۹۶، HTML/SVG/GIF ← ۴۱۵، بمب ۴۰ مگاپیکسل ← ۴۲۲)، پاک‌سازی نام فایل، دسته‌های تایم‌لاین، snooze. یکپارچه — `tasks.test.ts` (چرخه‌ی کامل از API، T-REF، bulk اتمی، T-DTO با schema سخت‌گیر، S-دیگر/M-دیگر با بدنه‌ی یکسان `404`، شمارنده‌ها، صف بازبینی، قالب پیشنهادی)، `attachments.test.ts` (C4، سرآیندها، سهمیه، cleanup)، `notes-timeline.test.ts` (**قناری یادداشت داخلی روی همه‌ی GETهای هنرجو**، M-سابق، ممیزی visibility، فیلتر و cursor تایم‌لاین)، `reminders-today.test.ts`، `erasure-sprint3.test.ts`، `csv.test.ts`؛ و T-MATRIX و T-CSRF برای همه‌ی ۳۷ endpoint تازه.
+**New tests:** unit — task state machine (full action × status table), overdue and overdue days, student ordering, submission validity, 24-hour window, business hours and SLA, Tehran day and Jalali, CSV injection, sharp (EXIF, rotation, 4096, HTML/SVG/GIF → 415, 40-megapixel bomb → 422), file name sanitization, timeline categories, snooze. Integration — `tasks.test.ts` (full cycle through the API, T-REF, atomic bulk, T-DTO with strict schema, other-S/other-M with an identical `404` body, counters, review queue, suggested template), `attachments.test.ts` (C4, headers, quota, cleanup), `notes-timeline.test.ts` (**internal-note canary on every student GET**, former M, visibility audit, timeline filter and cursor), `reminders-today.test.ts`, `erasure-sprint3.test.ts`, `csv.test.ts`; and T-MATRIX and T-CSRF for all 37 new endpoints.
 
-### فرض‌ها (برای بازبینی software-architect و security-reviewer)
-1. **`kind` و `submissionType`** در ساخت کار اختیاری‌اند (پیش‌فرض `custom` و `text`، یا از قالب)؛ `title` بدون قالب الزامی است. `dueDate` اختیاری است: روزهای قالب، وگرنه `settings.tasks.defaultDueDays` (۳).
-2. **مهلت گذشته** در ساخت و تمدید پذیرفته نیست؛ تمدید فقط به بعد از مهلت فعلی.
-3. **`overdueDays`** = روزهای تقویم تهران پس از مهلت (حداقل ۱).
-4. **تحویل:** `text` متن، `link` لینک، `file` پیوست و `profile_review` متن ویترین می‌خواهد؛ فیلدهای پروپوزال یا ویترین روی نوع دیگر ← `422`. checkbox هم یک نسخه‌ی تحویل ثبت می‌کند (سابقه).
-5. **هر کارمند در دامنه** می‌تواند بازبینی کند (نه فقط `reviewerId`)؛ ویرایش متن بازبینی فقط بازبین همان بازبینی یا مدیر. پنجره‌ی ۲۴ ساعت برای مدیر هم هست.
-6. **`/me/tasks`** فهرست سبک (`latestReview`) و `GET /tasks/:id` جزئیات کامل با همه‌ی نسخه‌ها و بازخوردها؛ هنرجو متن پروپوزال و رضایت خودش را می‌بیند. دلیل لغو را نمی‌بیند.
-7. **`cancel_reason` در حذف حساب** به‌جای `null` مقدار `'[حذف شد]'` می‌گیرد تا CHECK «دلیل لغو الزامی» نشکند (همان قاعده‌ی `task_extensions`).
-8. **`GET /attachments/:id`** `Cache-Control: private, no-store` دارد (سخت‌گیرتر از `no-cache` در api.md ۱۴؛ بدون ETag اثر یکسان).
-9. **snooze** از دیرترِ «اکنون» و «زمان فعلی یادآور» حساب می‌شود. یادآور «انجام شد» تکراری `200` است.
-10. **«امروز» مدیر بدون `mentorId`** یادآورهای همه را نشان می‌دهد (F6)؛ `GET /reminders` مدیر بدون `ownerId` فقط یادآورهای خودش را.
-11. **صف بازبینی** همه‌ی بازبینی‌ها را با `reviewHours` (۴۸) می‌سنجد (تفکیک گیت ۴۸ و غیرگیت ۷۲ در mentor-workflow هنوز در `settings.sla` نیست).
-12. **تغییر مشاور به «بی‌مشاور»**: یادآورهای باز مشاور قبلی به مدیرِ انجام‌دهنده منتقل می‌شوند.
-13. **ورود CSV**: ستون‌ها فارسی یا انگلیسی؛ مرحله با `displayCode` (ارقام فارسی یا لاتین) یا نام؛ مشاور با موبایل یا نام؛ **مهلت فقط میلادی `YYYY-MM-DD`** (قاعده‌ی ADR-0008: API تاریخ شمسی نمی‌گیرد). اجرای واقعی فقط ردیف‌های معتبر را ثبت می‌کند و هر ردیف تراکنش خودش را دارد.
-14. `timeline_events.data` همان قاعده‌ی `audit_log` را دارد (کلید token/url/link/… ← خطا). عنوان کار در `task.created` ذخیره می‌شود (با حذف حساب پاک می‌شود).
+### Assumptions (for software-architect and security-reviewer review)
+1. **`kind` and `submissionType`** are optional when creating a task (default `custom` and `text`, or taken from the template); `title` is required without a template. `dueDate` is optional: the template's days, otherwise `settings.tasks.defaultDueDays` (3).
+2. **A past due date** is not accepted on creation or extension; an extension only goes to a date after the current due date.
+3. **`overdueDays`** = Tehran calendar days after the due date (minimum 1).
+4. **Submission:** `text` requires text, `link` a link, `file` an attachment, and `profile_review` showcase text; proposal or showcase fields on another type → `422`. A checkbox also records a submission version (history).
+5. **Any staff member in scope** can review (not just `reviewerId`); editing the review text is limited to the reviewer of that review or an admin. The 24-hour window applies to the admin too.
+6. **`/me/tasks`** is a light list (`latestReview`) and `GET /tasks/:id` gives full detail with all versions and feedback; the student sees their own proposal text and consent. They do not see the cancel reason.
+7. **`cancel_reason` on account erasure** gets `'[حذف شد]'` ("[deleted]") instead of `null` so the "cancel reason required" CHECK does not break (same rule as `task_extensions`).
+8. **`GET /attachments/:id`** has `Cache-Control: private, no-store` (stricter than `no-cache` in api.md 14; same effect without an ETag).
+9. **snooze** is computed from the later of "now" and "the reminder's current time". Marking a reminder "done" twice returns `200`.
+10. **Admin "Today" without `mentorId`** shows everyone's reminders (F6); an admin's `GET /reminders` without `ownerId` shows only their own.
+11. **The review queue** measures all reviews against `reviewHours` (48) (the gate 48 / non-gate 72 split in mentor-workflow is not yet in `settings.sla`).
+12. **Changing a mentor to "no mentor":** the previous mentor's open reminders are transferred to the acting admin.
+13. **CSV import:** columns in Persian or English; stage by `displayCode` (Persian or Latin digits) or name; mentor by mobile or name; **due date Gregorian only, `YYYY-MM-DD`** (ADR-0008 rule: the API does not accept Jalali dates). A real run saves only valid rows and each row has its own transaction.
+14. `timeline_events.data` follows the same rule as `audit_log` (token/url/link/… key → error). The task title is stored in `task.created` (erased with the account).
 
-### سؤال‌های باز (برای software-architect)
-- **تاریخ شمسی در فایل CSV ورودی:** بنیان‌گذار مهلت‌ها را در اکسل احتمالاً شمسی می‌نویسد. پیشنهاد: تبدیل `1405/08/01` فقط در مسیر import (استثنای مستند ADR-0008) یا قالب اکسل با ستون میلادی.
-- **SLA بازبینی گیت/غیرگیت** (۴۸/۷۲ ساعت در mentor-workflow): افزودن `reviewHoursNonGate` به `settings.sla`؟
-- **ستون‌های `question_message_id` و `milestone_id`** در `attachments` حالا بدون FK‌اند؛ اسپرینت ۴ FK را اضافه می‌کند.
+### Open questions (for software-architect)
+- **Jalali dates in the imported CSV file:** the founder probably writes due dates in Excel as Jalali. Proposal: convert `1405/08/01` only in the import path (documented exception to ADR-0008) or an Excel template with a Gregorian column.
+- **Gate/non-gate review SLA** (48/72 hours in mentor-workflow): add `reviewHoursNonGate` to `settings.sla`?
+- **The `question_message_id` and `milestone_id` columns** in `attachments` currently have no FK; sprint 4 adds the FK.
 
-### کارهای باقی‌مانده
-- [ ] اسپرینت ۴: `question_threads` (بخش سؤال‌های «امروز»، `waitingOnUs` نوع `question`، حالت assignee در summary، انتقال سؤال‌ها در تغییر مشاور، پیش‌شرط حذف کارمند)، سلامت (`stuckStudents`، `red_no_action`، `health` در DTOها و بازمحاسبه پس از هر گذار کار)، `milestones` (پیوست و `milestones.csv`).
-- [ ] `GET/PUT /settings` (تا `sla`، `business_hours` و `tasks` از UI تغییر کنند).
-- [ ] قاعده‌ی Biome `noRestrictedImports` برای مسیرهای هنرجو و T-LOG کامل (آپلود و CSV) — از اسپرینت ۱ مانده.
-- [ ] تست `413` با `Content-Length` اعلام‌شده برای multipart (helper تست آن را بازنویسی می‌کند؛ مسیر JSON با همان `readBodyBytes` تست دارد).
-- [ ] روی دیتابیس 5432 هیچ migration‌ای اجرا نشد: پیش از دیدن صفحه‌های اسپرینت ۳، `pnpm db:migrate` لازم است (`0003` + ۱۶ قالب).
+### Remaining work
+- [ ] Sprint 4: `question_threads` (the "Today" questions section, `waitingOnUs` of type `question`, assignee mode in summary, question transfer on mentor change, precondition for staff deletion), health (`stuckStudents`, `red_no_action`, `health` in the DTOs and recalculation after every task transition), `milestones` (attachment and `milestones.csv`).
+- [ ] `GET/PUT /settings` (so `sla`, `business_hours` and `tasks` can be changed from the UI).
+- [ ] Biome `noRestrictedImports` rule for student routes and full T-LOG (upload and CSV) — carried over from sprint 1.
+- [ ] A `413` test with a declared `Content-Length` for multipart (the test helper overrides it; the JSON route has a test with the same `readBodyBytes`).
+- [ ] No migration was run on the 5432 database: before viewing the sprint 3 pages, `pnpm db:migrate` is needed (`0003` + 16 templates).
 
 ---
 
-## راهنمای فرانت‌اند (برای frontend-engineer)
+## Frontend guide (for frontend-engineer)
 
-قواعد کلی همان اسپرینت ۲ است: RSC تابع service را مستقیم با `toActor(user)` صدا می‌زند؛ نوشتن فقط با `fetch` به API (Server Action ممنوع)؛ DTOها را با `import type` از `@/modules/*/contracts` بگیرید؛ هرگز `service` را در کامپوننت کلاینت import نکنید. خطاها `ApiError` با `code` و پیام فارسی؛ `422` با `error.fields`. همه‌ی زمان‌ها ISO با `Z`؛ روزها `YYYY-MM-DD` میلادی (= روز تهران)؛ تبدیل شمسی با UI.
+The general rules are the same as sprint 2: RSC calls the service function directly with `toActor(user)`; writes only via `fetch` to the API (Server Actions are forbidden); take DTOs with `import type` from `@/modules/*/contracts`; never import `service` into a client component. Errors are `ApiError` with `code` and a Persian message; `422` with `error.fields`. All times are ISO with `Z`; days are Gregorian `YYYY-MM-DD` (= Tehran day); Jalali conversion is done by the UI.
 
-### تابع‌های service برای صفحه‌های RSC
-| صفحه | تابع (ماژول) | خروجی |
+### Service functions for RSC pages
+| Page | Function (module) | Output |
 |---|---|---|
-| M «امروز» `/today` | `getToday(actor, { mentorId? })` (`@/modules/today/service`) | `TodayDTO` (`reminders`، `reviewQueue`، `waitingOnUs`، `counts` برای شمارنده‌ی ناوبری؛ `unansweredQuestions` و `stuckStudents` فعلاً `[]`) |
-| صف بازبینی | `getReviewQueue(actor, { mentorId? })` (`@/modules/tasks/service`) | `ReviewQueueItemDTO[]` (`slaRemainingHours`، `breached`، `warning`) |
-| پرونده: کارها | `listStudentTasks(actor, studentId, { status?, stageId? })` | `StaffTaskDTO[]` |
-| صفحه‌ی کار (کارکنان) | `getStaffTask(actor, taskId)` | `StaffTaskDetailDTO` (نسخه‌ها جدیدترین اول، هر کدام `review` و `attachments`؛ `extensions[]`) |
-| فهرست قالب‌ها | `listTaskTemplates(actor, { stageId?, includeInactive? })` (`@/modules/catalog/service`) | `TaskTemplateDTO[]` |
-| پرونده: یادداشت‌ها | `listStudentNotes(actor, studentId, { visibility?, kind?, limit?, cursor? })` (`@/modules/timeline/service`) | `NoteListDTO` (`canEdit` برای دکمه‌ی ویرایش) |
-| پرونده: تایم‌لاین | `getTimeline(actor, studentId, { types?, limit?, cursor? })` | `TimelineDTO` (`items`، `nextCursor`، `refs.stages`/`refs.users` برای نام‌ها) |
-| یادآورها `/reminders` | `listReminders(actor, { scope: 'today' \| 'upcoming' \| 'done', ownerId?, studentId? })` (`@/modules/reminders/service`) | `ReminderDTO[]` |
-| S «کارهای من» `/my/tasks` | `listOwnTasks(actor, { status? })` (`@/modules/tasks/service`) | `StudentTaskListItemDTO[]` (معوق‌ها اول) |
-| S صفحه‌ی کار | `getOwnTask(actor, taskId)` | `StudentTaskDTO` |
-| S خانه: یادداشت‌های مشاور | `listOwnSharedNotes(actor, { limit?, cursor? })` (`@/modules/timeline/service`) | `SharedNoteListDTO` |
+| M "Today" `/today` | `getToday(actor, { mentorId? })` (`@/modules/today/service`) | `TodayDTO` (`reminders`, `reviewQueue`, `waitingOnUs`, `counts` for the navigation counter; `unansweredQuestions` and `stuckStudents` are `[]` for now) |
+| Review queue | `getReviewQueue(actor, { mentorId? })` (`@/modules/tasks/service`) | `ReviewQueueItemDTO[]` (`slaRemainingHours`, `breached`, `warning`) |
+| File: tasks | `listStudentTasks(actor, studentId, { status?, stageId? })` | `StaffTaskDTO[]` |
+| Task page (staff) | `getStaffTask(actor, taskId)` | `StaffTaskDetailDTO` (versions newest first, each with `review` and `attachments`; `extensions[]`) |
+| Template list | `listTaskTemplates(actor, { stageId?, includeInactive? })` (`@/modules/catalog/service`) | `TaskTemplateDTO[]` |
+| File: notes | `listStudentNotes(actor, studentId, { visibility?, kind?, limit?, cursor? })` (`@/modules/timeline/service`) | `NoteListDTO` (`canEdit` for the edit button) |
+| File: timeline | `getTimeline(actor, studentId, { types?, limit?, cursor? })` | `TimelineDTO` (`items`, `nextCursor`, `refs.stages`/`refs.users` for names) |
+| Reminders `/reminders` | `listReminders(actor, { scope: 'today' \| 'upcoming' \| 'done', ownerId?, studentId? })` (`@/modules/reminders/service`) | `ReminderDTO[]` |
+| S "My tasks" `/my/tasks` | `listOwnTasks(actor, { status? })` (`@/modules/tasks/service`) | `StudentTaskListItemDTO[]` (overdue first) |
+| S task page | `getOwnTask(actor, taskId)` | `StudentTaskDTO` |
+| S home: mentor notes | `listOwnSharedNotes(actor, { limit?, cursor? })` (`@/modules/timeline/service`) | `SharedNoteListDTO` |
 
-`StaffStudentDTO` و `StudentListItemDTO` حالا `openTaskCount`، `overdueTaskCount` و `nextTask` واقعی دارند؛ `StudentSummaryDTO.openTasks` پر است. `health` هنوز `null`.
-`types` تایم‌لاین: `note,student,stage,profile,task,question,checkin,milestone,flag,health` (ویرگولی؛ نبود = همه). هر آیتم `kind: 'event' | 'note'`، `category` و برای رویداد `data` خام (مثلاً `stage.changed`: `{ from, to, kind }` با شناسه‌ی مرحله ← `refs.stages[id]`؛ `task.status_changed`: `{ from, to }`؛ `review.created`: `{ taskId, version, outcome, score }`).
+`StaffStudentDTO` and `StudentListItemDTO` now have real `openTaskCount`, `overdueTaskCount` and `nextTask`; `StudentSummaryDTO.openTasks` is filled. `health` is still `null`.
+Timeline `types`: `note,student,stage,profile,task,question,checkin,milestone,flag,health` (comma-separated; absent = all). Each item has `kind: 'event' | 'note'`, `category`, and for events the raw `data` (for example `stage.changed`: `{ from, to, kind }` with stage ids → `refs.stages[id]`; `task.status_changed`: `{ from, to }`; `review.created`: `{ taskId, version, outcome, score }`).
 
-### endpointهایی که فرم‌های کلاینت صدا می‌زنند
-| فرم / عمل | درخواست | بدنه | پاسخ موفق |
+### Endpoints that client forms call
+| Form / action | Request | Body | Success response |
 |---|---|---|---|
-| کار تازه | `POST /api/v1/students/{id}/tasks` | `{ title?, description?, kind?, submissionType?, stageId?, requiredForGate?, priority?, dueDate?, reviewerId?, templateId?, profileId? }` | `201 StaffTaskDTO` |
-| کار گروهی | `POST /api/v1/tasks/bulk` | `{ studentIds[], templateId? \| title…, dueDate? }` | `201 { batchId, created, taskIds }` |
-| ویرایش کار | `PATCH /api/v1/tasks/{id}` | `{ title?, description?, priority?, reviewerId?, stageId?, requiredForGate?, ifUpdatedAt? }` | `200 StaffTaskDTO` |
-| تمدید | `POST /api/v1/tasks/{id}/extend` | `{ newDueDate, reason }` | `200 StaffTaskDTO` |
-| لغو | `POST /api/v1/tasks/{id}/cancel` | `{ reason }` | `200 StaffTaskDTO`؛ نهایی ← `409 INVALID_TRANSITION` |
-| بازبینی | `POST /api/v1/submissions/{id}/review` | `{ outcome: 'accepted' \| 'changes_requested', feedbackText, score?: 1..5 }` | `201 StaffTaskDetailDTO` |
-| اصلاح بازخورد (۲۴ ساعت) | `PATCH /api/v1/reviews/{id}` | `{ feedbackText?, score? }` | `200 StaffReviewDTO`؛ دیر ← `409` (فقط وقتی `review.editable`) |
-| قالب کار (مدیر) | `POST /api/v1/task-templates`، `PATCH /api/v1/task-templates/{id}` | `{ title, stageId?, description?, kind?, submissionType?, defaultDueDays?, requiredForGate?, suggestOnStageEntry?, sortOrder?, isActive? }` | `201/200 TaskTemplateDTO` |
-| S شروع | `POST /api/v1/tasks/{id}/start` | — | `200 StudentTaskDTO` |
-| S آپلود تصویر | `POST /api/v1/attachments` | `multipart/form-data` با `file` (FormData؛ `Content-Type` را دستی نگذارید) | `201 { id, mimeType, sizeBytes, width, height, originalName, href, status: 'pending' }`؛ `413`، `415`، `422`، `429` |
-| S تحویل | `POST /api/v1/tasks/{id}/submissions` | `{ bodyText?, links?: [{url, label?}], attachmentIds?, platformId?, jobPostText?, proposalText?, profileText?, aiUseConsent? }` | `201 SubmissionCreatedDTO = { id, version, createdAt, task: { id, status } }` |
-| یادداشت | `POST /api/v1/students/{id}/notes` | `{ body, kind?, visibility?: 'internal' \| 'shared', tags?, occurredAt? }` | `201 NoteDTO` |
-| ویرایش/حذف یادداشت | `PATCH` / `DELETE /api/v1/notes/{id}` | `{ body?, kind?, visibility?, tags?, occurredAt?, ifUpdatedAt? }` | `200 NoteDTO` / `204` |
-| یادآور | `POST /api/v1/reminders` | `{ text, dueDate \| dueAt, studentId?, ownerId? (فقط مدیر) }` | `201 ReminderDTO` |
-| ویرایش/انجام/تعویق/حذف | `PATCH /api/v1/reminders/{id}`، `POST …/done`، `POST …/snooze` (`{ days: 1 \| 3 \| 7 }`)، `DELETE …` | — | `200 ReminderDTO` / `204` |
-| ورود CSV (مدیر) | `POST /api/v1/imports/students` | multipart: `file`، `dryRun` (`'true'` پیش‌فرض، `'false'` ثبت) | `200 { dryRun, total, valid, imported, rows: [{ line, ok, errors: [{column, message}], studentId?, inviteUrl? }] }` |
-| خروجی CSV (مدیر) | لینک `GET /api/v1/exports/students.csv` و `/exports/tasks.csv` | — | دانلود فایل |
+| New task | `POST /api/v1/students/{id}/tasks` | `{ title?, description?, kind?, submissionType?, stageId?, requiredForGate?, priority?, dueDate?, reviewerId?, templateId?, profileId? }` | `201 StaffTaskDTO` |
+| Bulk task | `POST /api/v1/tasks/bulk` | `{ studentIds[], templateId? \| title…, dueDate? }` | `201 { batchId, created, taskIds }` |
+| Edit task | `PATCH /api/v1/tasks/{id}` | `{ title?, description?, priority?, reviewerId?, stageId?, requiredForGate?, ifUpdatedAt? }` | `200 StaffTaskDTO` |
+| Extend | `POST /api/v1/tasks/{id}/extend` | `{ newDueDate, reason }` | `200 StaffTaskDTO` |
+| Cancel | `POST /api/v1/tasks/{id}/cancel` | `{ reason }` | `200 StaffTaskDTO`; final → `409 INVALID_TRANSITION` |
+| Review | `POST /api/v1/submissions/{id}/review` | `{ outcome: 'accepted' \| 'changes_requested', feedbackText, score?: 1..5 }` | `201 StaffTaskDetailDTO` |
+| Correct feedback (24 hours) | `PATCH /api/v1/reviews/{id}` | `{ feedbackText?, score? }` | `200 StaffReviewDTO`; late → `409` (only when `review.editable`) |
+| Task template (admin) | `POST /api/v1/task-templates`, `PATCH /api/v1/task-templates/{id}` | `{ title, stageId?, description?, kind?, submissionType?, defaultDueDays?, requiredForGate?, suggestOnStageEntry?, sortOrder?, isActive? }` | `201/200 TaskTemplateDTO` |
+| S start | `POST /api/v1/tasks/{id}/start` | — | `200 StudentTaskDTO` |
+| S image upload | `POST /api/v1/attachments` | `multipart/form-data` with `file` (FormData; do not set `Content-Type` manually) | `201 { id, mimeType, sizeBytes, width, height, originalName, href, status: 'pending' }`; `413`, `415`, `422`, `429` |
+| S submit | `POST /api/v1/tasks/{id}/submissions` | `{ bodyText?, links?: [{url, label?}], attachmentIds?, platformId?, jobPostText?, proposalText?, profileText?, aiUseConsent? }` | `201 SubmissionCreatedDTO = { id, version, createdAt, task: { id, status } }` |
+| Note | `POST /api/v1/students/{id}/notes` | `{ body, kind?, visibility?: 'internal' \| 'shared', tags?, occurredAt? }` | `201 NoteDTO` |
+| Edit/delete note | `PATCH` / `DELETE /api/v1/notes/{id}` | `{ body?, kind?, visibility?, tags?, occurredAt?, ifUpdatedAt? }` | `200 NoteDTO` / `204` |
+| Reminder | `POST /api/v1/reminders` | `{ text, dueDate \| dueAt, studentId?, ownerId? (admin only) }` | `201 ReminderDTO` |
+| Edit/done/snooze/delete | `PATCH /api/v1/reminders/{id}`, `POST …/done`, `POST …/snooze` (`{ days: 1 \| 3 \| 7 }`), `DELETE …` | — | `200 ReminderDTO` / `204` |
+| CSV import (admin) | `POST /api/v1/imports/students` | multipart: `file`, `dryRun` (`'true'` default, `'false'` saves) | `200 { dryRun, total, valid, imported, rows: [{ line, ok, errors: [{column, message}], studentId?, inviteUrl? }] }` |
+| CSV export (admin) | link `GET /api/v1/exports/students.csv` and `/exports/tasks.csv` | — | file download |
 
-**نکته‌های UI:**
-- تصویر پیوست را با `<img src={a.href}>` نشان دهید (همان‌مبدأ، کوکی نشست می‌رود). کنار آپلود مدرک: «نام و عکس کارفرما را بپوشان» (SEC-F7).
-- فرم تحویل پروپوزال: فیلدهای جدای پلتفرم، متن آگهی و پروپوزال با `dir="ltr" lang="en"`، و چک‌باکس رضایت **خاموش به‌طور پیش‌فرض**.
-- `visibility: 'shared'` و بازخورد و شرح کار برچسب «هنرجو این را می‌بیند» بگیرند؛ تبدیل internal ← shared پنجره‌ی تأیید (SEC-F6).
-- `overdue`/`overdueDays` برچسب قرمز «عقب‌افتاده»؛ هنرجو هیچ سلامت یا دلیلی نمی‌بیند.
-- `suggestedTemplates` پاسخ `PUT /students/{id}/stage` حالا پر است (`TaskTemplateDTO[]`)؛ دکمه‌ی «ساخت این کارها» با `POST /students/{id}/tasks { templateId }` برای هر کدام.
-- `counts` در `TodayDTO` برای شمارنده‌ی «امروز» در ناوبری.
-- پیش از خروجی CSV هشدار SEC-V3: «این فایل شامل موبایل و لینک پروفایل همه‌ی هنرجوهاست؛ پس از استفاده پاکش کن.» نتیجه‌ی ورود (`inviteUrl`ها) را فقط همان‌جا نشان دهید.
+**UI notes:**
+- Show the attached image with `<img src={a.href}>` (same origin, the session cookie is sent). Next to the evidence upload: "Cover the client's name and photo" (SEC-F7).
+- Proposal submission form: separate platform, job post text and proposal fields with `dir="ltr" lang="en"`, and the consent checkbox **off by default**.
+- `visibility: 'shared'`, feedback and the task description get the label "The student sees this"; converting internal → shared gets a confirmation dialog (SEC-F6).
+- `overdue`/`overdueDays` get a red "Overdue" label; the student sees no health or reason.
+- `suggestedTemplates` in the `PUT /students/{id}/stage` response is now filled (`TaskTemplateDTO[]`); the "Create these tasks" button uses `POST /students/{id}/tasks { templateId }` for each one.
+- `counts` in `TodayDTO` is for the "Today" counter in the navigation.
+- Before the CSV export, the SEC-V3 warning: "This file contains the mobile numbers and profile links of all students; delete it after use." Show the import result (`inviteUrl`s) only there.
 
 ---
 
-## فرانت‌اند (frontend-engineer) — ۲۹ مهر ۱۴۰۵
+## Frontend (frontend-engineer) — 29 Mehr 1405 (2026-10-21)
 
-**دامنه:** «امروز» (M1)، کارها و جزئیات کار (M5، M5a، M6)، یادآورها (M9)، و در پرونده (M3): تب کارها، composer یادداشت، تایم‌لاین کامل، یادآور و «کار بعدی». سمت هنرجو: «کارهای من» (S2)، صفحه‌ی کار و تحویل (S3)، و کارها و یادداشت‌های اشتراکی در خانه (S1). به‌علاوه ورود و خروجی CSV (M2b). مرجع ظاهر: `mockups/today.html`، `tasks.html`، `task-detail.html`، `student-profile.html`، `student-task.html` و `student-home.html`. همه‌ی داده‌ها واقعی‌اند: صفحه‌ها service را صدا می‌زنند (RSC) و فرم‌ها با `fetch` در API می‌نویسند. Server Action به کار نرفته است.
+**Scope:** "Today" (M1), tasks and task detail (M5, M5a, M6), reminders (M9), and in the student file (M3): tasks tab, note composer, full timeline, reminder and "next task". Student side: "My tasks" (S2), task page and submission (S3), and shared tasks and notes on the home page (S1). Plus CSV import and export (M2b). Visual reference: `mockups/today.html`, `tasks.html`, `task-detail.html`, `student-profile.html`, `student-task.html` and `student-home.html`. All data is real: pages call the service (RSC) and forms write through `fetch` to the API. No Server Action was used.
 
-### صفحه‌ها
-| صفحه | مسیر | نکته |
+### Pages
+| Page | Route | Note |
 |---|---|---|
-| M1 امروز | `(staff)/today` | کادر «از زمان پاسخ گذشته» (از `waitingOnUs` با `breached`، با شاخه‌های `question` و `red_no_action` آماده). چهار کارت عددی که هر کدام به بخش خودش می‌پرد. یادآورها با «انجام شد» (و «برگرداندن» تا ۱۰ ثانیه) و تعویق ۱ روز، ۳ روز و ۱ هفته. تحویل‌ها به ترتیب دیر، فوری و بعد قدیمی‌ترین. سؤال‌ها و گیرکرده‌ها حالت خالی دارند؛ ردیف گیرکرده با `StudentListItemDTO` ساخته شده و اسپرینت ۴ فقط داده می‌دهد. فیلتر مشاور فقط برای مدیر است («فقط هنرجوهای خودم» و هر مشاور). شمارنده‌ی «امروز» در ناوبری از `counts` می‌آید |
-| M5 کارها | `(staff)/tasks` | زبانه‌ها: منتظر بازبینی، معوق، باز و در حال انجام، نیاز به اصلاح، همه (هر کدام با شمارنده). جستجو، نوع، مشاور (مدیر) و مرحله در URL هستند. جدول در دسکتاپ و کارت در موبایل؛ ردیف دیر یا معوق خط قرمز دارد. اقدام هر ردیف: «بازبینی»، یا «تمدید مهلت» و «یادآور» برای معوق‌ها |
-| M5a کار جدید | پنجره روی `/tasks` (`?new=1`)؛ `/tasks/new` به آن هدایت می‌شود | یک یا چند هنرجو (چند نفر یعنی `POST /tasks/bulk`)، قالب (گروه‌بندی‌شده با مرحله) که عنوان، شرح، نوع، گیت و مهلت را پر می‌کند، و شش نوع تحویل با راهنمای هر نوع. شرح برچسب «هنرجو این را می‌بیند» دارد. مهلت با انتخاب‌گر شمسی است. زیر «بیشتر»: مرحله، گیت، فوری و بازبین (فقط مدیر) |
-| M6 جزئیات کار | `(staff)/tasks/[id]` | نسخه‌ها به‌صورت سوییچ (`?v=`)، متن آگهی و پروپوزال در بلوک LTR با شمار نویسه، رضایت، لینک‌ها و تصویرها. بازخورد دور قبل تاشده است. فرم بازبینی: نتیجه، بازخورد با قالب مشاور و پیش‌نویسی که خودکار روی همین دستگاه ذخیره می‌شود، امتیاز ۱ تا ۵ اختیاری، و «ثبت بازبینی و رفتن به بعدی». «ویرایش بازخورد» فقط تا وقتی `editable` است. «تمدید مهلت» با دلیل (از سومین تمدید هشدار می‌دهد)، «لغو کار» با دلیل، و «ویرایش شرح» (`PATCH` با `ifUpdatedAt`). در موبایل این‌ها در منوی «این کار» هستند. از دور ۳ اصلاح به بعد هشدار «تماس ۱۵ دقیقه‌ای» می‌آید. ستون کناری: شرح کار (معیار پذیرش جدا نشان داده می‌شود)، «X در یک نگاه»، و تاریخچه |
-| M9 یادآورها | `(staff)/reminders` | زبانه‌های امروز و گذشته، آینده، انجام‌شده. مدیر می‌تواند یادآورهای هر مشاور را ببیند. فرم یادآور: هنرجو (اختیاری)، متن، روز شمسی و ساعت اختیاری (بدون ساعت ۹ صبح)، و «برای» فقط برای مدیر |
-| M3 پرونده | `(staff)/students/[id]` | سربرگ: «N کار باز · M معوق» و دکمه‌های یادداشت، کار، یادآور و بیشتر. نوار موبایل: یادداشت، کار، مرحله و بیشتر. کاشی «آخرین کار خواسته‌شده» واقعی است. تب کارها: بازها به ترتیب (منتظر بازبینی، بعد معوق، بعد مهلت)، و «پذیرفته و لغوشده» تاشده. تایم‌لاین: composer همیشه‌باز (دسکتاپ)، هفت چیپ فیلتر، «موارد قدیمی‌تر» با cursor، و یادداشت داخلی (خط‌چین با قفل) یا اشتراکی (نیلی با چشم). نویسنده یا مدیر می‌تواند ویرایش و حذف کند؛ تبدیل داخلی به اشتراکی پنجره‌ی تأیید دارد (SEC-F6). یادآورهای همین هنرجو در ستون کنار هستند. `?add=note\|task\|reminder\|stage` پنجره‌ی مربوط را باز می‌کند |
-| تغییر مرحله | `components/stages/change-stage-dialog.tsx` | «کارهای پیش‌فرض مرحله‌ی N» از قالب‌های `suggestOnStageEntry`، به‌صورت چک‌باکس روشن (هم در پرونده و هم در کانبان). «X کار باز مرحله‌ی قبل: باز بماند / لغو شود» |
-| M2 هنرجوها | `(staff)/students` | «کار بعدی» واقعی است («معوق · N روز» یا «تا …»، وگرنه «کار بازی ندارد»). مدیر: «ورود از اکسل» و «خروجی CSV» با هشدار SEC-V3 |
-| M2a هنرجوی جدید | فرم موجود | «یادداشت آزاد» به `initialNote` می‌رود و یادداشت داخلی اول پرونده می‌شود |
-| M2b ورود از فایل | `components/students/csv-tools.tsx` | فقط CSV تا ۱ مگابایت، با فایل نمونه. اول `dryRun` و جدول ردیف، ستون و مشکل (بدون مقدار، SEC-V5)، بعد «ثبت N هنرجو». لینک‌های دعوت فقط همان‌جا، با دکمه‌ی کپی، نشان داده می‌شوند |
-| S1 خانه | `(student)/home` | «کارهای من» (۵ کار باز، معوق‌ها اول، با «بازخورد جدید» و «دیدن بازخورد») و «از مشاورت» (۳ یادداشت اشتراکی تازه، فقط از `listOwnSharedNotes`) |
-| S2 کارهای من | `(student)/my/tasks` | زبانه‌های باز و انجام‌شده؛ عقب‌افتاده قرمز؛ بدون سلامت یا دلیل |
-| S3 کار | `(student)/my/tasks/[id]` | کارت بازخورد (متنِ نوشته‌شده با قالب به‌صورت حکم، قوت، اصلاح، نمونه و قدم بعدی تفکیک می‌شود؛ جمله‌ی انگلیسیِ داخل گیومه در بلوک LTR). «چه کاری باید بکنی» با معیار پذیرش. فرم تحویل بر اساس نوع: متن، لینک (فقط https) و تصویر (JPG، PNG و WebP تا ۵ مگابایت؛ اول `POST /attachments` با پیش‌نمایش و وضعیت آپلود، و هشدار «نام و عکس کارفرما را بپوشان»). برای «پروپوزال برای بررسی»: پلتفرم، متن آگهی و پروپوزال `dir="ltr" lang="en"`، و رضایتی که **پیش‌فرض خاموش** است. «فقط تیک» یعنی دکمه‌ی «انجام دادم». نسخه‌ی بعد از نسخه‌ی قبل پر می‌شود و متن تا ارسال روی دستگاه می‌ماند. «شروع کردم» برای کار باز. نسخه‌های قبلی و بازخوردها تاشده‌اند. «سؤال درباره‌ی این کار» و «وقت بیشتری لازم دارم» (= درخواست تمدید، طبق UX یک سؤال) تا ماژول سؤال‌ها **به‌زودی** هستند |
+| M1 Today | `(staff)/today` | A box "Past response time" (from `waitingOnUs` with `breached`, with the `question` and `red_no_action` branches ready). Four number cards, each jumping to its own section. Reminders with "Done" (and "Undo" for 10 seconds) and snooze 1 day, 3 days and 1 week. Submissions in the order late, urgent, then oldest. Questions and stuck students have an empty state; the stuck row is built with `StudentListItemDTO` and sprint 4 only supplies data. The mentor filter is admin-only ("Only my students" and each mentor). The "Today" counter in the navigation comes from `counts` |
+| M5 Tasks | `(staff)/tasks` | Tabs: awaiting review, overdue, open and in progress, needs revision, all (each with a counter). Search, type, mentor (admin) and stage are in the URL. Table on desktop and cards on mobile; a late or overdue row has a red line. Row action: "Review", or "Extend deadline" and "Reminder" for overdue tasks |
+| M5a New task | dialog over `/tasks` (`?new=1`); `/tasks/new` redirects to it | One or more students (several means `POST /tasks/bulk`), template (grouped by stage) that fills title, description, kind, gate and due date, and six submission types with a guide for each. The description carries the label "The student sees this". The due date uses a Jalali picker. Under "More": stage, gate, urgent and reviewer (admin only) |
+| M6 Task detail | `(staff)/tasks/[id]` | Versions as a switch (`?v=`), job post and proposal text in an LTR block with a character count, consent, links and images. Feedback from the previous round is collapsed. Review form: outcome, feedback with a mentor template and a draft that is auto-saved on this device, optional score 1 to 5, and "Submit review and go to next". "Edit feedback" only while `editable`. "Extend deadline" with a reason (warns from the third extension), "Cancel task" with a reason, and "Edit description" (`PATCH` with `ifUpdatedAt`). On mobile these are in the "This task" menu. From the third revision round on, a "15-minute call" warning appears. Side column: task description (acceptance criteria shown separately), "X at a glance", and history |
+| M9 Reminders | `(staff)/reminders` | Tabs: today and past, upcoming, done. An admin can see any mentor's reminders. Reminder form: student (optional), text, Jalali day and optional time (no time means 9 AM), and "For" for admins only |
+| M3 Student file | `(staff)/students/[id]` | Header: "N open tasks · M overdue" and buttons note, task, reminder and more. Mobile bar: note, task, stage and more. The "Last requested task" tile is real. Tasks tab: open tasks in order (awaiting review, then overdue, then due date), and "Accepted and cancelled" collapsed. Timeline: always-open composer (desktop), seven filter chips, "Older items" with a cursor, and an internal note (dashed with a lock) or shared note (indigo with an eye). The author or an admin can edit and delete; converting internal to shared has a confirmation dialog (SEC-F6). This student's reminders are in the side column. `?add=note\|task\|reminder\|stage` opens the matching dialog |
+| Stage change | `components/stages/change-stage-dialog.tsx` | "Default tasks for stage N" from `suggestOnStageEntry` templates, as checked checkboxes (both in the file and in the kanban). "X open tasks from the previous stage: keep open / cancel" |
+| M2 Students | `(staff)/students` | "Next task" is real ("Overdue · N days" or "Due …", otherwise "No open task"). Admin: "Import from Excel" and "CSV export" with the SEC-V3 warning |
+| M2a New student | existing form | "Free-form note" goes to `initialNote` and becomes the first internal note in the file |
+| M2b File import | `components/students/csv-tools.tsx` | CSV only, up to 1 MB, with a sample file. First `dryRun` and a table of row, column and problem (no values, SEC-V5), then "Save N students". Invite links are shown only there, with a copy button |
+| S1 Home | `(student)/home` | "My tasks" (5 open tasks, overdue first, with "New feedback" and "See feedback") and "From your mentor" (3 fresh shared notes, only from `listOwnSharedNotes`) |
+| S2 My tasks | `(student)/my/tasks` | Open and done tabs; overdue in red; no health or reason |
+| S3 Task | `(student)/my/tasks/[id]` | Feedback card (text written with the template is split into verdict, strength, fix, example and next step; an English sentence inside quotes goes in an LTR block). "What you need to do" with acceptance criteria. Submission form by type: text, link (https only) and image (JPG, PNG and WebP up to 5 MB; first `POST /attachments` with a preview and upload status, and the warning "Cover the client's name and photo"). For "Proposal for review": platform, job post text and proposal with `dir="ltr" lang="en"`, and consent that is **off by default**. "Checkbox only" means a "I did it" button. The next version is pre-filled from the previous version and the text stays on the device until it is sent. "I started" for an open task. Previous versions and feedback are collapsed. "Question about this task" and "I need more time" (= extension request, per UX a question) are **coming soon** until the questions module |
 
-حالت‌ها: هر مسیر تازه `loading.tsx` و `error.tsx` دارد؛ جزئیات کار (کارکنان و هنرجو) `not-found.tsx` هم دارد، و ناموجود و خارج از دامنه یک پاسخ می‌گیرند. حالت خالی برای همه‌ی بخش‌ها هست. دکمه‌ها در حین ثبت spinner و برچسب دارند و آپلود تصویر وضعیت پیشرفت نشان می‌دهد.
+States: every new route has `loading.tsx` and `error.tsx`; task detail (staff and student) also has `not-found.tsx`, and nonexistent and out-of-scope get the same response. All sections have an empty state. Buttons have a spinner and label while saving, and image upload shows progress.
 
-### کامپوننت‌های تازه
-- `components/ui/jalali-date-field.tsx`: **انتخاب‌گر تاریخ شمسی بدون وابستگی تازه**. تایپ «۱۴۰۵/۰۸/۰۱» با ارقام فارسی یا لاتین، تقویم ماهانه‌ی شنبه‌به‌اول (کلیدهای جهت در RTL، Esc، و `aria-label` کامل روی هر روز)، میان‌بُرها، `min`، و خواندن تاریخ به شکل «پنجشنبه ۳۰ مهر ۱۴۰۵ · ۳ روز دیگر». مقدارِ خروجی همیشه روز میلادی `YYYY-MM-DD` است (ADR-0008). محاسبه‌ی تقویم از `lib/jalali` (همان که import بک‌اند استفاده می‌کند) گرفته می‌شود و `components/format/jalali.ts` فقط متن، تجزیه‌ی ورودی و شبکه‌ی ماه را اضافه می‌کند.
-- `components/ui/choice.tsx`: `RadioCards`، `ChipButton`، `Rating` و `MenuButton` (منوی تعویق).
-- `components/tasks/*` (فرم کار، بازبینی، تحویل، اقدام‌ها، جدول، صف، نشان‌ها و برچسب‌ها)، `notes/*` (composer، پنجره و تایم‌لاین)، `reminders/*`، `students/student-picker.tsx` (combobox جستجوی هنرجو، دو حرف کافی است)، `students/csv-tools.tsx`، و `shell/quick-add.tsx`.
-- «+» نوار پایین حالا `QuickAddProvider` است: در پرونده «افزودن برای X» (هنرجو از پیش انتخاب شده) و یادداشت همان‌جا باز می‌شود؛ جای دیگر اول هنرجو جستجو می‌شود. دکمه‌ی «افزودن» دسکتاپ در «امروز» همان پنجره را باز می‌کند.
-- `api/client.ts`: `apiUpload` (multipart، بدون دست زدن به `Content-Type`).
-- `format/fa.ts`: `faTime`، `faDayTime`، `faHours`، `faAgo` و `faDaysLeft`.
+### New components
+- `components/ui/jalali-date-field.tsx`: **a Jalali date picker with no new dependency**. Typing "۱۴۰۵/۰۸/۰۱" (1405/08/01, with Persian or Latin digits), a monthly calendar starting on Saturday (arrow keys in RTL, Esc, and a full `aria-label` on every day), shortcuts, `min`, and reading the date as "پنجشنبه ۳۰ مهر ۱۴۰۵ · ۳ روز دیگر" (Thursday 30 Mehr 1405 · 3 days from now). The output value is always the Gregorian day `YYYY-MM-DD` (ADR-0008). Calendar computation comes from `lib/jalali` (the same one the backend import uses) and `components/format/jalali.ts` only adds text, input parsing and the month grid.
+- `components/ui/choice.tsx`: `RadioCards`, `ChipButton`, `Rating` and `MenuButton` (snooze menu).
+- `components/tasks/*` (task form, review, submission, actions, table, queue, badges and labels), `notes/*` (composer, dialog and timeline), `reminders/*`, `students/student-picker.tsx` (student search combobox, two characters are enough), `students/csv-tools.tsx`, and `shell/quick-add.tsx`.
+- The bottom bar "+" is now `QuickAddProvider`: in a file it is "Add for X" (student pre-selected) and the note opens right there; elsewhere the student is searched first. The desktop "Add" button in "Today" opens the same dialog.
+- `api/client.ts`: `apiUpload` (multipart, without touching `Content-Type`).
+- `format/fa.ts`: `faTime`, `faDayTime`, `faHours`, `faAgo` and `faDaysLeft`.
 
-### تست‌ها
-- **کامپوننت (۲۰ تست تازه):** `format/jalali.test.ts` (هر روزِ ۱۳۹۵ تا ۱۴۱۵ در هر دو جهت در برابر `Intl` با تقویم persian؛ تجزیه‌ی ورودی)، `tasks/task-form.test.ts` (اعتبارسنجی، مهلت پیش‌فرض و میان‌بُر، تاریخ تایپ‌شده با ارقام فارسی و رد تاریخ گذشته، قالب، bulk، ۴۲۲)، `tasks/review-form.test.ts` (قالب و SEC-F6، نتیجه و بازخورد الزامی، درخواست اصلاح با امتیاز و رفتن به بعدی، پذیرش بی‌امتیاز، پیش‌نویس و ۴۰۹)، `notes/note-form.test.ts` (داخلی به‌طور پیش‌فرض، اشتراکی با برچسب، به خاطر سپردن نوع، قالب جلسه و یادآور پیگیری، شکست ۵۰۳ با نگه داشتن متن و «تلاش دوباره»، **متنِ تایپ‌شده در حین ذخیره پاک نمی‌شود**، و «+ کار از این یادداشت»).
-- **e2e با بک‌اند واقعی:** `tests/e2e/tasks-flow.spec.ts` در ۱۴۴۰ و ۳۷۵:
-  1. مربی از پرونده کار «پروپوزال برای بررسی» با مهلت شمسی می‌سازد؛ هنرجو در خانه می‌بیند و با فیلدهای LTR و رضایت خاموش تحویل می‌دهد؛ مربی از «امروز» بازبینی می‌کند و درخواست اصلاح می‌دهد؛ هنرجو بازخورد را می‌بیند و نسخه‌ی ۲ را (از نسخه‌ی ۱ پرشده) تحویل می‌دهد؛ مربی می‌پذیرد؛ هنرجو «پذیرفته شد» می‌بیند.
-  2. یادداشت داخلی (composer در دسکتاپ؛ نوار اقدام و «+» در موبایل) و یادداشت اشتراکی. قناری داخلی در هیچ صفحه‌ی هنرجو و در `/api/v1/me/shared-notes` نیست؛ یادداشت اشتراکی در خانه هست.
+### Tests
+- **Component (20 new tests):** `format/jalali.test.ts` (every day from 1395 to 1415 in both directions against `Intl` with the persian calendar; input parsing), `tasks/task-form.test.ts` (validation, default due date and shortcut, a date typed with Persian digits and rejection of a past date, template, bulk, 422), `tasks/review-form.test.ts` (template and SEC-F6, required outcome and feedback, revision request with score and going to next, acceptance without a score, draft and 409), `notes/note-form.test.ts` (internal by default, shared with label, remembering the kind, session template and follow-up reminder, 503 failure keeping the text with "Try again", **text typed while saving is not cleared**, and "+ Task from this note").
+- **e2e with the real backend:** `tests/e2e/tasks-flow.spec.ts` at 1440 and 375:
+  1. The coach creates a "Proposal for review" task from the file with a Jalali due date; the student sees it at home and submits it with the LTR fields and consent off; the coach reviews from "Today" and requests a revision; the student sees the feedback and submits version 2 (pre-filled from version 1); the coach accepts; the student sees "Accepted".
+  2. An internal note (composer on desktop; action bar and "+" on mobile) and a shared note. The internal canary appears on no student page and not in `/api/v1/me/shared-notes`; the shared note is on the home page.
   
-  `students-flow.spec.ts` هم به‌روز شد: ورود CSV (خطای ردیف در dryRun) و هشدار خروجی. انتظار «بدون نشان سلامت» در پرونده‌ی کارکنان با نشان سلامت جایگزین شد، چون بک‌اند اسپرینت ۴ سلامت را حساب می‌کند. بررسی «هنرجو سلامت نمی‌بیند» سر جایش ماند.
+  `students-flow.spec.ts` was also updated: CSV import (row error in dryRun) and the export warning. The expectation "no health badge" on the staff file was replaced with a health badge, because the sprint 4 backend calculates health. The check "the student sees no health" stayed in place.
 
-### نتیجه‌ی فرمان‌ها (اجرای واقعی، پس از آخرین تغییر)
-| فرمان | نتیجه |
+### Command results (real runs, after the last change)
+| Command | Result |
 |---|---|
-| `pnpm lint` | ۴۴۹ فایل؛ فایل‌های فرانت‌اند و e2e تمیزند. تنها خطا مال بک‌اند است: قالب‌بندی `tests/integration/students-access.test.ts` |
-| `pnpm typecheck` | تمیز |
-| `pnpm test` | ۶۲ فایل، **۱۴۰۵ تست سبز**. یک تست کامپوننت اسپرینت ۲ (`new-student-form`، «جزئیات اختیاری») زیر بار کل مجموعه ۵۰۴۸ میلی‌ثانیه طول کشید (سقف ۵۰۰۰)؛ با افزوده شدن فیلد «یادداشت آزاد» یک فیلد بیشتر تایپ می‌کند، پس timeoutِ همان تست ۱۵ ثانیه شد |
-| `pnpm build` | موفق؛ همه‌ی مسیرها dynamic. (یک بار پیش‌تر به‌خاطر خطای نوع در فایلِ در حال ساخت بک‌اند، `src/modules/health/sprint4-helpers.test.ts`، شکست خورد؛ پس از اصلاح بک‌اند سبز شد) |
-| `pnpm test:e2e` | **۳۰ از ۳۰ سبز** (۱۵ تست × دو اندازه) |
+| `pnpm lint` | 449 files; frontend and e2e files are clean. The only error is the backend's: formatting of `tests/integration/students-access.test.ts` |
+| `pnpm typecheck` | clean |
+| `pnpm test` | 62 files, **1405 tests green**. One sprint 2 component test (`new-student-form`, "optional details") took 5048 ms under full-suite load (limit 5000); with the "Free-form note" field added it types one more field, so that test's timeout was raised to 15 seconds |
+| `pnpm build` | success; all routes dynamic. (It failed once earlier because of a type error in the backend file being built, `src/modules/health/sprint4-helpers.test.ts`; green after the backend fixed it) |
+| `pnpm test:e2e` | **30 of 30 green** (15 tests × two sizes) |
 
-**بررسی در مرورگر** (Chromium، ۱۴۴۰ و ۳۷۵، با داده‌ی واقعی روی دیتابیس موقت e2e و سرور ۳۱۰۰): امروز، کارها، جزئیات کار، پنجره‌ی کار جدید با تقویم باز، یادآورها، پرونده، هنرجوها، و سمت هنرجو (خانه، کارهای من و صفحه‌ی کار). این مشکل‌ها پیدا و رفع شدند:
-- تاریخ سربرگ «امروز» با ویرگول لاتینِ Chrome به هم می‌ریخت (`faFullDate`).
-- خطوط «-» و «1.» در قالب بازخورد چپ‌چین می‌شدند (`dir="auto"` به `rtl` تغییر کرد).
-- یادآور در ستون باریک پرونده سه خط می‌شد (حالت `compact`).
-- سلول‌های جدول کارها در ۱۴۴۰ می‌شکستند.
-- بازخورد نسخه‌ی ۱ پس از تحویل نسخه‌ی ۲ از دید هنرجو پنهان می‌شد.
-- **باگ واقعی:** اگر مربی هنگام ذخیره‌ی یادداشت قبلی یادداشت بعدی را تایپ می‌کرد، متن تازه پاک می‌شد. حالا فقط همان متنِ فرستاده‌شده پاک می‌شود و این رفتار تست دارد.
+**Browser check** (Chromium, 1440 and 375, with real data on the temporary e2e database and server 3100): today, tasks, task detail, new task dialog with the calendar open, reminders, file, students, and the student side (home, my tasks and task page). These problems were found and fixed:
+- The "Today" header date was garbled by Chrome's Latin comma (`faFullDate`).
+- The lines "-" and "1." in the feedback template were left-aligned (`dir="auto"` changed to `rtl`).
+- A reminder in the narrow file column took three lines (`compact` mode).
+- Task table cells broke at 1440.
+- Version 1 feedback was hidden from the student after version 2 was submitted.
+- **A real bug:** if the coach typed the next note while the previous note was saving, the new text was cleared. Now only the text that was sent is cleared, and this behavior has a test.
 
-به Postgres روی 5432 و سرور 3000 دست زده نشد و هیچ پردازه‌ای باز نماند.
+Postgres on 5432 and server 3000 were not touched and no process was left open.
 
-### فاصله از ماکاپ و دلیلش
-| مورد | تصمیم | دلیل |
+### Deviations from the mockup and why
+| Item | Decision | Reason |
 |---|---|---|
-| «مهلت نسخه‌ی بعد» در فرم بازبینی | نیست | `POST /submissions/:id/review` مهلت نمی‌گیرد (کمبود ۳). مربی از «تمدید مهلت» استفاده می‌کند |
-| «بازخورد رضا» در صفحه‌ی هنرجو | «بازخورد مشاورت» | `StudentReviewDTO` نام بازبین را ندارد (کمبود ۲) |
-| «ذخیره‌ی پیش‌نویس» هنرجو | ذخیره‌ی خودکار روی دستگاه | API پیش‌نویس ندارد؛ متن در `localStorage` می‌ماند |
-| نشان «R-LOOP» و سلامت در سربرگ کار | هشدار دور ۳ از `revisionCount` | سلامت هر کار در DTO کار نیست |
-| «قالب‌های کار» در سربرگ M5 | نیست | ویرایش قالب‌ها (مدیر) به بک‌لاگ رفت؛ API آن آماده است |
-| کادر «X گیرکرده است؛ این یادداشت اقدام ثبت‌شده است» در پنجره‌ی یادداشت | نیست | مال جریان ۷ و سلامت اسپرینت ۴ |
-| سؤال‌ها در «امروز» و پرونده، «درخواست تمدید» هنرجو | حالت خالی یا «به‌زودی» | ماژول سؤال‌ها (اسپرینت ۴) |
-| «بازخورد جدید» | بازخورد کمتر از ۳ روز در کاری که نوبت هنرجوست | خواندن یا نخواندن ثبت نمی‌شود |
+| "Next version due date" in the review form | absent | `POST /submissions/:id/review` takes no due date (gap 3). The coach uses "Extend deadline" |
+| "Reza's feedback" on the student page | "Mentor feedback" | `StudentReviewDTO` has no reviewer name (gap 2) |
+| Student "Save draft" | auto-save on the device | The API has no drafts; the text stays in `localStorage` |
+| "R-LOOP" badge and health in the task header | round 3 warning from `revisionCount` | Per-task health is not in the task DTO |
+| "Task templates" in the M5 header | absent | Template editing (admin) moved to the backlog; its API is ready |
+| Box "X is stuck; this note is a logged action" in the note dialog | absent | Belongs to flow 7 and sprint 4 health |
+| Questions in "Today" and the file, student "extension request" | empty state or "coming soon" | Questions module (sprint 4) |
+| "New feedback" | feedback less than 3 days old on a task where it is the student's turn | Read or unread is not recorded |
 
-### کمبودهای فرانت‌اند (برای backend-engineer)
-1. **endpoint فهرست کارهای بین هنرجوها وجود ندارد.** M5 با `listStudents` (به دنبال `openTaskCount > 0`) و بعد `listStudentTasks` برای هر هنرجو (۶تا هم‌زمان) ساخته شده است؛ زبانه‌ی «همه» همه‌ی هنرجوها را می‌خواند (`app/(staff)/_data.ts`، `listScopeTasks`). پیشنهاد: `GET /tasks?status=&mentorId=&stageId=&type=&q=&cursor=` همراه با `counts`.
-2. **`StudentReviewDTO` نام بازبین را ندارد**، پس کارت بازخورد «بازخورد مشاورت» می‌گوید. پیشنهاد: `reviewer: { displayName }`.
-3. **`reviewInput` فیلد `nextDueDate` ندارد** («مهلت نسخه‌ی بعد» در ماکاپ M6 و user-flows ۴).
-4. **کارهای پیشنهادی هنگام تغییر مرحله اتمی نیستند.** پنجره پس از `PUT /stage` برای هر قالب یک `POST /students/:id/tasks` و برای هر کار قدیمی یک `/cancel` می‌فرستد. اگر یکی شکست بخورد، پیام می‌دهد ولی برنمی‌گرداند. پیشنهاد: `PUT /students/:id/stage` با `{ createTemplateIds?, cancelOpenTaskIds? }`.
-5. `ReviewQueueItemDTO` فیلدهای `submissionType` و `dueAt` را ندارد (در M5 از فهرست کارها پر می‌شوند).
-6. داده‌ی رویدادهای `profile.updated` و `profile.approved` نام پلتفرم را ندارد؛ برای ویترینِ حذف‌شده، تایم‌لاین فقط «ویترین» می‌نویسد.
-7. `TodayDTO.unansweredQuestions` هنوز از نوع `never` است؛ وقتی نوعش مشخص شد، ردیف‌های بخش سؤال‌ها در `today/page.tsx` (`QuestionRows`) ساخته می‌شوند.
+### Frontend gaps (for backend-engineer)
+1. **There is no endpoint that lists tasks across students.** M5 is built with `listStudents` (following `openTaskCount > 0`) and then `listStudentTasks` for each student (6 at a time); the "All" tab reads all students (`app/(staff)/_data.ts`, `listScopeTasks`). Proposal: `GET /tasks?status=&mentorId=&stageId=&type=&q=&cursor=` with `counts`.
+2. **`StudentReviewDTO` has no reviewer name**, so the feedback card says "Mentor feedback". Proposal: `reviewer: { displayName }`.
+3. **`reviewInput` has no `nextDueDate` field** ("Next version due date" in the M6 mockup and user-flows 4).
+4. **Suggested tasks are not atomic on stage change.** After `PUT /stage` the dialog sends one `POST /students/:id/tasks` per template and one `/cancel` per old task. If one fails it shows a message but does not roll back. Proposal: `PUT /students/:id/stage` with `{ createTemplateIds?, cancelOpenTaskIds? }`.
+5. `ReviewQueueItemDTO` lacks the `submissionType` and `dueAt` fields (in M5 they are filled from the task list).
+6. The data of `profile.updated` and `profile.approved` events has no platform name; for a deleted showcase the timeline only writes "Showcase".
+7. `TodayDTO.unansweredQuestions` is still of type `never`; once its type is defined, the questions section rows in `today/page.tsx` (`QuestionRows`) will be built.
 
-### کارهای باقی‌مانده
-- [ ] اسپرینت ۴: سؤال‌ها (صف، رشته، بخش «امروز»، «سؤال درباره‌ی این کار» و «درخواست تمدید»)، ردیف‌های گیرکرده با دلیل و «توپ»، کادر «اقدام ثبت‌شده» در یادداشت، و نقاط عطف.
-- [ ] ویرایش قالب‌های کار در تنظیمات (مدیر).
-- [ ] «مهلت نسخه‌ی بعد» در بازبینی، پس از کمبود ۳.
-- [ ] جایگزینی `listScopeTasks` با endpoint کمبود ۱ (کارایی برای بیش از چند صد هنرجو).
-- [ ] میان‌بُر `N` برای composer و `/` برای جستجو (از اسپرینت ۲ مانده).
-- [ ] بازبینی تغییر `playwright.config.ts` توسط devops-engineer (از اسپرینت ۲ مانده).
+### Remaining work
+- [ ] Sprint 4: questions (queue, thread, "Today" section, "Question about this task" and "extension request"), stuck rows with reason and "ball", the "logged action" box in the note, and milestones.
+- [ ] Editing task templates in settings (admin).
+- [ ] "Next version due date" in the review, after gap 3.
+- [ ] Replace `listScopeTasks` with the endpoint from gap 1 (performance for more than a few hundred students).
+- [ ] `N` shortcut for the composer and `/` for search (carried over from sprint 2).
+- [ ] devops-engineer review of the `playwright.config.ts` change (carried over from sprint 2).

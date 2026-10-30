@@ -1,52 +1,52 @@
-# ریسک‌ها — UpworkCoach
+# Risks — UpworkCoach
 
-> فاز ۰ — ۲۷ مهر ۱۴۰۵. احتمال/اثر: ک=کم، م=متوسط، ز=زیاد. این سند مشاوره‌ی حقوقی نیست؛ موارد حقوقی باید با متخصص بررسی شوند.
+> Phase 0 — 27 Mehr 1405 (2026-10-19). Likelihood/impact: L=low, M=medium, H=high. This document is not legal advice; legal items must be reviewed by a specialist.
 
-## نمای کلی (۱۱ ریسک اصلی)
-| # | ریسک | دسته | احتمال | اثر | مالک پیشنهادی |
+## Overview (11 main risks)
+| # | Risk | Category | Likelihood | Impact | Suggested owner |
 |---|---|---|---|---|---|
-| R1 | قطع یا مسدود شدن دسترسی به LLM API | تحریم/فنی | ز | ز | software-architect، ai-engineer |
-| R2 | پرداخت به ارائه‌دهنده‌ی LLM و سرور خارجی | تحریم/مالی | ز | ز | بنیان‌گذار |
-| R3 | نقض ToS آپورک توسط محصول | حقوقی | م | ز | product-strategist |
-| R4 | ارتباط محصول با اکانت‌های غیرقانونی هنرجوها | حقوقی/اعتباری | ز | م | بنیان‌گذار |
-| R5 | وابستگی به مشاورها | عملیاتی | ز | ز | بنیان‌گذار |
-| R6 | نوسان دلار و فرسایش حاشیه | مالی | ز | م | product-strategist |
-| R7 | بازخورد غلط/ژنریک AI و از دست رفتن اعتماد | محصول | م | ز | ai-engineer |
-| R8 | گلوگاه واقعی هنرجو جای دیگری است (اکانت، پول، زبان) | بازار | م | ز | product-strategist |
-| R9 | اختلال اینترنت در ایران / فیلترینگ | فنی | ز | م | devops-engineer |
-| R10 | کالایی شدن توسط Uma و ابزارهای ارزان | بازار | م | م | product-strategist |
-| R11 | وابستگی کامل کسب‌وکار به Upwork، در حالی که Upwork ثبت‌نام و استفاده‌ی ساکنان ایران را ممنوع کرده و حساب تعلیق‌شده برنمی‌گردد (ر.ک. `domain-notes.md` بخش ۱) | پلتفرم/بازار | ز | ز | بنیان‌گذار |
+| R1 | LLM API access is cut off or blocked | Sanctions/technical | H | H | software-architect, ai-engineer |
+| R2 | Paying the LLM provider and foreign servers | Sanctions/financial | H | H | founder |
+| R3 | The product violates Upwork's ToS | Legal | M | H | product-strategist |
+| R4 | The product becomes associated with students' illegitimate accounts | Legal/reputational | H | M | founder |
+| R5 | Dependence on mentors | Operational | H | H | founder |
+| R6 | Dollar volatility and margin erosion | Financial | H | M | product-strategist |
+| R7 | Wrong/generic AI feedback and loss of trust | Product | M | H | ai-engineer |
+| R8 | The student's real bottleneck is elsewhere (account, money, language) | Market | M | H | product-strategist |
+| R9 | Internet disruption in Iran / filtering | Technical | H | M | devops-engineer |
+| R10 | Commoditization by Uma and cheap tools | Market | M | M | product-strategist |
+| R11 | The whole business depends on Upwork, while Upwork prohibits registration and use by residents of Iran and a suspended account does not come back (see `domain-notes.md` section 1) | Platform/market | H | H | founder |
 
-## ۱. تحریم
-| ریسک | شرح | کاهش ریسک |
+## 1. Sanctions
+| Risk | Description | Mitigation |
 |---|---|---|
-| **R1 — دسترسی به LLM** | OpenAI از ژوئیه‌ی ۲۰۲۴ ترافیک API از کشورهای پشتیبانی‌نشده (از جمله ایران) را مسدود می‌کند ([The Decoder](https://the-decoder.com/openai-to-restrict-api-access-for-unsupported-countries-in-july/)). طبق منابع ثانویه، ایران در فهرست مناطق پشتیبانی‌شده‌ی Anthropic هم نیست (تأیید از صفحه‌ی رسمی نشد). سرور واسط خارج از ایران مشکل شبکه را حل می‌کند ولی **مسئله‌ی «مشتری کیست» و شرایط استفاده‌ی ارائه‌دهنده را حل نمی‌کند**. | (۱) لایه‌ی انتزاع LLM تا ارائه‌دهنده قابل‌تعویض باشد؛ (۲) بررسی حقوقی ساختار (شرکت/نهاد خارج از ایران؟)؛ (۳) گزینه‌ی پشتیبان: واسط‌های ایرانی (مثل AvalAI — ادعای دسترسی به صدها مدل، [دیجیاتو](https://digiato.com/promoted/avalai-platform-services)؛ قیمت و پایداری بررسی نشد) یا مدل متن‌باز روی سرور اجاره‌ای؛ (۴) ارزیابی کیفیت فارسی هر جایگزین. |
-| **R2 — پرداخت** | پرداخت به ارائه‌دهنده‌ی LLM و هاستینگ خارجی نیازمند کارت/حساب ارزی است. | پاسخ بنیان‌گذار (سؤال ۵)؛ بودجه‌ی پیش‌پرداخت؛ واسط ریالی به‌عنوان پشتیبان. |
-| **R2b — درگاه داخلی** | درگاه‌های ایرانی (زرین‌پال و …) معمولاً نماد اعتماد/مدارک کسب‌وکار می‌خواهند (جزئیات ۱۴۰۵ بررسی نشد). | شروع فرایند اینماد/درگاه از هم‌اکنون؛ در MVP پرداخت دستی/کارت‌به‌کارت به‌عنوان موقت. |
-| **R2c — سیاست تحریم آمریکا** | OFAC در اوت ۲۰۲۶ چند مجوز عمومی ایران را تعلیق و در سپتامبر سیاست «پیش‌فرض رد» برای مجوزهای خاص را گزارش کرد ([Expeditors](https://info.expeditors.com/newsflash/us-announces-new-sanctions-on-iran-suspends-general-licenses)، [MLex](https://www.mlex.com/mlex/financial-crime/articles/2523970/us-tightens-iran-sanctions-licensing-policy-fine-for-violations)). اینکه GL D-2 (خدمات ارتباطی/نرم‌افزاری) تحت تأثیر قرار گرفته یا نه **تأیید نشد**. | پایش؛ معماری با امکان تعویض سریع سرویس‌های آمریکایی. |
+| **R1 — LLM access** | Since July 2024 OpenAI has blocked API traffic from unsupported countries (including Iran) ([The Decoder](https://the-decoder.com/openai-to-restrict-api-access-for-unsupported-countries-in-july/)). According to secondary sources, Iran is not on Anthropic's list of supported regions either (not confirmed from the official page). A relay server outside Iran solves the network problem but **does not solve the "who is the customer" question or the provider's terms of use**. | (1) An LLM abstraction layer so the provider can be swapped; (2) a legal review of the structure (a company/entity outside Iran?); (3) fallback options: Iranian intermediaries (e.g. AvalAI — claims access to hundreds of models, [Digiato](https://digiato.com/promoted/avalai-platform-services); price and stability not checked) or an open-source model on a rented server; (4) a Persian-quality evaluation of every alternative. |
+| **R2 — Payment** | Paying the LLM provider and foreign hosting requires a foreign-currency card/account. | The founder's answer (question 5); a prepayment budget; a rial-based intermediary as a fallback. |
+| **R2b — Domestic gateway** | Iranian gateways (Zarinpal, etc.) usually require a trust symbol (enamad)/business documents (1405 details not checked). | Start the enamad/gateway process now; in the MVP, manual/card-to-card payment as a temporary measure. |
+| **R2c — US sanctions policy** | In August 2026 OFAC suspended several Iran general licenses and in September reported a "presumption of denial" policy for specific licenses ([Expeditors](https://info.expeditors.com/newsflash/us-announces-new-sanctions-on-iran-suspends-general-licenses), [MLex](https://www.mlex.com/mlex/financial-crime/articles/2523970/us-tightens-iran-sanctions-licensing-policy-fine-for-violations)). Whether GL D-2 (communications/software services) was affected **was not confirmed**. | Monitoring; an architecture that allows US services to be swapped quickly. |
 
-## ۲. ToS آپورک
-| ریسک | شرح | کاهش ریسک |
+## 2. Upwork ToS
+| Risk | Description | Mitigation |
 |---|---|---|
-| **R3 — اتوماسیون** | راهنمای رسمی آپورک هر اسکریپت، افزونه یا سرویس ثالثی را که «خودکار درخواست بفرستد، داده جمع کند یا سریع‌تر/بیشتر از انسان عمل کند» بات می‌داند؛ تبلیغ «مخصوص آپورک» به معنی تأیید نیست؛ جریمه از هشدار تا مسدودی دائم ([Upwork Help](https://support.upwork.com/hc/en-us/articles/43342677368467-Use-bots-and-other-automation-properly)). نوشتن پروپوزال با AI به‌شرط بازبینی و ارسال انسانی، طبق منابع ثانویه، مجاز تلقی می‌شود. | **قاعده‌ی محصول:** فقط paste دستی؛ بدون افزونه‌ی مرورگر روی صفحه‌ی آپورک؛ بدون اسکرپ؛ بدون ارسال خودکار؛ بدون ذخیره‌ی انبوه آگهی‌ها؛ ابزار «نقد و آموزش» می‌دهد نه «پروپوزال آماده‌ی ارسال انبوه». |
-| **R4 — اکانت‌های هنرجوها** | آپورک اعلام کرده کاربران داخل ایران را با IP و غربالگری نام مسدود می‌کند ([Upwork، نامه به SEC ۲۰۱۸](https://investors.upwork.com/node/8666/html)). دوره‌های رقیب «اکانت و زیرساخت» با هویت غیرخودِ کاربر می‌فروشند. اگر هنرجوها با اکانت غیرقانونی کار کنند، ممکن است یک‌شبه مسدود شوند و نتیجه‌ی آموزش صفر شود؛ پلتفرم هم اعتباری/حقوقی درگیر می‌شود. | پلتفرم **هیچ** خدمات ساخت/فروش اکانت ارائه ندهد و در محتوا به آن ارجاع ندهد؛ موضع بنیان‌گذار در این باره روشن شود (سؤال ۴)؛ آموزش پلتفرم‌های جایگزین/کارفرمای مستقیم به‌عنوان پوشش ریسک. |
-| R3b — داده‌ی کاربران | متن جاب‌ها و پروپوزال‌ها ممکن است اطلاعات کارفرما داشته باشد. | حداقل‌سازی داده، بدون استفاده برای آموزش مدل، سیاست حذف (با security-reviewer). |
+| **R3 — Automation** | Upwork's official guide treats any script, extension or third-party service that "automatically sends requests, collects data, or acts faster/more than a human" as a bot; advertising "built for Upwork" does not mean endorsement; penalties range from a warning to a permanent ban ([Upwork Help](https://support.upwork.com/hc/en-us/articles/43342677368467-Use-bots-and-other-automation-properly)). Writing proposals with AI, provided a human reviews and sends them, is considered permitted according to secondary sources. | **Product rule:** manual paste only; no browser extension on Upwork pages; no scraping; no automatic sending; no bulk storage of postings; the tool provides "critique and teaching", not "ready-to-send proposals in bulk". |
+| **R4 — Students' accounts** | Upwork has stated that it blocks users inside Iran by IP and name screening ([Upwork, letter to the SEC 2018](https://investors.upwork.com/node/8666/html)). Competing courses sell "accounts and infrastructure" under an identity that is not the user's own. If students work with an illegitimate account, they may be banned overnight and the outcome of the training is zero; the platform also becomes reputationally/legally involved. | The platform offers **no** account creation/sale services and does not refer to them in content; the founder's position on this must be clarified (question 4); teaching alternative platforms/direct clients as risk coverage. |
+| R3b — User data | The text of job postings and proposals may contain client information. | Data minimization, no use for model training, a deletion policy (with security-reviewer). |
 
-## ۳. وابستگی به مشاورها (R5)
-| جنبه | ریسک | کاهش ریسک |
+## 3. Dependence on mentors (R5)
+| Aspect | Risk | Mitigation |
 |---|---|---|
-| ظرفیت | رشد هنرجو خطی به مشاور نیاز دارد → گلوگاه و افت SLA | AI لایه‌ی اول پاسخ؛ مشاور فقط ویرایش/تأیید؛ SLA و صف شفاف |
-| کیفیت | پاسخ‌های ناهمگون، خلاف روش بنیان‌گذار | rubric و کتابخانه‌ی پاسخ استاندارد؛ نمونه‌برداری کیفیت توسط بنیان‌گذار؛ امتیازدهی هنرجو |
-| ریزش | رفتن مشاور با دانش و رابطه‌ی هنرجوها (یا جذب آن‌ها برای کار شخصی) | تاریخچه‌ی کامل هنرجو در پلتفرم (نه تلگرام شخصی)؛ قرارداد عدم جذب؛ چند مشاور برای هر هنرجو |
-| اقتصاد | مزد مشاور احتمالاً بزرگ‌ترین هزینه‌ی متغیر | مدل پرداخت مشاور (ثابت/به ازای پاسخ/درصدی) در فاز ۱ تعیین شود |
-| تک‌نقطه‌ی شکست | اگر بنیان‌گذار تنها منبع روش باشد | مستندسازی روش در rubricها و محتوای پلتفرم |
+| Capacity | Student growth requires mentors linearly → bottleneck and SLA decline | AI as the first layer of response; the mentor only edits/approves; SLA and a transparent queue |
+| Quality | Inconsistent answers, contrary to the founder's method | Rubrics and a standard answer library; quality sampling by the founder; student ratings |
+| Churn | A mentor leaving with the knowledge and relationships of students (or poaching them for personal work) | Full student history on the platform (not personal Telegram); a non-solicitation agreement; multiple mentors per student |
+| Economics | Mentor pay is probably the largest variable cost | The mentor pay model (fixed/per answer/percentage) to be set in Phase 1 |
+| Single point of failure | If the founder is the only source of the method | Document the method in rubrics and platform content |
 
-## ۴. ریسک‌های محصول و بازار
-| ریسک | کاهش ریسک | آزمون |
+## 4. Product and market risks
+| Risk | Mitigation | Test |
 |---|---|---|
-| R6 — نوسان دلار | قیمت‌گذاری فصلی؛ اعتبار شاخص‌دار؛ سهمیه | پایش ماهانه‌ی «هزینه‌ی AI / درآمد» |
-| R7 — کیفیت AI | rubric از روش مربی؛ مجموعه‌ی ارزیابی با ۵۰ نمونه‌ی واقعی؛ دکمه‌ی «ارجاع به مشاور» | توافق نقد AI با نقد مربی ≥ ۸۰٪ |
-| R8 — گلوگاه اشتباه | مصاحبه و تحلیل سؤال‌های تلگرامی قبل از فاز ۱ | دسته‌بندی ۱۰۰ سؤال اخیر هنرجوها |
-| R9 — اختلال اینترنت | فرانت سبک، میزبانی/CDN داخل ایران + سرور واسط بیرون؛ صف و تلاش مجدد | تصمیم معماری در فاز ۳ |
-| R10 — کالایی شدن | تمرکز روی نقد + آموزش + انسان + پیگیری، نه تولید متن | نرخ نگهداشت ماه دوم |
-| ادعای درآمدی | رقبا «تضمین درآمد» می‌دهند؛ ما نباید ادعای بی‌پشتوانه کنیم | فقط آمار واقعی کوهورت‌ها |
+| R6 — Dollar volatility | Seasonal pricing; indexed credit; quotas | Monthly monitoring of "AI cost / revenue" |
+| R7 — AI quality | Rubrics from the coach's method; an evaluation set of 50 real samples; a "refer to mentor" button | AI critique agrees with the coach's critique ≥ 80% |
+| R8 — Wrong bottleneck | Interviews and analysis of Telegram questions before Phase 1 | Categorize the 100 most recent student questions |
+| R9 — Internet disruption | Lightweight frontend, hosting/CDN inside Iran + a relay server outside; queues and retries | Architecture decision in Phase 3 |
+| R10 — Commoditization | Focus on critique + teaching + humans + follow-up, not text generation | Month-2 retention rate |
+| Income claims | Competitors offer "income guarantees"; we must not make unsupported claims | Only real cohort statistics |

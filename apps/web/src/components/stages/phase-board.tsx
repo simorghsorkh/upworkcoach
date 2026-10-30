@@ -32,7 +32,7 @@ const VISIBLE = 6;
 
 /**
  * Course board (Coach Office sprint 5c): one column per phase of the chosen course, a card per
- * member who holds a seat. Same look as the main-path kanban; «تغییر فاز» on each card opens
+ * member who holds a seat. Same look as the main-path kanban; "Change phase" on each card opens
  * the stage-change rules of the course (no drag, WCAG 2.5.7).
  */
 export function PhaseBoard({

@@ -26,7 +26,7 @@ const ICON: Record<NotificationDTO['kind'], IconName> = {
 
 /**
  * The caller's notices (Coach Office sprint 6b), newest first: opening one marks it read and
- * follows its link; «همه خوانده شد» clears the badge; older pages load on demand.
+ * follows its link; "Mark all as read" clears the badge; older pages load on demand.
  */
 export function NotificationList({ initial }: { initial: NotificationListDTO }) {
   const t = useTranslations('notifications');

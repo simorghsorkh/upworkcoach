@@ -1,81 +1,81 @@
-# اسپرینت ۵ب Coach Office — بسته، جلسه‌ی مشاوره و هدف
+# Coach Office sprint 5b — package, mentoring session and goal
 
-- **تاریخ:** ۸ آبان ۱۴۰۵
-- **مبنا:** `docs/08-saas-evolution/architecture-review.md` (اسپرینت ۵ب)، ADR-0012 بندهای ۴، ۶ و ۷، `prd-coach-office.md` بخش ۶ (قدم ۷)
-- **وضعیت:** کد و تست کامل. روی لوکال در مرورگر با حساب مدیر آزموده شد. **روی تولید اجرا نشده و کامیت نشده.**
+- **Date:** 8 Aban 1405 (2026-10-30)
+- **Basis:** `docs/08-saas-evolution/architecture-review.md` (sprint 5b), ADR-0012 items 4, 6 and 7, `prd-coach-office.md` section 6 (step 7)
+- **Status:** code and tests complete. Tried in the browser locally with an admin account. **Not run on production and not committed.**
 
-## چه چیزی ساخته شد
-| بخش | خلاصه |
+## What was built
+| Area | Summary |
 |---|---|
-| بسته | قالب «تک‌به‌تک» سهمیه‌ی جلسه، مدت جلسه و روزهای اعتبار دارد (از اسپرینت ۳). عضویت سهمیه و تاریخ پایان اعتبار را کپی می‌کند. حالا مصرف هم دیده می‌شود: «۱ از ۸ جلسه · ۶۰ روز تا پایان اعتبار». اگر سهمیه یا اعتبار تمام شده باشد، برچسب «بیش از سهمیه» یا «اعتبار تمام شده» نشان داده می‌شود |
-| جلسه‌ی مشاوره | جدول `mentoring_sessions`. جلسه یا برای یک عضو است، یا برای کل یک اجرای گروهی (جلسه‌ی گروهی). روز و ساعت به وقت سازمان گرفته و به UTC ذخیره می‌شود. مدت بین ۵ و ۶۰۰ دقیقه است. محل می‌تواند متن یا لینک https باشد |
-| وضعیت جلسه | برنامه‌ریزی‌شده ← برگزار شد، غیبت یا لغو (با دلیل)؛ برگرداندن به برنامه هم ممکن است. تغییر زمان ممکن است؛ اگر فقط روز یا فقط ساعت عوض شود، دیگری همان قبلی می‌ماند |
-| شمارش در بسته | جلسه‌ی برگزارشده و غیبت از بسته کم می‌شوند. برای هر جلسه می‌شود «از بسته کم نشود» زد (`counts_toward_quota`). جلسه‌ی لغوشده هیچ‌وقت شمرده نمی‌شود |
-| هم‌پوشانی | اگر جلسه با جلسه‌ی برنامه‌ریزی‌شده‌ی دیگری از همان مشاور هم‌پوشانی داشته باشد، **فقط هشدار** داده می‌شود. جلسه ثبت می‌شود |
-| اقدام بعدی | بعد از جلسه‌ی برگزارشده، «اقدام بعدی» یک کار از نوع پیگیری برای هنرجو می‌سازد (`tasks.session_id`). این کار در «کارهای من» هنرجو و زیر همان جلسه دیده می‌شود. در جلسه‌ی گروهی باید هنرجو را انتخاب کرد. هر هنرجو فقط اقدام‌های خودش را می‌بیند. کار را ماژول tasks می‌سازد (`insertSessionAction`)، نه mentoring |
-| هدف | جدول `goals` برای عضویت. کارکنان هدف می‌سازند و آن را «محقق شد» یا «کنار گذاشته شد» می‌کنند؛ برگرداندن هم ممکن است. هنرجو فقط می‌خواند |
-| پیشرفت تک‌به‌تک | برای اجرای تک‌به‌تک، پیشرفت = هدف‌های محقق‌شده ÷ هدف‌های کنارگذاشته‌نشده (بند ۶). بدون هدف، «نامعلوم» است |
-| «امروز» | کارت «جلسه‌های پیش رو» برای ۷ روز آینده. جلسه‌های ۲۴ ساعت آینده برچسب «تا ۲۴ ساعت آینده» دارند؛ این همان یادآور داخلی بند ۷ است و job جداگانه‌ای ندارد. فیلتر مشاور مدیر روی این کارت هم اثر دارد |
-| صفحه‌ی اجرا | کارت «جلسه‌ها» (پیش رو و گذشته، ثبت، برگزار شد، غیبت، تغییر زمان، لغو، اقدام بعدی). کارت «هدف‌ها» برای هر عضو اجرای تک‌به‌تک. مصرف بسته در ردیف هر عضو |
-| «برنامه‌های من» (هنرجو) | جلسه‌های پیش رو، مصرف بسته و هدف‌های هر برنامه‌ی تک‌به‌تک |
-| پرونده‌ی هنرجو | مصرف بسته در کارت «برنامه‌ها و مشاورها» |
-| حذف داده‌ی هنرجو | `eraseMentoringOfStudent` هدف‌ها را پاک و محل و دلیل لغو جلسه‌ها را خالی می‌کند |
-| API | `GET/POST /sessions`، `PATCH /sessions/:id`، `POST /sessions/:id/actions`، `GET/POST /enrollments/:id/goals`، `PATCH /goals/:id`. DTOهای عضویت، اجرا و «برنامه‌های من» فیلد `usage` دارند |
+| Package | The "one-on-one" template has a session quota, session length and validity days (from sprint 3). The enrollment copies the quota and the validity end date. Usage is now visible too: "1 of 8 sessions · 60 days until expiry". When the quota or validity has run out, an "Over quota" or "Validity ended" label is shown |
+| Mentoring session | Table `mentoring_sessions`. A session is either for one member, or for a whole group run (a group session). Day and time are taken in the organization's time zone and stored in UTC. Duration is between 5 and 600 minutes. The place can be text or an https link |
+| Session status | Scheduled -> held, no-show or cancelled (with a reason); it can also be set back to scheduled. Rescheduling is possible; if only the day or only the time changes, the other stays as it was |
+| Counting against the package | Held sessions and no-shows are deducted from the package. Each session can be marked "Do not count it" (`counts_toward_quota`). A cancelled session is never counted |
+| Overlap | If a session overlaps another scheduled session of the same mentor, **only a warning** is shown. The session is saved |
+| Next action | After a held session, "Next action" creates a follow-up task for the mentee (`tasks.session_id`). This task shows in the mentee's "My tasks" and under the session itself. In a group session the mentee must be chosen. Each mentee sees only their own actions. The tasks module creates the task (`insertSessionAction`), not mentoring |
+| Goal | Table `goals` for an enrollment. Staff create a goal and mark it "Achieved" or "Dropped"; it can be reopened. The mentee only reads |
+| One-on-one progress | For a one-on-one run, progress = achieved goals ÷ goals not dropped (item 6). With no goals it is "unknown" |
+| "Today" | An "Upcoming sessions" card for the next 7 days. Sessions in the next 24 hours carry a "Within 24 hours" label; this is the in-app reminder of item 7 and has no separate job. The admin's mentor filter applies to this card too |
+| Run page | A "Sessions" card (upcoming and past; book, held, no-show, reschedule, cancel, next action). A "Goals" card for each member of a one-on-one run. Package use in each member's row |
+| "My programs" (mentee) | Upcoming sessions, package use and goals of each one-on-one program |
+| Student record | Package use in the "Programs and mentors" card |
+| Student data erasure | `eraseMentoringOfStudent` deletes goals and empties the place and cancellation reason of sessions |
+| API | `GET/POST /sessions`, `PATCH /sessions/:id`, `POST /sessions/:id/actions`, `GET/POST /enrollments/:id/goals`, `PATCH /goals/:id`. The enrollment, run and "My programs" DTOs have a `usage` field |
 
-## دسترسی
-- **مدیر:** همه‌ی جلسه‌ها و هدف‌های سازمان.
-- **مشاور:** جلسه‌هایی که مشاورشان است، جلسه‌های اجراهایی که در کادرشان است، و جلسه‌های هنرجوهای در دامنه‌اش. بدون فیلتر فقط جلسه‌های خودش را می‌بیند. جلسه‌ی گروهی را فقط مدیر یا مدیر اجرا ثبت می‌کند.
-- **هنرجو:** جلسه‌های خودش و جلسه‌های گروهی اجراهایی که در آن‌ها عضو است. هدف‌های خودش را فقط می‌خواند.
-- مشاور بی‌ربط و هنرجوی دیگر ۴۰۴ می‌گیرند. همه‌ی مسیرها در ماتریس دسترسی هستند.
+## Access
+- **Admin:** all sessions and goals of the organization.
+- **Mentor:** sessions where they are the mentor, sessions of runs on their staff, and sessions of mentees in their scope. Without a filter they see only their own sessions. Only an admin or the run manager books a group session.
+- **Mentee:** their own sessions and the group sessions of runs they belong to. They only read their own goals.
+- An unrelated mentor and another mentee get 404. All routes are in the access matrix.
 
-## معیار پذیرش (قدم ۷ سناریوی PRD)
-> یک هنرجو در بسته‌ی «تک‌به‌تک: ۸ جلسه در ۲ ماه» ثبت می‌شود؛ مشاور جلسه ثبت و برگزار می‌کند و اقدام بعدی می‌گذارد؛ مصرف بسته دیده می‌شود.
+## Acceptance criterion (step 7 of the PRD scenario)
+> A mentee is enrolled in the "One-on-one: 8 sessions in 2 months" package; the mentor books and holds a session and sets a next action; package use is visible.
 
-**برقرار است.** هم با تست خودکار (`tests/integration/mentoring.test.ts`) و هم در مرورگر لوکال:
-1. قالب «تک‌به‌تک: ۸ جلسه در ۲ ماه» و اجرای تک‌نفره ساخته شد و هنرجو ثبت شد: «۰ از ۸ جلسه · ۶۰ روز تا پایان اعتبار».
-2. جلسه از دیالوگ «ثبت جلسه» ثبت شد: «فردا ۱۸:۰۰ · ۶۰ دقیقه»، با لینک.
-3. «برگزار شد» زده شد. جلسه به «گذشته» رفت و مصرف شد «۱ از ۸ جلسه».
-4. «اقدام بعدی» زیر جلسه نشست و برای هنرجو کار ساخت.
-5. هدف ساخته و «محقق شد» زده شد. پیشرفت عضویت شد «۱۰۰٪ · ۱ از ۱».
+**Met.** Both by automated test (`tests/integration/mentoring.test.ts`) and in the local browser:
+1. The "One-on-one: 8 sessions in 2 months" template and a single-person run were created and the mentee enrolled: "0 of 8 sessions · 60 days until expiry".
+2. A session was booked from the "Book a session" dialog: "Tomorrow 18:00 · 60 minutes", with a link.
+3. "Held" was pressed. The session moved to "Past" and usage became "1 of 8 sessions".
+4. "Next action" appeared under the session and created a task for the mentee.
+5. A goal was created and marked "Achieved". The enrollment's progress became "100% · 1 of 1".
 
-## تست
-- **واحد:** `src/modules/programs/progress.test.ts` (۴ تست تازه: پیشرفت هدف‌محور و مصرف بسته؛ کل فایل ۱۶ تست).
-- **یکپارچه:** `tests/integration/mentoring.test.ts` (۱۳ تست):
-  - بسته‌ی تازه؛
-  - ثبت به وقت تهران و شمارش هم‌پوشانی؛
-  - لینک http و عضو اجرای دیگر (۴۲۲)؛
-  - مشاور بی‌ربط (۴۰۴)؛
-  - دید هنرجو؛
-  - برگزار، غیبت معاف، غیبت شمرده و لغو در مصرف؛
-  - تغییر روز با حفظ ساعت؛
-  - اقدام بعدی در «کارهای من»؛
-  - قواعد جلسه‌ی گروهی؛
-  - هدف‌ها و پیشرفت ۵۰٪؛
-  - «برنامه‌های من».
-- **ماتریس دسترسی:** هفت مسیر تازه.
-- **کل مجموعه:** ۸۵ فایل، ۱۹۴۸ تست، همه سبز. typecheck، Biome و نگهبان i18n تمیز.
-- **مرورگر (لوکال، حساب مدیر):**
-  - صفحه‌ی اجرا (بالا را ببینید).
-  - «امروز»: جلسه‌ی امشب با برچسب «تا ۲۴ ساعت آینده» و نام اجرا.
-  - پرونده‌ی هنرجو: «۱ از ۸ جلسه».
-  - خطای کنسول نبود.
-- **دیده نشده:** «برنامه‌های من» با حساب هنرجو، مثل اسپرینت ۵ (ورود با حساب هنرجو در این جلسه مسدود بود). داده‌ی این صفحه تست خودکار دارد، ولی خود صفحه در مرورگر دیده نشده است.
+## Tests
+- **Unit:** `src/modules/programs/progress.test.ts` (4 new tests: goal-based progress and package use; 16 tests in the whole file).
+- **Integration:** `tests/integration/mentoring.test.ts` (13 tests):
+  - a new package;
+  - booking in Tehran time and counting overlaps;
+  - an http link and a member of another run (422);
+  - an unrelated mentor (404);
+  - the mentee's view;
+  - held, excused no-show, counted no-show and cancellation in usage;
+  - changing the day while keeping the time;
+  - the next action in "My tasks";
+  - group session rules;
+  - goals and 50% progress;
+  - "My programs".
+- **Access matrix:** seven new routes.
+- **Whole suite:** 85 files, 1948 tests, all green. typecheck, Biome and the i18n guard are clean.
+- **Browser (local, admin account):**
+  - Run page (see above).
+  - "Today": tonight's session with the "Within 24 hours" label and the run name.
+  - Student record: "1 of 8 sessions".
+  - No console errors.
+- **Not seen:** "My programs" with a mentee account, as in sprint 5 (signing in with a mentee account was blocked in this session). The page's data has an automated test, but the page itself was not seen in the browser.
 
-## اجرا روی تولید (کار بنیان‌گذار)
-1. اول ۰۰۰۶ تا ۰۰۱۰ به ترتیب، طبق سندهای اسپرینت ۱ تا ۵. **۰۰۱۱ بدون آن‌ها اجرا نشود.**
-2. `pg_dump` تازه.
-3. `pnpm db:migrate`. مهاجرت `0011_sessions_goals` دو جدول تازه و ستون `tasks.session_id` می‌سازد و به داده‌ی موجود دست نمی‌زند.
-4. استقرار.
+## Running on production (founder's job)
+1. First 0006 to 0010 in order, per the sprint 1 to 5 documents. **Do not run 0011 without them.**
+2. A fresh `pg_dump`.
+3. `pnpm db:migrate`. Migration `0011_sessions_goals` creates two new tables and the `tasks.session_id` column and does not touch existing data.
+4. Deploy.
 
-## تصمیم‌ها
-- غیبت به‌طور پیش‌فرض از بسته کم می‌شود. استثنا برای هر جلسه جدا زده می‌شود؛ تنظیم سازمانی برای این کار نیست.
-- هم‌پوشانی فقط هشدار است (ریسک اسپرینت).
-- یادآور ۲۴ ساعته فعلاً همان برچسب روی «امروز» است. اعلان یا پیامک ندارد.
-- جلسه‌ی گروهی برای مسیر قدیمی (اجرای «منتورینگ فریلنسری») ممکن نیست. جلسه‌ی تک‌نفره برای عضو آن ممکن است.
-- بسته‌ای که سهمیه یا اعتبارش تمام شده جلوی ثبت جلسه را نمی‌گیرد؛ فقط برچسب هشدار نشان می‌دهد. چون پرداخت در دامنه نیست، تمدید دستی می‌ماند.
+## Decisions
+- A no-show is deducted from the package by default. The exception is set per session; there is no organization-wide setting for it.
+- Overlap is only a warning (sprint risk).
+- The 24-hour reminder is for now just the label on "Today". It has no notification or SMS.
+- A group session is not possible for the legacy path (the "Freelancing mentoring" run). A single-person session is possible for its member.
+- A package whose quota or validity has run out does not block booking a session; it only shows a warning label. Since payment is out of scope, renewal stays manual.
 
-## مانده
-- **اسپرینت ۶:** داشبورد مدیر و ورود داده‌ی تکانش.
-- تمدید بسته از رابط کاربری (الان فقط با ویرایش عضویت).
-- ویرایش عنوان هدف از رابط کاربری (API دارد).
-- یادآور بیرونی (اعلان، پیامک) برای جلسه.
+## Remaining
+- **Sprint 6:** admin dashboard and Takanesh data import.
+- Renewing a package from the UI (for now only by editing the enrollment).
+- Editing a goal's title from the UI (the API has it).
+- An external reminder (notification, SMS) for sessions.

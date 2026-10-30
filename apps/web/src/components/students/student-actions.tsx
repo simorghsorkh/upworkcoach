@@ -42,10 +42,10 @@ type Panel =
 export type AddPanel = 'note' | 'task' | 'reminder' | 'stage';
 
 /**
- * M3 actions (mockups/student-profile.html): header «یادداشت» (primary), «کار», «یادآور» and
- * «بیشتر» (stage change, «خاموش کردن هشدار تا تاریخ…», pause with a return day, manual flag,
+ * M3 actions (mockups/student-profile.html): header "Note" (primary), "Task", "Reminder" and
+ * "More" (stage change, "Mute alert until a date…", pause with a return day, manual flag,
  * milestone, mentor change for admins, a fresh invite link); the fixed mobile bar
- * has «یادداشت», «کار» and «مرحله». `initial` (`?add=note|task|reminder`, from «امروز» and the
+ * has "Note", "Task" and "Stage". `initial` (`?add=note|task|reminder`, from "Today" and the
  * quick-add sheet) opens one of them on arrival.
  */
 export function StudentActions({
@@ -69,7 +69,7 @@ export function StudentActions({
   templates?: readonly SuggestedTemplate[];
   openTasks?: readonly OpenStageTask[];
   initial?: AddPanel;
-  /** Milestone types and platforms for «ثبت نقطه‌ی عطف». */
+  /** Milestone types and platforms for "Record milestone". */
   milestones?: { types: MilestoneTypeDTO[]; platforms: Array<{ id: string; name: string }> };
 }) {
   const router = useRouter();

@@ -1,4 +1,4 @@
-# lib — توابع خالص مشترک
+# lib — shared pure functions
 
-`jalali` (تاریخ شمسی با `Asia/Tehran`)، `text-fa` (نرمال‌سازی ی/ک و ارقام)، `phone`، `business-hours`.
-بدون دسترسی به دیتابیس یا شبکه؛ هر تابع تست واحد کنار خودش دارد (`*.test.ts`). مرجع: ADR-0008.
+`jalali` (Jalali dates with `Asia/Tehran`), `text-fa` (normalizing Arabic ي/ك to Persian ی/ک, and digits), `phone`, `business-hours`.
+No database or network access; every function has a unit test next to it (`*.test.ts`). Reference: ADR-0008.

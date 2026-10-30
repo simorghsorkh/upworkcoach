@@ -2,7 +2,7 @@ import { snoozeHealthInput } from '@/modules/health/contracts';
 import { clearHealthSnooze, snoozeHealth } from '@/modules/health/service';
 import { ok, route } from '@/server/http/handler';
 
-/** PUT /api/v1/students/:id/health/snooze — A, M in scope: «نادیده تا تاریخ» (F7). */
+/** PUT /api/v1/students/:id/health/snooze — A, M in scope: "Snooze until a date" (F7). */
 export const PUT = route({
   auth: true,
   input: snoozeHealthInput,

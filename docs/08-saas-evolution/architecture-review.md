@@ -1,226 +1,226 @@
-# بازبینی معماری: تبدیل «دفتر مربی» به SaaS چندسازمانی مربیگری
+# Architecture review: turning "Coach Office" into a multi-organization coaching SaaS
 
-- **تاریخ:** ۶ آبان ۱۴۰۵ (2026-10-28)
-- **ورودی:** سند «Coach Office — Product Evolution & Architecture Review» از بنیان‌گذار
-- **وضعیت:** پیشنهاد؛ **منتظر تأیید بنیان‌گذار**. تا تأیید، هیچ تغییری در کد یا دیتابیس انجام نمی‌شود.
-- **روش:** خواندن مستقیم کد در `apps/web/src` و migrationهای `apps/web/drizzle`. هر جا چیزی از کد تأیید نشده، صریح گفته شده است. تست‌ها در این بازبینی دوباره اجرا نشدند.
-
----
-
-## ۰. مشاوره پیش از برنامه (خلاصه برای بنیان‌گذار)
-
-1. **تکامل، نه بازنویسی.** کد فعلی یک «مونولیت ماژولار» مرتب است (حدود ۴۶ هزار خط TypeScript، ۱۳ ماژول دامنه، ۸۰ فایل تست). کنترل دسترسی در یک نقطه (`modules/access/scope.ts`) متمرکز است. چرخه‌ی «تکلیف ← تحویل نسخه‌دار ← بازبینی ← درخواست اصلاح ← تحویل دوباره» که در بند ۸ سند خواسته‌اید، **همین حالا تقریباً کامل وجود دارد**. بازنویسی یعنی دور ریختن چند ماه کار تست‌شده.
-2. **بزرگ‌ترین تغییر، دو چیز است، نه بیست چیز:**
-   - **سازمان (tenant):** امروز همه‌ی داده‌ها سراسری‌اند و نقش هر کاربر یک ستون ثابت روی `users` است.
-   - **برنامه (Program):** امروز فقط **یک مسیر سراسری** داریم و هر هنرجو **یک مربی اصلی** و **یک مرحله‌ی جاری** دارد. مدل «قالب ← اجرا ← عضویت» باید جایگزین شود.
-   بقیه‌ی خواسته‌ها (داشبوردها، صف بازبینی، پیشرفت، سلامت) بیشتر «گسترش» هستند تا «ساخت از صفر».
-3. **پیشنهاد: «آماده‌ی چندسازمانی، با یک سازمان در عمل».** ستون `organization_id` و عضویت سازمانی را **همین حالا** اضافه کنیم؛ الان که داده کم است ارزان‌ترین زمان آن است. ولی ثبت‌نام خودکار سازمان، کنسول مدیر پلتفرم، اشتراک و white-label را تا بعد از پایلوت تکانش عقب بیندازیم. مدیر پلتفرم فعلاً با اسکریپت خط فرمان کار می‌کند (همان الگوی `admin:create` فعلی).
-4. **سند شما را در سه جا ساده‌تر پیشنهاد می‌کنم:**
-   - **نسخه‌بندی قالب:** به‌جای جدول‌های جدای نسخه، هنگام ساخت یک «اجرا» محتوای قالب **کپی (snapshot)** می‌شود. همان هدف («تغییر قالب، اجراهای فعال را خراب نکند») با پیچیدگی خیلی کمتر.
-   - **Cohort = اجرای گروهی:** هر «اجرا» (Program Run) یا گروهی است یا تک‌نفره. «چند cohort» یعنی چند اجرا از یک قالب. زیرگروه داخل یک اجرا (cohort داخل cohort) به بعد از MVP می‌رود.
-   - **نقش‌ها:** شش نقش سند درست است، ولی برای پایلوت «مالک» و «مدیر سازمان» یک سطح دسترسی دارند (فقط مالک می‌تواند مدیر دیگر را عزل کند). «مدیر برنامه» یک نقش **در سطح برنامه** است، نه سازمان.
-5. **ریسک‌هایی که قبل از قرارداد با تکانش باید بدانید (فنی نیستند ولی معماری را عوض می‌کنند):**
-   - **Vercel رایگان (Hobby) فقط برای استفاده‌ی غیرتجاری است.** تکانش مشتری تجاری است ← پلن Pro (ماهی ۲۰ دلار) یا میزبان دیگر لازم است.
-   - **Supabase رایگان** پشتیبان‌گیری قابل‌بازیابی ندارد و پروژه‌ی بی‌استفاده را بعد از یک هفته متوقف می‌کند. با داده‌ی واقعی یک آکادمی، پلن Pro یا پشتیبان شبانه‌ی مستقل لازم است.
-   - **ریسک قطعی اینترنت بین‌الملل در ایران** (در STATUS.md ثبت شده: قطعی ۸۸ روزه در ۲۰۲۶). برای یک آکادمی ایرانی با هنرجوی زیاد، این ریسک از همه جدی‌تر است. خوشبختانه برنامه از اول «قابل‌انتقال» ساخته شده (Docker و Postgres استاندارد)، پس استقرار جداگانه‌ی تکانش روی سرور داخل ایران ممکن است. این تصمیم را **باید با خود تکانش** گرفت.
-6. **این تغییر جهت محصول است، نه یک اسپرینت.** طبق فرآیند پروژه (CLAUDE.md)، قبل از کد باید PRD، دامنه‌ی MVP و ADRها به‌روز شوند و شما تأیید کنید. برنامه‌ی زیر همین را رعایت می‌کند (اسپرینت ۰).
-7. **چیزی که از دست نمی‌رود:** امکانات ویژه‌ی فریلنسری (پروفایل‌های پلتفرمی، بررسی پروپوزال، شاخص «اولین قرارداد») حذف نمی‌شوند. همه‌ی آن‌ها «افزونه‌ی برنامه‌ی فریلنسری» می‌شوند که برنامه‌ی Upwork تکانش از آن استفاده می‌کند.
-
-### سؤال‌هایی که فقط شما (یا تکانش) می‌توانید جواب بدهید
-| # | سؤال | چرا مهم است |
-|---|---|---|
-| Q1 | تکانش چند مشاور و چند هنرجوی فعال دارد؟ چند برنامه‌ی هم‌زمان؟ | اندازه‌ی دیتابیس، پلن میزبانی، کارایی داشبوردها |
-| Q2 | تاریخ شروع پایلوت با تکانش؟ قرارداد یا توافق رسمی دارید؟ | اولویت‌بندی و اینکه کدام اسپرینت‌ها فشرده شوند |
-| Q3 | داده‌ی تکانش کجا باشد: خارج (Vercel/Supabase) یا سرور داخل ایران؟ | معماری استقرار، ریسک قطعی، مسائل حقوقی |
-| Q4 | هنرجوهای فعلی خود شما چه می‌شوند؟ یک سازمان شخصی جدا («دفتر مربی شما») یا داخل تکانش؟ | migration داده‌ی موجود |
-| Q5 | قالب برنامه را چه کسی می‌سازد: هر مشاور برای خودش، یا فقط مدیر آکادمی؟ | دامنه‌ی «تأیید قالب» و نقش مدیر برنامه |
-| Q6 | انگلیسی برای پایلوت لازم است یا فقط «زیرساخت» کافی است؟ | حجم کار ترجمه (حدود ۲۵۰۰ خط متن فارسی در کد) |
-| Q7 | آیا مدیر آکادمی باید یادداشت‌های خصوصی مشاورها را ببیند؟ (سند می‌گوید نه) | امروز مدیر همه چیز را می‌بیند؛ تغییرش به بازطراحی دسترسی نیاز دارد |
-| Q8 | ورود با شماره موبایل (فعلی) برای تکانش کافی است؟ ارسال پیامک لازم است؟ | امروز دعوت و بازنشانی رمز با لینک دستی است و پیامکی در کار نیست |
-
-### پاسخ‌های بنیان‌گذار (۶ آبان ۱۴۰۵)
-| # | پاسخ | اثر روی برنامه |
-|---|---|---|
-| جهت کلی | **تأیید شد:** تکامل همین برنامه؛ اول اسپرینت ۰، بعد چندسازمانی | — |
-| Q1 | تکانش ۱۰ مشاور و بیش از ۳۰۰۰ هنرجو دارد؛ پایلوت با **۳ مشاور و ۱۰۰ هنرجو** شروع می‌شود | حجم پایلوت برای پلن‌های فعلی کم است؛ ایندکس‌ها و داشبوردها برای ۳۰۰۰ هنرجو طراحی شوند |
-| Q2 | تاریخ شروع پایلوت هنوز گفته نشده | باز |
-| Q3 | فعلاً روی **Vercel و Supabase**؛ تصمیم سرور بعد از تکمیل | پشتیبان مستقل و تصمیم پلن تجاری Vercel همچنان لازم است |
-| Q4 | هنرجوهای فعلی بنیان‌گذار **داخل تکانش** می‌روند | سازمان پیش‌فرض migration همان تکانش است؛ سازمان شخصی جدا لازم نیست |
-| Q5 | **مدیر و مشاور** هر دو قالب می‌سازند؛ قالب مشاور برای استفاده در کل آکادمی به تأیید مدیر نیاز دارد | وضعیت دید قالب: خصوصی، منتظر تأیید، سازمانی (ADR-0012) |
-| Q6 | انگلیسی برای پایلوت لازم نیست، ولی **به‌زودی برای ارائه به سرمایه‌گذار** لازم می‌شود | زیرساخت در اسپرینت ۲؛ ترجمه‌ی صفحه‌های اصلی بلافاصله پس از پایلوت (یا یک نسخه‌ی دموی انگلیسی) |
-| Q7 | **نه؛ یادداشت خصوصی مشاور از مدیر پنهان می‌ماند** | سطح دید `private` (ADR-0011) |
-| Q8 | هنوز جواب داده نشده | باز |
-| سؤال تازه | زمان‌بندی جلسه‌ها؛ و دو نوع «پلن»: منتورینگ تک‌به‌تک و منتورینگ برنامه‌محور | بخش ۰-۱ پایین |
-| «پلن» | یعنی **بسته‌ی قابل‌فروش** (مثل «تک‌به‌تک: ۸ جلسه در ۲ ماه» یا «دوره‌ی ۸ هفته‌ای») | بسته = قالب با سهمیه‌ی جلسه و مدت اعتبار؛ پرداخت همچنان بیرون از دامنه (ADR-0012) |
-| زمان‌بندی | **ساده در MVP**: ثبت جلسه با زمان و لینک، وضعیت، یادداشت و اقدام بعدی؛ بدون همگام‌سازی تقویم و رزرو خودکار | ADR-0012؛ حدود ۱ هفته به نقشه‌ی راه اضافه شد |
-
-### ۰-۱. زمان‌بندی جلسه و دو نوع منتورینگ (پیشنهاد، منتظر تأیید)
-**وضعیت فعلی (از کد):** زمان‌بندی جلسه **وجود ندارد**. فقط می‌شود بعد از جلسه یک یادداشت از نوع «جلسه» ثبت کرد (`notes.kind = 'session'`) و کاری از نوع «آمادگی جلسه» (`session_prep`) داد. در سند شما هم «تقویم و جلسه‌ی زنده» در P2 بود.
-
-**پیشنهاد:** منتورینگ تک‌به‌تک بدون جلسه عملاً معنی ندارد، پس یک **زمان‌بندی جلسه‌ی ساده** را به MVP بیاوریم و بقیه را عقب بیندازیم:
-- **در MVP:** جدول `mentoring_sessions` (زمان، مدت، مربی، یک هنرجو یا یک اجرای گروهی، لینک یا محل به‌صورت متن، وضعیت: برنامه‌ریزی‌شده / برگزارشده / لغوشده / غیبت)؛ یادداشت جلسه و «اقدام‌های بعدی» که به کار تبدیل می‌شوند؛ جلسه‌های پیش‌رو در داشبورد مربی و هنرجو و صفحه‌ی «امروز». تلاش: حدود ۱ هفته.
-- **بعد از MVP:** همگام‌سازی با Google Calendar، رزرو خودکار با ساعت‌های آزاد مربی، ساخت خودکار لینک جلسه‌ی آنلاین، یادآور پیامکی.
-
-**دو نوع منتورینگ روی یک هسته** (بند ۴-۲ سند رعایت می‌شود):
-| | منتورینگ برنامه‌محور | منتورینگ تک‌به‌تک |
-|---|---|---|
-| پایه | اجرای یک قالب برنامه (مراحل، تکالیف، نقاط عطف) | رابطه‌ی منتورینگ آزاد، بدون قالب ثابت |
-| شرکت‌کننده | گروهی (cohort) یا تک‌نفره | یک هنرجو و یک یا چند مربی |
-| محور | پیشروی در مسیر | هدف‌ها، جلسه‌ها، اقدام‌های بعدی |
-| پیشرفت | فعالیت‌های الزامیِ تکمیل‌شده | هدف‌ها و نقاط عطف تأییدشده |
-| در مدل داده | `program_runs.kind = 'program'` | `program_runs.kind = 'one_on_one'` (بدون قالب یا با قالب اختیاری) |
-
-هر دو از همان عضویت، کار، تحویل، بازبینی، یادداشت، جلسه و سلامت استفاده می‌کنند.
-
-**«پلن» اگر به معنی بسته‌ی قابل‌فروش باشد** (مثلاً «تک‌به‌تک: ۸ جلسه در ۲ ماه»): می‌شود یک قالب از نوع تک‌به‌تک با «تعداد جلسه و مدت» تعریف کرد تا مصرف جلسه‌ها شمرده شود. خود فروش و پرداخت طبق تصمیم قبلی بیرون از دامنه می‌ماند. **معنای «پلن» باید با بنیان‌گذار روشن شود.**
+- **Date:** 6 Aban 1405 (2026-10-28)
+- **Input:** the founder's document "Coach Office — Product Evolution & Architecture Review"
+- **Status:** proposal; **awaiting founder approval**. Until approved, no change is made to code or database.
+- **Method:** direct reading of the code in `apps/web/src` and the migrations in `apps/web/drizzle`. Wherever something was not verified from the code, this is stated explicitly. Tests were not re-run in this review.
 
 ---
 
-## A. ارزیابی وضعیت فعلی
+## 0. Advice before the plan (summary for the founder)
 
-### A-1. معماری و استک (تأییدشده از کد)
-| لایه | فناوری | محل |
+1. **Evolve, do not rewrite.** The current code is a tidy "modular monolith" (about 46 thousand lines of TypeScript, 13 domain modules, 80 test files). Access control is centralized in a single place (`modules/access/scope.ts`). The cycle "task → versioned submission → review → change request → resubmission" that you asked for in item 8 of the document **already exists almost completely today**. A rewrite would throw away several months of tested work.
+2. **The biggest change is two things, not twenty:**
+   - **Organization (tenant):** today all data is global and each user's role is a fixed column on `users`.
+   - **Program:** today there is only **one global path**, and each mentee has **one primary mentor** and **one current stage**. The "template → run → membership" model must replace this.
+   The rest of the requests (dashboards, review queue, progress, health) are more "extensions" than "built from scratch".
+3. **Proposal: "multi-organization ready, with one organization in practice".** Add the `organization_id` column and organization membership **now**; this is the cheapest time while the data is small. But postpone automatic organization sign-up, the platform admin console, subscriptions and white-label until after the Takanesh pilot. For now the platform admin works through a command-line script (the same pattern as the current `admin:create`).
+4. **I suggest simplifying your document in three places:**
+   - **Template versioning:** instead of separate version tables, the template content is **copied (snapshot)** when a "run" is created. The same goal ("changing a template must not break active runs") with far less complexity.
+   - **Cohort = group run:** every "run" (Program Run) is either a group or an individual one. "Multiple cohorts" means multiple runs of one template. Subgroups inside a run (a cohort inside a cohort) go after the MVP.
+   - **Roles:** the six roles in the document are right, but for the pilot "owner" and "organization admin" have one access level (only the owner can remove another admin). "Program manager" is a **program-level** role, not an organization-level one.
+5. **Risks you should know about before a contract with Takanesh (not technical, but they change the architecture):**
+   - **Free Vercel (Hobby) is for non-commercial use only.** Takanesh is a commercial customer → the Pro plan (20 USD per month) or another host is needed.
+   - **Free Supabase** has no restorable backups and pauses an unused project after a week. With a real academy's data, the Pro plan or an independent nightly backup is needed.
+   - **The risk of international internet outages in Iran** (recorded in STATUS.md: an 88-day outage in 2026). For an Iranian academy with many mentees, this risk is the most serious of all. Fortunately the app was built "portable" from the start (Docker and standard Postgres), so a separate deployment for Takanesh on a server inside Iran is possible. This decision **must be made with Takanesh itself**.
+6. **This is a change of product direction, not a sprint.** According to the project process (CLAUDE.md), before code the PRD, the MVP scope and the ADRs must be updated and you must approve. The plan below follows this (Sprint 0).
+7. **What is not lost:** the special freelancing features (platform profiles, proposal review, the "first contract" indicator) are not removed. All of them become the "freelancing program add-on" that Takanesh's Upwork program uses.
+
+### Questions only you (or Takanesh) can answer
+| # | Question | Why it matters |
 |---|---|---|
-| فریم‌ورک | Next.js 16 (App Router)، React 19، TypeScript 6 | `apps/web` |
-| استایل | Tailwind CSS 4، فونت Vazirmatn محلی | `src/app/layout.tsx`، `src/fonts` |
-| دیتابیس | PostgreSQL 16+ با Drizzle ORM؛ ۶ migration | `src/modules/*/schema.ts`، `drizzle/` |
-| اعتبارسنجی | zod 4 در مرز API و تنظیمات | `modules/*/contracts.ts` |
-| احراز هویت | پیاده‌سازی داخلی: موبایل + رمز (argon2id)، نشست تصادفی هش‌شده، توکن دعوت و بازنشانی، قفل ورود، reauth | `modules/identity`، `server/auth` |
-| کارهای زمان‌بندی | pg-boss داخل Postgres، یا حالت `http-trigger` برای میزبان serverless | `server/jobs` |
-| فایل | پورت `FileStorage` با آداپتورهای local، supabase (فعال در تولید)، azure-blob و s3 (stub) | `server/storage` |
-| ساختار | مونولیت ماژولار: `route` نازک ← `service(actor, …)` ← `repo`؛ هر ماژول صاحب جدول‌های خودش | `src/modules/*` |
-| تست | Vitest (واحد و یکپارچه با Postgres جاسازی‌شده)، Playwright (e2e)؛ ۸۰ فایل تست، از جمله ماتریس دسترسی | `tests/`، `*.test.ts` |
-| CI | lint با Biome، typecheck، تست، `pnpm audit`، gitleaks، منع Server Actions، Dependabot | `.github/workflows/ci.yml` |
-| استقرار فعلی | Vercel (Hobby) + Supabase (Postgres و Storage) | `docs/07-launch/supabase-storage.md` |
+| Q1 | How many mentors and active mentees does Takanesh have? How many concurrent programs? | Database size, hosting plan, dashboard performance |
+| Q2 | Pilot start date with Takanesh? Do you have a contract or formal agreement? | Prioritization and which sprints to compress |
+| Q3 | Where should Takanesh's data live: abroad (Vercel/Supabase) or a server inside Iran? | Deployment architecture, outage risk, legal issues |
+| Q4 | What happens to your own current mentees? A separate personal organization ("your Coach Office") or inside Takanesh? | Migration of existing data |
+| Q5 | Who builds program templates: each mentor for themselves, or only the academy admin? | Scope of "template approval" and the program manager role |
+| Q6 | Is English needed for the pilot or is only the "infrastructure" enough? | Translation workload (about 2500 lines of Persian text in the code) |
+| Q7 | Should the academy admin see mentors' private notes? (the document says no) | Today the admin sees everything; changing it requires redesigning access |
+| Q8 | Is login with a mobile number (current) enough for Takanesh? Is sending SMS needed? | Today invitation and password reset use a manual link and there is no SMS |
 
-### A-2. امکانات پیاده‌شده (تأییدشده از مسیرهای `app/` و `api/v1`)
-- **حساب و تیم:** دعوت با لینک، پذیرش دعوت، ورود و خروج، تغییر رمز، لینک بازنشانی که مدیر می‌سازد، نشست‌ها، قفل ورود، reauth، صفحه‌ی «تیم» (فقط مدیر).
-- **هنرجو:** پرونده‌ی کامل (هدف، سطح، مهارت، انگلیسی، ساعت در هفته، نیچ و …)، چرخه‌ی وضعیت (فعال، توقف، فارغ‌التحصیل، انصراف)، جستجوی فارسی (trigram)، ورود و خروجی CSV.
-- **پروفایل‌های پلتفرمی:** چند پروفایل برای هر هنرجو، نسخه‌های متنی (snapshot) و تأیید مربی.
-- **مسیر:** یک مسیر پیش‌فرض با مراحل قابل‌تنظیم، کانبان (`/api/v1/board`)، گذار مرحله با گیت و تأیید مربی، لینک محتوای بیرونی برای هر مرحله.
-- **کارها (تکالیف):** چند نوع کار و چند نوع تحویل (متن، لینک، فایل، چک‌باکس، بررسی پروپوزال، بررسی پروفایل)، مهلت به روز تهران، تمدید مهلت با سابقه، تحویل **نسخه‌دار و غیرقابل‌ویرایش**، بازبینی با نتیجه‌ی «پذیرفته» یا «نیاز به اصلاح»، شمارش دورهای اصلاح، **صف بازبینی**، قالب کار، تخصیص گروهی (`batchId`).
-- **ارتباط:** رشته‌ی سؤال و جواب با مسئول، اولویت و SLA؛ پاسخ‌های آماده؛ چک‌این هفتگی با حال و هوا.
-- **پیگیری:** یادداشت و تایم‌لاین (داخلی یا اشتراکی)، یادآورها، صفحه‌ی «امروز».
-- **سلامت هنرجو:** ۹ قاعده‌ی قطعی (عدم فعالیت، درجا زدن، کار عقب‌افتاده، دور اصلاح، بی‌کاری، تمدید، پرچم، چک‌این، حال بد)، آستانه‌ها در تنظیمات، فهرست «گیرکرده‌ها»، بازمحاسبه‌ی ساعتی.
-- **نقاط عطف:** پیشنهاد هنرجو با مدرک و تأیید مربی، شاخص North Star («اولین قرارداد» و …) در صفحه‌ی نتایج.
-- **امنیت و حریم خصوصی:** CSP با nonce، هدرهای امنیتی، پاک‌سازی حساب (erasure)، نگه‌داری داده (retention)، لاگ ممیزی، فایل خصوصی فقط تصویر.
+### Founder's answers (6 Aban 1405)
+| # | Answer | Effect on the plan |
+|---|---|---|
+| Overall direction | **Approved:** evolve this same app; Sprint 0 first, then multi-organization | — |
+| Q1 | Takanesh has 10 mentors and more than 3000 mentees; the pilot starts with **3 mentors and 100 mentees** | The pilot volume is small for the current plans; indexes and dashboards should be designed for 3000 mentees |
+| Q2 | The pilot start date has not been given yet | Open |
+| Q3 | For now on **Vercel and Supabase**; the server decision comes after completion | An independent backup and the Vercel commercial-plan decision are still needed |
+| Q4 | The founder's current mentees **move into Takanesh** | The default migration organization is Takanesh itself; a separate personal organization is not needed |
+| Q5 | **Admin and mentor** both build templates; a mentor's template needs admin approval to be used across the academy | Template visibility states: private, awaiting approval, organizational (ADR-0012) |
+| Q6 | English is not needed for the pilot, but it will **soon be needed for presenting to investors** | Infrastructure in Sprint 2; translation of the main pages immediately after the pilot (or an English demo version) |
+| Q7 | **No; a mentor's private note stays hidden from the admin** | Visibility level `private` (ADR-0011) |
+| Q8 | Not answered yet | Open |
+| New question | Session scheduling; and two types of "plan": one-on-one mentoring and program-based mentoring | Section 0-1 below |
+| "Plan" | Means a **sellable package** (e.g. "one-on-one: 8 sessions in 2 months" or "an 8-week course") | Package = template with a session quota and validity period; payment remains out of scope (ADR-0012) |
+| Scheduling | **Simple in the MVP**: record a session with time and link, status, notes and next action; no calendar sync and no automatic booking | ADR-0012; about 1 week added to the roadmap |
 
-### A-3. نیمه‌کاره یا فقط در schema
-| مورد | وضعیت |
+### 0-1. Session scheduling and the two types of mentoring (proposal, awaiting approval)
+**Current state (from the code):** session scheduling **does not exist**. You can only record a note of kind "session" after a session (`notes.kind = 'session'`) and assign a task of kind "session preparation" (`session_prep`). In your document, "calendar and live session" was also P2.
+
+**Proposal:** one-on-one mentoring without sessions makes little sense, so let us bring a **simple session scheduler** into the MVP and push the rest back:
+- **In the MVP:** a `mentoring_sessions` table (time, duration, mentor, one mentee or one group run, link or location as text, status: planned / held / cancelled / no-show); a session note and "next actions" that turn into tasks; upcoming sessions on the mentor and mentee dashboards and on the "Today" page. Effort: about 1 week.
+- **After the MVP:** Google Calendar sync, automatic booking from the mentor's free hours, automatic creation of online meeting links, SMS reminders.
+
+**Two types of mentoring on one core** (item 4-2 of the document is respected):
+| | Program-based mentoring | One-on-one mentoring |
+|---|---|---|
+| Basis | A run of a program template (stages, tasks, milestones) | A free-form mentoring relationship, with no fixed template |
+| Participants | Group (cohort) or individual | One mentee and one or more mentors |
+| Focus | Progress along the path | Goals, sessions, next actions |
+| Progress | Completed required activities | Goals and approved milestones |
+| In the data model | `program_runs.kind = 'program'` | `program_runs.kind = 'one_on_one'` (no template, or an optional template) |
+
+Both use the same membership, task, submission, review, note, session and health machinery.
+
+**"Plan" if it means a sellable package** (e.g. "one-on-one: 8 sessions in 2 months"): a one-on-one template can be defined with a "session count and duration" so that session consumption is counted. The selling and payment themselves stay out of scope per the earlier decision. **The meaning of "plan" must be clarified with the founder.**
+
+---
+
+## A. Assessment of the current state
+
+### A-1. Architecture and stack (verified from the code)
+| Layer | Technology | Location |
+|---|---|---|
+| Framework | Next.js 16 (App Router), React 19, TypeScript 6 | `apps/web` |
+| Styling | Tailwind CSS 4, local Vazirmatn font | `src/app/layout.tsx`, `src/fonts` |
+| Database | PostgreSQL 16+ with Drizzle ORM; 6 migrations | `src/modules/*/schema.ts`, `drizzle/` |
+| Validation | zod 4 at the API boundary and in settings | `modules/*/contracts.ts` |
+| Authentication | In-house: mobile + password (argon2id), random hashed session, invite and reset tokens, login lockout, reauth | `modules/identity`, `server/auth` |
+| Scheduled jobs | pg-boss inside Postgres, or the `http-trigger` mode for a serverless host | `server/jobs` |
+| Files | `FileStorage` port with adapters local, supabase (active in production), azure-blob and s3 (stubs) | `server/storage` |
+| Structure | Modular monolith: thin `route` → `service(actor, …)` → `repo`; each module owns its own tables | `src/modules/*` |
+| Tests | Vitest (unit and integration with embedded Postgres), Playwright (e2e); 80 test files, including the access matrix | `tests/`, `*.test.ts` |
+| CI | Biome lint, typecheck, tests, `pnpm audit`, gitleaks, ban on Server Actions, Dependabot | `.github/workflows/ci.yml` |
+| Current deployment | Vercel (Hobby) + Supabase (Postgres and Storage) | `docs/07-launch/supabase-storage.md` |
+
+### A-2. Implemented features (verified from the `app/` and `api/v1` routes)
+- **Account and team:** invitation by link, accepting an invitation, login and logout, password change, a reset link created by the admin, sessions, login lockout, reauth, the "Team" page (admin only).
+- **Mentee:** full record (goal, level, skills, English, hours per week, niche, etc.), status lifecycle (active, paused, graduated, dropped), Persian search (trigram), CSV import and export.
+- **Platform profiles:** several profiles per mentee, text versions (snapshots) and mentor approval.
+- **Path:** one default path with configurable stages, a kanban board (`/api/v1/board`), stage transitions with a gate and mentor approval, an external content link for each stage.
+- **Tasks (assignments):** several task types and several submission types (text, link, file, checkbox, proposal review, profile review), deadlines on Tehran day, deadline extensions with history, **versioned and non-editable** submissions, review with the result "accepted" or "changes requested", counting of revision rounds, the **review queue**, task templates, bulk assignment (`batchId`).
+- **Communication:** question-and-answer thread with owner, priority and SLA; canned responses; weekly check-in with mood.
+- **Follow-up:** notes and timeline (internal or shared), reminders, the "Today" page.
+- **Mentee health:** 9 deterministic rules (inactivity, stagnation, overdue work, revision rounds, no work, extensions, flag, check-in, bad mood), thresholds in settings, a "stuck" list, hourly recalculation.
+- **Milestones:** mentee proposal with evidence and mentor approval, the North Star indicator ("first contract" etc.) on the results page.
+- **Security and privacy:** CSP with nonce, security headers, account erasure, data retention, audit log, private files limited to images.
+
+### A-3. Half-done or only in the schema
+| Item | State |
 |---|---|
-| مربی دوم و پشتیبان | نقش‌های `secondary` و `backup` در `mentor_assignments` تعریف شده‌اند ولی **هیچ کدی از آن‌ها استفاده نمی‌کند**؛ دسترسی فقط از `primary_mentor_id` می‌آید |
-| چند مسیر | جدول `learning_paths` هست ولی فقط یک مسیر پیش‌فرض استفاده می‌شود |
-| Cohort | فقط یک فیلد متنی آزاد (`students.cohort`) است، نه موجودیت |
-| رابط کاربری چند پیگیری بالا | F-01، F-02، F-06، F-11، F-12، F-14 (بک‌اند آماده، UI مانده؛ `docs/05-delivery/followups.md`) |
-| کارهای زمان‌بندی روی Vercel | `JOBS_MODE` روی تولید تنظیم نشده یا نامشخص است |
-| اعلان | فقط یادآور داخلی؛ ارسال پیامک، ایمیل یا اعلان درون‌برنامه‌ای نیست |
+| Second and backup mentor | The roles `secondary` and `backup` are defined in `mentor_assignments` but **no code uses them**; access comes only from `primary_mentor_id` |
+| Multiple paths | The `learning_paths` table exists but only one default path is used |
+| Cohort | Only a free text field (`students.cohort`), not an entity |
+| UI for several follow-ups | F-01, F-02, F-06, F-11, F-12, F-14 (backend ready, UI remaining; `docs/05-delivery/followups.md`) |
+| Scheduled jobs on Vercel | `JOBS_MODE` is not set or unknown in production |
+| Notifications | Only an internal reminder; no SMS, email or in-app notification sending |
 
-### A-4. موجودیت‌های دیتابیس (۲۹ جدول)
-| ماژول | جدول‌ها |
+### A-4. Database entities (29 tables)
+| Module | Tables |
 |---|---|
-| identity | `users` (نقش سراسری: admin/mentor/student)، `auth_tokens`، `sessions`، `auth_throttle` |
-| catalog | `settings` (سراسری)، `tracks`، `platforms`، `learning_paths`، `stages`، `task_templates`، `milestone_types`، `canned_responses` |
-| students | `students` (یک `primary_mentor_id`، یک `current_stage_id`)، `mentor_assignments`، `platform_profiles`، `profile_snapshots` |
+| identity | `users` (global role: admin/mentor/student), `auth_tokens`, `sessions`, `auth_throttle` |
+| catalog | `settings` (global), `tracks`, `platforms`, `learning_paths`, `stages`, `task_templates`, `milestone_types`, `canned_responses` |
+| students | `students` (one `primary_mentor_id`, one `current_stage_id`), `mentor_assignments`, `platform_profiles`, `profile_snapshots` |
 | path | `stage_transitions` |
-| tasks | `tasks` (مستقیم به هنرجو، یک `reviewer_id`)، `task_extensions`، `submissions`، `reviews` |
-| timeline | `notes` (internal/shared)، `timeline_events` |
-| دیگر | `reminders`، `question_threads`، `question_messages`، `checkins`، `milestones`، `student_flags`، `student_health`، `attachments`، `audit_log` |
+| tasks | `tasks` (directly to the mentee, one `reviewer_id`), `task_extensions`, `submissions`, `reviews` |
+| timeline | `notes` (internal/shared), `timeline_events` |
+| others | `reminders`, `question_threads`, `question_messages`, `checkins`, `milestones`, `student_flags`, `student_health`, `attachments`, `audit_log` |
 
-**هیچ جدولی ستون سازمان ندارد.** نام‌های یکتا (مثل نام پلتفرم و کد track) سراسری‌اند.
+**No table has an organization column.** Unique names (such as the platform name and the track code) are global.
 
-### A-5. چندزبانگی و راست‌به‌چپ
-- `<html lang="fa" dir="rtl">` **ثابت** در `app/layout.tsx`. هیچ کتابخانه‌ی i18n نصب نیست.
-- حدود **۲۵۰۰ خط متن فارسی** در **۲۲۷ فایل** مستقیم داخل کد است، از جمله پیام‌های خطای سرور (`server/http/errors.ts`) و پیام‌های zod.
-- **نقطه‌ی قوت:** در کامپوننت‌ها از کلاس‌های منطقی Tailwind استفاده شده (۸۸ مورد `ms-`/`me-`/`ps-`/`pe-`/`start-`/`end-`) و **هیچ** کلاس فیزیکی (`ml-`، `left-` …) نیست. پس سوییچ RTL به LTR از نظر چیدمان ارزان است.
-- تاریخ: کتابخانه‌ی داخلی `lib/jalali` و `lib/tehran-day`؛ زمان‌ها در UTC ذخیره می‌شوند (ADR-0008). ولی منطقه‌ی زمانی در تنظیمات **`z.literal('Asia/Tehran')`** است؛ یعنی فعلاً قابل‌تغییر نیست.
-- نرمال‌سازی متن فارسی (`lib/text-fa`) و شماره موبایل E.164 وجود دارد.
+### A-5. Multilingual support and right-to-left
+- `<html lang="fa" dir="rtl">` is **fixed** in `app/layout.tsx`. No i18n library is installed.
+- About **2500 lines of Persian text** in **227 files** sit directly inside the code, including server error messages (`server/http/errors.ts`) and zod messages.
+- **Strength:** the components use Tailwind logical classes (88 occurrences of `ms-`/`me-`/`ps-`/`pe-`/`start-`/`end-`) and **no** physical classes (`ml-`, `left-`, …). So switching from RTL to LTR is cheap as far as layout goes.
+- Dates: the in-house libraries `lib/jalali` and `lib/tehran-day`; times are stored in UTC (ADR-0008). But the time zone in settings is **`z.literal('Asia/Tehran')`**, meaning it is currently not changeable.
+- Persian text normalization (`lib/text-fa`) and E.164 mobile numbers exist.
 
-### A-6. محدودیت‌های فنی اصلی
-1. نقش سراسری روی `users` (یک نفر نمی‌تواند در یک سازمان مشاور و در دیگری هنرجو باشد).
-2. هنرجو یعنی «یک مربی اصلی + یک مرحله‌ی جاری»؛ در چند برنامه بودن ممکن نیست.
-3. کار مستقیم به هنرجو وصل است، نه به «عضویت در یک اجرای برنامه».
-4. تنظیمات، SLA، تعطیلات و آستانه‌های سلامت سراسری‌اند.
-5. مدیر همه چیز را می‌بیند، از جمله یادداشت داخلی (خلاف بند ۵ سند).
-6. متن‌ها فارسی و داخل کد؛ منطقه‌ی زمانی ثابت تهران.
-7. برخی مفاهیم مختص فریلنسری در هسته‌اند (`platforms`، `platform_profiles`، `proposal_review`).
+### A-6. Main technical limitations
+1. The global role is on `users` (one person cannot be a mentor in one organization and a mentee in another).
+2. A mentee means "one primary mentor + one current stage"; being in several programs is impossible.
+3. A task is attached directly to the mentee, not to a "membership in a program run".
+4. Settings, SLA, holidays and health thresholds are global.
+5. The admin sees everything, including internal notes (contrary to item 5 of the document).
+6. Texts are Persian and inside the code; the time zone is fixed to Tehran.
+7. Some freelancing-specific concepts are in the core (`platforms`, `platform_profiles`, `proposal_review`).
 
 ---
 
-## B. تحلیل شکاف
+## B. Gap analysis
 
-برآورد تلاش: **S** = چند روز، **M** = حدود ۱ هفته، **L** = ۲ تا ۳ هفته (یک توسعه‌دهنده با کمک ایجنت‌ها). این‌ها برآورد اولیه‌اند و پس از اسپرینت ۰ دقیق‌تر می‌شوند.
+Effort estimate: **S** = a few days, **M** = about 1 week, **L** = 2 to 3 weeks (one developer with agent help). These are initial estimates and become more precise after Sprint 0.
 
-| امکان لازم | پیاده‌سازی فعلی | شکاف | اقدام | اولویت | تلاش |
+| Required feature | Current implementation | Gap | Action | Priority | Effort |
 |---|---|---|---|---|---|
-| سازمان‌های چندگانه | ندارد | جدول سازمان، `organization_id` روی همه‌ی جدول‌های داده | Build New | P0 | L |
-| عضویت و نقش در سازمان | `users.role` سراسری | `organization_memberships(role)`؛ actor شامل سازمان | Refactor | P0 | M |
-| جداسازی tenant در بک‌اند | `scopeCondition` فقط بر اساس مربی | شرط سازمان در همه‌ی queryها + کلید خارجی ترکیبی برای جلوگیری از ارجاع بین سازمان‌ها | Extend | P0 | M |
-| مدیر پلتفرم | `admin:create` (اسکریپت) | پرچم سطح پلتفرم؛ ساخت سازمان با اسکریپت | Extend | P0 | S |
-| دسترسی در سطح برنامه | ندارد | نقش‌های اجرا (مدیر برنامه، مربی) | Build New | P0 | M |
-| رابطه‌ی انعطاف‌پذیر مربی و هنرجو | `primary_mentor_id` + جدول تاریخچه (secondary بی‌استفاده) | مربی در سطح عضویت اجرا؛ چند مربی | Refactor | P0 | L |
-| قالب برنامه | `learning_paths` + `stages` + `task_templates` (سراسری، یکی) | قالب در سازمان؛ چند قالب؛ پیش‌نویس و منتشرشده | Refactor | P0 | M |
-| اجرای برنامه (Run) | ندارد (همه در یک مسیر سراسری) | `program_runs` با snapshot قالب | Build New | P0 | L |
-| نسخه‌بندی قالب | ندارد | snapshot هنگام ساخت اجرا (نه جدول نسخه) | Build New (ساده) | P1 | S |
-| اجرای گروهی و تک‌نفره | ندارد | `mode: group / individual` روی اجرا | Build New | P0 | جزو Run |
-| Cohort | فیلد متنی `students.cohort` | اجرای گروهی = cohort؛ فیلد متنی مهاجرت می‌کند | Replace | P1 | S |
-| زیرگروه داخل cohort | ندارد | — | Defer | P2 | — |
-| زیرساخت i18n فارسی و انگلیسی | ندارد؛ ۲۵۰۰ خط متن ثابت | next-intl، فایل‌های پیام، کد خطا به‌جای متن | Build New | P0 | M (زیرساخت) + L (استخراج کامل) |
-| RTL و LTR | `dir="rtl"` ثابت؛ کلاس‌های منطقی | `dir` بر اساس زبان | Extend | P0 | S |
-| ترجیح زبان کاربر | ندارد | `user_preferences.locale` | Build New | P0 | S |
-| تاریخ و عدد وابسته به زبان | `lib/jalali` فقط فارسی | جلالی برای fa و میلادی برای en؛ منطقه‌ی زمانی سازمان | Extend | P1 | M |
-| زبان مبدأ محتوا | ندارد | `source_locale` روی قالب و اجرا | Build New | P1 | S |
-| دایرکتوری مشاوران | صفحه‌ی «تیم» (فهرست، دعوت، غیرفعال‌سازی) | جستجو، فیلتر، حجم کار، برنامه‌ها | Extend | P1 | M |
-| پروفایل مشاور | فقط `displayName` | `mentor_profiles` (عنوان، بیو، تخصص، زبان، آواتار) | Build New | P1 | S |
-| مدیریت هنرجو | کامل (پرونده، وضعیت، CSV) | منتقل به سازمان؛ فیلدهای فریلنسری اختیاری | Keep + Extend | P1 | M |
-| سازنده‌ی برنامه | مدیریت مراحل و قالب کار | فاز، فعالیت (درس، تکلیف، چک‌لیست، منبع، نقطه‌ی عطف)، ترتیب، مهلت نسبی | Extend | P1 | L |
-| ثبت‌نام فردی و گروهی | ندارد | `program_memberships` + افزودن گروهی | Build New | P1 | M |
-| تکلیف و تحویل | **کامل** (نسخه‌دار، انواع تحویل، فایل) | اتصال به عضویت و گره برنامه | Keep + Extend | P1 | M |
-| بازخورد و چرخه‌ی اصلاح | **کامل** (accepted / changes_requested، شمارش دور) | فیلتر صف بازبینی بر اساس برنامه | Keep | P1 | S |
-| پیشرفت | مرحله‌ی جاری + نقاط عطف + سلامت | فرمول پیشرفت قطعی برای هر عضویت | Extend | P1 | M |
-| نقاط عطف و نتایج | **کامل** (پیشنهاد، تأیید، North Star) | تعریف نقطه‌ی عطف در سطح قالب برنامه | Extend | P1 | S |
-| هنرجوی نیازمند پیگیری | **کامل** (سلامت، ۹ قاعده، گیرکرده‌ها) | آستانه‌ها برای هر سازمان | Keep + Extend | P1 | S |
-| داشبورد سازمان | صفحه‌ی نتایج و «امروز» | تجمیع برنامه‌ها، حجم کار مشاوران | Extend | P1 | M |
-| داشبورد مربی | «امروز»، صف بازبینی، کانبان | فیلتر برنامه | Extend | P1 | S |
-| داشبورد هنرجو | `/home`، مسیر من، کارهای من | چند برنامه، اقدام بعدی | Extend | P1 | M |
-| اعلان پایه | یادآور داخلی | اعلان درون‌برنامه‌ای (بدون پیامک) | Build New | P1 | M |
-| یادداشت خصوصی پنهان از مدیر | مدیر همه را می‌بیند | سطح دید `private` (فقط نویسنده و مربیان آن عضویت) | Refactor | P1 | S |
-| سؤال و جواب | **کامل** | منتقل به سازمان | Keep | P1 | S |
-| چک‌این هفتگی | **کامل** | منتقل به سازمان | Keep | P1 | S |
-| پروفایل‌های پلتفرمی، بررسی پروپوزال | **کامل** | «افزونه‌ی فریلنسری» قابل‌فعال‌سازی برای هر سازمان | Keep (منزوی کردن) | P1 | S |
-| فایل خصوصی | **کامل** (Supabase) | پیشوند کلید با سازمان | Extend | P0 | S |
-| ممیزی، خروجی و حذف داده | **کامل** | محدود به سازمان | Extend | P1 | S |
-| تقویم، جلسه‌ی زنده، پیام خصوصی، فرم و آزمون | ندارد | — | Defer | P2 | — |
-| پرداخت، بازارچه‌ی مشاور، white-label، هلندی کامل، اپ موبایل | ندارد | — | Defer | P2 | — |
-| AI | در فاز 1.0 طراحی شده | — | Defer | P2 | — |
+| Multiple organizations | None | Organization table, `organization_id` on all data tables | Build New | P0 | L |
+| Organization membership and role | Global `users.role` | `organization_memberships(role)`; the actor includes the organization | Refactor | P0 | M |
+| Tenant isolation in the backend | `scopeCondition` based on the mentor only | Organization condition in all queries + composite foreign keys to prevent cross-organization references | Extend | P0 | M |
+| Platform admin | `admin:create` (script) | Platform-level flag; organization creation by script | Extend | P0 | S |
+| Program-level access | None | Run roles (program manager, mentor) | Build New | P0 | M |
+| Flexible mentor–mentee relationship | `primary_mentor_id` + history table (secondary unused) | Mentor at the run membership level; several mentors | Refactor | P0 | L |
+| Program template | `learning_paths` + `stages` + `task_templates` (global, one) | Template inside the organization; several templates; draft and published | Refactor | P0 | M |
+| Program run | None (everything is in one global path) | `program_runs` with a template snapshot | Build New | P0 | L |
+| Template versioning | None | Snapshot when a run is created (not a version table) | Build New (simple) | P1 | S |
+| Group and individual runs | None | `mode: group / individual` on the run | Build New | P0 | part of Run |
+| Cohort | Text field `students.cohort` | Group run = cohort; the text field is migrated | Replace | P1 | S |
+| Subgroup inside a cohort | None | — | Defer | P2 | — |
+| Persian and English i18n infrastructure | None; 2500 lines of fixed text | next-intl, message files, error codes instead of text | Build New | P0 | M (infrastructure) + L (full extraction) |
+| RTL and LTR | Fixed `dir="rtl"`; logical classes | `dir` based on language | Extend | P0 | S |
+| User language preference | None | `user_preferences.locale` | Build New | P0 | S |
+| Language-dependent dates and numbers | `lib/jalali` Persian only | Jalali for fa and Gregorian for en; organization time zone | Extend | P1 | M |
+| Content source language | None | `source_locale` on template and run | Build New | P1 | S |
+| Mentor directory | "Team" page (list, invite, deactivate) | Search, filter, workload, programs | Extend | P1 | M |
+| Mentor profile | Only `displayName` | `mentor_profiles` (title, bio, expertise, language, avatar) | Build New | P1 | S |
+| Mentee management | Complete (record, status, CSV) | Moved to the organization; freelancing fields optional | Keep + Extend | P1 | M |
+| Program builder | Stage and task template management | Phase, activity (lesson, assignment, checklist, resource, milestone), ordering, relative deadline | Extend | P1 | L |
+| Individual and group enrollment | None | `program_memberships` + bulk add | Build New | P1 | M |
+| Task and submission | **Complete** (versioned, submission types, files) | Connection to the membership and the program node | Keep + Extend | P1 | M |
+| Feedback and revision cycle | **Complete** (accepted / changes_requested, round count) | Review queue filter by program | Keep | P1 | S |
+| Progress | Current stage + milestones + health | Deterministic progress formula for each membership | Extend | P1 | M |
+| Milestones and outcomes | **Complete** (proposal, approval, North Star) | Milestone definition at the program template level | Extend | P1 | S |
+| Mentee needing follow-up | **Complete** (health, 9 rules, stuck) | Thresholds per organization | Keep + Extend | P1 | S |
+| Organization dashboard | Results page and "Today" | Aggregation of programs, mentor workload | Extend | P1 | M |
+| Mentor dashboard | "Today", review queue, kanban | Program filter | Extend | P1 | S |
+| Mentee dashboard | `/home`, my path, my tasks | Several programs, next action | Extend | P1 | M |
+| Basic notification | Internal reminder | In-app notification (no SMS) | Build New | P1 | M |
+| Private note hidden from the admin | The admin sees all | Visibility level `private` (only the author and the mentors of that membership) | Refactor | P1 | S |
+| Q&A | **Complete** | Moved to the organization | Keep | P1 | S |
+| Weekly check-in | **Complete** | Moved to the organization | Keep | P1 | S |
+| Platform profiles, proposal review | **Complete** | "Freelancing add-on" that can be enabled per organization | Keep (isolate) | P1 | S |
+| Private files | **Complete** (Supabase) | Key prefix with the organization | Extend | P0 | S |
+| Audit, data export and erasure | **Complete** | Limited to the organization | Extend | P1 | S |
+| Calendar, live session, private message, forms and quizzes | None | — | Defer | P2 | — |
+| Payment, mentor marketplace, white-label, full Dutch, mobile app | None | — | Defer | P2 | — |
+| AI | Designed in phase 1.0 | — | Defer | P2 | — |
 
 ---
 
-## C. معماری هدف
+## C. Target architecture
 
-### C-1. مدل دامنه
+### C-1. Domain model
 ```
 Platform
  └─ Organization ─┬─ OrganizationMembership (user, role: owner|admin|mentor|mentee, status)
-                  │     └─ MentorProfile (برای مشاوران)
-                  ├─ Settings (SLA، تعطیلات، آستانه‌ی سلامت، منطقه‌ی زمانی، زبان پیش‌فرض، افزونه‌ها)
-                  ├─ ProgramTemplate (draft|published|archived، source_locale، visibility)
+                  │     └─ MentorProfile (for mentors)
+                  ├─ Settings (SLA, holidays, health thresholds, time zone, default language, add-ons)
+                  ├─ ProgramTemplate (draft|published|archived, source_locale, visibility)
                   │     └─ CurriculumNode (phase → activity: lesson|assignment|checklist|resource|milestone)
-                  └─ ProgramRun (mode: group|individual، تاریخ شروع، snapshot قالب)
-                        ├─ RunStaff (user، role: manager|mentor)
-                        ├─ Enrollment / ProgramMembership (mentee، status، current node، progress)
-                        │     └─ EnrollmentMentor (مربی(های) این هنرجو در این اجرا)
-                        ├─ Task/Assignment (enrollment، node) → Submission (v1..n) → Review
-                        ├─ Milestone (enrollment، type)
-                        └─ Notes / Questions / Check-ins / Reminders / Health (به enrollment یا هنرجوی سازمان)
+                  └─ ProgramRun (mode: group|individual, start date, template snapshot)
+                        ├─ RunStaff (user, role: manager|mentor)
+                        ├─ Enrollment / ProgramMembership (mentee, status, current node, progress)
+                        │     └─ EnrollmentMentor (this mentee's mentor(s) in this run)
+                        ├─ Task/Assignment (enrollment, node) → Submission (v1..n) → Review
+                        ├─ Milestone (enrollment, type)
+                        └─ Notes / Questions / Check-ins / Reminders / Health (on the enrollment or the organization's mentee)
 ```
 
-**تصمیم‌های کلیدی:**
-1. **هنرجو = عضویت سازمانی با نقش mentee.** جدول فعلی `students` می‌ماند و «پرونده‌ی هنرجو در سازمان» می‌شود (کلید: سازمان + کاربر). فیلدهای فریلنسری (نیچ، انگلیسی و …) به یک جدول افزونه یا ستون JSON اختیاری می‌روند.
-2. **مرحله‌ی جاری از روی هنرجو به روی Enrollment منتقل می‌شود.** همان منطق گیت و `stage_transitions` حفظ می‌شود، فقط کلیدش عوض می‌شود.
-3. **کار (task) به Enrollment وصل می‌شود.** کارهای آزاد مربی (follow_up) هم به یک Enrollment وصل می‌شوند، یا به «پرونده‌ی سازمانی» اگر خارج از برنامه باشند.
-4. **مربی از سه راه دسترسی می‌گیرد:** مربی مستقیم یک Enrollment، مربی کل اجرا (RunStaff)، یا تنظیم سازمانی «همه‌ی مربی‌ها همه را ببینند» (همان `mentorScope = all` فعلی).
+**Key decisions:**
+1. **Mentee = organization membership with the role mentee.** The current `students` table stays and becomes the "mentee record in the organization" (key: organization + user). Freelancing fields (niche, English, etc.) move to an optional add-on table or JSON column.
+2. **The current stage moves from the mentee to the Enrollment.** The same gate logic and `stage_transitions` are kept; only the key changes.
+3. **A task attaches to the Enrollment.** Free-form mentor tasks (follow_up) also attach to an Enrollment, or to the "organization record" if outside a program.
+4. **A mentor gets access in three ways:** as a mentor directly on an Enrollment, as a mentor of the whole run (RunStaff), or through the organization setting "all mentors see everyone" (the same as the current `mentorScope = all`).
 
-### C-2. نمودار رابطه‌ها
+### C-2. Relationship diagram
 ```mermaid
 erDiagram
   organizations ||--o{ organization_memberships : has
@@ -242,172 +242,172 @@ erDiagram
   users ||--o| user_preferences : has
 ```
 
-### C-3. ساختار کنترل دسترسی
-- **Actor جدید:** `{ userId, orgId, orgRole, isPlatformAdmin }`. سازمان فعال از نشست می‌آید (انتخاب سازمان پس از ورود اگر کاربر در چند سازمان است).
-- **سه لایه، همه در سرور:**
-  1. **Tenant:** هر query شرط `organization_id = actor.orgId` دارد. این شرط داخل همان `scopeCondition` فعلی اضافه می‌شود، پس همه‌ی queryهای موجود یک‌جا پوشش داده می‌شوند.
-  2. **نقش سازمانی:** owner/admin مدیریت می‌کنند؛ mentor فقط عضویت‌های مربوط به خودش؛ mentee فقط داده‌ی خودش (الگوی فعلی DTO جدای هنرجو حفظ می‌شود).
-  3. **سطح رکورد:** resolverهای فعلی `loadInScope` (که از هر منبع به ریشه‌ی هنرجو می‌رسند) به ریشه‌ی **Enrollment** گسترش می‌یابند.
-- **دفاع در عمق در دیتابیس:** کلید خارجی ترکیبی `(organization_id, id)` روی جدول‌های فرزند، تا ارجاع از یک سازمان به رکورد سازمان دیگر **در خود Postgres** ناممکن باشد. Row Level Security در Postgres را برای بعد پیشنهاد می‌کنم (نیاز به `SET LOCAL` در هر تراکنش دارد)، نه برای MVP.
-- **یادداشت‌ها:** سه سطح دید: `private` (نویسنده و مربیان همان Enrollment)، `staff` (همه‌ی کادر مجاز، معادل `internal` فعلی)، `shared` (هنرجو هم می‌بیند). مدیر سازمان `private` را نمی‌بیند، اگر Q7 تأیید شود.
-- **ماتریس دسترسی** (`tests/integration/access-matrix.test.ts`) به یک ماتریس دوسازمانی گسترش می‌یابد: هر endpoint با کاربر سازمان دیگر تست می‌شود و باید 404 بدهد.
+### C-3. Access control structure
+- **New actor:** `{ userId, orgId, orgRole, isPlatformAdmin }`. The active organization comes from the session (organization selection after login if the user is in several).
+- **Three layers, all on the server:**
+  1. **Tenant:** every query has the condition `organization_id = actor.orgId`. This condition is added inside the current `scopeCondition`, so all existing queries are covered in one place.
+  2. **Organization role:** owner/admin manage; a mentor only the memberships related to them; a mentee only their own data (the current pattern of a separate mentee DTO is kept).
+  3. **Record level:** the current `loadInScope` resolvers (which reach the mentee root from any resource) are extended to the **Enrollment** root.
+- **Defense in depth in the database:** a composite foreign key `(organization_id, id)` on child tables, so a reference from one organization to another organization's record is **impossible in Postgres itself**. I suggest Postgres Row Level Security for later (it needs `SET LOCAL` in every transaction), not for the MVP.
+- **Notes:** three visibility levels: `private` (the author and the mentors of that Enrollment), `staff` (all authorized staff, equivalent to the current `internal`), `shared` (the mentee sees it too). The organization admin does not see `private`, if Q7 is confirmed.
+- **Access matrix** (`tests/integration/access-matrix.test.ts`) is extended to a two-organization matrix: every endpoint is tested with a user from the other organization and must return 404.
 
-### C-4. مرز سازمان و برنامه
-| داده | سطح |
+### C-4. Organization and program boundary
+| Data | Level |
 |---|---|
-| کاربر، رمز، نشست، ترجیح زبان | پلتفرم (یک حساب برای چند سازمان) |
-| عضویت، پروفایل مشاور، تنظیمات، پلتفرم‌ها، انواع نقطه‌ی عطف، پاسخ‌های آماده | سازمان |
-| قالب برنامه و گره‌های آن | سازمان (دید: خصوصی مربی، اشتراکی سازمان، نیازمند تأیید) |
-| اجرا، عضویت، کار، تحویل، بازبینی، نقطه‌ی عطف، گذار مرحله | اجرای برنامه (و در نتیجه سازمان) |
-| یادداشت، سؤال، چک‌این، یادآور، سلامت | پرونده‌ی هنرجو در سازمان (اختیاری: یک Enrollment) |
+| User, password, session, language preference | Platform (one account for several organizations) |
+| Membership, mentor profile, settings, platforms, milestone types, canned responses | Organization |
+| Program template and its nodes | Organization (visibility: mentor-private, organization-shared, requires approval) |
+| Run, membership, task, submission, review, milestone, stage transition | Program run (and therefore the organization) |
+| Note, question, check-in, reminder, health | Mentee record in the organization (optional: one Enrollment) |
 
-### C-5. ماژول‌های پیشنهادی
-همه در همان مونولیت ماژولار؛ **سرویس یا فریم‌ورک جدیدی اضافه نمی‌شود** (جز next-intl).
+### C-5. Proposed modules
+All inside the same modular monolith; **no new service or framework is added** (except next-intl).
 
-| ماژول | وضعیت |
+| Module | Status |
 |---|---|
-| `identity` | حفظ؛ نقش از روی کاربر برداشته می‌شود |
-| `organizations` (جدید) | سازمان، عضویت، پروفایل مشاور، دایرکتوری |
-| `access` | گسترش: tenant + نقش اجرا + Enrollment |
-| `catalog` | تقسیم: تنظیمات و فهرست‌ها می‌مانند (سطح سازمان)؛ مسیر و مرحله به `programs` می‌رود |
-| `programs` (جدید، از `path` و بخشی از `catalog`) | قالب، گره‌ها، اجرا، عضویت، گذار |
-| `tasks` | حفظ؛ کلید Enrollment و گره |
-| `students` | تبدیل به پرونده‌ی هنرجوی سازمان؛ تخصیص مربی به `programs` می‌رود |
-| `freelancing` (جدید، استخراجی) | پروفایل پلتفرمی، snapshot، انواع تحویل پروپوزال و پروفایل، North Star |
-| `health`، `today`، `milestones`، `questions`، `checkins`، `reminders`، `timeline`، `files` | حفظ؛ افزودن سازمان |
-| `notifications` (جدید، P1 ساده) | اعلان درون‌برنامه‌ای |
-| `dashboards` (read-model) | تجمیع سازمان، مربی و هنرجو |
+| `identity` | Kept; the role is removed from the user |
+| `organizations` (new) | Organization, membership, mentor profile, directory |
+| `access` | Extended: tenant + run role + Enrollment |
+| `catalog` | Split: settings and lists stay (organization level); path and stage move to `programs` |
+| `programs` (new, from `path` and part of `catalog`) | Template, nodes, run, membership, transition |
+| `tasks` | Kept; Enrollment and node keys |
+| `students` | Becomes the organization's mentee record; mentor assignment moves to `programs` |
+| `freelancing` (new, extracted) | Platform profile, snapshot, proposal and profile submission types, North Star |
+| `health`, `today`, `milestones`, `questions`, `checkins`, `reminders`, `timeline`, `files` | Kept; organization added |
+| `notifications` (new, simple P1) | In-app notification |
+| `dashboards` (read-model) | Organization, mentor and mentee aggregation |
 
-### C-6. معماری چندزبانگی
-- **کتابخانه:** `next-intl` (با App Router سازگار است و در Server Components کار می‌کند).
-- **مسیر زبان:** بدون پیشوند در URL برای پایلوت؛ زبان از ترجیح کاربر و سپس زبان پیش‌فرض سازمان. پیشوند `/en/...` فقط اگر صفحه‌ی عمومی سئو لازم شد.
-- **`<html lang dir>`** از زبان فعال تعیین می‌شود: `fa` ← `rtl`، `en` و `nl` ← `ltr`.
-- **پیام‌ها:** `messages/fa.json` و `messages/en.json`، با فضای نام برای هر ماژول. پیام‌های خطای سرور به **کد خطا** تبدیل می‌شوند (`errors.ts` امروز ۱۱۹ متن فارسی دارد) و ترجمه در لایه‌ی نمایش انجام می‌شود. پیام‌های zod با یک errorMap مشترک.
-- **قالب‌بندی:** یک ماژول `lib/format` که بر اساس زبان، جلالی (fa) یا میلادی (en و nl) و ارقام فارسی یا لاتین می‌دهد. `lib/jalali` فعلی زیر آن می‌ماند. ذخیره همچنان UTC.
-- **منطقه‌ی زمانی:** از `z.literal('Asia/Tehran')` به تنظیم سازمانی (پیش‌فرض تهران). «پایان روز» مهلت‌ها بر اساس منطقه‌ی زمانی سازمان.
-- **محتوای کاربر:** ترجمه نمی‌شود. `source_locale` روی قالب و اجرا ذخیره می‌شود تا ترجمه‌ی دستی در آینده ممکن باشد.
-- **روش استخراج:** زیرساخت و صفحه‌های اصلی (پوسته، ورود، داشبوردها، کارها) در اسپرینت i18n؛ باقی صفحه‌ها **هر بار که یک صفحه برای امکانات جدید باز می‌شود**. یک قاعده‌ی lint جلوی متن فارسی جدید در JSX را می‌گیرد.
+### C-6. Multilingual architecture
+- **Library:** `next-intl` (compatible with the App Router and works in Server Components).
+- **Language route:** no URL prefix for the pilot; the language comes from the user preference and then the organization's default language. A `/en/...` prefix only if a public SEO page becomes necessary.
+- **`<html lang dir>`** is determined from the active language: `fa` → `rtl`, `en` and `nl` → `ltr`.
+- **Messages:** `messages/fa.json` and `messages/en.json`, with a namespace per module. Server error messages are converted to **error codes** (`errors.ts` has 119 Persian strings today) and translation is done in the presentation layer. zod messages use a shared errorMap.
+- **Formatting:** a `lib/format` module that, based on the language, gives Jalali (fa) or Gregorian (en and nl) and Persian or Latin digits. The current `lib/jalali` stays underneath it. Storage remains UTC.
+- **Time zone:** from `z.literal('Asia/Tehran')` to an organization setting (default Tehran). The "end of day" of deadlines is based on the organization's time zone.
+- **User content:** is not translated. `source_locale` is stored on template and run so that manual translation is possible in the future.
+- **Extraction method:** infrastructure and the main pages (shell, login, dashboards, tasks) in the i18n sprint; the remaining pages **each time a page is opened for new features**. A lint rule blocks new Persian text in JSX.
 
-### C-7. راهبرد مهاجرت داده
-- **الگوی expand → migrate → contract:**
-  1. **Expand:** جدول‌ها و ستون‌های جدید nullable اضافه می‌شوند؛ کد قدیم کار می‌کند.
-  2. **Migrate:** یک سازمان پیش‌فرض ساخته می‌شود؛ همه‌ی داده‌ی موجود به آن نسبت داده می‌شود. مسیر پیش‌فرض به «قالب» و یک «اجرای پیش‌فرض» تبدیل می‌شود؛ هر هنرجو یک Enrollment می‌گیرد با همان مرحله‌ی جاری و همان مربی اصلی.
-  3. **Contract:** پس از تأیید، ستون‌ها `NOT NULL` می‌شوند و ستون‌های قدیمی (`users.role`، `students.primary_mentor_id`، `students.current_stage_id`، `students.cohort`) در یک migration جدا و بعدتر حذف می‌شوند.
-- **قبل از هر migration روی تولید:** پشتیبان کامل با `pg_dump` (Supabase رایگان پشتیبان قابل‌بازیابی ندارد) و اجرای آزمایشی روی کپی داده.
-- هر migration یک تست یکپارچه دارد که «داده‌ی قبل» را می‌سازد و «داده‌ی بعد» را بررسی می‌کند.
+### C-7. Data migration strategy
+- **The expand → migrate → contract pattern:**
+  1. **Expand:** new tables and columns are added as nullable; the old code keeps working.
+  2. **Migrate:** a default organization is created; all existing data is assigned to it. The default path becomes a "template" and a "default run"; each mentee gets an Enrollment with the same current stage and the same primary mentor.
+  3. **Contract:** after confirmation, the columns become `NOT NULL` and the old columns (`users.role`, `students.primary_mentor_id`, `students.current_stage_id`, `students.cohort`) are removed in a separate, later migration.
+- **Before every migration on production:** a full backup with `pg_dump` (free Supabase has no restorable backup) and a trial run on a copy of the data.
+- Each migration has an integration test that builds the "before data" and checks the "after data".
 
 ---
 
-## D. نقشه‌ی راه افزایشی
+## D. Incremental roadmap
 
-مجموع برآورد: **حدود ۱۴ تا ۱۷ هفته** برای سناریوی پذیرش کامل (بند ۱۶ سند، به‌اضافه‌ی بسته و جلسه). مسیر کوتاه‌تر برای پایلوت در بخش F-4 آمده است.
+Total estimate: **about 14 to 17 weeks** for the full adoption scenario (item 16 of the document, plus packages and sessions). The shorter path for the pilot is in section F-4.
 
-**وضعیت اسپرینت ۰ (۶ آبان ۱۴۰۵):** اسناد نوشته شد: `prd-coach-office.md`، ADR-0011، ADR-0012، ADR-0013. باقی‌مانده: جواب Q2 و Q8، تأیید بنیان‌گذار بر اسناد، و کارهای زیرساختی (کارهای زمان‌بندی‌شده روی Vercel، پشتیبان شبانه‌ی مستقل از Supabase، تصمیم پلن تجاری Vercel).
+**Sprint 0 status (6 Aban 1405):** documents written: `prd-coach-office.md`, ADR-0011, ADR-0012, ADR-0013. Remaining: the answers to Q2 and Q8, founder approval of the documents, and infrastructure work (scheduled jobs on Vercel, an independent nightly Supabase backup, the Vercel commercial-plan decision).
 
-### اسپرینت ۰ — تصمیم و سند (حدود ۱ هفته)
-- **هدف:** جواب Q1 تا Q8، به‌روزرسانی PRD و دامنه‌ی MVP، ثبت ADRها.
-- **کارها:** ضمیمه‌ی PRD برای «Coach Office»؛ ADR-0011 چندسازمانی؛ ADR-0012 مدل برنامه (قالب، اجرا، snapshot)؛ ADR-0013 چندزبانگی؛ تصمیم میزبانی تکانش؛ راه‌اندازی کارهای زمان‌بندی روی Vercel و پشتیبان شبانه.
-- **وابستگی:** جواب‌های شما و تکانش.
-- **معیار پذیرش:** ADRها و دامنه‌ی MVP تأیید شما را دارند.
-- **ریسک:** دامنه‌ی بی‌انتها؛ راه کنترل: فهرست صریح Defer.
+### Sprint 0 — decision and documents (about 1 week)
+- **Goal:** answers to Q1 to Q8, updating the PRD and MVP scope, recording the ADRs.
+- **Tasks:** a PRD addendum for "Coach Office"; ADR-0011 multi-organization; ADR-0012 program model (template, run, snapshot); ADR-0013 multilingual support; the Takanesh hosting decision; setting up scheduled jobs on Vercel and the nightly backup.
+- **Dependency:** the answers from you and Takanesh.
+- **Acceptance criterion:** the ADRs and the MVP scope have your approval.
+- **Risk:** unbounded scope; the way to control it: an explicit Defer list.
 
-### اسپرینت ۱ — زیرساخت چندسازمانی (حدود ۲ هفته)
-- **هدف:** همه‌ی داده‌ها متعلق به یک سازمان؛ جداسازی در سرور.
-- **کارها:** جدول‌های `organizations` و `organization_memberships`؛ actor با `orgId`؛ انتخاب سازمان پس از ورود؛ اسکریپت ساخت سازمان؛ تنظیمات در سطح سازمان؛ پیشوند سازمان در کلید فایل‌ها.
-- **دیتابیس:** ستون `organization_id` (expand) روی همه‌ی جدول‌های داده؛ backfill به سازمان پیش‌فرض؛ کلید خارجی ترکیبی؛ یکتایی‌ها در سطح سازمان (مثلاً نام پلتفرم).
-- **وابستگی:** اسپرینت ۰.
-- **معیار پذیرش:** همه‌ی تست‌های فعلی سبز؛ ماتریس دوسازمانی: کاربر سازمان B هیچ رکوردی از A نمی‌بیند (404).
-- **تست:** گسترش `access-matrix`، تست migration.
-- **ریسک:** queryی که شرط سازمان را جا بیندازد ← شرط داخل `scopeCondition` و یک تست ساختاری که هر query جدول دارای `organization_id` را بررسی کند.
+### Sprint 1 — multi-organization infrastructure (about 2 weeks)
+- **Goal:** all data belongs to an organization; isolation on the server.
+- **Tasks:** the `organizations` and `organization_memberships` tables; an actor with `orgId`; organization selection after login; an organization creation script; organization-level settings; organization prefix in file keys.
+- **Database:** the `organization_id` column (expand) on all data tables; backfill to the default organization; composite foreign keys; organization-level uniqueness (e.g. platform name).
+- **Dependency:** Sprint 0.
+- **Acceptance criterion:** all current tests green; two-organization matrix: a user of organization B sees no record of A (404).
+- **Tests:** extending `access-matrix`, a migration test.
+- **Risk:** a query that omits the organization condition → the condition lives in `scopeCondition` plus a structural test that checks every query of a table with `organization_id`.
 
-### اسپرینت ۲ — زیرساخت چندزبانگی (حدود ۱٫۵ تا ۲ هفته)
-- **هدف:** فارسی و انگلیسی با RTL و LTR درست، روی صفحه‌های اصلی.
-- **کارها:** نصب next-intl؛ `user_preferences.locale`؛ `lang` و `dir` پویا؛ کد خطا به‌جای متن؛ errorMap برای zod؛ `lib/format`؛ منطقه‌ی زمانی سازمانی؛ استخراج پوسته، ورود، داشبوردها و کارها؛ قاعده‌ی lint.
-- **دیتابیس:** جدول ترجیحات کاربر؛ زبان و منطقه‌ی زمانی در تنظیمات سازمان.
-- **معیار پذیرش:** همان صفحه‌ها در `en` چپ‌به‌راست و بدون شکستگی؛ تاریخ میلادی در en و جلالی در fa.
-- **تست:** e2e در هر دو زبان؛ اسنپ‌شات چیدمان RTL و LTR.
-- **ریسک:** متن‌های جاافتاده؛ کارایی بسته‌ی پیام‌ها ← تقسیم بر اساس فضای نام.
+### Sprint 2 — multilingual infrastructure (about 1.5 to 2 weeks)
+- **Goal:** Persian and English with correct RTL and LTR, on the main pages.
+- **Tasks:** install next-intl; `user_preferences.locale`; dynamic `lang` and `dir`; error codes instead of text; an errorMap for zod; `lib/format`; the organization time zone; extraction of the shell, login, dashboards and tasks; the lint rule.
+- **Database:** the user preferences table; language and time zone in organization settings.
+- **Acceptance criterion:** the same pages in `en` are left-to-right and unbroken; Gregorian dates in en and Jalali in fa.
+- **Tests:** e2e in both languages; RTL and LTR layout snapshots.
+- **Risk:** missed texts; message bundle performance → splitting by namespace.
 
-### اسپرینت ۳ — مدل برنامه: قالب، اجرا، عضویت (حدود ۳ هفته؛ پرریسک‌ترین)
-- **هدف:** چند برنامه، چند اجرا، اجرای گروهی و تک‌نفره.
-- **کارها:** ماژول `programs`؛ قالب با فاز و فعالیت (درس، تکلیف، چک‌لیست، منبع، نقطه‌ی عطف)؛ پیش‌نویس و انتشار؛ تکثیر و بایگانی؛ ساخت اجرا با snapshot؛ عضویت فردی و گروهی؛ انتقال منطق گیت و گذار مرحله به Enrollment.
-- **دیتابیس:** `program_templates`، `curriculum_nodes`، `program_runs`، `run_staff`، `enrollments`؛ تبدیل `learning_paths` و `stages` به قالب پیش‌فرض؛ یک Enrollment برای هر هنرجوی موجود.
-- **وابستگی:** اسپرینت ۱.
-- **معیار پذیرش:** هنرجوی موجود همان مرحله و همان کارها را می‌بیند؛ یک قالب جدید ۸ هفته‌ای ساخته و در دو اجرا (گروهی و تک‌نفره) استفاده می‌شود؛ ویرایش قالب اجرای فعال را تغییر نمی‌دهد.
-- **تست:** تست migration با داده‌ی واقعی (کپی)، تست‌های path و tasks موجود بازنویسی‌شده.
-- **ریسک:** شکستن کانبان، سلامت (R-STALL) و «امروز» که به `current_stage_id` وابسته‌اند.
+### Sprint 3 — program model: template, run, membership (about 3 weeks; the riskiest)
+- **Goal:** multiple programs, multiple runs, group and individual runs.
+- **Tasks:** the `programs` module; a template with phases and activities (lesson, assignment, checklist, resource, milestone); draft and publish; duplicate and archive; run creation with a snapshot; individual and group enrollment; moving the gate logic and stage transition to the Enrollment.
+- **Database:** `program_templates`, `curriculum_nodes`, `program_runs`, `run_staff`, `enrollments`; converting `learning_paths` and `stages` to the default template; one Enrollment for every existing mentee.
+- **Dependency:** Sprint 1.
+- **Acceptance criterion:** an existing mentee sees the same stage and the same tasks; a new 8-week template is built and used in two runs (group and individual); editing a template does not change an active run.
+- **Tests:** a migration test with real data (a copy), rewritten existing path and tasks tests.
+- **Risk:** breaking the kanban, health (R-STALL) and "Today", which depend on `current_stage_id`.
 
-### اسپرینت ۴ — رابطه‌ی مربی و دایرکتوری (حدود ۲ هفته)
-- **هدف:** چند مربی برای هر هنرجو؛ دایرکتوری مشاوران با حجم کار.
-- **کارها:** `mentor_profiles`؛ `enrollment_mentors` و `run_staff` به‌عنوان منبع دسترسی (جایگزین `primary_mentor_id`)؛ دایرکتوری با جستجو، فیلتر، تعداد هنرجو، بازبینی معوق؛ تخصیص و جابه‌جایی؛ سطح دید `private` برای یادداشت.
-- **دیتابیس:** مهاجرت `mentor_assignments` به `enrollment_mentors`.
-- **معیار پذیرش:** دو مربی یک cohort همه‌ی هنرجوهای آن را می‌بینند و مربی سوم نه؛ مدیر یادداشت `private` را نمی‌بیند.
-- **ریسک:** بازنویسی resolverهای دسترسی؛ پوشش کامل با ماتریس دسترسی.
+### Sprint 4 — mentor relationship and directory (about 2 weeks)
+- **Goal:** several mentors per mentee; a mentor directory with workload.
+- **Tasks:** `mentor_profiles`; `enrollment_mentors` and `run_staff` as the access source (replacing `primary_mentor_id`); a directory with search, filter, mentee count, overdue reviews; assignment and reassignment; the `private` visibility level for notes.
+- **Database:** migrating `mentor_assignments` to `enrollment_mentors`.
+- **Acceptance criterion:** two mentors of a cohort see all of its mentees and a third mentor does not; the admin does not see a `private` note.
+- **Risk:** rewriting the access resolvers; full coverage with the access matrix.
 
-### اسپرینت ۵ — تکالیف در برنامه و پیشرفت (حدود ۲ هفته)
-- **هدف:** تکلیف از برنامه، بازبینی با فیلتر برنامه، پیشرفت قطعی.
-- **کارها:** کار از گره برنامه برای همه‌ی اعضای یک اجرا؛ مهلت نسبی به شروع اجرا؛ فیلتر صف بازبینی (برنامه، هنرجو، وضعیت)؛ فرمول پیشرفت؛ نقاط عطف در سطح قالب.
-- **پیشنهاد فرمول پیشرفت:** `پیشرفت = فعالیت‌های الزامیِ تکمیل‌شده ÷ فعالیت‌های الزامیِ اجرا`؛ «تکمیل» برای تکلیف یعنی وضعیت `accepted` (نه `submitted`)؛ برای درس و منبع یعنی علامت «انجام شد»؛ برای نقطه‌ی عطف یعنی `approved`. این فرمول در یک تابع خالص و تست‌شده پیاده می‌شود و همه‌ی داشبوردها از همان استفاده می‌کنند.
-- **دیتابیس:** `tasks.enrollment_id` و `tasks.node_id`؛ جدول تکمیل فعالیت؛ (اختیاری) `progress_events` به‌جای آن از `timeline_events` موجود استفاده می‌شود.
-- **معیار پذیرش:** گام‌های ۹ تا ۱۲ سناریوی پذیرش.
+### Sprint 5 — tasks in the program and progress (about 2 weeks)
+- **Goal:** tasks from the program, review with a program filter, deterministic progress.
+- **Tasks:** a task from a program node for all members of a run; a deadline relative to the run start; review queue filter (program, mentee, status); the progress formula; milestones at the template level.
+- **Proposed progress formula:** `progress = completed required activities ÷ required activities of the run`; "completed" for an assignment means status `accepted` (not `submitted`); for a lesson and a resource it means the "done" mark; for a milestone it means `approved`. This formula is implemented in a pure, tested function and all dashboards use it.
+- **Database:** `tasks.enrollment_id` and `tasks.node_id`; an activity-completion table; (optional) `progress_events` — instead, the existing `timeline_events` is used.
+- **Acceptance criterion:** steps 9 to 12 of the acceptance scenario.
 
-### اسپرینت ۵ب — تک‌به‌تک: بسته، جلسه، هدف (حدود ۱ تا ۱٫۵ هفته؛ اضافه‌شده پس از پاسخ بنیان‌گذار)
-- **هدف:** منتورینگ تک‌به‌تک و بسته‌های قابل‌فروش (بدون پرداخت) و زمان‌بندی ساده‌ی جلسه.
-- **کارها:** قالب از نوع `one_on_one` با سهمیه‌ی جلسه و اعتبار؛ ثبت هنرجو در بسته؛ `mentoring_sessions` (ثبت، لغو، برگزارشده، غیبت، جلسه‌ی گروهی)؛ اقدام بعدی به‌شکل کار؛ `goals`؛ مصرف بسته؛ جلسه‌های پیش‌رو در «امروز» و داشبوردها؛ یادآور داخلی ۲۴ ساعت قبل.
-- **دیتابیس:** `mentoring_sessions`، `goals`، `tasks.session_id` (ADR-0012 بند ۴ و ۷).
-- **معیار پذیرش:** گام ۷ سناریوی `prd-coach-office.md`.
-- **ریسک:** منطقه‌ی زمانی جلسه‌ها؛ هم‌پوشانی جلسه‌های یک مشاور (فقط هشدار).
+### Sprint 5b — one-on-one: package, session, goal (about 1 to 1.5 weeks; added after the founder's answers)
+- **Goal:** one-on-one mentoring and sellable packages (without payment) and simple session scheduling.
+- **Tasks:** a `one_on_one` template with a session quota and validity; enrolling a mentee in a package; `mentoring_sessions` (record, cancel, held, no-show, group session); the next action as a task; `goals`; package consumption; upcoming sessions on "Today" and the dashboards; an internal reminder 24 hours before.
+- **Database:** `mentoring_sessions`, `goals`, `tasks.session_id` (ADR-0012 items 4 and 7).
+- **Acceptance criterion:** step 7 of the `prd-coach-office.md` scenario.
+- **Risk:** session time zone; overlapping sessions of one mentor (warning only).
 
-### اسپرینت ۶ — داشبوردها، اعلان، آماده‌سازی تکانش (حدود ۲ هفته)
-- **هدف:** سه داشبورد و ورود تکانش.
-- **کارها:** داشبورد سازمان (برنامه‌ها، مربی‌ها، هنرجوها، معوق‌ها، نیازمند پیگیری، بازبینی معوق، پیشرفت تجمیعی، حجم کار)؛ داشبورد مربی (بر پایه‌ی «امروز»)؛ داشبورد هنرجو (چند برنامه، اقدام بعدی)؛ اعلان درون‌برنامه‌ای؛ ورود گروهی هنرجو با CSV به یک اجرا؛ ترجمه‌ی انگلیسی صفحه‌های پایلوت (اگر Q6 لازم بداند)؛ e2e کامل سناریوی بند ۱۶.
-- **معیار پذیرش:** سناریوی ۱۶ مرحله‌ای کامل در فارسی و انگلیسی.
-- **ریسک:** کارایی queryهای تجمیعی ← read-model با ایندکس، اندازه‌گیری با داده‌ی هم‌اندازه‌ی تکانش.
+### Sprint 6 — dashboards, notifications, Takanesh readiness (about 2 weeks)
+- **Goal:** three dashboards and Takanesh onboarding.
+- **Tasks:** organization dashboard (programs, mentors, mentees, overdue, needing follow-up, overdue reviews, aggregate progress, workload); mentor dashboard (based on "Today"); mentee dashboard (several programs, next action); in-app notification; bulk mentee import by CSV into a run; English translation of the pilot pages (if Q6 requires); a full e2e of the item 16 scenario.
+- **Acceptance criterion:** the full 16-step scenario in Persian and English.
+- **Risk:** performance of aggregate queries → a read-model with indexes, measured with Takanesh-sized data.
 
 ---
 
-## E. ارزیابی ریسک
+## E. Risk assessment
 
-| دسته | ریسک | کاهش |
+| Category | Risk | Mitigation |
 |---|---|---|
-| شکستن امکانات | کانبان، سلامت (R-STALL، R-NOTASK)، «امروز»، North Star و خروجی CSV همه به `current_stage_id` و `primary_mentor_id` وابسته‌اند | تغییر پشت سرویس‌ها؛ تست‌های فعلی قبل از هر تغییر سبز؛ حذف ستون‌های قدیمی فقط در گام contract |
-| مهاجرت | از دست رفتن رابطه‌ی هنرجو و مربی یا مرحله | backfill قطعی و تست‌شده؛ `pg_dump` قبل از اجرا؛ اجرای آزمایشی روی کپی |
-| مهاجرت | پشتیبان‌گیری Supabase رایگان | پشتیبان مستقل قبل از هر migration؛ ارتقا به Pro قبل از داده‌ی تکانش |
-| امنیت tenant | جا افتادن شرط سازمان در یک query | شرط در `scopeCondition` مشترک؛ کلید خارجی ترکیبی؛ ماتریس دوسازمانی؛ تست ساختاری |
-| امنیت tenant | فایل‌ها | پیشوند سازمان در کلید و بررسی سازمان در سرویس فایل |
-| امنیت | مدیر سازمان و یادداشت خصوصی | سطح دید `private` و تست |
-| امنیت | کاربر با چند سازمان | سازمان فعال در نشست؛ تعویض سازمان با بررسی عضویت در هر درخواست |
-| کارایی | داشبورد سازمان با هزاران هنرجو | ایندکس‌های ترکیبی با `organization_id`؛ read-model؛ صفحه‌بندی |
-| کارایی | بازمحاسبه‌ی سلامت ساعتی برای چند سازمان | همان job با پیمایش سازمان‌ها؛ روی Vercel رایگان به زمان‌بند بیرونی نیاز دارد |
-| چندزبانگی | ۲۵۰۰ خط متن ثابت؛ پیام‌های خطای فارسی در سرور | کد خطا؛ استخراج تدریجی؛ قاعده‌ی lint |
-| چندزبانگی | متن دوجهته (انگلیسی داخل فارسی، مثل متن پروپوزال) | `dir="auto"` و `<bdi>` روی محتوای کاربر |
-| چندزبانگی | جلالی و میلادی در مهلت‌ها | ذخیره UTC؛ «پایان روز» با منطقه‌ی زمانی سازمان؛ تست |
-| پیچیدگی | جدول نسخه‌ی قالب، cohort جدا از اجرا، شش نقش سازمانی | snapshot، اجرا = cohort، دو نقش سازمانی + نقش اجرا |
-| پیچیدگی | ساخت کنسول پلتفرم و ثبت‌نام سازمان پیش از نیاز | اسکریپت خط فرمان تا مشتری دوم |
-| زیرساخت | Vercel Hobby غیرتجاری؛ Supabase رایگان؛ قطعی اینترنت ایران | تصمیم میزبانی در اسپرینت ۰ |
-| محصول | ساختن SaaS عمومی پیش از اثبات ارزش برای تکانش | هر اسپرینت با سناریوی واقعی تکانش سنجیده شود |
+| Breaking features | The kanban, health (R-STALL, R-NOTASK), "Today", North Star and CSV export all depend on `current_stage_id` and `primary_mentor_id` | Change behind the services; current tests green before each change; remove old columns only in the contract step |
+| Migration | Loss of the mentee–mentor relationship or stage | Deterministic, tested backfill; `pg_dump` before running; trial run on a copy |
+| Migration | Free Supabase backups | Independent backup before every migration; upgrade to Pro before Takanesh data |
+| Tenant security | Missing the organization condition in one query | Condition in the shared `scopeCondition`; composite foreign keys; two-organization matrix; structural test |
+| Tenant security | Files | Organization prefix in the key and an organization check in the file service |
+| Security | Organization admin and private notes | Visibility level `private` and a test |
+| Security | A user in several organizations | Active organization in the session; switching organization with a membership check on every request |
+| Performance | Organization dashboard with thousands of mentees | Composite indexes with `organization_id`; read-model; pagination |
+| Performance | Hourly health recalculation for several organizations | The same job iterating over organizations; on free Vercel it needs an external scheduler |
+| Multilingual | 2500 lines of fixed text; Persian error messages on the server | Error codes; gradual extraction; lint rule |
+| Multilingual | Bidirectional text (English inside Persian, like proposal text) | `dir="auto"` and `<bdi>` on user content |
+| Multilingual | Jalali and Gregorian in deadlines | Store UTC; "end of day" with the organization time zone; test |
+| Complexity | A template version table, a cohort separate from the run, six organization roles | Snapshot, run = cohort, two organization roles + run role |
+| Complexity | Building the platform console and organization sign-up before they are needed | A command-line script until the second customer |
+| Infrastructure | Vercel Hobby is non-commercial; free Supabase; Iran internet outage | Hosting decision in Sprint 0 |
+| Product | Building a general SaaS before proving value for Takanesh | Measure each sprint against a real Takanesh scenario |
 
-**امکاناتی که حتماً باید حفظ شوند:** امنیت احراز هویت و نشست، تحویل نسخه‌دار و چرخه‌ی بازبینی، صف بازبینی، سلامت هنرجو و ۹ قاعده، گیت مرحله با تأیید مربی، نقاط عطف با مدرک، سؤال و جواب با SLA و ساعت کاری و تعطیلات، چک‌این، پاک‌سازی و نگه‌داری داده، DTOهای جدای هنرجو، جستجوی فارسی، فایل خصوصی.
+**Features that must definitely be preserved:** authentication and session security, versioned submission and the review cycle, the review queue, mentee health and its 9 rules, stage gate with mentor approval, milestones with evidence, Q&A with SLA, working hours and holidays, check-in, data erasure and retention, separate mentee DTOs, Persian search, private files.
 
 ---
 
-## F. توصیه
+## F. Recommendation
 
-1. **تکامل عملی‌تر از بازنویسی است؟** بله، با فاصله‌ی زیاد. معماری فعلی دقیقاً همان مونولیت ماژولاری است که سند خواسته، و سخت‌ترین بخش‌های بند ۸ و ۹ (تحویل نسخه‌دار، بازبینی، سلامت) از قبل ساخته و تست شده‌اند.
-2. **چقدر قابل‌استفاده‌ی دوباره است؟** برآورد بر پایه‌ی کد بررسی‌شده:
-   - زیرساخت، احراز هویت، امنیت، فایل، jobها، کامپوننت‌های UI، کتابخانه‌های تاریخ و متن: **حدود ۹۰٪** (با تغییر برای سازمان).
-   - کارها، تحویل، بازبینی، سؤال، چک‌این، نقطه‌ی عطف، یادآور، تایم‌لاین، سلامت: **حدود ۷۵ تا ۸۵٪** (افزودن سازمان و Enrollment).
-   - مسیر، مرحله، تخصیص مربی، دسترسی: **حدود ۴۰ تا ۵۰٪** (بازطراحی مدل، منطق حفظ می‌شود).
-   - در مجموع **حدود ۷۰٪** کد فعلی می‌ماند. این عدد برآورد است، نه اندازه‌گیری خط‌به‌خط.
-3. **مهم‌ترین تغییرات معماری:** (۱) سازمان و عضویت با نقش در سطح سازمان؛ (۲) مدل قالب، اجرا و Enrollment به‌جای مسیر سراسری و مرحله‌ی روی هنرجو؛ (۳) دسترسی مربی از عضویت به‌جای `primary_mentor_id`؛ (۴) زیرساخت i18n با کد خطا.
-4. **کوچک‌ترین نسخه‌ی قابل‌استفاده برای تکانش:**
-   - یک سازمان (schema چندسازمانی، بدون ثبت‌نام سازمان)؛
-   - چند قالب برنامه و چند اجرا (گروهی و تک‌نفره) با snapshot؛
-   - چند مربی برای هر اجرا و هر هنرجو؛
-   - تکلیف، تحویل و بازبینی موجود، متصل به برنامه؛
-   - پیشرفت قطعی و سلامت موجود؛
-   - سه داشبورد ساده؛
-   - رابط فارسی روی زیرساخت i18n (انگلیسی فقط اگر Q6 بگوید).
-   این یعنی اسپرینت‌های ۱ تا ۶ با حذف ترجمه‌ی کامل انگلیسی، اعلان و دایرکتوری پیشرفته: **حدود ۱۰ تا ۱۲ هفته**.
-5. **چه چیزی عقب بیفتد:** ثبت‌نام خودکار سازمان و کنسول پلتفرم، زیرگروه در cohort، جدول نسخه‌ی قالب، تأیید قالب (اگر Q5 بگوید فقط مدیر قالب می‌سازد)، اعلان پیامکی و ایمیلی، تقویم و جلسه، پیام خصوصی، فرم و آزمون، تحلیل پیشرفته، پرداخت، بازارچه، white-label، هلندی، اپ موبایل، AI.
-6. **اسپرینت اول چه باشد:** اول **اسپرینت ۰** (تصمیم‌ها و ADRها، حدود یک هفته، بدون تغییر کد)، و بلافاصله بعد **اسپرینت ۱ (زیرساخت چندسازمانی)**. دلیل: همه‌ی جدول‌ها و امکانات بعدی به `organization_id` وابسته‌اند، و الان که داده‌ی تولید کم است، ارزان‌ترین و کم‌خطرترین زمان این migration است.
+1. **Is evolution more practical than a rewrite?** Yes, by a wide margin. The current architecture is exactly the modular monolith the document asked for, and the hardest parts of items 8 and 9 (versioned submission, review, health) are already built and tested.
+2. **How much is reusable?** An estimate based on the code reviewed:
+   - Infrastructure, authentication, security, files, jobs, UI components, date and text libraries: **about 90%** (with changes for the organization).
+   - Tasks, submissions, review, questions, check-in, milestones, reminders, timeline, health: **about 75 to 85%** (adding organization and Enrollment).
+   - Path, stage, mentor assignment, access: **about 40 to 50%** (model redesign, logic preserved).
+   - Overall **about 70%** of the current code stays. This number is an estimate, not a line-by-line measurement.
+3. **The most important architecture changes:** (1) organization and membership with an organization-level role; (2) the template, run and Enrollment model instead of the global path and the stage on the mentee; (3) mentor access from membership instead of `primary_mentor_id`; (4) i18n infrastructure with error codes.
+4. **The smallest usable version for Takanesh:**
+   - one organization (multi-organization schema, no organization sign-up);
+   - several program templates and several runs (group and individual) with a snapshot;
+   - several mentors per run and per mentee;
+   - the existing task, submission and review, connected to the program;
+   - deterministic progress and the existing health;
+   - three simple dashboards;
+   - Persian UI on the i18n infrastructure (English only if Q6 says so).
+   This means Sprints 1 to 6 without full English translation, notifications and the advanced directory: **about 10 to 12 weeks**.
+5. **What to postpone:** automatic organization sign-up and the platform console, subgroups in a cohort, a template version table, template approval (if Q5 says only the admin builds templates), SMS and email notifications, calendar and live session, private messaging, forms and quizzes, advanced analytics, payment, marketplace, white-label, Dutch, mobile app, AI.
+6. **What the first sprint should be:** first **Sprint 0** (decisions and ADRs, about one week, no code change), and immediately after it **Sprint 1 (multi-organization infrastructure)**. Reason: all later tables and features depend on `organization_id`, and now that the production data is small is the cheapest and lowest-risk time for this migration.

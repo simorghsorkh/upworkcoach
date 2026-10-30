@@ -8,7 +8,7 @@ import { listOwnQuestions } from '@/modules/questions/service';
 import { requireUser, toActor } from '@/server/auth/current-user';
 
 /**
- * In-app badges (F10): new replies on «سؤال‌ها», the weekly check-in on «خانه». Only student
+ * In-app badges (F10): new replies on "Questions", the weekly check-in on "Home". Only student
  * DTOs; a failure never blocks the page.
  */
 async function navCounts(actor: ReturnType<typeof toActor>): Promise<NavCounts | undefined> {

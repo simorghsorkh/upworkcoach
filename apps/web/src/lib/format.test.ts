@@ -16,7 +16,7 @@ describe('createFormat fa (same output as the 0.1 fa.ts)', () => {
 
   it('dates in the Jalali calendar', () => {
     expect(fa.dayMonth(at)).toBe('۲۷ مهر');
-    // Word order is ICU's (browsers: «دوشنبه ۲۷ مهر ۱۴۰۵»; Node's ICU puts the year first);
+    // Word order is ICU's (browsers: «دوشنبه ۲۷ مهر ۱۴۰۵» (Monday 27 Mehr 1405); Node's ICU puts the year first);
     // the weekday comma is always removed.
     const full = fa.fullDate(at);
     for (const part of ['دوشنبه', '۲۷', 'مهر', '۱۴۰۵']) expect(full).toContain(part);

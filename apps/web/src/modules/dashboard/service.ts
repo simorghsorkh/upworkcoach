@@ -16,7 +16,7 @@ import type { DashboardCourseDTO, OrgDashboardDTO } from './contracts';
 
 /**
  * The organization dashboard (Coach Office sprint 6). Reads only: counts come from one grouped
- * query per table; the lists reuse the services of «امروز» and the mentor directory.
+ * query per table; the lists reuse the services of "Today" and the mentor directory.
  */
 export async function getOrgDashboard(
   actor: Actor,

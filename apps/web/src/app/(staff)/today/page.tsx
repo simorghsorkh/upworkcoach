@@ -38,10 +38,10 @@ export async function generateMetadata(): Promise<Metadata> {
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 /**
- * M1 «امروز» (mockups/today.html, user-flows §6): what is past its response time first, the
+ * M1 "Today" (mockups/today.html, user-flows §6): what is past its response time first, the
  * four counters (each jumps to its section), then reminders and reviews (what I do today) next
  * to questions and stuck students (what waits). An admin can narrow everything to one mentor.
- * Stuck students carry their reasons, «توپ در زمین …» and «بدون اقدام» (user-flows §7).
+ * Stuck students carry their reasons, "Ball in the … court" and "No action" (user-flows §7).
  * Sprint 5b: mentoring sessions of the next 7 days, those within 24 hours marked (the
  * internal reminder of ADR-0012 §7).
  */

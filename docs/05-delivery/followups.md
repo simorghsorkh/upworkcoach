@@ -1,227 +1,227 @@
-# کارهای پیگیری پس از اسپرینت‌های ۱ تا ۴ (نسخه‌ی 0.1)
+# Follow-up work after sprints 1 to 4 (version 0.1)
 
-> نویسنده: software-architect — ۳۰ مهر ۱۴۰۵. منبع: تطبیق `docs/04-architecture/**` با کد اسپرینت‌های ۱ تا ۴ (یادداشت‌های `sprint-1.md` تا `sprint-4.md`، `routes.manifest.ts`، migrationهای `0001` تا `0004`).
-> این فایل فقط فهرست کار است. حکم و دلیل هر مورد در سند ارجاع‌شده آمده است. software-architect کدی ننوشته است.
-> **اولویت:** «بالا» = پیش از استقرار یا پیش از دعوت اولین کاربر واقعی، یا کد با الزامی در `security.md` فرق دارد. «متوسط» = پیش از بتا. «پایین» = بک‌لاگ.
+> Author: software-architect — 30 Mehr 1405 (2026-10-22). Source: reconciliation of `docs/04-architecture/**` with the code of sprints 1 to 4 (the notes in `sprint-1.md` to `sprint-4.md`, `routes.manifest.ts`, migrations `0001` to `0004`).
+> This file is only a work list. The verdict and rationale for each item are in the referenced document. software-architect wrote no code.
+> **Priority:** "High" = before deployment or before inviting the first real user, or the code differs from a requirement in `security.md`. "Medium" = before the beta. "Low" = backlog.
 
-## خلاصه
-| # | عنوان | مالک | اولویت |
+## Summary
+| # | Title | Owner | Priority |
 |---|---|---|---|
-| F-01 | ماندگار کردن «دعوت پذیرفته شد» روی `users` و نمایش در پرونده (SEC-T5) — **بک‌اند انجام شد؛ UI باقی است** | backend، frontend | **بالا** |
-| F-02 | `PATCH /users/:id` و `PATCH /users/:id/role` — **بک‌اند انجام شد؛ UI باقی است** | backend، frontend | **بالا** |
-| F-03 | قاعده‌ی Biome `noRestrictedImports` برای مسیرهای هنرجو (T-STATIC) — **انجام شد** | devops، backend | **بالا** |
-| F-04 | فهرست محلی حدود ۱۰۰ هزار رمز ممنوع (SEC-P3) — **انجام شد** | backend | **بالا** |
-| F-05 | T-LOG کامل (آپلود و CSV) — **انجام شد** | backend، qa | **بالا** |
-| F-06 | `POST /auth/reauth` (SEC-S7) پیش از دعوت دومین مدیر — **بک‌اند انجام شد؛ UI باقی است** | backend، frontend | **بالا** (مشروط) |
-| F-07 | تأیید انحراف‌های پذیرفته‌شده از `security.md` — **بسته شد** (۲۹ مهر ۱۴۰۵) | security-reviewer | ~~بالا~~ |
-| F-08 | هم‌سان‌سازی `/healthz` با SEC-J4 و پرچم کهنگی sweep — **بک‌اند انجام شد؛ هشدار devops باقی است** | backend، devops | **بالا** |
-| F-09 | SLA جدای بازبینی کار غیرگیت (`reviewHoursNonGate` = ۷۲) — **بک‌اند انجام شد؛ فیلد فرم تنظیمات باقی است** | backend | متوسط |
-| F-10 | `pg_trgm` روی Azure Flexible Server پیش از اولین migration | devops | **بالا** |
-| F-11 | صفحه‌ی «دستگاه‌های من» (SEC-F3) | frontend | **بالا** |
-| F-12 | صفحه‌ی حریم خصوصی و لینکش در `/invite` و `/reset` (SEC-F4) | frontend، product | **بالا** |
-| F-13 | اندازه‌گیری زمان argon2 روی App Service B1 (SEC-P4) | devops، backend | **بالا** |
-| F-14 | هشدار «سلامت کهنه» در UI مدیر (ADR-0005) — **بک‌اند انجام شد؛ UI باقی است** | frontend، backend | متوسط |
-| F-15 | تست `413` multipart با `Content-Length` اعلام‌شده — **انجام شد** | backend، qa | پایین |
-| F-16 | ویرایش پیام سؤال تا ۱۵ دقیقه | backend، frontend | پایین |
-| F-17 | پارامترهای پرس‌وجو (موبایل، یادداشت داخلی، هش رمز) در لاگ خطای دیتابیس — **انجام شد** | backend | **بالا** |
-| F-18 | `TRUSTED_PROXY_HOPS` در تولید الزامی شود (وگرنه یک IP برای همه و قفل سراسری ورود) — **بک‌اند انجام شد؛ runbook devops باقی است** | backend، devops | **بالا** |
-| F-19 | کنترل‌های امنیتی CI: `pnpm audit`، gitleaks، رد `"use server"`، Dependabot — **انجام شد** (۳۰ مهر ۱۴۰۵؛ اجرای واقعی روی GitHub مانده) | devops | **بالا** |
+| F-01 | Persist "invite accepted" on `users` and show it in the student file (SEC-T5) — **backend done; UI remaining** | backend, frontend | **High** |
+| F-02 | `PATCH /users/:id` and `PATCH /users/:id/role` — **backend done; UI remaining** | backend, frontend | **High** |
+| F-03 | Biome `noRestrictedImports` rule for student routes (T-STATIC) — **done** | devops, backend | **High** |
+| F-04 | Local list of about 100 thousand banned passwords (SEC-P3) — **done** | backend | **High** |
+| F-05 | Full T-LOG (upload and CSV) — **done** | backend, qa | **High** |
+| F-06 | `POST /auth/reauth` (SEC-S7) before inviting a second admin — **backend done; UI remaining** | backend, frontend | **High** (conditional) |
+| F-07 | Confirm the accepted deviations from `security.md` — **closed** (29 Mehr 1405, 2026-10-21) | security-reviewer | ~~High~~ |
+| F-08 | Align `/healthz` with SEC-J4 and a sweep staleness flag — **backend done; devops alert remaining** | backend, devops | **High** |
+| F-09 | Separate review SLA for non-gate tasks (`reviewHoursNonGate` = 72) — **backend done; settings form field remaining** | backend | Medium |
+| F-10 | `pg_trgm` on Azure Flexible Server before the first migration | devops | **High** |
+| F-11 | "My devices" page (SEC-F3) | frontend | **High** |
+| F-12 | Privacy page and its link on `/invite` and `/reset` (SEC-F4) | frontend, product | **High** |
+| F-13 | Measure argon2 time on App Service B1 (SEC-P4) | devops, backend | **High** |
+| F-14 | "Stale health" warning in the admin UI (ADR-0005) — **backend done; UI remaining** | frontend, backend | Medium |
+| F-15 | `413` multipart test with a declared `Content-Length` — **done** | backend, qa | Low |
+| F-16 | Editing a question message for up to 15 minutes | backend, frontend | Low |
+| F-17 | Query parameters (mobile number, internal note, password hash) in the database error log — **done** | backend | **High** |
+| F-18 | Make `TRUSTED_PROXY_HOPS` required in production (otherwise one IP for everyone and a global login lock) — **backend done; devops runbook remaining** | backend, devops | **High** |
+| F-19 | CI security controls: `pnpm audit`, gitleaks, reject `"use server"`, Dependabot — **done** (30 Mehr 1405, 2026-10-22; real run on GitHub remaining) | devops | **High** |
 
-> **اجرای بک‌اند (backend-engineer، ۳ آبان ۱۴۰۵):** lint تمیز است، typecheck تمیز است و build موفق شد. نتیجه‌ی test: ۱۵۰۵ از ۱۵۰۷ پاس شد. دو شکست در `src/components/auth/accept-token-form.test.ts` (فرانت‌اند) بود که با timeout در jsdom زیر بار کامل رخ داد؛ همین فایل به‌تنهایی ۱۰ از ۱۰ پاس می‌شود. migration تازه‌ی `0005_invite_accepted_session_reauth.sql` روی دیتابیس dev (5432) **اجرا نشده است** و project-lead آن را با `pnpm db:migrate` اجرا می‌کند.
+> **Backend execution (backend-engineer, 3 Aban 1405, 2026-10-25):** lint is clean, typecheck is clean and the build succeeded. Test result: 1505 of 1507 passed. The two failures were in `src/components/auth/accept-token-form.test.ts` (frontend) and were jsdom timeouts under full load; that file alone passes 10 of 10. The new migration `0005_invite_accepted_session_reauth.sql` has **not been run** on the dev database (5432); project-lead will run it with `pnpm db:migrate`.
 
 ---
 
-## F-01 — ماندگار کردن «دعوت پذیرفته شد» (SEC-T5) — بالا
-- **فایل‌ها:** `apps/web/src/modules/identity/schema.ts`، migration تازه (`0005_…`)، `identity/service.ts` (پذیرش توکن)، `identity/repo.ts` و `contracts.ts` (`GET /users`)، `students/contracts.ts` و repo (`StaffStudentDTO`)، `identity/service.ts` (`eraseUser`)، صفحه‌ی پرونده‌ی کارکنان.
-- **کار:** دو ستون `users.invite_accepted_at timestamptz` و `users.invite_accepted_user_agent text` (حداکثر ۵۱۲) که در همان تراکنش مصرف توکن **`invite`** پر می‌شوند. `GET /users` از این ستون‌ها بخواند. `StaffStudentDTO` هم `inviteAcceptedAt` و `inviteAcceptedDevice` بگیرد و پرونده آن را نشان دهد. `eraseUser` ستون User-Agent را `null` کند. migration داده: ستون‌ها را از `auth_tokens` مصرف‌شده‌ی موجود پر کند.
-- **دلیل:** `auth.cleanup` توکن‌ها را ۷ روز پس از مصرف حذف می‌کند و برچسب ناپدید می‌شود؛ SEC-T5 نمایش را در صفحه‌ی کاربران **و پرونده** می‌خواهد و پرونده آن را ندارد. تصمیم: ADR-0003 بند 9-9، `data-model.md` ۲-۱ و ۶-۱.
-- **وضعیت (backend-engineer، ۱ آبان ۱۴۰۵): بک‌اند انجام شد؛ UI باقی است.**
-  - migration `drizzle/0005_invite_accepted_session_reauth.sql`: ستون‌های `users.invite_accepted_at` و `users.invite_accepted_user_agent` (CHECK حداکثر ۵۱۲ نویسه)، به‌علاوه‌ی یک گام داده‌ی دستی. این گام آخرین توکن دعوت مصرف‌شده‌ی هر کاربر را کپی می‌کند؛ برای کاربر حذف‌شده User-Agent کپی نمی‌شود. ستون `sessions.reauth_at` (F-06) هم در همین migration است.
-  - `acceptToken` فقط برای `purpose='invite'` و در همان تراکنش این ستون‌ها را می‌نویسد. بازنشانی رمز آن‌ها را عوض نمی‌کند. `GET /users` از این ستون‌ها می‌خواند و join با `auth_tokens` حذف شد. `eraseUser` User-Agent را `null` می‌کند و زمان را نگه می‌دارد.
-  - فیلدهای افزودنی: `StaffStudentDTO.inviteAcceptedAt` و `StaffStudentDTO.inviteAcceptedDevice` (User-Agent خام). این دو در `GET /students/:id` و هر پاسخی که این DTO را دارد می‌آیند. `UserListItemDTO.updatedAt` هم برای `ifUpdatedAt` اضافه شد. DTO هنرجو این فیلدها را ندارد.
-  - **UI (frontend-engineer):** «دعوت پذیرفته شد: زمان، نوع دستگاه» در سربرگ پرونده‌ی کارکنان (از `StaffStudentDTO.inviteAcceptedAt` و `inviteAcceptedDevice`) و در صفحه‌ی کاربران (از `GET /users`) نمایش داده شود. تبدیل User-Agent به نام خوانا (مثلاً «Chrome روی اندروید») کار UI است.
+## F-01 — Persist "invite accepted" (SEC-T5) — High
+- **Files:** `apps/web/src/modules/identity/schema.ts`, a new migration (`0005_…`), `identity/service.ts` (token acceptance), `identity/repo.ts` and `contracts.ts` (`GET /users`), `students/contracts.ts` and its repo (`StaffStudentDTO`), `identity/service.ts` (`eraseUser`), the staff student-file page.
+- **Work:** Two columns, `users.invite_accepted_at timestamptz` and `users.invite_accepted_user_agent text` (max 512), filled in the same transaction that consumes the **`invite`** token. `GET /users` should read from these columns. `StaffStudentDTO` should also get `inviteAcceptedAt` and `inviteAcceptedDevice`, and the file should show them. `eraseUser` should set the User-Agent column to `null`. Data migration: fill the columns from the existing consumed `auth_tokens`.
+- **Rationale:** `auth.cleanup` deletes tokens 7 days after use and the label disappears; SEC-T5 requires the display on the users page **and the file**, and the file does not have it. Decision: ADR-0003 item 9-9, `data-model.md` 2-1 and 6-1.
+- **Status (backend-engineer, 1 Aban 1405, 2026-10-23): backend done; UI remaining.**
+  - Migration `drizzle/0005_invite_accepted_session_reauth.sql`: columns `users.invite_accepted_at` and `users.invite_accepted_user_agent` (CHECK max 512 characters), plus a manual data step. This step copies each user's latest consumed invite token; for a deleted user the User-Agent is not copied. The `sessions.reauth_at` column (F-06) is in the same migration.
+  - `acceptToken` writes these columns only for `purpose='invite'` and in the same transaction. A password reset does not change them. `GET /users` reads from these columns and the join with `auth_tokens` was removed. `eraseUser` sets the User-Agent to `null` and keeps the time.
+  - Additive fields: `StaffStudentDTO.inviteAcceptedAt` and `StaffStudentDTO.inviteAcceptedDevice` (raw User-Agent). These two appear in `GET /students/:id` and in every response that carries this DTO. `UserListItemDTO.updatedAt` was also added for `ifUpdatedAt`. The student DTO does not have these fields.
+  - **UI (frontend-engineer):** Show "Invite accepted: time, device type" in the staff student-file header (from `StaffStudentDTO.inviteAcceptedAt` and `inviteAcceptedDevice`) and on the users page (from `GET /users`). Converting the User-Agent to a readable name (for example "Chrome on Android") is UI work.
 
-## F-02 — `PATCH /users/:id` و `/role` — بالا
-- **فایل‌ها:** `modules/identity/{service,contracts,repo}.ts`، `app/api/v1/users/[id]/route.ts` و `users/[id]/role/route.ts`، `routes.manifest.ts`، `students` (`buildSearchText`)، صفحه‌ی مدیریت کاربران.
-- **کار:** طبق `api.md` بخش ۳: نام، موبایل، `active`/`disabled`؛ تغییر نقش با `409` برای آخرین مدیر و برای هنرجو؛ ابطال همه‌ی نشست‌ها با غیرفعال‌سازی، تغییر نقش و تغییر موبایل (`audit_log`: `user.phone_changed`، `user.role_changed`، `session.revoked_all`)؛ روی کاربر `erasedAt` ← `409`. اگر هدف هنرجوست، `students.search_text` در همان تراکنش بازسازی شود. تست T-ESC «مشاور `PATCH /users/:id/role` ← `403`» و T-SESSION برای این سه ابطال.
-- **دلیل:** بدون این مسیرها راهی برای غیرفعال کردن فوری مشاوری که رفته نیست (SEC-S4، ADR-0003 بند 9-13). **پیش از دعوت اولین مشاور.**
-- **وضعیت (backend-engineer، ۱ آبان ۱۴۰۵): بک‌اند انجام شد؛ UI باقی است.**
-  - `PATCH /api/v1/users/:id` (فقط مدیر) با بدنه‌ی `{ displayName?, phone?, status?: 'active'|'disabled', ifUpdatedAt? }` و پاسخ `UserListItemDTO`.
-    - خطاها: بدنه‌ی خالی ← `422`؛ `ifUpdatedAt` کهنه ← `409`؛ موبایل تکراری ← `409 PHONE_TAKEN`؛ کاربر حذف‌شده ← `409`؛ غیرفعال کردن آخرین مدیر فعال ← `409`؛ `active` روی کاربر `invited` ← `409` (لینک دعوت تازه لازم است).
-    - غیرفعال‌سازی همه‌ی نشست‌ها **و لینک‌های باز** را باطل می‌کند. تغییر موبایل همه‌ی نشست‌ها را باطل می‌کند. تغییر نام به‌تنهایی نشست‌ها را نگه می‌دارد.
-    - `audit_log`: `user.updated`، `user.phone_changed` (بدون شماره)، `user.disabled` یا `user.enabled`، و `session.revoked_all`.
-    - برای هنرجو، `students.search_text` در همان تراکنش بازسازی می‌شود (`students/search-text.ts`).
-  - `PATCH /api/v1/users/:id/role` (فقط مدیر) با بدنه‌ی `{ role: 'admin'|'mentor' }` و پاسخ `UserListItemDTO`.
-    - هدف هنرجو ← `409`؛ `role: 'student'` ← `422`؛ برداشتن آخرین مدیر فعال ← `409`؛ همان نقش ← `200` بدون تغییر.
-    - تغییر واقعی همه‌ی نشست‌ها را باطل می‌کند و `user.role_changed` را ثبت می‌کند، به‌همراه لاگ هشدار برای SEC-L6. این مسیر رمز تازه می‌خواهد (F-06).
-  - هم‌زمانی شرط «آخرین مدیر» با advisory lock `identity.admin_set` و `SELECT … FOR UPDATE` سریال شده است.
-  - تست‌ها در `tests/integration/followups-hardening.test.ts`: T-ESC (مشاور ← `403`)، T-SESSION برای غیرفعال‌سازی، تغییر نقش و تغییر موبایل، و آخرین مدیر در دیتابیس جدا.
-  - **UI (frontend-engineer):** صفحه‌ی مدیریت کاربران با ویرایش نام و موبایل، دکمه‌ی غیرفعال/فعال، تغییر نقش (با جریان `REAUTH_REQUIRED` از F-06)، و نمایش پیام‌های `409`.
+## F-02 — `PATCH /users/:id` and `/role` — High
+- **Files:** `modules/identity/{service,contracts,repo}.ts`, `app/api/v1/users/[id]/route.ts` and `users/[id]/role/route.ts`, `routes.manifest.ts`, `students` (`buildSearchText`), the user management page.
+- **Work:** Per `api.md` section 3: name, mobile number, `active`/`disabled`; role change with `409` for the last admin and for a student; revoke all sessions on disabling, role change and mobile change (`audit_log`: `user.phone_changed`, `user.role_changed`, `session.revoked_all`); `erasedAt` on the user gives `409`. If the target is a student, rebuild `students.search_text` in the same transaction. Test T-ESC "mentor `PATCH /users/:id/role` gives `403`" and T-SESSION for these three revocations.
+- **Rationale:** Without these routes there is no way to immediately disable a mentor who has left (SEC-S4, ADR-0003 item 9-13). **Before inviting the first mentor.**
+- **Status (backend-engineer, 1 Aban 1405, 2026-10-23): backend done; UI remaining.**
+  - `PATCH /api/v1/users/:id` (admin only) with body `{ displayName?, phone?, status?: 'active'|'disabled', ifUpdatedAt? }` and response `UserListItemDTO`.
+    - Errors: empty body gives `422`; stale `ifUpdatedAt` gives `409`; duplicate mobile number gives `409 PHONE_TAKEN`; deleted user gives `409`; disabling the last active admin gives `409`; `active` on an `invited` user gives `409` (a fresh invite link is needed).
+    - Disabling revokes all sessions **and open links**. Changing the mobile number revokes all sessions. Changing only the name keeps the sessions.
+    - `audit_log`: `user.updated`, `user.phone_changed` (without the number), `user.disabled` or `user.enabled`, and `session.revoked_all`.
+    - For a student, `students.search_text` is rebuilt in the same transaction (`students/search-text.ts`).
+  - `PATCH /api/v1/users/:id/role` (admin only) with body `{ role: 'admin'|'mentor' }` and response `UserListItemDTO`.
+    - A student target gives `409`; `role: 'student'` gives `422`; removing the last active admin gives `409`; the same role gives `200` with no change.
+    - A real change revokes all sessions and records `user.role_changed`, together with a warning log for SEC-L6. This route requires a fresh password (F-06).
+  - Concurrency of the "last admin" condition is serialized with the advisory lock `identity.admin_set` and `SELECT … FOR UPDATE`.
+  - Tests in `tests/integration/followups-hardening.test.ts`: T-ESC (mentor gives `403`), T-SESSION for disabling, role change and mobile change, and the last admin in a separate database.
+  - **UI (frontend-engineer):** The user management page with name and mobile editing, a disable/enable button, role change (with the `REAUTH_REQUIRED` flow from F-06), and display of the `409` messages.
 
-## F-03 — Biome `noRestrictedImports` (T-STATIC) — بالا
-- **فایل:** `biome.json` (+ در صورت نیاز تست ساده‌ی import در CI).
-- **کار:** import ماژول `health` و توابع یادداشت داخلی (`timeline/repo` جز `listSharedNotesForStudent`، `timeline/service` کارکنان) در `app/(student)/**` و `app/api/v1/me/**` خطا شود.
-- **دلیل:** ADR-0004 بخش ۳ بند ۳ و T-STATIC در `security.md` بخش ۶. امروز فقط DTO جدا و تست canary مانع نشت‌اند.
-- **وضعیت (backend-engineer، ۱ آبان ۱۴۰۵): انجام شد.**
-  - در `biome.json` یک override برای `apps/web/src/app/(student)/**` و `apps/web/src/app/api/v1/me/**` اضافه شد. قاعده‌ی `style/noRestrictedImports` در سطح error سه الگو دارد:
-    1. هر import از `modules/health`، با alias یا مسیر نسبی، چه مقدار چه type.
-    2. از `modules/timeline/repo` هر نامی جز `listSharedNotesForStudent`.
-    3. از `modules/timeline/service` هر نامی جز `listOwnSharedNotes`.
-  - تست `tests/integration/t-static.test.ts` همین پیکربندی را روی فایل‌های نمونه در یک پوشه‌ی موقت اجرا می‌کند؛ چیزی در `src/` نوشته نمی‌شود. تست هم خطا در مسیرهای هنرجو و هم نبود خطا در `(staff)` را می‌سنجد.
-  - Biome 2.5 لنگر `^…$` را در `importNamePattern` نمی‌پذیرد، چون خودش آن را ضمنی فرض می‌کند.
-  - **اجرا روی فایل‌های فعلی فرانت‌اند:** `biome lint --only=style/noRestrictedImports` روی `app/(student)` و `app/api/v1/me` هیچ خطایی نداد. فایلی برای اصلاح frontend-engineer نیست.
+## F-03 — Biome `noRestrictedImports` (T-STATIC) — High
+- **File:** `biome.json` (plus a simple import test in CI if needed).
+- **Work:** Importing the `health` module and the internal-note functions (`timeline/repo` except `listSharedNotesForStudent`, the staff `timeline/service`) in `app/(student)/**` and `app/api/v1/me/**` should be an error.
+- **Rationale:** ADR-0004 section 3 item 3 and T-STATIC in `security.md` section 6. Today only the separate DTO and the canary test prevent leakage.
+- **Status (backend-engineer, 1 Aban 1405, 2026-10-23): done.**
+  - An override for `apps/web/src/app/(student)/**` and `apps/web/src/app/api/v1/me/**` was added to `biome.json`. The `style/noRestrictedImports` rule at error level has three patterns:
+    1. Any import from `modules/health`, by alias or relative path, value or type.
+    2. From `modules/timeline/repo`, any name except `listSharedNotesForStudent`.
+    3. From `modules/timeline/service`, any name except `listOwnSharedNotes`.
+  - The test `tests/integration/t-static.test.ts` runs this configuration on sample files in a temporary folder; nothing is written in `src/`. The test checks both the error in student routes and the absence of an error in `(staff)`.
+  - Biome 2.5 does not accept the `^…$` anchor in `importNamePattern`, because it assumes it implicitly.
+  - **Run on the current frontend files:** `biome lint --only=style/noRestrictedImports` on `app/(student)` and `app/api/v1/me` gave no errors. There is no file for frontend-engineer to fix.
 
-## F-04 — فهرست رمزهای ممنوع (SEC-P3) — بالا
-- **فایل:** `modules/identity/common-passwords.ts` (یا فایل داده‌ی جدا که در شروع بار می‌شود).
-- **کار:** فهرست محلی حدود ۱۰۰ هزار رمز رایج و لورفته (حدود ۱ مگابایت)، با جستجوی `Set`، بدون API خارجی؛ نرمال‌شده با همان `normalizePassword`.
-- **دلیل:** فعلاً حدود ۲۰۰ مورد است؛ ADR-0003 بخش ۳ و بند 9-11.
-- **وضعیت (backend-engineer، ۱ آبان ۱۴۰۵): انجام شد.**
-  - **منبع:** SecLists (https://github.com/danielmiessler/SecLists)، **مجوز MIT** (Copyright (c) 2018 Daniel Miessler)، کامیت `10a38f6cbe8ed6b89d55348756eff7486cd0f0ea` (HEAD شاخه‌ی master در ۳۰ مهر ۱۴۰۵).
-  - دو فایل از `Passwords/Common-Credentials/` استفاده شد:
+## F-04 — Banned password list (SEC-P3) — High
+- **File:** `modules/identity/common-passwords.ts` (or a separate data file loaded at startup).
+- **Work:** A local list of about 100 thousand common and leaked passwords (about 1 MB), with `Set` lookup, no external API; normalized with the same `normalizePassword`.
+- **Rationale:** For now it has about 200 entries; ADR-0003 section 3 and item 9-11.
+- **Status (backend-engineer, 1 Aban 1405, 2026-10-23): done.**
+  - **Source:** SecLists (https://github.com/danielmiessler/SecLists), **MIT license** (Copyright (c) 2018 Daniel Miessler), commit `10a38f6cbe8ed6b89d55348756eff7486cd0f0ea` (HEAD of the master branch on 30 Mehr 1405, 2026-10-22).
+  - Two files from `Passwords/Common-Credentials/` were used:
     - `100k-most-used-passwords-NCSC.txt` (sha256 `c2e5696882c603b76bb67a47ee970897e5a76fc4c3f5547abe3d0ca340c576e0`)
     - `Pwdb_top-1000000.txt` (sha256 `e9a88f67aafe65496682dc374559ee714e978bee50314767494c3e37a18c9fc8`)
-  - فایل‌ها در یک پوشه‌ی جدا و موقت بیرون از مخزن (scratchpad) دانلود شدند و فقط به‌عنوان متن خوانده شدند. هیچ اسکریپتی از آن‌ها اجرا نشد.
-  - `scripts/build-common-passwords.ts` دستی اجرا می‌شود و خودش چیزی دانلود نمی‌کند. روش انتخاب:
-    - هر مورد با همان `normalizePassword` نرمال و به حروف کوچک تبدیل می‌شود.
-    - فقط ASCII چاپ‌شدنی با ۸ تا ۱۲۸ نویسه می‌ماند (کوتاه‌ترها را قاعده‌ی طول رد می‌کند).
-    - اول همه‌ی NCSC (۴۶٬۴۵۳ مورد)، بعد Pwdb به ترتیب فراوانی (۵۳٬۵۴۷ مورد)، تا **۱۰۰٬۰۰۰** مورد یکتا.
-  - خروجی: `src/modules/identity/common-passwords.data.ts`، حدود ۱٫۰۸ مگابایت. سربرگ آن منبع، کامیت، checksumها و متن کامل مجوز MIT را دارد. این فایل از Biome مستثناست.
-  - `common-passwords.ts` یک Set می‌سازد که بار اول استفاده ساخته می‌شود و فهرست دستی ایرانی قبلی را هم دارد. `normalizePassword` به `password-normalize.ts` منتقل شد و از `password.ts` دوباره export می‌شود؛ امضایش تغییر نکرد.
+  - The files were downloaded to a separate temporary folder outside the repository (scratchpad) and read only as text. No script from them was run.
+  - `scripts/build-common-passwords.ts` is run manually and downloads nothing itself. Selection method:
+    - Each entry is normalized with the same `normalizePassword` and lowercased.
+    - Only printable ASCII of 8 to 128 characters is kept (shorter ones are rejected by the length rule).
+    - First all of NCSC (46,453 entries), then Pwdb in order of frequency (53,547 entries), up to **100,000** unique entries.
+  - Output: `src/modules/identity/common-passwords.data.ts`, about 1.08 MB. Its header has the source, commit, checksums and the full text of the MIT license. This file is excluded from Biome.
+  - `common-passwords.ts` builds a Set on first use and also contains the earlier manual Iranian list. `normalizePassword` was moved to `password-normalize.ts` and is re-exported from `password.ts`; its signature did not change.
 
-## F-05 — T-LOG کامل — بالا
-- **فایل‌ها:** `tests/integration/` (تست تازه)، `server/logger.ts` در صورت یافتن نشت.
-- **کار:** جمع کردن لاگ یک جریان کامل (دعوت ← پذیرش ← ورود ناموفق ← ورود ← جستجو با موبایل ← **آپلود** ← **خروجی و ورود CSV**) و جستجوی موبایل کامل، توکن، مقدار کوکی، `$argon2id$` و `X-Job-Secret`.
-- **دلیل:** T-LOG در `security.md` بخش ۶؛ اسپرینت ۱ فقط بخشی را پوشش داد.
-- **وضعیت (backend-engineer، ۱ آبان ۱۴۰۵): انجام شد.** تست `tests/integration/t-log.test.ts`.
-  - **جریان:** دعوت هنرجو ← lookup و پذیرش ← ورود ناموفق (موبایل موجود و ناموجود) ← ورود ← جستجوی کارکنان با موبایل در query ← آپلود ← سه خروجی CSV ← ورود CSV واقعی (با `inviteUrl` در پاسخ و یک ردیف نامعتبر) ← endpoint داخلی jobs و یک درخواست API، هر دو با سرآیند `X-Job-Secret`.
-  - **بررسی:** لاگ همه‌ی سطوح logger جمع می‌شود. این موارد نباید در آن باشند: الگوی موبایل کامل و هر شکل دیگر موبایل، توکن و لینک دعوت (هر دو دعوت)، مقدار کوکی نشست و دستگاه، رمز، هش واقعی، `$argon2id$` و مقدار secret.
-  - **نتیجه:** نشتی پیدا نشد. تنها نشت واقعی همان F-17 بود.
+## F-05 — Full T-LOG — High
+- **Files:** `tests/integration/` (new test), `server/logger.ts` if a leak is found.
+- **Work:** Collect the log of one complete flow (invite, acceptance, failed login, login, search by mobile number, **upload**, **CSV export and import**) and search it for the full mobile number, token, cookie value, `$argon2id$` and `X-Job-Secret`.
+- **Rationale:** T-LOG in `security.md` section 6; sprint 1 covered only part of it.
+- **Status (backend-engineer, 1 Aban 1405, 2026-10-23): done.** Test `tests/integration/t-log.test.ts`.
+  - **Flow:** invite a student, lookup and acceptance, failed login (existing and nonexistent mobile number), login, staff search with a mobile number in the query, upload, three CSV exports, a real CSV import (with `inviteUrl` in the response and one invalid row), the internal jobs endpoint and one API request, both with the `X-Job-Secret` header.
+  - **Check:** The log of all logger levels is collected. These must not appear in it: the full mobile number pattern and any other form of the mobile number, token and invite link (both invites), the session and device cookie value, password, real hash, `$argon2id$` and the secret value.
+  - **Result:** No leak was found. The only real leak was the one in F-17.
 
-## F-06 — `POST /auth/reauth` (SEC-S7) — بالا (مانع دعوت دومین مدیر)
-- **فایل‌ها:** migration (`sessions.reauth_at`)، `identity`، مسیر تازه، و بررسی در خروجی CSV، `POST /invitations` (نقش admin/mentor)، `PATCH /users/:id/role`، `PUT /settings` (کلید `access`).
-- **دلیل:** ADR-0003 بخش ۸ و بند 9-12. تا ساخته نشده، **دعوت دومین مدیر انجام نشود** (project-lead این را در STATUS ثبت کند).
-- **وضعیت (backend-engineer، ۱ آبان ۱۴۰۵): بک‌اند انجام شد؛ UI باقی است.**
-  - `POST /api/v1/auth/reauth` برای هر کاربر واردشده، با بدنه‌ی `{ password }`. پاسخ موفق `200 { validUntil }` است و `sessions.reauth_at = now()` ثبت می‌شود، همراه با `audit_log(session.reauth)`.
-  - رمز غلط ← `422 fields.password`. شمارش در همان قفل `pwchange:u:<id>` انجام می‌شود، پس change-password و reauth روی هم حداکثر ۵ بار در ۱۵ دقیقه مجازند و بعد `429` می‌آید.
-  - «رمز تازه» یعنی `max(sessions.created_at, sessions.reauth_at)` کمتر از **۳۰ دقیقه** پیش باشد؛ پس ورود و change-password هم حساب می‌شوند.
-  - کد خطای تازه: **`403 REAUTH_REQUIRED`** با پیام «برای این کار اول رمزت را دوباره وارد کن.»
-  - این بررسی فقط برای مدیر اعمال می‌شود؛ نقش‌های دیگر همان `403 FORBIDDEN` قبلی را می‌گیرند. مسیرها:
-    - `GET /exports/students.csv`، `tasks.csv` و `milestones.csv`
+## F-06 — `POST /auth/reauth` (SEC-S7) — High (blocks inviting a second admin)
+- **Files:** migration (`sessions.reauth_at`), `identity`, a new route, and the check in CSV export, `POST /invitations` (admin/mentor role), `PATCH /users/:id/role`, `PUT /settings` (key `access`).
+- **Rationale:** ADR-0003 section 8 and item 9-12. Until it is built, **do not invite a second admin** (project-lead should record this in STATUS).
+- **Status (backend-engineer, 1 Aban 1405, 2026-10-23): backend done; UI remaining.**
+  - `POST /api/v1/auth/reauth` for any logged-in user, with body `{ password }`. A successful response is `200 { validUntil }` and `sessions.reauth_at = now()` is recorded, together with `audit_log(session.reauth)`.
+  - A wrong password gives `422 fields.password`. Counting is done in the same lock `pwchange:u:<id>`, so change-password and reauth together are allowed at most 5 times in 15 minutes and then `429` is returned.
+  - "Fresh password" means `max(sessions.created_at, sessions.reauth_at)` is less than **30 minutes** ago; so login and change-password count too.
+  - New error code: **`403 REAUTH_REQUIRED`** with the message "Enter your password again to do this." (`apps/web/messages/en.json`).
+  - This check applies only to admins; other roles get the same `403 FORBIDDEN` as before. Routes:
+    - `GET /exports/students.csv`, `tasks.csv` and `milestones.csv`
     - `POST /invitations`
     - `PATCH /users/:id/role`
-    - `PUT /settings` وقتی بدنه کلید `access` دارد، و `PUT /settings/access`
-  - سمت سرور: فیلد افزودنی `lastPasswordAt` در `AuthenticatedSession` و `AuthenticatedRequest`، و تابع `requireRecentPassword(auth)` در `server/auth/request.ts`.
-  - **UI (frontend-engineer):** هر جا پاسخ `403` با `error.code = 'REAUTH_REQUIRED'` آمد، پنجره‌ی «رمزت را دوباره وارد کن» باز شود، `POST /api/v1/auth/reauth` فرستاده شود و همان درخواست تکرار شود. دانلود CSV با لینک ساده (`<a href>`) این کد را نمی‌بیند؛ یا با fetch انجام شود یا پیش از دانلود reauth گرفته شود.
-  - **پیامد:** شرط «پیش از دعوت دومین مدیر» از سمت بک‌اند برآورده است. پس از ساخت UI، project-lead یادداشت STATUS را بردارد.
+    - `PUT /settings` when the body has the `access` key, and `PUT /settings/access`
+  - Server side: an additive field `lastPasswordAt` in `AuthenticatedSession` and `AuthenticatedRequest`, and the function `requireRecentPassword(auth)` in `server/auth/request.ts`.
+  - **UI (frontend-engineer):** Wherever a `403` response with `error.code = 'REAUTH_REQUIRED'` arrives, open the "Enter your password again" dialog, send `POST /api/v1/auth/reauth` and repeat the same request. A CSV download with a plain link (`<a href>`) does not see this code; either do it with fetch or obtain reauth before downloading.
+  - **Consequence:** The condition "before inviting a second admin" is met on the backend side. After the UI is built, project-lead should remove the STATUS note.
 
-## F-07 — تأیید انحراف‌های پذیرفته‌شده از `security.md` — **بسته شد** (security-reviewer، ۲۹ مهر ۱۴۰۵)
-> **نتیجه:** `docs/06-quality/security-review-2026-10-21.md` بخش ۱. هر پنج مورد زیر **قابل‌قبول** است و متن SEC-S1، SEC-C3، SEC-R6 و SEC-U6 در `security.md` اصلاح شد. مورد ۵ **با شرط** پذیرفته شد: T-DTO و T-CANARY همچنان `reviewerId` و موبایل کارکنان را بگردند. انحراف‌های دیگر هم بررسی شدند: `422` یکسان برای شناسه‌ی ارجاعی **قابل‌قبول** است (oracle ندارد). پاک شدن توکن‌ها پس از ۷ روز **با شرط** پذیرفته شد: F-01 پیش از دعوت اولین هنرجوی واقعی ساخته شود. باقی موارد ADR-0003 بند ۹، ADR-0004 بند ۶ و ADR-0010 **قابل‌قبول‌اند**. بازبینی کد سه یافته‌ی تازه داشت: F-17، F-18 و F-19.
+## F-07 — Confirm the accepted deviations from `security.md` — **closed** (security-reviewer, 29 Mehr 1405, 2026-10-21)
+> **Result:** `docs/06-quality/security-review-2026-10-21.md` section 1. All five items below are **acceptable**, and the wording of SEC-S1, SEC-C3, SEC-R6 and SEC-U6 in `security.md` was corrected. Item 5 was accepted **with a condition**: T-DTO and T-CANARY must keep searching for `reviewerId` and staff mobile numbers. Other deviations were also examined: the uniform `422` for a referenced ID is **acceptable** (it has no oracle). Token deletion after 7 days was accepted **with a condition**: F-01 must be built before the first real student is invited. The remaining items of ADR-0003 item 9, ADR-0004 item 6 and ADR-0010 are **acceptable**. The code review had three new findings: F-17, F-18 and F-19.
 
-security-reviewer هر مورد را بپذیرد (و متن الزام را اصلاح کند) یا رد کند (که آن‌وقت کار کدی می‌شود):
-1. **SEC-S1:** `Max-Age` کوکی = سقف مطلق نشست، نه انقضای لغزنده (ADR-0003 بند 9-1). فایل: `identity/service.ts` (`cookieExpiresAt`).
-2. **SEC-C3:** POST بی‌بدنه بدون `Content-Type` پذیرفته می‌شود (بند 9-2). فایل: `server/http/csrf.ts` و `route()`.
-3. **SEC-R6:** بدنه‌ی `429` علاوه بر `retryAfterSeconds`، `code` و پیام فارسی ثابت با دقیقه‌ی مانده دارد (بند 9-3).
-4. **SEC-U6:** `GET /attachments/:id` با `Cache-Control: private, no-store` (سخت‌گیرتر از `no-cache`).
-5. **DTO هنرجو:** `StudentReviewDTO.reviewer.displayName` (نام بازبین، نه شناسه؛ ADR-0004 بند 6-5).
+security-reviewer should accept each item (and correct the requirement text) or reject it (in which case it becomes code work):
+1. **SEC-S1:** cookie `Max-Age` = the absolute session limit, not the sliding expiry (ADR-0003 item 9-1). File: `identity/service.ts` (`cookieExpiresAt`).
+2. **SEC-C3:** A bodyless POST without `Content-Type` is accepted (item 9-2). File: `server/http/csrf.ts` and `route()`.
+3. **SEC-R6:** The `429` body has, in addition to `retryAfterSeconds`, a `code` and a fixed Persian message with the remaining minutes (item 9-3).
+4. **SEC-U6:** `GET /attachments/:id` with `Cache-Control: private, no-store` (stricter than `no-cache`).
+5. **Student DTO:** `StudentReviewDTO.reviewer.displayName` (the reviewer's name, not the ID; ADR-0004 item 6-5).
 
-## F-08 — `/healthz` مطابق SEC-J4 + کهنگی sweep — بالا
-- **فایل:** `apps/web/src/app/healthz/route.ts` (+ پیکربندی هشدار devops).
-- **کار:** پاسخ `{ ok: true, db: 'ok', lastHealthSweepAt, version, sweepStale }`؛ خطا `503 { ok: false, db: 'fail' }`. `version` از متغیر build (مثلاً SHA کامیت). `sweepStale = true` اگر آخرین sweep قدیمی‌تر از ۳ ساعت است. اگر HEALTHCHECK کانتینر یا مانیتورینگ به `status` وابسته است، هم‌زمان اصلاح شود.
-- **دلیل:** کد `{ status, db: 'unreachable' }` بدون `version` برمی‌گرداند (SEC-J4، `api.md` بخش ۱۵)؛ ADR-0005 و ADR-0007 هشدار کهنگی می‌خواهند.
-- **وضعیت (backend-engineer، ۱ آبان ۱۴۰۵): بک‌اند انجام شد؛ هشدار devops باقی است.**
-  - `GET /healthz`: پاسخ موفق `200 { ok: true, db: 'ok', lastHealthSweepAt, version, sweepStale }` و خطای دیتابیس `503 { ok: false, db: 'fail' }`، با `Cache-Control: no-store`. لاگ خطا فقط نوع، SQLSTATE و constraint را دارد (F-17).
-  - `version` از متغیر محیطی تازه و اختیاری **`APP_VERSION`** خوانده می‌شود (فقط `[\w.+-]{1,64}`؛ اگر نباشد `'dev'`).
-  - `sweepStale` (تابع `getHealthFreshness` در `health/recompute.ts`) یعنی **قدیمی‌ترین** `computed_at` میان هنرجوهای `active` و `paused` بیش از ۳ ساعت است. «آخرین» نتیجه کافی نیست، چون محاسبه‌ی پس از هر اقدام آن را تازه نگه می‌دارد حتی وقتی job از کار افتاده است. اگر هیچ نتیجه‌ای نباشد (نصب تازه)، `false` است.
-  - HEALTHCHECK کانتینر در `Dockerfile` فقط کد HTTP را می‌بیند و به فیلد `status` وابسته نبود، پس تغییری لازم نشد.
-  - **devops:** `APP_VERSION=<SHA کامیت>` در build یا استقرار ست شود (`Dockerfile` بیرون از مرز بک‌اند است). هشدار مانیتورینگ روی `sweepStale = true` و روی `503` تنظیم شود.
+## F-08 — `/healthz` per SEC-J4 + sweep staleness — High
+- **File:** `apps/web/src/app/healthz/route.ts` (plus devops alert configuration).
+- **Work:** Response `{ ok: true, db: 'ok', lastHealthSweepAt, version, sweepStale }`; failure `503 { ok: false, db: 'fail' }`. `version` from a build variable (for example the commit SHA). `sweepStale = true` if the last sweep is older than 3 hours. If the container HEALTHCHECK or monitoring depends on `status`, fix it at the same time.
+- **Rationale:** The code returns `{ status, db: 'unreachable' }` without `version` (SEC-J4, `api.md` section 15); ADR-0005 and ADR-0007 require a staleness alert.
+- **Status (backend-engineer, 1 Aban 1405, 2026-10-23): backend done; devops alert remaining.**
+  - `GET /healthz`: a successful response is `200 { ok: true, db: 'ok', lastHealthSweepAt, version, sweepStale }` and a database failure is `503 { ok: false, db: 'fail' }`, with `Cache-Control: no-store`. The error log has only the type, SQLSTATE and constraint (F-17).
+  - `version` is read from a new optional environment variable **`APP_VERSION`** (only `[\w.+-]{1,64}`; `'dev'` if absent).
+  - `sweepStale` (function `getHealthFreshness` in `health/recompute.ts`) means the **oldest** `computed_at` among `active` and `paused` students is more than 3 hours old. The "latest" result is not enough, because recomputation after each action keeps it fresh even when the job has stopped. If there is no result (fresh install) it is `false`.
+  - The container HEALTHCHECK in the `Dockerfile` only looks at the HTTP code and did not depend on the `status` field, so no change was needed.
+  - **devops:** Set `APP_VERSION=<commit SHA>` in the build or deployment (`Dockerfile` is outside the backend boundary). Set the monitoring alert on `sweepStale = true` and on `503`.
 
-## F-09 — SLA بازبینی کار غیرگیت — متوسط
-- **فایل‌ها:** `modules/catalog` (schema و پیش‌فرض `sla`)، `modules/tasks/service.ts` (`getReviewQueue`، حدود خط ۱۱۶۵)، `modules/today/service.ts`، `GET /settings/staff`، فرم تنظیمات.
-- **کار:** کلید `sla.reviewHoursNonGate` (پیش‌فرض ۷۲؛ مقدار ذخیره‌شده‌ی بدون این کلید با ۷۲ پر شود). آستانه = `required_for_gate ? reviewHours : reviewHoursNonGate`، در صف بازبینی، `waitingOnUs` و شمارنده‌ها.
-- **دلیل:** `mentor-workflow.md` بخش ۴ (گیت ۴۸، غیرگیت ۷۲)؛ تصمیم در `data-model.md` ۲-۲ و ۴-۳ (سؤال باز اسپرینت ۳ و ۴).
-- **وضعیت (backend-engineer، ۱ آبان ۱۴۰۵): بک‌اند انجام شد؛ فیلد فرم تنظیمات باقی است.**
-  - `slaSettingsSchema.reviewHoursNonGate` با `.default(72)`: مقدار ذخیره‌شده‌ی قدیمی بدون این کلید، بدون migration، ۷۲ خوانده می‌شود. `SETTINGS_DEFAULTS.sla.reviewHoursNonGate = 72`.
-  - تابع `reviewSlaHours(requiredForGate, sla)` در `tasks/service.ts` آستانه را برای صف بازبینی (`slaHours`، `breached`، `warning`) می‌دهد. `waitingOnUs` و `counts.breachedReviews` در «امروز» هم از همین صف می‌آیند.
-  - فیلد افزودنی `StaffSettingsDTO.sla.reviewHoursNonGate` در `GET /settings/staff`.
-  - **UI (frontend-engineer):** `SlaSettingsForm` در `components/settings/settings-forms.tsx` این فیلد را ندارد. چون PUT کل مقدار `sla` را می‌فرستد، ذخیره‌ی فرم فعلی هر مقدار غیرپیش‌فرض این کلید را به ۷۲ برمی‌گرداند. یک فیلد «بازبینی کار غیرگیت (ساعت)» اضافه شود.
+## F-09 — Review SLA for non-gate tasks — Medium
+- **Files:** `modules/catalog` (schema and `sla` default), `modules/tasks/service.ts` (`getReviewQueue`, about line 1165), `modules/today/service.ts`, `GET /settings/staff`, the settings form.
+- **Work:** Key `sla.reviewHoursNonGate` (default 72; a stored value without this key is filled with 72). Threshold = `required_for_gate ? reviewHours : reviewHoursNonGate`, in the review queue, `waitingOnUs` and the counters.
+- **Rationale:** `mentor-workflow.md` section 4 (gate 48, non-gate 72); decision in `data-model.md` 2-2 and 4-3 (open question of sprints 3 and 4).
+- **Status (backend-engineer, 1 Aban 1405, 2026-10-23): backend done; settings form field remaining.**
+  - `slaSettingsSchema.reviewHoursNonGate` with `.default(72)`: an old stored value without this key reads as 72, with no migration. `SETTINGS_DEFAULTS.sla.reviewHoursNonGate = 72`.
+  - The function `reviewSlaHours(requiredForGate, sla)` in `tasks/service.ts` gives the threshold for the review queue (`slaHours`, `breached`, `warning`). `waitingOnUs` and `counts.breachedReviews` in "Today" also come from this queue.
+  - Additive field `StaffSettingsDTO.sla.reviewHoursNonGate` in `GET /settings/staff`.
+  - **UI (frontend-engineer):** `SlaSettingsForm` in `components/settings/settings-forms.tsx` does not have this field. Because PUT sends the whole `sla` value, saving the current form resets any non-default value of this key to 72. Add a "Non-gate task review (hours)" field.
 
-## F-10 — `pg_trgm` روی Azure — بالا (پیش از اولین migration روی میزبان)
-- **فایل‌ها:** IaC/runbook استقرار (devops)؛ `apps/web/drizzle/0002_students_path.sql` **بی‌تغییر**.
-- **کار:** پارامتر سرور `azure.extensions` شامل `PG_TRGM`؛ نقش migrate عضو `azure_pg_admin`. جایگزین در runbook: ساخت یک‌باره‌ی افزونه با نقش مدیر (migration با `IF NOT EXISTS` رد می‌شود).
-- **دلیل:** بدون آن migration `0002` روی Azure شکست می‌خورد؛ تصمیم در `data-model.md` بخش ۰.
+## F-10 — `pg_trgm` on Azure — High (before the first migration on the host)
+- **Files:** deployment IaC/runbook (devops); `apps/web/drizzle/0002_students_path.sql` **unchanged**.
+- **Work:** Server parameter `azure.extensions` including `PG_TRGM`; the migrate role is a member of `azure_pg_admin`. Alternative in the runbook: create the extension once with an admin role (the migration passes with `IF NOT EXISTS`).
+- **Rationale:** Without it migration `0002` fails on Azure; decision in `data-model.md` section 0.
 
-## F-11 — صفحه‌ی «دستگاه‌های من» (SEC-F3) — بالا
-- **فایل‌ها:** `app/(account)/account/…`، کامپوننت تازه در `components/auth/`.
-- **کار:** فهرست `GET /auth/sessions` (دستگاه، IP، آخرین استفاده، «همین دستگاه») + خروج تک‌تک با `DELETE /auth/sessions/:id` + «خروج از همه‌ی دستگاه‌های دیگر».
-- **دلیل:** API از اسپرینت ۱ آماده است ولی UI ندارد؛ SEC-F3 «باید» است.
+## F-11 — "My devices" page (SEC-F3) — High
+- **Files:** `app/(account)/account/…`, a new component in `components/auth/`.
+- **Work:** A list from `GET /auth/sessions` (device, IP, last use, "this device") + sign out one by one with `DELETE /auth/sessions/:id` + "Sign out of all other devices".
+- **Rationale:** The API has been ready since sprint 1 but has no UI; SEC-F3 is a "must".
 
-## F-12 — صفحه‌ی حریم خصوصی (SEC-F4، ADR-0010 بند ۷) — بالا (پیش از ورود داده‌ی واقعی)
-- **فایل‌ها:** صفحه‌ی عمومی تازه (مثلاً `app/privacy/page.tsx`)، لینک در `/invite`، `/reset` و `/account`.
-- **کار:** محل نگه‌داری داده، چه چیزی ذخیره می‌شود، مهلت ۳۰ روزه‌ی حذف، و ماندن تا ۸ هفته در پشتیبان رمزشده. متن نهایی به محل میزبانی (E1) و تأیید بنیان‌گذار (S1) وابسته است.
+## F-12 — Privacy page (SEC-F4, ADR-0010 item 7) — High (before real data is entered)
+- **Files:** a new public page (for example `app/privacy/page.tsx`), a link in `/invite`, `/reset` and `/account`.
+- **Work:** Where the data is kept, what is stored, the 30-day deletion deadline, and retention for up to 8 weeks in the encrypted backup. The final text depends on the hosting location (E1) and founder approval (S1).
 
-## F-13 — زمان argon2 روی B1 (SEC-P4) — بالا (پیش از استقرار)
-- **کار:** اندازه‌گیری روی App Service B1 (محلی حدود ۲۵ میلی‌ثانیه است؛ هدف ۵۰ تا ۲۵۰). اگر کمتر از ۵۰ بود، `timeCost` بالا برود (rehash خودکار در ورود موجود است). فایل: `modules/identity/password.ts`.
+## F-13 — argon2 time on B1 (SEC-P4) — High (before deployment)
+- **Work:** Measure on App Service B1 (locally it is about 25 milliseconds; the target is 50 to 250). If it is under 50, raise `timeCost` (automatic rehash on login already exists). File: `modules/identity/password.ts`.
 
-## F-14 — هشدار «سلامت کهنه» در UI مدیر — متوسط
-- **فایل‌ها:** `modules/health/service.ts` یا `today` (افزودن `lastHealthSweepAt` به DTO مدیر)، صفحه‌ی «امروز».
-- **کار:** اگر آخرین sweep یا `computedAt` قدیمی‌تر از ۳ ساعت است، هشدار کوچک برای مدیر (ADR-0005 «پیامدها»).
-- **وضعیت (backend-engineer، ۱ آبان ۱۴۰۵): بک‌اند انجام شد؛ UI باقی است.** فیلد افزودنی **`TodayDTO.healthFreshness`** فقط برای مدیر می‌آید، نه برای مشاور: `{ lastHealthSweepAt, oldestComputedAt, stale, staleAfterHours: 3 }`. قاعده‌ی آن همان `sweepStale` در `/healthz` است.
-  - **UI (frontend-engineer):** در صفحه‌ی «امروز» مدیر، اگر `healthFreshness.stale` بود، هشدار کوچک «وضعیت‌های سلامت از … به‌روز نشده‌اند» نمایش داده شود.
+## F-14 — "Stale health" warning in the admin UI — Medium
+- **Files:** `modules/health/service.ts` or `today` (add `lastHealthSweepAt` to the admin DTO), the "Today" page.
+- **Work:** If the last sweep or `computedAt` is older than 3 hours, a small warning for the admin (ADR-0005 "Consequences").
+- **Status (backend-engineer, 1 Aban 1405, 2026-10-23): backend done; UI remaining.** The additive field **`TodayDTO.healthFreshness`** is returned only for admins, not mentors: `{ lastHealthSweepAt, oldestComputedAt, stale, staleAfterHours: 3 }`. Its rule is the same as `sweepStale` in `/healthz`.
+  - **UI (frontend-engineer):** On the admin "Today" page, if `healthFreshness.stale` is true, show a small warning "Health statuses have not been updated since …".
 
-## F-15 — تست `413` multipart — پایین
-- **فایل:** `tests/integration/attachments.test.ts`.
-- **کار:** درخواست multipart با `Content-Length` بیش از سقف که helper تست آن را بازنویسی نکند (مسیر JSON همین تست را با `readBodyBytes` دارد). از `sprint-3.md` مانده است.
-- **وضعیت (backend-engineer، ۱ آبان ۱۴۰۵): انجام شد.** تست در `tests/integration/followups-hardening.test.ts` است، نه `attachments.test.ts`، تا فایل موجود دست نخورد. یک Request دستی با `Content-Length` ۶ مگابایتی و بدنه‌ی جریانی که مصرفش شمرده می‌شود فرستاده می‌شود. نتیجه `413 PAYLOAD_TOO_LARGE` است و کمتر از ۵۱۲ کیلوبایت از جریان خوانده می‌شود.
+## F-15 — `413` multipart test — Low
+- **File:** `tests/integration/attachments.test.ts`.
+- **Work:** A multipart request with a `Content-Length` above the cap that the test helper does not rewrite (the JSON path of this test has it with `readBodyBytes`). Left over from `sprint-3.md`.
+- **Status (backend-engineer, 1 Aban 1405, 2026-10-23): done.** The test is in `tests/integration/followups-hardening.test.ts`, not `attachments.test.ts`, so the existing file is untouched. A manual Request is sent with a 6 MB `Content-Length` and a streaming body whose consumption is counted. The result is `413 PAYLOAD_TOO_LARGE` and less than 512 KB of the stream is read.
 
-## F-16 — ویرایش پیام سؤال — پایین (بک‌لاگ)
-- **کار:** `PATCH /questions/:id/messages/:messageId` فقط نویسنده و فقط تا ۱۵ دقیقه، با `edited_at`. در 0.1 عمداً ساخته نمی‌شود (`data-model.md` ۲-۸، `api.md` بخش ۱۰).
+## F-16 — Editing a question message — Low (backlog)
+- **Work:** `PATCH /questions/:id/messages/:messageId` for the author only and only for up to 15 minutes, with `edited_at`. Deliberately not built in 0.1 (`data-model.md` 2-8, `api.md` section 10).
 
-## F-17 — پارامترهای پرس‌وجو در لاگ خطا — بالا (پیش از ورود داده‌ی واقعی)
-- **شدت:** متوسط. منبع: security-review-2026-10-21، N1.
-- **فایل‌ها:** `apps/web/src/server/http/handler.ts:184-195` (`describeError`)، `modules/health/recompute.ts:137-140`، `modules/files/service.ts:232-235`، تابع کمکی تازه در `server/` (مثلاً `safeErrorSummary`)، `tests/integration/` (T-LOG).
-- **مشکل:** `drizzle-orm` 0.45 هر خطای دیتابیس را در `DrizzleQueryError` می‌پیچد و پیامش SQL **و همه‌ی پارامترها** را دارد. `describeError` آن را با `message` و `stack` لاگ می‌کند. ری‌استارت Azure، deadlock یا نقض CHECK روی INSERT یادداشت، کاربر یا تحویل، متن یادداشت داخلی، موبایل، نام یا هش argon2 را در لاگ ۳۰ روزه می‌نویسد (نقض SEC-L3 و SEC-L4).
-- **کار:** برای خطایی که `query` یا `params` دارد، فقط `type`، `cause.code` (SQLSTATE)، `constraint` و `table` لاگ شود؛ بدون `message`، `params`، `detail` و `stack`. همین تابع در دو محل دیگر هم استفاده شود. تست T-LOG: یک نقض عمدی روی INSERT یادداشت با متن `CANARY-…` نباید در لاگ دیده شود.
-- **وضعیت (backend-engineer، ۱ آبان ۱۴۰۵): انجام شد.**
-  - تابع `safeError` در `server/logger.ts` برای خطای دیتابیس فقط `{ type, database: true, code, constraint, table }` را برمی‌گرداند؛ بدون `message`، پارامترها، `detail` و `stack`. خطای دیتابیس یعنی `DrizzleQueryError`، یا خطایی که `query`، `params` یا SQLSTATE در خودش یا در `cause` دارد.
-  - محل‌های استفاده: `describeError` در handler، `health.recompute_failed`، `health.sweep_failed`، `files.delete_failed` و `/healthz`. همین تابع serializer pino برای کلیدهای `err` و `error` هم هست، پس `pool error` و `pg-boss error` هم پوشش دارند.
-  - تست: یک نقض واقعی `users_phone_key` که پارامترهایش موبایل، متن «یادداشت داخلی» و هش argon2 است. تست اول تأیید می‌کند که خطای خام واقعاً موبایل را دارد. بعد هم مسیر handler و هم خروجی واقعی pino با serializerها بررسی می‌شوند.
+## F-17 — Query parameters in the error log — High (before real data is entered)
+- **Severity:** Medium. Source: security-review-2026-10-21, N1.
+- **Files:** `apps/web/src/server/http/handler.ts:184-195` (`describeError`), `modules/health/recompute.ts:137-140`, `modules/files/service.ts:232-235`, a new helper in `server/` (for example `safeErrorSummary`), `tests/integration/` (T-LOG).
+- **Problem:** `drizzle-orm` 0.45 wraps every database error in a `DrizzleQueryError`, and its message contains the SQL **and all parameters**. `describeError` logs it with `message` and `stack`. An Azure restart, a deadlock or a CHECK violation on an INSERT of a note, user or delivery writes the internal note text, mobile number, name or argon2 hash to the 30-day log (violating SEC-L3 and SEC-L4).
+- **Work:** For an error that has `query` or `params`, log only `type`, `cause.code` (SQLSTATE), `constraint` and `table`; no `message`, `params`, `detail` or `stack`. The same function should also be used in the two other places. T-LOG test: a deliberate violation on a note INSERT with text `CANARY-…` must not appear in the log.
+- **Status (backend-engineer, 1 Aban 1405, 2026-10-23): done.**
+  - The function `safeError` in `server/logger.ts` returns only `{ type, database: true, code, constraint, table }` for a database error; no `message`, parameters, `detail` or `stack`. A database error means `DrizzleQueryError`, or an error that has `query`, `params` or an SQLSTATE in itself or in its `cause`.
+  - Where it is used: `describeError` in the handler, `health.recompute_failed`, `health.sweep_failed`, `files.delete_failed` and `/healthz`. The same function is also the pino serializer for the `err` and `error` keys, so `pool error` and `pg-boss error` are covered too.
+  - Test: a real violation of `users_phone_key` whose parameters are a mobile number, the text of an "internal note" and an argon2 hash. The first test confirms that the raw error really contains the mobile number. Then both the handler path and the real pino output with the serializers are checked.
 
-## F-18 — `TRUSTED_PROXY_HOPS` در تولید — بالا (پیش از استقرار)
-- **شدت:** متوسط. منبع: security-review-2026-10-21، N2.
-- **فایل‌ها:** `apps/web/src/server/env.ts:16, 44`، `server/http/client-ip.ts:27`، runbook استقرار (devops).
-- **مشکل:** پیش‌فرض `0` است و production آن را الزامی نمی‌کند. روی App Service بدون آن، IP همه‌ی کاربران `unknown` می‌شود و هیچ هشداری هم ثبت نمی‌شود. آن‌وقت ۳۰ ورود غلط از هر کسی در ۱۵ دقیقه **ورود همه** را می‌بندد (کوکی دستگاه این را دور نمی‌زند)، ۳۰ lookup غلط همه‌ی دعوت‌ها را می‌بندد، و ۵ رمز غلط حساب مدیر را قفل می‌کند (R4 دوباره باز می‌شود).
-- **کار:** در `NODE_ENV=production` مقدار صریح الزامی شود (بدون پیش‌فرض)؛ `0` فقط با پرچم صریح دیگر. اگر `X-Forwarded-For` با `hops=0` رسید، هشدار یک‌باره لاگ شود. در runbook مقدار `1` برای App Service ثبت شود، و پس از استقرار بررسی شود که `sessions.ip` آخرین ورود IP واقعی و بدون پورت است (SEC-R4). اگر بعداً CDN یا پراکسی دیگری اضافه شد، عدد به‌روز شود.
-- **وضعیت (backend-engineer، ۱ آبان ۱۴۰۵): بک‌اند انجام شد؛ runbook devops باقی است.**
-  - پیش‌فرض در `env.ts` برداشته شد. در `NODE_ENV=production` اگر `TRUSTED_PROXY_HOPS` نباشد یا خالی باشد، برنامه بالا نمی‌آید. `0` مقدار صریح معتبر است. بیرون از production پیش‌فرض همان `0` است.
-  - پرچم جدایی برای «۰ صریح» ساخته نشد، چون نوشتن مقدار صریح خودش تصمیم آگاهانه است.
-  - اگر `X-Forwarded-For` با `hops=0` برسد، هشدار `http.xff_ignored` یک‌بار در هر پردازه لاگ می‌شود.
-  - تست واحد در `env.test.ts` و `client-ip.test.ts`. `docker-compose.yml` از قبل پیش‌فرض `1` دارد.
-  - **devops:** `TRUSTED_PROXY_HOPS=1` در App Settings و runbook ثبت شود، و پس از استقرار `sessions.ip` بررسی شود.
+## F-18 — `TRUSTED_PROXY_HOPS` in production — High (before deployment)
+- **Severity:** Medium. Source: security-review-2026-10-21, N2.
+- **Files:** `apps/web/src/server/env.ts:16, 44`, `server/http/client-ip.ts:27`, deployment runbook (devops).
+- **Problem:** The default is `0` and production does not require it. On App Service without it, every user's IP becomes `unknown` and no warning is logged either. Then 30 wrong logins from anyone in 15 minutes **block login for everyone** (the device cookie does not bypass this), 30 wrong lookups block all invites, and 5 wrong passwords lock the admin account (R4 reopens).
+- **Work:** In `NODE_ENV=production` an explicit value should be required (no default); `0` only with another explicit flag. If `X-Forwarded-For` arrives with `hops=0`, log a one-time warning. Record the value `1` for App Service in the runbook, and after deployment check that `sessions.ip` of the latest login is the real IP without a port (SEC-R4). If a CDN or another proxy is added later, update the number.
+- **Status (backend-engineer, 1 Aban 1405, 2026-10-23): backend done; devops runbook remaining.**
+  - The default was removed from `env.ts`. In `NODE_ENV=production`, if `TRUSTED_PROXY_HOPS` is absent or empty, the app does not start. `0` is a valid explicit value. Outside production the default is still `0`.
+  - A separate flag for "explicit 0" was not built, because writing the explicit value is itself a deliberate decision.
+  - If `X-Forwarded-For` arrives with `hops=0`, the warning `http.xff_ignored` is logged once per process.
+  - Unit tests in `env.test.ts` and `client-ip.test.ts`. `docker-compose.yml` already has a default of `1`.
+  - **devops:** Record `TRUSTED_PROXY_HOPS=1` in App Settings and the runbook, and check `sessions.ip` after deployment.
 
-## F-19 — کنترل‌های امنیتی CI و Dependabot — بالا (پیش از استقرار)
-- **شدت:** متوسط. منبع: security-review-2026-10-21، N3.
-- **فایل‌ها:** `.github/workflows/ci.yml`، `.github/dependabot.yml` (تازه)، فایل استثنای audit (تازه).
-- **مشکل:** CI فقط lint، typecheck، test و build دارد. SEC-D1، SEC-D2، SEC-K1 (gitleaks)، SEC-A10 (`"use server"`) و بخشی از T-STATIC اجرا نمی‌شوند. اگر آسیب‌پذیری بحرانی تازه‌ای در Next.js یا React منتشر شود (مثل CVE-2025-55182)، هیچ هشداری نمی‌رسد.
-- **کار:** گام‌های `pnpm audit --prod --audit-level=high` (مانع merge، با فایل استثنای تاریخ‌دار)، gitleaks و `! grep -rnE "['\"]use server['\"]" apps/web/src` اضافه شوند. Dependabot هفتگی برای npm و GitHub Actions، با گروه جدا برای `next`، `react`، `sharp` و `@node-rs/argon2`. Trivy پس از ساخت Dockerfile (SEC-D4).
-- **وضعیت: انجام شد** (devops-engineer، ۳۰ مهر ۱۴۰۵). کامیت و push نشده است.
-  - `ci.yml`: دو job تازه. `security` شامل `scripts/ci-no-server-actions.sh` (جستجوی `"use server"` در `apps/` و `packages/`، بدون پوشه‌ی تست) و `scripts/ci-audit.mjs` است. این اسکریپت روی وابستگی‌های اجرایی در سطح high به بالا و روی همه‌ی وابستگی‌ها در سطح critical شکست می‌خورد. `secrets` هم gitleaks-action v3.0.0 با gitleaks 8.30.1 و `fetch-depth: 0` است. در push و PR فقط commitهای تازه و در اجرای زمان‌بندی‌شده کل تاریخچه اسکن می‌شود. اجرای هفتگی (شنبه ۶ صبح تهران) audit و اسکن کامل را بدون تغییر کد تکرار می‌کند. همه‌ی actionها با SHA کامل pin شده‌اند. `permissions` پیش‌فرض فقط `contents: read` است و job مربوط به gitleaks فقط `pull-requests: read` را اضافه دارد. `persist-credentials: false` هم تنظیم شد.
-  - فایل استثنا: `.github/audit-exceptions.txt`. هر خط GHSA، تاریخ بازبینی (حداکثر ۹۰ روز بعد) و دلیل دارد. استثنای منقضی CI را می‌شکند. اگر رجیستری خطا بدهد، CI بسته می‌شود (fail closed). از `pnpm audit --ignore` استفاده نشد، چون pnpm 12 آن را بی‌تاریخ در `pnpm-workspace.yaml` می‌نویسد.
-  - `.github/gitleaks.toml`: قواعد پیش‌فرض به‌همراه یک allowlist باریک برای `env.NAME`. دلیلش مثبت کاذب `secretKey: env.S3_SECRET_KEY` در `storage/index.ts` بود.
-  - `.github/dependabot.yml`: npm و github-actions، هر دو هفتگی. گروه‌های جدای `runtime-core` (به‌روزرسانی امنیتی و نسخه) برای `next`، `react`، `react-dom`، `sharp` و `@node-rs/argon2` تعریف شد.
-  - **اجرای محلی (۳۰ مهر ۱۴۰۵):** `pnpm audit --prod` هیچ آسیب‌پذیری‌ای نشان نداد. در کل وابستگی‌ها فقط یک مورد moderate هست: GHSA-67mh-4wv8-2f99 در esbuild 0.18.20، فقط در محیط توسعه و از طریق `drizzle-kit`. این مورد زیر آستانه است و استثنا نمی‌خواهد. هر دو گیت audit و گیت `"use server"` پاس شدند. مسیرهای شکست هم آزموده شد: فایل قناری، استثنای منقضی و خطای رجیستری. gitleaks 8.30.1 با این پیکربندی روی تاریخچه (۱ کامیت) و فایل‌های کاری tracked و untracked هیچ نشتی پیدا نکرد، و قناری‌ها را گرفت.
-  - **فقط روی GitHub آزموده می‌شود:** اجرای خود workflow، رفتار gitleaks-action (بازه‌ی PR، نیاز نداشتن به لایسنس در حساب شخصی)، و Dependabot. پشتیبانی Dependabot از lockfile pnpm 12 تأیید نشده است (جستجوی ۳۰ مهر ۱۴۰۵ سندی پیدا نکرد). اگر PRهایش با `--frozen-lockfile` شکست خوردند، Renovate جایگزین شود. **کار دستی مدیر مخزن:** روشن کردن Dependabot alerts و security updates در Settings، و قرار دادن jobهای `security` و `secrets` به‌عنوان required check در branch protection (وگرنه «مانع merge» نیستند).
-  - **باقی‌مانده:** Trivy روی image پس از ساخت Dockerfile (SEC-D4). F-03 (`noRestrictedImports`) جداست.
+## F-19 — CI security controls and Dependabot — High (before deployment)
+- **Severity:** Medium. Source: security-review-2026-10-21, N3.
+- **Files:** `.github/workflows/ci.yml`, `.github/dependabot.yml` (new), audit exceptions file (new).
+- **Problem:** CI has only lint, typecheck, test and build. SEC-D1, SEC-D2, SEC-K1 (gitleaks), SEC-A10 (`"use server"`) and part of T-STATIC are not enforced. If a new critical vulnerability is published in Next.js or React (like CVE-2025-55182), no alert arrives.
+- **Work:** Add the steps `pnpm audit --prod --audit-level=high` (blocks merge, with a dated exceptions file), gitleaks and `! grep -rnE "['\"]use server['\"]" apps/web/src`. Weekly Dependabot for npm and GitHub Actions, with a separate group for `next`, `react`, `sharp` and `@node-rs/argon2`. Trivy after the Dockerfile is built (SEC-D4).
+- **Status: done** (devops-engineer, 30 Mehr 1405, 2026-10-22). Not committed or pushed.
+  - `ci.yml`: two new jobs. `security` includes `scripts/ci-no-server-actions.sh` (a search for `"use server"` in `apps/` and `packages/`, excluding test folders) and `scripts/ci-audit.mjs`. This script fails on runtime dependencies at high level and above and on all dependencies at critical level. `secrets` is gitleaks-action v3.0.0 with gitleaks 8.30.1 and `fetch-depth: 0`. On push and PR only the new commits are scanned, and on the scheduled run the whole history. A weekly run (Saturday 6 AM Tehran) repeats the audit and the full scan without any code change. All actions are pinned with a full SHA. The default `permissions` is only `contents: read` and the gitleaks job adds only `pull-requests: read`. `persist-credentials: false` is also set.
+  - Exceptions file: `.github/audit-exceptions.txt`. Each line has a GHSA, a review date (at most 90 days ahead) and a reason. An expired exception breaks CI. If the registry returns an error, CI is closed (fail closed). `pnpm audit --ignore` was not used, because pnpm 12 writes it undated in `pnpm-workspace.yaml`.
+  - `.github/gitleaks.toml`: the default rules plus a narrow allowlist for `env.NAME`. The reason was the false positive `secretKey: env.S3_SECRET_KEY` in `storage/index.ts`.
+  - `.github/dependabot.yml`: npm and github-actions, both weekly. A separate `runtime-core` group (security and version updates) was defined for `next`, `react`, `react-dom`, `sharp` and `@node-rs/argon2`.
+  - **Local run (30 Mehr 1405, 2026-10-22):** `pnpm audit --prod` showed no vulnerabilities. Across all dependencies there is only one moderate item: GHSA-67mh-4wv8-2f99 in esbuild 0.18.20, only in the development environment and through `drizzle-kit`. This item is below the threshold and needs no exception. Both the audit gate and the `"use server"` gate passed. The failure paths were also tested: a canary file, an expired exception and a registry error. gitleaks 8.30.1 with this configuration found no leak in the history (1 commit) and the tracked and untracked working files, and it caught the canaries.
+  - **Testable only on GitHub:** the workflow run itself, the behavior of gitleaks-action (PR range, not needing a license on a personal account), and Dependabot. Dependabot support for the pnpm 12 lockfile is not confirmed (a search on 30 Mehr 1405, 2026-10-22 found no document). If its PRs fail with `--frozen-lockfile`, replace it with Renovate. **Manual work for the repository admin:** turn on Dependabot alerts and security updates in Settings, and make the `security` and `secrets` jobs required checks in branch protection (otherwise they do not "block merge").
+  - **Remaining:** Trivy on the image after the Dockerfile is built (SEC-D4). F-03 (`noRestrictedImports`) is separate.
 
 ---
 
-## سؤال‌های باز که بدون کار کدی بسته شدند
-| سؤال (اسپرینت) | حکم | سند |
+## Open questions closed without code work
+| Question (sprint) | Verdict | Document |
 |---|---|---|
-| بالا نیامدن با env نامعتبر (۱) | در کد اسپرینت ۴ حل شد (`instrumentation.ts` → `getEnv()`) | ADR-0003 بند 9-8 |
-| هم‌زمانی غیرفعال‌سازی مرحله و تغییر مرحله (۲) | قفل لازم نیست؛ حالت حاصل قابل‌نمایش و قابل‌رفع است | `data-model.md` ۲-۲ (`stages`) |
-| `search_text` پس از تغییر نام (۲) | بخشی از F-02، در همان تراکنش | `data-model.md` ۲-۳ |
-| تاریخ شمسی در CSV ورودی (۳) | در اسپرینت ۴ ساخته شد؛ استثنای مستند ADR-0008 | ADR-0008 بخش ۶ |
-| FK پیوست سؤال و نقطه‌ی عطف (۳) | در `0004` اضافه شد | `data-model.md` ۲-۵ |
-| `/healthz` و `lastHealthSweepAt` (۴) | وصل شد؛ باقی‌مانده F-08 | ADR-0007 |
-| `nextDueDate` تمدید حساب شود؟ (۴) | نه؛ تصمیم بک‌اند تأیید شد | ADR-0005، `data-model.md` ۲-۵ |
-| شناسه‌های ارجاعی `createTemplateIds` و `cancelTaskIds` (۴) | به جدول ADR-0004 بخش ۱-۱ اضافه شدند | ADR-0004 |
+| Not starting with an invalid env (1) | Solved in the sprint 4 code (`instrumentation.ts` → `getEnv()`) | ADR-0003 item 9-8 |
+| Concurrency of stage deactivation and stage change (2) | No lock needed; the resulting state is displayable and fixable | `data-model.md` 2-2 (`stages`) |
+| `search_text` after a rename (2) | Part of F-02, in the same transaction | `data-model.md` 2-3 |
+| Jalali date in the import CSV (3) | Built in sprint 4; documented exception in ADR-0008 | ADR-0008 section 6 |
+| FK for question attachment and milestone (3) | Added in `0004` | `data-model.md` 2-5 |
+| `/healthz` and `lastHealthSweepAt` (4) | Connected; remainder is F-08 | ADR-0007 |
+| Should `nextDueDate` extend the account? (4) | No; the backend decision was confirmed | ADR-0005, `data-model.md` 2-5 |
+| Referenced IDs `createTemplateIds` and `cancelTaskIds` (4) | Added to the ADR-0004 section 1-1 table | ADR-0004 |

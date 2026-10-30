@@ -89,7 +89,7 @@ export const studentHealth = pgTable(
     computedAt: ts().notNull(),
     /** Version of `settings['health.rules']` used (0 = built-in default). */
     settingsVersion: integer().notNull().default(0),
-    /** «نادیده تا تاریخ» (F7): hidden from stuck lists until then; computing continues. */
+    /** "Snooze until a date" (F7): hidden from stuck lists until then; computing continues. */
     snoozedUntil: ts(),
     snoozeReason: text(),
     snoozedBy: uuid().references(() => users.id),

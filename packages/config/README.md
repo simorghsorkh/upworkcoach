@@ -1,9 +1,9 @@
 # @upworkcoach/config
 
-پیکربندی مشترک همه‌ی بسته‌های مخزن:
+Shared configuration for all packages in the repository:
 
-- `tsconfig/base.json` — TypeScript سخت‌گیر (`strict` + `noUncheckedIndexedAccess`).
-- `tsconfig/nextjs.json` — همان، به‌علاوه‌ی DOM و JSX برای برنامه‌های Next.js.
-- `biome.base.json` — قواعد lint و قالب‌بندی. فایل `biome.json` ریشه‌ی مخزن از این فایل ارث می‌برد.
+- `tsconfig/base.json` — strict TypeScript (`strict` + `noUncheckedIndexedAccess`).
+- `tsconfig/nextjs.json` — the same, plus DOM and JSX for Next.js apps.
+- `biome.base.json` — lint and formatting rules. The repository-root `biome.json` extends this file.
 
-بسته‌ی تازه (مثلاً `packages/ai` در 1.0) فقط `extends` می‌کند و قاعده‌ی جدا نمی‌سازد.
+A new package (for example `packages/ai` in 1.0) only uses `extends` and does not define its own rules.

@@ -83,7 +83,7 @@ export type StudentMilestoneDTO = {
 };
 
 /**
- * GET /dashboard/north-star (A): «دو عدد و یک میانه» (F9) + the AI dataset count (G4).
+ * GET /dashboard/north-star (A): "Two numbers and one median" (F9) + the AI dataset count (G4).
  * `medianDaysToFirst`: median over students of (first approved North Star milestone −
  * joined day), in days; null without any.
  */

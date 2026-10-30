@@ -11,7 +11,7 @@ export type WelcomeStep = { label: string; href: string; minutes: number; done: 
 const KEY = 'uc:welcome-dismissed';
 
 /**
- * S1a «خوش آمدی» (user-flows §1, mockups/student-home.html `.welcome`): three short steps to a
+ * S1a "Welcome" (user-flows §1, mockups/student-home.html `.welcome`): three short steps to a
  * first small win; the next one is highlighted. Hidden once every step is done or the
  * student closes it (remembered on this device).
  */

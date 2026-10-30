@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card';
 import { PageHead } from '@/components/ui/page-head';
 import { ErrorState } from '@/components/ui/states';
 
-/** Shared body of the staff `error.tsx` files: what failed + «تلاش دوباره». */
+/** Shared body of the staff `error.tsx` files: what failed + "Try again". */
 export function RouteError({ title, retry }: { title: string; retry: () => void }) {
   const t = useTranslations('routeError');
   return (

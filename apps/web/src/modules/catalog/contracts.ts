@@ -129,7 +129,7 @@ export const healthRulesSchema = z
     checkin: z.strictObject({ yellowWeeks: count, redWeeks: count }),
     /** R-MOOD: latest mood ≤ `maxMood` → yellow; `redConsecutiveWeeks` weeks in a row → red. */
     mood: z.strictObject({ maxMood: z.number().int().min(1).max(5), redConsecutiveWeeks: count }),
-    /** «خطر ریزش»: this many of R-INACT, R-CHECKIN, R-MOOD active at once → red. */
+    /** "Churn risk": this many of R-INACT, R-CHECKIN, R-MOOD active at once → red. */
     churnRisk: z.strictObject({ minRules: z.number().int().min(1).max(3) }),
   })
   .superRefine((r, ctx) => {
@@ -436,7 +436,7 @@ export type PublicSettingsDTO = {
 };
 
 /**
- * GET /settings/staff (A, M): read-only view for staff screens (e.g. hide «هنرجوی جدید»
+ * GET /settings/staff (A, M): read-only view for staff screens (e.g. hide "New student"
  * when mentors may not invite students; show SLA thresholds).
  */
 export type StaffSettingsDTO = PublicSettingsDTO & {

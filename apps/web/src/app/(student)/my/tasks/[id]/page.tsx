@@ -201,7 +201,7 @@ export default async function MyTaskPage({ params }: { params: Params }) {
             <p className="mb-3 text-sm text-fg-2">
               مشاورت این‌جاست. سؤالت را بپرس یا اگر وقت کم داری بگو.
             </p>
-            {/* UX decision: «درخواست تمدید» is a question to the mentor (only staff extend). */}
+            {/* UX decision: "Request extension" is a question to the mentor (only staff extend). */}
             <div className="flex flex-wrap gap-2">
               <Link
                 href={`/my/questions/new?taskId=${task.id}`}

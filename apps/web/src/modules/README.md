@@ -1,14 +1,14 @@
-# modules — ماژول‌های دامنه
+# modules — domain modules
 
-یک پوشه برای هر ماژول (`identity`، `students`، `tasks`، … — overview.md بخش ۳) با این فایل‌ها:
+One folder per module (`identity`, `students`, `tasks`, … — overview.md section 3) with these files:
 
-| فایل | نقش |
+| File | Role |
 |---|---|
-| `schema.ts` | جدول‌های Drizzle همین ماژول؛ فقط import نسبی (drizzle-kit نام مستعار `@/` را نمی‌خواند)؛ از `src/server/db/schema.ts` هم re-export شود |
-| `contracts.ts` | schemaهای zod و DTOها |
-| `policy.ts` | قواعد دسترسی |
-| `service.ts` | تنها نقطه‌ی ورود از بیرون ماژول؛ اولین پارامتر `actor` |
-| `repo.ts` | پرس‌وجوها؛ فقط داخل ماژول |
+| `schema.ts` | This module's Drizzle tables; relative imports only (drizzle-kit does not understand the `@/` alias); also re-export from `src/server/db/schema.ts` |
+| `contracts.ts` | zod schemas and DTOs |
+| `policy.ts` | Access rules |
+| `service.ts` | The only entry point from outside the module; first parameter is `actor` |
+| `repo.ts` | Queries; used only inside the module |
 
-ماژول جدول ماژول دیگر را نمی‌نویسد. بعد از تغییر `schema.ts`: `pnpm db:generate` و بررسی SQL تولیدشده در `drizzle/`.
-نام‌گذاری ستون‌ها: camelCase در TypeScript، snake_case در دیتابیس (`casing: 'snake_case'`).
+A module does not write another module's tables. After changing `schema.ts`: run `pnpm db:generate` and review the generated SQL in `drizzle/`.
+Column naming: camelCase in TypeScript, snake_case in the database (`casing: 'snake_case'`).

@@ -4,10 +4,10 @@ import { E2E_PORT, readState } from './server/state';
 
 /**
  * Sprint 4 flows against the real backend (throwaway database), at 1440px and 375px:
- *  1. a red manual flag → the student shows up in «امروز» and the students list with the
+ *  1. a red manual flag → the student shows up in "Today" and the students list with the
  *     plain reason and the rule code; the student never sees any health anywhere;
- *  2. the student asks → the mentor answers from «امروز» → the student sees «پاسخ جدید»;
- *  3. a check-in with «به کمک نیاز دارم» opens a question in the queue.
+ *  2. the student asks → the mentor answers from "Today" → the student sees "New answer";
+ *  3. a check-in with "I need help" opens a question in the queue.
  */
 
 const ORIGIN = `http://localhost:${E2E_PORT}`;
@@ -81,7 +81,7 @@ test('red flag → «امروز» and the list show the reason; the student neve
   const st = await createStudent(page, tag, 'سپیده');
   const { sp, context } = await studentPage(browser, page, st.inviteUrl, st.phone);
 
-  // --- record: «بیشتر» → «پرچم دستی» (red, financial) --------------------------------
+  // --- record: "More" → "Manual flag" (red, financial) --------------------------------
   await page.goto(`/students/${st.id}`);
   await expect(page.getByRole('heading', { level: 1, name: st.name })).toBeVisible(SLOW);
   await visibleButton(page, 'بیشتر').click();
@@ -102,7 +102,7 @@ test('red flag → «امروز» and the list show the reason; the student neve
   await expect(page.locator('#flags').getByText('فعلاً پول Connects ندارد')).toBeVisible();
   await expectPersianPage(page);
 
-  // --- «امروز»: stuck row with reason, code and «توپ» ---------------------------------
+  // --- "Today": stuck row with reason, code and "Ball" ---------------------------------
   await page.goto('/today');
   const stuck = page.locator('#stuck');
   const row = stuck.locator('li').filter({ hasText: st.name });
@@ -112,13 +112,13 @@ test('red flag → «امروز» and the list show the reason; the student neve
   await expect(row.getByText('گیرکرده', { exact: true })).toBeVisible();
   await expectPersianPage(page);
 
-  // --- students list: health chip «گیرکرده» + reason ------------------------------------
+  // --- students list: health chip "Stuck" + reason ------------------------------------
   await page.goto('/students?health=red');
   const listRow = page.locator('tr').filter({ hasText: st.name });
   await expect(listRow).toBeVisible(SLOW);
   await expect(listRow.getByText(/پرچم دستی: مالی/)).toBeVisible();
   if (!isMobile(page)) {
-    // Desktop chip row; on mobile the same filter lives in the «فیلتر» sheet.
+    // Desktop chip row; on mobile the same filter lives in the "Filter" sheet.
     await expect(
       page.getByRole('navigation', { name: 'سلامت' }).getByRole('link', { name: /گیرکرده/ }),
     ).toHaveAttribute('aria-current', 'true');
@@ -177,7 +177,7 @@ test('question: student asks → mentor answers from «امروز» → student 
   await expect(sp.getByText('سؤالت فرستاده شد.')).toBeVisible();
   await expect(sp.getByText('منتظر پاسخ')).toBeVisible();
 
-  // --- mentor: «امروز» → «پاسخ» -----------------------------------------------------------
+  // --- mentor: "Today" → "Answer" -----------------------------------------------------------
   await page.goto('/today');
   const q = page.locator('#questions');
   await expect(q.getByRole('link', { name: subject, exact: true })).toBeVisible(SLOW);
@@ -193,7 +193,7 @@ test('question: student asks → mentor answers from «امروز» → student 
   await expect(page.getByText(answer)).toBeVisible(SLOW);
   await expect(page.getByText('پاسخ‌داده', { exact: true }).first()).toBeVisible(SLOW);
 
-  // --- student sees «پاسخ جدید» at home, then the answer ---------------------------------
+  // --- student sees "New answer" at home, then the answer ---------------------------------
   await sp.goto('/home');
   const home = sp
     .locator('section')
@@ -239,7 +239,7 @@ test('check-in with «به کمک نیاز دارم» opens a question in the me
   await sp.goto('/my/checkin');
   await expect(sp.getByText('check-in این هفته را فرستاده‌ای.')).toBeVisible(SLOW);
 
-  // --- staff: queue row «از check-in», the record shows the check-in -------------------
+  // --- staff: queue row "From check-in", the record shows the check-in -------------------
   await page.goto('/questions');
   const row = page.locator('li').filter({ hasText: st.name });
   await expect(row).toBeVisible(SLOW);

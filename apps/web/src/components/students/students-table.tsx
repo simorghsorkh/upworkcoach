@@ -21,7 +21,7 @@ export type StudentRow = StudentListItemDTO & {
   /** Position of the stage in the path (0-based) and the number of stages. */
   stageIndex: number;
   stageTotal: number;
-  /** A submission of this student waits for review (default sort and «تحویل منتظر»). */
+  /** A submission of this student waits for review (default sort and "Submission waiting"). */
   waitingReview?: boolean;
 };
 
@@ -197,8 +197,8 @@ export function StudentsTable({
 }
 
 /**
- * Health badge + plain reason (PRD F7: the reason is always next to the status) and «تحویل
- * منتظر» when a submission waits for review. Before the first computation (`null`) or for
+ * Health badge + plain reason (PRD F7: the reason is always next to the status) and "Submission
+ * waiting" when a submission waits for review. Before the first computation (`null`) or for
  * graduated / dropped students (`untracked`) the lifecycle is shown instead.
  */
 function LifecycleCell({ student }: { student: StudentRow }) {

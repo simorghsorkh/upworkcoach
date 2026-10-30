@@ -8,7 +8,7 @@ import { tasks } from './schema';
  *
  * Schema-only imports, so students.service can use it without an import cycle
  * (tasks.service → students.service for profile snapshots).
- *   open    = status NOT IN (accepted, cancelled)   (data-model.md 2-5, «باز» of R-NOTASK)
+ *   open    = status NOT IN (accepted, cancelled)   (data-model.md 2-5, "Open" of R-NOTASK)
  *   overdue = status IN (open, in_progress, changes_requested) AND due_at < now
  *   next    = the earliest deadline among the tasks the student still has to do
  */

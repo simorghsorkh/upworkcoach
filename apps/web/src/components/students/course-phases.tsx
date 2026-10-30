@@ -6,8 +6,8 @@ import { cn } from '@/components/ui/cn';
 import type { CoursePhaseDTO } from '@/modules/programs/contracts';
 
 /**
- * A mentee's place in each course other than the main path (sprint 5c): «دوره · فاز ۲ از ۴:
- * عنوان · ۱۲ روز», coloured like the stage days when longer than usual. Nothing without courses.
+ * A mentee's place in each course other than the main path (sprint 5c): "Course · phase 2 of 4:
+ * title · 12 days", coloured like the stage days when longer than usual. Nothing without courses.
  */
 export function CoursePhases({
   courses,

@@ -12,7 +12,7 @@ import { TextareaField } from '@/components/ui/field';
 import { Alert } from '@/components/ui/states';
 import type { CheckinDTO, CurrentCheckinDTO } from '@/modules/checkins/contracts';
 
-/** «حالت چطور است؟» — big buttons with a word, never a bare number (user-flows §9). */
+/** "How are you doing?" — big buttons with a word, never a bare number (user-flows §9). */
 export const MOOD_LABEL: Record<number, string> = {
   1: 'خیلی بد',
   2: 'بد',
@@ -25,7 +25,7 @@ type Field = 'mood' | 'blocker' | 'form';
 
 /**
  * S9 weekly check-in (progress-tracking.md §6-3, user-flows §9): five short questions in
- * about three minutes. «به کمک مشاور نیاز داری؟ بله» opens a question in the mentor's queue
+ * about three minutes. "Do you need a mentor's help? Yes" opens a question in the mentor's queue
  * with the blocker as its text (the backend does it in the same transaction).
  */
 export function CheckinForm({

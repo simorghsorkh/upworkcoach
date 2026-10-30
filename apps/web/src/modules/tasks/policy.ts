@@ -67,7 +67,7 @@ export function transitionError(current: TaskStatus, action: TaskAction): string
   }
 }
 
-/** «عقب‌افتاده»: not done by the student and past the deadline. Never stored. */
+/** "Overdue": not done by the student and past the deadline. Never stored. */
 export function isOverdue(status: TaskStatus, dueAt: Date, now: Date): boolean {
   return STUDENT_ACTIONABLE.includes(status) && dueAt.getTime() < now.getTime();
 }

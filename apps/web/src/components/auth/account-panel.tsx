@@ -24,7 +24,7 @@ export function minPasswordFor(role: MeDTO['role']): number {
 }
 
 /**
- * M12 / S10 «حساب من»: profile summary, change password, sign out, and — instead of a
+ * M12 / S10 "My account": profile summary, change password, sign out, and — instead of a
  * delete button (security C5, ADR-0010) — one line telling the user to message the coach.
  */
 export function AccountPanel({

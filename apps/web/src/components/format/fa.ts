@@ -9,22 +9,22 @@ import { daysBetweenIn } from '@/lib/org-day';
 const TZ = 'Asia/Tehran';
 const fa = createFormat('fa', TZ);
 
-/** 18 → «۱۸». Use `grouped` for large amounts (۱٬۲۳۴). */
+/** 18 → «۱۸» (Persian digits). Use `grouped` for large amounts (۱٬۲۳۴). */
 export function faNumber(value: number, options: { grouped?: boolean } = {}): string {
   return fa.number(value, options);
 }
 
-/** «۲۷ مهر» */
+/** «۲۷ مهر» (27 Mehr) */
 export function faDayMonth(date: Date): string {
   return fa.dayMonth(date);
 }
 
-/** «دوشنبه ۲۷ مهر ۱۴۰۵» */
+/** «دوشنبه ۲۷ مهر ۱۴۰۵» (Monday 27 Mehr 1405) */
 export function faFullDate(date: Date): string {
   return fa.fullDate(date);
 }
 
-/** Seconds → short Persian duration for wait messages: «۴۵ ثانیه», «۳ دقیقه», «۱ ساعت و ۵ دقیقه». */
+/** Seconds → short Persian duration for wait messages: «۴۵ ثانیه» (45 seconds), «۳ دقیقه» (3 minutes), «۱ ساعت و ۵ دقیقه» (1 hour 5 minutes). */
 export function faDuration(totalSeconds: number): string {
   return fa.duration(totalSeconds);
 }
@@ -36,7 +36,7 @@ export function toLatinDigits(value: string): string {
     .replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660));
 }
 
-/** «۱۲ شهریور ۱۴۰۵» */
+/** «۱۲ شهریور ۱۴۰۵» (12 Shahrivar 1405) */
 export function faDate(date: Date): string {
   return fa.date(date);
 }
@@ -46,39 +46,39 @@ export function tehranDaysBetween(earlier: Date, later: Date): number {
   return daysBetweenIn(TZ, earlier, later);
 }
 
-/** «امروز»، «دیروز»، «۵ روز پیش»؛ older than a month → «۲۷ مهر». */
+/** «امروز» (today), «دیروز» (yesterday), «۵ روز پیش» (5 days ago); older than a month → «۲۷ مهر» (27 Mehr). */
 export function faRelativeDay(date: Date, now: Date = new Date()): string {
   return fa.relativeDay(date, now);
 }
 
-/** «۱ روز»، «۱۲ روز» */
+/** «۱ روز» (1 day), «۱۲ روز» (12 days) */
 export function faDays(days: number): string {
   return fa.days(days);
 }
 
-/** «۱۷:۱۰» (Tehran wall clock). */
+/** «۱۷:۱۰» (Persian digits; Tehran wall clock). */
 export function faTime(date: Date): string {
   return fa.time(date);
 }
 
-/** «امروز ۱۰:۰۰»، «دیروز ۱۷:۱۰»، «۲۴ مهر ۱۷:۱۰» (design-system §7-3: relative within a week). */
+/** «امروز ۱۰:۰۰» (today 10:00), «دیروز ۱۷:۱۰» (yesterday 17:10), «۲۴ مهر ۱۷:۱۰» (24 Mehr 17:10) (design-system §7-3: relative within a week). */
 export function faDayTime(date: Date, now: Date = new Date()): string {
   return fa.dayTime(date, now);
 }
 
-/** «۵۲ ساعت» */
+/** «۵۲ ساعت» (52 hours) */
 export function faHours(hours: number): string {
   return fa.hours(hours);
 }
 
-/** «۶ ساعت پیش»، «۲ روز پیش» — for submissions and waiting times. */
+/** «۶ ساعت پیش» (6 hours ago), «۲ روز پیش» (2 days ago) — for submissions and waiting times. */
 export function faAgo(date: Date, now: Date = new Date()): string {
   return fa.ago(date, now);
 }
 
 /**
- * Time left until a deadline day, in Tehran calendar days: «امروز»، «فردا»، «۳ روز مانده»;
- * past → «N روز گذشته».
+ * Time left until a deadline day, in Tehran calendar days: «امروز» (today), «فردا» (tomorrow), «۳ روز مانده» (3 days left);
+ * past → «N روز گذشته» (N days overdue).
  */
 export function faDaysLeft(due: Date, now: Date = new Date()): string {
   return fa.daysLeft(due, now);

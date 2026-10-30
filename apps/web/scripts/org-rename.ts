@@ -1,5 +1,5 @@
 /**
- * pnpm org:rename --slug default --name "آکادمی تکانش" [--new-slug takanesh]
+ * pnpm org:rename --slug default --name "Takanesh Academy" [--new-slug takanesh]
  * Renames an organization (ADR-0011); e.g. the default organization of the 0.1 data
  * becomes the pilot academy, with all its users and students.
  */

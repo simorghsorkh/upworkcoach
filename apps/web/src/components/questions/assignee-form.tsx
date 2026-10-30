@@ -8,7 +8,7 @@ import { SelectField } from '@/components/ui/field';
 import { Alert } from '@/components/ui/states';
 import { useToast } from '@/components/ui/toast';
 
-/** «واگذاری به…» (admin, F8): only active staff are offered (C3). */
+/** "Assign to…" (admin, F8): only active staff are offered (C3). */
 export function AssigneeForm({
   threadId,
   current,

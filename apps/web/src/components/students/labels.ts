@@ -20,7 +20,7 @@ export const lifecycleLabel: Record<LifecycleStatus, string> = {
   dropped: 'ریزش',
 };
 
-/** PRD §6: تازه‌کار / در حال اپلای / فعال / پیشرفته. */
+/** PRD §6: newcomer / applying / active / advanced. */
 export const levelLabel: Record<StudentLevel, string> = {
   beginner: 'تازه‌کار',
   applying: 'در حال اپلای',
@@ -57,7 +57,7 @@ export const rateUnitLabel: Record<RateUnit, string> = {
   month: 'ماهانه',
 };
 
-/** «۲۵ دلار/ساعت» style suffix. */
+/** "25 dollars/hour" style suffix. */
 export const rateUnitSuffix: Record<RateUnit, string> = {
   hour: '/ساعت',
   fixed: ' (ثابت)',

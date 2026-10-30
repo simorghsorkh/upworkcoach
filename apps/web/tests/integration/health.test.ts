@@ -12,7 +12,7 @@ import { call, createUser, loginAs, SEEDED, type TestUser, uniquePhone } from '.
 
 /**
  * Health (PRD F7, ADR-0005, api.md section 9): stored results in the staff DTOs, filters and
- * sort, flags, snooze, paused students, the hourly sweep, «red without action» in «امروز»,
+ * sort, flags, snooze, paused students, the hourly sweep, "red without action" in "Today",
  * and the canary: nothing about health, reasons or flags reaches the student.
  */
 

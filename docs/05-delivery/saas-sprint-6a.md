@@ -1,49 +1,49 @@
-# اسپرینت ۶الف Coach Office — نمای کلی سازمان و ورود گروهی به دوره
+# Coach Office sprint 6a — organization overview and bulk import into a course
 
-- **تاریخ:** ۷ آبان ۱۴۰۵
-- **مبنا:** `docs/08-saas-evolution/architecture-review.md` (اسپرینت ۶)، `prd-coach-office.md` (سناریو، قدم ۳: «مدیر ۱۰۰ هنرجو را با CSV وارد یا دعوت می‌کند»)
-- **وضعیت:** کد و تست کامل. روی لوکال در مرورگر با حساب مدیر آزموده شد. **مهاجرت ندارد. روی تولید نرفته و کامیت نشده.**
+- **Date:** 7 Aban 1405 (2026-10-29)
+- **Basis:** `docs/08-saas-evolution/architecture-review.md` (sprint 6), `prd-coach-office.md` (scenario, step 3: "the admin imports or invites 100 mentees with CSV")
+- **Status:** code and tests complete. Tried in the browser locally with an admin account. **No migration. Not on production and not committed.**
 
-## چرا دو بخش
-اسپرینت ۶ در نقشه‌ی راه حدود دو هفته است: سه داشبورد، اعلان درون‌برنامه‌ای، ورود CSV به اجرا، ترجمه‌ی انگلیسی صفحه‌های پایلوت و e2e سناریوی ۱۶ مرحله‌ای. این بخش (۶الف) دو چیزی است که پایلوت تکانش بدون آن‌ها شروع نمی‌شود: مدیر باید هنرجوها را یک‌جا وارد دوره کند و وضعیت کل سازمان را ببیند. بقیه در ۶ب.
+## Why two parts
+In the roadmap, sprint 6 is about two weeks: three dashboards, in-app notifications, CSV import into a run, English translation of the pilot pages and an e2e of the 16-step scenario. This part (6a) is the two things the Takanesh pilot cannot start without: the admin must be able to bring mentees into a course in one go and see the state of the whole organization. The rest is in 6b.
 
-## چه چیزی ساخته شد
-| بخش | خلاصه |
+## What was built
+| Area | Summary |
 |---|---|
-| نمای کلی سازمان (`/overview`) | صفحه‌ی تازه‌ی مدیر، اول منوی مدیریت. زیرعنوان: هنرجوی فعال و متوقف، دوره‌های باز، مشاوران. پنج کاشی که هر کدام به فهرست خودش می‌روند: هنرجوی قرمز، هنرجوی زرد، تحویل منتظر بازبینی (با تعداد دیرکرده)، سؤال بی‌پاسخ (با تعداد دیرکرده) و کار عقب‌افتاده |
-| جدول دوره‌ها | هر دوره‌ی باز (پیش‌نویس یا فعال): اعضای فعال و متوقف، پیشرفت میانگین، تعداد قرمز و زرد میان اعضای فعال، کادر. مسیر اصلی اول می‌آید و پیشرفت ندارد. لینک «مراحل» به کانبان همان دوره (اسپرینت ۵ج) |
-| جدول مشاوران | هنرجو، اصلی / ظرفیت (برچسب «پر»)، تعداد دوره، بازبینی دیرکرده، و قرمزهای هنرجوهایی که مشاور اصلی یا همراهشان است. بیشترین قرمز اول |
-| ورود گروهی به دوره | پنجره‌ی «ورود از اکسل» حالا انتخابگر «دوره (اختیاری)» دارد؛ فقط دوره‌های گروهی باز. با انتخاب دوره، فایل دوباره بررسی می‌شود. ستون تازه‌ی «فاز» (شماره یا نام فاز) اختیاری است؛ بدون آن هنرجو از فاز اول شروع می‌کند |
-| هنرجوی موجود | اگر در سازمان هنرجویی با همان موبایل ثبت شده باشد، دیگر خطای «تکراری» نمی‌گیرد: فقط به دوره اضافه می‌شود و بقیه‌ی ستون‌های ردیفش (مشاور، مرحله، کار…) نادیده گرفته می‌شود. پیش‌نمایش تعدادشان را نشان می‌دهد («۲ هنرجوی موجود»). عضو فعلی همان دوره خطا می‌گیرد |
-| API | `GET /dashboard/organization` (فقط مدیر). `POST /imports/students` فیلد اختیاری `runId` می‌گیرد؛ پاسخ `enrolled` و `course` و برای هر ردیف موجود `existing: true` دارد |
+| Organization overview (`/overview`) | A new admin page, first in the admin menu. Subtitle: active and paused mentees, open courses, mentors. Five tiles, each linking to its own list: red mentees, yellow mentees, submissions awaiting review (with the number overdue), unanswered questions (with the number overdue) and overdue tasks |
+| Courses table | Every open course (draft or active): active and paused members, average progress, the number of red and yellow among active members, staff. The main path comes first and has no progress. The "Stages" link goes to that course's kanban (sprint 5c) |
+| Mentors table | Mentees, primary / capacity (with a "Full" label), number of courses, overdue reviews, and the reds among mentees for whom the mentor is primary or companion. Most reds first |
+| Bulk import into a course | The "Import from Excel" dialog now has an optional "Course" picker, with open group courses only. When a course is chosen, the file is re-checked. The new optional "Phase" column (phase number or name); without it the mentee starts in the first phase |
+| Existing mentee | If the organization already has a mentee with the same mobile number, the row no longer gets a "duplicate" error: the mentee is just added to the course, and the rest of the row's columns (mentor, stage, task...) are ignored. The preview shows their count ("2 existing mentees"). A current member of that course gets an error |
+| API | `GET /dashboard/organization` (admin only). `POST /imports/students` takes an optional `runId`; the response has `enrolled` and `course`, and `existing: true` for each existing row |
 
-## تصمیم‌ها
-- **ورود به دوره یک تراکنش است.** اول هنرجوهای تازه یکی‌یکی ساخته می‌شوند (مثل قبل)، بعد همه‌ی ردیف‌های درست با یک فراخوانی `enroll` وارد دوره می‌شوند. اگر این مرحله شکست بخورد، هنرجوها ساخته شده‌اند ولی هیچ‌کدام در دوره نیستند و هر ردیف پیام «از صفحه‌ی دوره اضافه‌اش کن» می‌گیرد.
-- **فاز شروع، تغییر فاز نیست.** هنرجویی که با فاز ۳ وارد می‌شود، اولین گذارش از نوع `initial` به فاز ۳ ثبت می‌شود؛ قواعد عبور و یادداشت اجباری برایش اجرا نمی‌شود.
-- **فقط دوره‌ی گروهی باز.** مسیر اصلی و اجرای تک‌نفره ۴۲۲ می‌گیرند. مسیر اصلی همان ستون «مرحله» را دارد.
-- **داشبورد فقط می‌خواند.** ماژول تازه‌ی `dashboard` از جدول‌های students، student_health، enrollments، enrollment_mentors و tasks می‌شمارد و فهرست‌ها را از سرویس‌های «امروز» و دایرکتوری مشاوران می‌گیرد. جدول یا read-model تازه‌ای ندارد.
-- کاشی عددی «امروز» به کامپوننت مشترک `components/ui/kpi.tsx` رفت تا هر دو صفحه یکی باشند.
+## Decisions
+- **Import into a course is one transaction.** First the new mentees are created one by one (as before), then all valid rows are enrolled in the course with a single `enroll` call. If that step fails, the mentees have been created but none is in the course, and each row gets the message "add them from the course page".
+- **The starting phase is not a phase change.** A mentee who enters at phase 3 gets their first transition recorded as type `initial` to phase 3; the pass rules and the mandatory note do not apply to them.
+- **Open group courses only.** The main path and a single-person run get 422. The main path already has its own "Stage" column.
+- **The dashboard only reads.** The new `dashboard` module counts from the students, student_health, enrollments, enrollment_mentors and tasks tables and takes its lists from the "Today" and mentor directory services. It has no new table or read-model.
+- The numeric "Today" tile moved to the shared component `components/ui/kpi.tsx` so both pages use the same one.
 
-## تست
-- **یکپارچه:**
-  - `tests/integration/course-import.test.ts` (۳ تست): پیش‌نمایش با فاز به شماره و به نام، هنرجوی موجود، عضو فعلی و فاز ناموجود؛ ستون فاز بدون دوره و دوره‌ی نامناسب (مسیر اصلی، شناسه‌ی نامعتبر)؛ ورود واقعی: دو هنرجوی تازه با لینک دعوت، یک هنرجوی موجود بی‌لینک، هر کدام در فاز درست.
-  - `tests/integration/org-dashboard.test.ts` (۲ تست، در سازمان جداگانه): فقط مدیر؛ شمارش هنرجو و سلامت، کار عقب‌افتاده، مسیر اصلی و دوره، کادر، و قرمزهای مشاور.
-  - ماتریس دسترسی: مسیر تازه.
-  - `csv.test.ts` بدون تغییر سبز است (ورود بدون دوره همان رفتار قبلی را دارد).
-- **کل مجموعه:** ۸۸ فایل، ۱۹۶۷ تست، همه سبز. typecheck، Biome و نگهبان i18n تمیز.
-- **مرورگر (لوکال، حساب مدیر):**
-  - `/overview`: پنج کاشی، سه دوره (مسیر اصلی، «گروه پاییز ۱۴۰۵» با ۰٪، تک‌به‌تک با ۱۰۰٪)، جدول مشاوران.
-  - عرض موبایل (۳۷۵): صفحه اسکرول افقی ندارد؛ جدول‌ها داخل کارت خودشان اسکرول می‌شوند.
-  - «ورود از اکسل»: انتخابگر دوره فقط «گروه پاییز ۱۴۰۵» را دارد و با انتخابش راهنمای دوره دیده می‌شود.
-- **دیده نشده:** ورود واقعی یک فایل از پنجره‌ی مرورگر (انتخاب فایل از دیسک در این محیط ممکن نبود). همین مسیر API تست خودکار دارد.
+## Tests
+- **Integration:**
+  - `tests/integration/course-import.test.ts` (3 tests): preview with a phase by number and by name, existing mentee, current member and a nonexistent phase; a phase column without a course and an unsuitable course (main path, invalid id); a real import: two new mentees with invitation links, one existing mentee without a link, each in the right phase.
+  - `tests/integration/org-dashboard.test.ts` (2 tests, in a separate organization): admin only; counts of mentees and health, overdue tasks, main path and course, staff, and the mentor's reds.
+  - Access matrix: the new route.
+  - `csv.test.ts` stays green unchanged (import without a course behaves as before).
+- **Whole suite:** 88 files, 1967 tests, all green. typecheck, Biome and the i18n guard are clean.
+- **Browser (local, admin account):**
+  - `/overview`: five tiles, three courses (main path, "Autumn 1405 group" at 0%, one-on-one at 100%), mentors table.
+  - Mobile width (375): the page has no horizontal scroll; the tables scroll inside their own cards.
+  - "Import from Excel": the course picker lists only "Autumn 1405 group" and choosing it shows the course guide.
+- **Not seen:** an actual file import from the browser dialog (choosing a file from disk was not possible in this environment). The same API path has an automated test.
 
-## اجرا روی تولید
-مهاجرت تازه ندارد. همراه بقیه‌ی اسپرینت‌ها (۰۰۰۶ تا ۰۰۱۱ به ترتیب) مستقر می‌شود.
+## Running on production
+No new migration. It is deployed together with the other sprints (0006 to 0011 in order).
 
-## مانده برای ۶ب
-- اعلان درون‌برنامه‌ای.
-- داشبورد هنرجو (چند برنامه، اقدام بعدی) و افزودنی‌های داشبورد مشاور روی «امروز».
-- ترجمه‌ی انگلیسی صفحه‌های پایلوت (اگر Q6 لازم بداند).
-- e2e سناریوی ۱۶ مرحله‌ای به دو زبان (معیار پذیرش اسپرینت ۶).
-- اندازه‌گیری کارایی داشبورد با داده‌ی هم‌اندازه‌ی تکانش (۳۰۰۰ هنرجو).
-- **از بنیان‌گذار:** نمونه‌ی فایل یا خروجی فعلی هنرجوهای تکانش (ستون‌ها و شکل تاریخ‌ها) تا ورود واقعی پیش از پایلوت امتحان شود.
+## Remaining for 6b
+- In-app notifications.
+- The mentee dashboard (several programs, next action) and the mentor dashboard additions on "Today".
+- English translation of the pilot pages (if Q6 needs it).
+- The e2e of the 16-step scenario in both languages (sprint 6 acceptance criterion).
+- Measuring dashboard performance with Takanesh-sized data (3000 mentees).
+- **From the founder:** a sample file or the current export of Takanesh's mentees (columns and date formats) so a real import can be tried before the pilot.

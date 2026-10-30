@@ -11,7 +11,7 @@ import { DueText, TaskStatusBadge } from './task-bits';
 
 const NEW_FEEDBACK_DAYS = 3;
 
-/** Feedback the student has not had time to act on yet («بازخورد جدید»). */
+/** Feedback the student has not had time to act on yet ("New feedback"). */
 export function isNewFeedback(t: StudentTaskListItemDTO, now: Date): boolean {
   if (!t.latestReview) return false;
   if (t.status !== 'changes_requested' && t.status !== 'accepted') return false;
@@ -19,9 +19,9 @@ export function isNewFeedback(t: StudentTaskListItemDTO, now: Date): boolean {
 }
 
 /**
- * Student task row (mockups/student-home.html «کارهای من»): title, status in the student's
- * words, «بازخورد جدید», the deadline (red «معوق · N روز» when late; never a health or a rule
- * code), and «دیدن بازخورد» when there is something to read.
+ * Student task row (mockups/student-home.html "My tasks"): title, status in the student's
+ * words, "New feedback", the deadline (red "Overdue · N days" when late; never a health or a rule
+ * code), and "See feedback" when there is something to read.
  */
 export function StudentTaskItem({ task: t, now }: { task: StudentTaskListItemDTO; now: Date }) {
   const fresh = isNewFeedback(t, now);
@@ -105,7 +105,7 @@ function FeedbackText({ text }: { text: string }): ReactNode {
   });
 }
 
-/** S3 «بازخورد …» card (mockups/student-task.html `.feedback`). */
+/** S3 "Feedback …" card (mockups/student-task.html `.feedback`). */
 export function FeedbackCard({
   review,
   version,

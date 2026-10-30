@@ -70,7 +70,7 @@ function Spinner() {
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
   StyleOptions & {
-    /** Shows a spinner, keeps the label (e.g. «در حال ثبت…») and blocks clicks. */
+    /** Shows a spinner, keeps the label (e.g. "Saving…") and blocks clicks. */
     loading?: boolean;
     children: ReactNode;
   };

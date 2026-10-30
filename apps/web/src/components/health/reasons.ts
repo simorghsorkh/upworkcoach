@@ -11,7 +11,7 @@ import type {
 
 /**
  * Staff-only health wording (PRD F7, progress-tracking.md §7, sprint-4 frontend guide).
- * Pure functions: the plain Persian reason from `reasons[].facts`, «توپ در زمین …», and the
+ * Pure functions: the plain Persian reason from `reasons[].facts`, "Ball in the … court", and the
  * first suggested action of progress-tracking.md §7-3. Never imported by `(student)` pages.
  */
 
@@ -28,7 +28,7 @@ export const flagLevelLabel: Record<FlagLevel, string> = {
   red: 'گیرکرده',
 };
 
-/** «توپ در زمین …» (who should act next). */
+/** "Ball in the … court" (who should act next). */
 export const ballLabel: Record<HealthBall, string> = {
   student: 'هنرجو',
   team: 'ما',
@@ -64,7 +64,7 @@ const n = (v: unknown): number => (typeof v === 'number' && Number.isFinite(v) ?
 const list = (v: unknown): string[] =>
   Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : [];
 
-/** One active rule as a plain Persian phrase, e.g. «۲ کار معوق (بیشترین: ۹ روز)». */
+/** One active rule as a plain Persian phrase, e.g. "2 overdue tasks (max: 9 days)". */
 export function reasonText(reason: Pick<HealthReasonDTO, 'rule' | 'facts'>): string {
   const f = reason.facts;
   switch (reason.rule) {
@@ -107,7 +107,7 @@ export function reasonText(reason: Pick<HealthReasonDTO, 'rule' | 'facts'>): str
   }
 }
 
-/** All reasons in one line: «۲ کار معوق · ۹ روز بی‌فعالیت». */
+/** All reasons in one line: "2 overdue tasks · 9 days inactive". */
 export function reasonsLine(reasons: ReadonlyArray<Pick<HealthReasonDTO, 'rule' | 'facts'>>) {
   return reasons.map(reasonText).join(' · ');
 }
