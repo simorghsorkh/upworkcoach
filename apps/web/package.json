@@ -30,7 +30,7 @@
     "org:add-member": "tsx scripts/org-add-member.ts"
   },
   "dependencies": {
-    "@next/env": "16.4.2",
+    "@next/env": "16.4.3",
     "@node-rs/argon2": "^2.2.2",
     "@supabase/supabase-js": "^2.118.0",
     "drizzle-orm": "^0.45.4",
