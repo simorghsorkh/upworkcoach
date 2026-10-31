@@ -26,7 +26,7 @@
     "admin:erase-user": "pnpm --filter @upworkcoach/web admin:erase-user"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.15",
+    "@biomejs/biome": "2.6.3",
     "@upworkcoach/config": "workspace:*"
   }
 }
