@@ -176,8 +176,8 @@ importers:
   apps/web:
     dependencies:
       '@next/env':
-        specifier: 16.4.2
-        version: 16.4.2
+        specifier: 16.4.3
+        version: 16.4.3
       '@node-rs/argon2':
         specifier: ^2.2.2
         version: 2.2.2
@@ -1120,6 +1120,9 @@ packages:
 
   '@next/env@16.4.2':
     resolution: {integrity: sha512-nTUTFH7G5/J/fmpkjVLegOkqyKOP0CEsJcMsyO4UCYeN1su+YMW/MfaSErnJskL7XM+UDK6aTvslxsRCyya/sA==}
+
+  '@next/env@16.4.3':
+    resolution: {integrity: sha512-a7tz1QCcWWkwC/rPJcPMJk/UNRu9CFhDd3OHYE5hddbJrs8BqRTalxI6GlKCWEGzRLHN+S/B7a4PAHCtm25aBQ==}
 
   '@next/swc-darwin-arm64@16.4.2':
     resolution: {integrity: sha512-ONkhFvZNFWlsEHOM/81AtxdyuJP2KRYKYR0JxPwvcu1AuPMMMgcL+wW2luldJvMtZwKtUxoSkCychW5wIeoYSw==}
@@ -3164,6 +3167,8 @@ snapshots:
       '@jridgewell/sourcemap-codec': 1.6.0
 
   '@next/env@16.4.2': {}
+
+  '@next/env@16.4.3': {}
 
   '@next/swc-darwin-arm64@16.4.2':
     optional: true
