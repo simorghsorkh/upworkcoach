@@ -200,8 +200,8 @@ importers:
         specifier: ^8.23.1
         version: 8.23.1
       pg-boss:
-        specifier: ^12.38.0
-        version: 12.38.0(@opentelemetry/api@1.9.1)
+        specifier: ^12.38.2
+        version: 12.38.2(@opentelemetry/api@1.9.1)
       pino:
         specifier: ^10.4.0
         version: 10.4.0
@@ -2253,8 +2253,8 @@ packages:
   parse5@8.0.1:
     resolution: {integrity: sha512-z1e/HMG90obSGeidlli3hj7cbocou0/wa5HacvI3ASx34PecNjNQeaHNo5WIZpWofN9kgkqV1q5YvXe3F0FoPw==}
 
-  pg-boss@12.38.0:
-    resolution: {integrity: sha512-felA3fyPSJwWk5cb/VwAgnudCAzWEdgBjjf+eukXm8pExlwkhjdBbOMukMyG5s8uZHO6fZZZcaIaTa3oKpfSCg==}
+  pg-boss@12.38.2:
+    resolution: {integrity: sha512-nvB9hB2cDJGSPUwYjN/Mth+EE3zvxffkp7uKXIiYloMAaxSoEiutmZi9mpSW85hNCcPChf3yicNXdwhIWkv2nA==}
     engines: {node: '>=22.12.0'}
     hasBin: true
     peerDependencies:
@@ -4028,7 +4028,7 @@ snapshots:
     dependencies:
       entities: 8.1.0
 
-  pg-boss@12.38.0(@opentelemetry/api@1.9.1):
+  pg-boss@12.38.2(@opentelemetry/api@1.9.1):
     dependencies:
       '@opentelemetry/api': 1.9.1
       cron-parser: 5.10.2
