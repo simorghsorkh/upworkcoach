@@ -32,7 +32,7 @@
   "dependencies": {
     "@next/env": "16.4.2",
     "@node-rs/argon2": "^2.2.2",
-    "@supabase/supabase-js": "^2.118.0",
+    "@supabase/supabase-js": "^2.119.0",
     "drizzle-orm": "^0.45.4",
     "next": "16.4.2",
     "next-intl": "4.14.9",
